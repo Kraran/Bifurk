@@ -1,0 +1,811 @@
+{
+  "schema_version": 6,
+  "book_id": "sorcier_montagne_feu_1982_pdf_fourni",
+  "title": "Le Sorcier de la Montagne de Feu",
+  "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
+  "pdf_pages": 171,
+  "page_index": "1-based",
+  "coordinate_system": "PDF points, PyMuPDF page coordinates",
+  "illustrations": [
+    {
+      "id": "p1-x4",
+      "page_pdf": 1,
+      "rect": [
+        1.5,
+        0.0,
+        504.07,
+        844.5
+      ],
+      "paragraphes": [],
+      "type": "couverture",
+      "statut": "verifie",
+      "note": "Couverture du livre."
+    },
+    {
+      "id": "p15-x51",
+      "page_pdf": 15,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        712.3
+      ],
+      "paragraphes": [
+        1
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p19-x199",
+      "page_pdf": 19,
+      "rect": [
+        92.25,
+        72.0,
+        521.1,
+        720.0
+      ],
+      "paragraphes": [
+        11
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p29-x277",
+      "page_pdf": 29,
+      "rect": [
+        91.5,
+        72.0,
+        506.6,
+        720.0
+      ],
+      "paragraphes": [
+        36
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p39-x353",
+      "page_pdf": 39,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        622.05
+      ],
+      "paragraphes": [
+        71
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Image placée au milieu de la suite du §71 ; pas de légende numérotée."
+    },
+    {
+      "id": "p43-x380",
+      "page_pdf": 43,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        705.1
+      ],
+      "paragraphes": [
+        84
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p48-x408",
+      "page_pdf": 48,
+      "rect": [
+        91.5,
+        72.0,
+        521.8,
+        720.0
+      ],
+      "paragraphes": [
+        97
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p52-x429",
+      "page_pdf": 52,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        683.35
+      ],
+      "paragraphes": [
+        106
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Image placée dans le développement du §106 ; sans légende numérotée."
+    },
+    {
+      "id": "p58-x462",
+      "page_pdf": 58,
+      "rect": [
+        91.5,
+        72.0,
+        512.3,
+        720.0
+      ],
+      "paragraphes": [
+        122
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p67-x506",
+      "page_pdf": 67,
+      "rect": [
+        91.5,
+        72.0,
+        532.58,
+        711.82
+      ],
+      "paragraphes": [
+        143
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Image entre §143 et §144 ; rattachement au §143 par contexte."
+    },
+    {
+      "id": "p72-x531",
+      "page_pdf": 72,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        664.75
+      ],
+      "paragraphes": [
+        155
+      ],
+      "type": "illustration",
+      "statut": "verifie_utilisateur",
+      "note": "Rattachement au §155 confirmé par le joueur."
+    },
+    {
+      "id": "p78-x564",
+      "page_pdf": 78,
+      "rect": [
+        91.5,
+        72.0,
+        507.65,
+        720.0
+      ],
+      "paragraphes": [
+        168
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p82-x590",
+      "page_pdf": 82,
+      "rect": [
+        91.5,
+        72.0,
+        528.32,
+        675.7
+      ],
+      "paragraphes": [
+        179
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Illustration sans numéro entre §179 et §180 ; §179 retenu provisoirement."
+    },
+    {
+      "id": "p86-x614",
+      "page_pdf": 86,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        672.15
+      ],
+      "paragraphes": [
+        190
+      ],
+      "type": "illustration",
+      "statut": "verifie_utilisateur",
+      "note": "Association §190 confirmée par le joueur."
+    },
+    {
+      "id": "p88-x621",
+      "page_pdf": 88,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        700.65
+      ],
+      "paragraphes": [
+        193
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p93-x645",
+      "page_pdf": 93,
+      "rect": [
+        91.5,
+        72.0,
+        548.21,
+        728.73
+      ],
+      "paragraphes": [
+        205
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p98-x675",
+      "page_pdf": 98,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        709.3
+      ],
+      "paragraphes": [
+        218
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p102-x704",
+      "page_pdf": 102,
+      "rect": [
+        91.5,
+        72.0,
+        553.99,
+        713.36
+      ],
+      "paragraphes": [
+        227
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Illustration sans numéro entre §227 et §228 ; §227 retenu provisoirement."
+    },
+    {
+      "id": "p106-x728",
+      "page_pdf": 106,
+      "rect": [
+        91.5,
+        72.0,
+        530.75,
+        688.47
+      ],
+      "paragraphes": [
+        240
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Illustration sans numéro entre §240 et §241 ; §240 retenu provisoirement."
+    },
+    {
+      "id": "p111-x751",
+      "page_pdf": 111,
+      "rect": [
+        91.5,
+        72.0,
+        503.65,
+        720.0
+      ],
+      "paragraphes": [
+        251
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p117-x790",
+      "page_pdf": 117,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        700.95
+      ],
+      "paragraphes": [
+        266
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p121-x814",
+      "page_pdf": 121,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        663.4
+      ],
+      "paragraphes": [
+        275
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Illustration sans numéro entre §275 et §276 ; §275 retenu provisoirement."
+    },
+    {
+      "id": "p125-x840",
+      "page_pdf": 125,
+      "rect": [
+        91.5,
+        72.0,
+        518.35,
+        720.0
+      ],
+      "paragraphes": [
+        287
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p129-x862",
+      "page_pdf": 129,
+      "rect": [
+        172.38,
+        186.24,
+        441.49,
+        596.56
+      ],
+      "paragraphes": [
+        296
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Image à l’intérieur du §296, page de texte."
+    },
+    {
+      "id": "p132-x881",
+      "page_pdf": 132,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        694.3
+      ],
+      "paragraphes": [
+        303
+      ],
+      "type": "illustration",
+      "statut": "verifie_utilisateur",
+      "note": "Association §303 confirmée par le joueur."
+    },
+    {
+      "id": "p135-x896",
+      "page_pdf": 135,
+      "rect": [
+        91.5,
+        72.0,
+        508.35,
+        720.0
+      ],
+      "paragraphes": [
+        311
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p140-x927",
+      "page_pdf": 140,
+      "rect": [
+        166.17,
+        72.0,
+        447.33,
+        478.44
+      ],
+      "paragraphes": [
+        326
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Image à l’intérieur du §326, page de texte."
+    },
+    {
+      "id": "p144-x948",
+      "page_pdf": 144,
+      "rect": [
+        91.5,
+        72.0,
+        505.35,
+        720.0
+      ],
+      "paragraphes": [
+        336
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p150-x980",
+      "page_pdf": 150,
+      "rect": [
+        91.5,
+        72.0,
+        516.7,
+        720.0
+      ],
+      "paragraphes": [
+        348
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p154-x1000",
+      "page_pdf": 154,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        665.1
+      ],
+      "paragraphes": [
+        358
+      ],
+      "type": "illustration",
+      "statut": "verifie_legende",
+      "note": "Numéro lu visuellement dans la légende imprimée de l’illustration."
+    },
+    {
+      "id": "p159-x1033",
+      "page_pdf": 159,
+      "rect": [
+        91.5,
+        72.0,
+        524.13,
+        689.41
+      ],
+      "paragraphes": [
+        370
+      ],
+      "type": "illustration",
+      "statut": "verifie_utilisateur",
+      "note": "Association §370 confirmée par le joueur."
+    },
+    {
+      "id": "p163-x1051",
+      "page_pdf": 163,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        677.2
+      ],
+      "paragraphes": [
+        383
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Illustration sans numéro avant §383 ; §383 retenu provisoirement."
+    },
+    {
+      "id": "p167-x1078",
+      "page_pdf": 167,
+      "rect": [
+        161.13,
+        103.25,
+        452.37,
+        498.89
+      ],
+      "paragraphes": [
+        394
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Image à l’intérieur du §394, page de texte."
+    },
+    {
+      "id": "p170-x1093",
+      "page_pdf": 170,
+      "rect": [
+        183.0,
+        103.25,
+        430.5,
+        459.5
+      ],
+      "paragraphes": [
+        400
+      ],
+      "type": "illustration",
+      "statut": "a_confirmer",
+      "note": "Image à l’intérieur du §400, page de texte."
+    },
+    {
+      "id": "p171-x1096",
+      "page_pdf": 171,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        694.8
+      ],
+      "paragraphes": [
+        400
+      ],
+      "type": "illustration",
+      "statut": "verifie_utilisateur",
+      "note": "Dernière illustration du §400 confirmée par le joueur."
+    },
+    {
+      "id": "p23-ornement-0",
+      "page_pdf": 23,
+      "rect": [
+        195.75,
+        543.98,
+        417.75,
+        590.48
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p31-ornement-0",
+      "page_pdf": 31,
+      "rect": [
+        195.51,
+        72.0,
+        417.99,
+        118.44
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p36-ornement-0",
+      "page_pdf": 36,
+      "rect": [
+        195.51,
+        331.73,
+        417.99,
+        378.17
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p36-ornement-1",
+      "page_pdf": 36,
+      "rect": [
+        182.01,
+        457.92,
+        431.49,
+        518.4
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p49-ornement-0",
+      "page_pdf": 49,
+      "rect": [
+        195.51,
+        597.96,
+        417.99,
+        644.4
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p53-ornement-0",
+      "page_pdf": 53,
+      "rect": [
+        195.51,
+        611.96,
+        417.99,
+        658.4
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p54-ornement-0",
+      "page_pdf": 54,
+      "rect": [
+        182.01,
+        507.47,
+        431.49,
+        567.95
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p57-ornement-0",
+      "page_pdf": 57,
+      "rect": [
+        182.01,
+        366.23,
+        431.49,
+        426.71
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p60-ornement-0",
+      "page_pdf": 60,
+      "rect": [
+        195.51,
+        338.23,
+        417.99,
+        384.67
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p66-ornement-0",
+      "page_pdf": 66,
+      "rect": [
+        195.51,
+        72.0,
+        417.99,
+        118.44
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p76-ornement-0",
+      "page_pdf": 76,
+      "rect": [
+        182.01,
+        632.46,
+        431.49,
+        692.94
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p85-ornement-0",
+      "page_pdf": 85,
+      "rect": [
+        182.01,
+        615.21,
+        431.49,
+        675.69
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p96-ornement-0",
+      "page_pdf": 96,
+      "rect": [
+        182.01,
+        563.47,
+        431.49,
+        623.95
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p107-ornement-0",
+      "page_pdf": 107,
+      "rect": [
+        199.29,
+        251.99,
+        414.21,
+        298.79
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p112-ornement-0",
+      "page_pdf": 112,
+      "rect": [
+        195.75,
+        300.49,
+        417.15,
+        347.65
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p114-ornement-0",
+      "page_pdf": 114,
+      "rect": [
+        182.01,
+        72.0,
+        431.49,
+        132.48
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    },
+    {
+      "id": "p145-ornement-0",
+      "page_pdf": 145,
+      "rect": [
+        195.51,
+        566.72,
+        417.99,
+        613.16
+      ],
+      "paragraphes": [],
+      "type": "ornement",
+      "statut": "hors_paragraphe",
+      "note": "Petit motif décoratif récurrent sur une page de texte. Ne pas afficher en popup."
+    }
+  ],
+  "audit": {
+    "methode": "Inspection de toutes les 171 pages; légendes lues visuellement; images non légendées associées par contexte et signalées",
+    "ornements_exclus_des_popups": 17
+  }
+}
