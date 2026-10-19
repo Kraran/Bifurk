@@ -1,0 +1,20 @@
+# Environnement Windows observé le 20 octobre 2026, Python 3.13.0 x64.
+# Complément de reproductibilité ; requirements.txt reste inchangé.
+flatbuffers==25.12.19
+networkx==3.7
+numpy==2.5.4
+onnxruntime==1.31.0
+packaging==26.3
+protobuf==7.36.2
+psutil==7.2.2
+pymupdf==2.0
+pymupdf4llm==2.0
+pymupdf_layout==2.0
+PySide6==6.12.0
+PySide6_Addons==6.12.0
+PySide6_Essentials==6.12.0
+PySide6_Pdf==6.12.0.140
+PySide6_WebEngine==6.12.0.140
+PyYAML==6.0.3
+shiboken6==6.12.0
+tabulate==0.10.0
