@@ -1453,6 +1453,92 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.current_paragraph, 57)
         self.assertNotIn(16, w.prepared_book_encounters)
 
+    def test_verified_corridor_routes_match_1982_pdf(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        expected = {
+            9: [34, 322], 21: [339, 293], 23: [326, 229],
+            30: [67, 267], 37: [366, 11, 277], 42: [257, 113],
+            43: [354, 52], 46: [4, 206], 48: [391, 60],
+            52: [391, 362, 354, 234, 291], 54: [308, 179],
+            62: [6, 89], 63: [281, 10], 66: [104, 99],
+            67: [267, 177], 78: [159, 237], 79: [137, 267],
+            85: [106, 373, 318, 59], 90: [253],
+        }
+        for paragraph, targets in expected.items():
+            with self.subTest(paragraph=paragraph):
+                entry = data["paragraphs"][str(paragraph)]
+                routes = available_routes({}, entry)
+                self.assertEqual([route["target"] for route in routes], targets)
+                self.assertEqual(len({route["target"] for route in routes}), len(targets))
+                self.assertTrue(all(route["label"].strip() for route in routes))
+
+    def test_five_distinct_options_in_corridor_52(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {
+            52: "Au carrefour en T.", 391: "Sud.", 362: "Secret sud.",
+            354: "Nord.", 234: "Secret nord.", 291: "Est."}
+        w.go_to(52)
+        buttons = [w.choice_layout.itemAt(i).widget()
+                   for i in range(w.choice_layout.count())]
+        self.assertEqual(len(buttons), 5)
+        self.assertEqual(len({button.text() for button in buttons}), 5)
+        w.follow_catalogue_choice(234)
+        self.assertEqual(w.current_paragraph, 234)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 52)
+
+    def test_four_distinct_routes_at_crossroads_85(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {85: "Croisée des chemins.", 106: "N.",
+                        373: "S.", 318: "E.", 59: "O."}
+        w.go_to(85)
+        self.assertEqual(w.choice_layout.count(), 4)
+        w.follow_catalogue_choice(318)
+        self.assertEqual(w.current_paragraph, 318)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 85)
+
+    def test_rest_area_90_meal_is_optional_and_refreshes_button(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {90: "Niche de repos.", 253: "Vers le nord."}
+        w.character["provisions"] = 1
+        w.character["endurance"] = 10
+        w.go_to(90)
+        self.assertEqual((w.character["endurance"], w.character["provisions"]), (10, 1))
+        def meal_buttons():
+            return [widget for i in range(w.event_layout.count())
+                    if (widget := w.event_layout.itemAt(i).widget()) is not None
+                    and hasattr(widget, "text") and "Prendre un repas" in widget.text()]
+        self.assertEqual(len(meal_buttons()), 1)
+        self.assertTrue(meal_buttons()[0].isEnabled())
+        meal_buttons()[0].click()
+        self.assertEqual((w.character["endurance"], w.character["provisions"]), (14, 0))
+        self.assertFalse(meal_buttons()[0].isEnabled())
+        w.undo_action()
+        self.assertEqual((w.character["endurance"], w.character["provisions"]), (10, 1))
+        self.assertTrue(meal_buttons()[0].isEnabled())
+        w.follow_catalogue_choice(253)
+        self.assertEqual(w.current_paragraph, 253)
+
+    def test_rest_area_90_can_be_skipped_without_spending_provisions(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {90: "Niche de repos.", 253: "Vers le nord."}
+        w.character["provisions"] = 0
+        w.go_to(90)
+        self.assertEqual(w.character["provisions"], 0)
+        w.follow_catalogue_choice(253)
+        self.assertEqual(w.current_paragraph, 253)
+        self.assertEqual(w.character["provisions"], 0)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
