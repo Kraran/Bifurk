@@ -2050,6 +2050,24 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.current_paragraph, 158)
         self.assertEqual(w.enemy_endurance.value(), 2)
 
+    def test_riverbank_218_four_travel_choices(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        entry = data["paragraphs"]["218"]
+        self.assertEqual(
+            [route["target"] for route in available_routes({}, entry)],
+            [3, 386, 209, 316])
+        w = self.window
+        w.book_event_catalogue = data
+        w.paragraphs = {218: "Rivière.", 3: "Bac.", 386: "Radeau.",
+                        209: "Pont.", 316: "Nage."}
+        w.go_to(218)
+        self.assertEqual(w.choice_layout.count(), 4)
+        w.follow_catalogue_choice(209)
+        self.assertEqual(w.current_paragraph, 209)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 218)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
