@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -445,6 +445,9 @@ class MainWindow(QMainWindow):
         self.equipment_label.setWordWrap(True)
         self.equipment_label.setObjectName("equipment")
         inv_layout.insertWidget(0, self.equipment_label)
+        self.weapon_combo = QComboBox()
+        self.weapon_combo.currentTextChanged.connect(self.change_weapon)
+        inv_layout.insertWidget(1, self.weapon_combo)
         side_layout.addWidget(inv_group, 1)
 
         dice_group = QGroupBox("⚄  DÉS DU DESTIN")
@@ -1082,6 +1085,18 @@ class MainWindow(QMainWindow):
         self.potion_combo.blockSignals(False)
         self.inventory_list.clear()
         self.inventory_list.addItems(self.character.get("inventory", []))
+        weapon = equipped_weapon(self.character)
+        self.weapon_combo.blockSignals(True)
+        self.weapon_combo.clear()
+        self.weapon_combo.addItems([name for name in ("Épée", "Épée magique", "Épée trouvée dans la rivière")
+                                    if name in self.character.get("inventory", [])])
+        if weapon:
+            self.weapon_combo.setCurrentText(weapon)
+        self.weapon_combo.blockSignals(False)
+        self.equipment_label.setText(
+            f"⚔ Arme : {weapon or 'Aucune'}"
+            + (" (+1 en combat)" if weapon == "Épée trouvée dans la rivière" else "")
+            + "     ◈ Protection : Armure de cuir")
         initial = self.character.get("initial", {})
         for key, bar in self.stat_bars.items():
             maximum = max(1, int(initial.get(key, self.character.get(key, 1))))
@@ -1109,6 +1124,8 @@ class MainWindow(QMainWindow):
             self.character[key] = value
         self.character["provisions"] = 10
         self.character["gold"] = 1
+        self.character["equipped_weapon"] = "Épée"
+        self.character["magic_sword_bonus_active"] = False
         self._refresh_character()
         self.rules_log.setText(f"Personnage créé : Habileté {skill_roll+6}, Endurance {endurance_roll+12}, Chance {luck_roll+6}.")
 
@@ -1296,7 +1313,7 @@ class MainWindow(QMainWindow):
         enemy_rolls, enemy_total = self._roll(2)
         player_rolls, player_total = self._roll(2)
         enemy_attack = self.enemy_skill.value() + enemy_total
-        player_attack = self.character["habilete"] + player_total
+        player_attack = combat_skill(self.character) + player_total
         if player_attack == enemy_attack:
             self.rules_log.setText(f"Égalité ({player_attack} contre {enemy_attack}) : aucun dégât. Relancez l'assaut.")
             self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, "Parade")
@@ -1359,11 +1376,20 @@ class MainWindow(QMainWindow):
             if self.character['endurance'] == 0:
                 self.rules_log.setText(self.rules_log.text() + "  ☠ Votre Endurance est à zéro.")
 
+    def change_weapon(self, name):
+        """Équiper une arme présente dans le sac ; opération annulable."""
+        if not name:
+            return
+        if equip_weapon(self.character, name):
+            self._refresh_character()
+            self.rules_log.setText(
+                f"Arme équipée : {name}. Habileté de combat : {combat_skill(self.character)}.")
+
     def add_item(self):
         item = self.item_input.text().strip()
         if item:
             self.character.setdefault("inventory", []).append(item)
-            self.inventory_list.addItem(item)
+            self._refresh_character()
             self.item_input.clear()
 
     def remove_item(self):
@@ -1375,8 +1401,20 @@ class MainWindow(QMainWindow):
                     self, "Objet maudit",
                     f"Vous ne pouvez pas retirer {item} : cet objet est ensorcelé.")
                 return
+            if equipped_weapon(self.character) == item:
+                other = next((name for name in ("Épée", "Épée magique", "Épée trouvée dans la rivière")
+                              if name != item and name in self.character["inventory"]), None)
+                if other:
+                    equip_weapon(self.character, other)
+                elif item == "Épée magique" and self.character.get("magic_sword_bonus_active"):
+                    self.character["initial"]["habilete"] = max(
+                        0, self.character["initial"]["habilete"] - 2)
+                    self.character["habilete"] = max(0, self.character["habilete"] - 2)
+                    self.character["magic_sword_bonus_active"] = False
             self.character["inventory"].pop(row)
-            self.inventory_list.takeItem(row)
+            if self.character.get("equipped_weapon") == item:
+                self.character["equipped_weapon"] = None
+            self._refresh_character()
 
     def roll_dice(self):
         notation = self.dice_combo.currentText()
@@ -1643,7 +1681,8 @@ for _name, _label in {
     "create_character": "Créer un personnage", "test_luck": "Tenter sa Chance",
     "eat_meal": "Prendre un repas", "drink_potion": "Boire une potion",
     "combat_round": "Assaut de combat", "add_item": "Ajouter un objet",
-    "remove_item": "Retirer un objet", "change_potion": "Changer de potion"
+    "remove_item": "Retirer un objet", "change_potion": "Changer de potion",
+    "change_weapon": "Changer d'arme"
 }.items():
     setattr(MainWindow, _name, _track_action(getattr(MainWindow, _name), _label))
 
