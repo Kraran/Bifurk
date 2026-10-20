@@ -1619,6 +1619,88 @@ class Reference(unittest.TestCase):
             alert.assert_called_once()
         self.assertEqual(w.current_paragraph, 108)
 
+    def test_new_routes_117_to_141_match_pdf(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        expected = {
+            117: [354, 308], 120: [197], 121: [103, 359],
+            124: [138, 76], 128: [210, 58], 129: [104],
+            133: [52], 134: [202, 325, 87], 136: [229],
+            137: [354], 141: [66, 111],
+        }
+        for number, targets in expected.items():
+            with self.subTest(paragraph=number):
+                self.assertEqual(
+                    [r["target"] for r in available_routes(
+                        {}, data["paragraphs"][str(number)])], targets)
+
+    def test_skeleton_ruse_123_all_six_die_faces(self):
+        from book_events import DATA_PATH, resolve_roll
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        roll = data["paragraphs"]["123"]["roll"]
+        for die in range(1, 7):
+            with self.subTest(die=die):
+                branch = resolve_roll(roll, die, {"chance": 6})
+                expected = 184 if die <= 3 else 164 if die <= 5 else 140
+                self.assertEqual(branch["target"], expected)
+                self.assertEqual(
+                    branch.get("effects", []),
+                    [{"kind": "stat", "key": "chance", "amount": 2}]
+                    if die <= 3 else [])
+
+    def test_skeleton_ruse_123_win_luck_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {123: "Squelettes.", 184: "Bateaux.",
+                        164: "Surveillance.", 140: "Combat."}
+        w.character["chance"] = 5
+        w.go_to(123)
+        with patch.object(w, "_roll", return_value=([2], 2)):
+            w.resolve_book_roll(123)
+        self.assertEqual(w.current_paragraph, 184)
+        self.assertEqual(w.character["chance"], 7)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 123)
+        self.assertEqual(w.character["chance"], 5)
+        self.assertNotIn(123, w.completed_book_events)
+
+    def test_ferryman_127_costs_five_gold_or_fights(self):
+        from book_events import DATA_PATH, available_routes, follow_catalogue_route
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        entry = data["paragraphs"]["127"]
+        hero = {"gold": 4}
+        self.assertEqual([r["target"] for r in available_routes(hero, entry)], [188])
+        self.assertFalse(follow_catalogue_route(hero, entry, 272))
+        hero["gold"] = 6
+        self.assertTrue(follow_catalogue_route(hero, entry, 272))
+        self.assertEqual(hero["gold"], 1)
+        self.assertTrue(follow_catalogue_route(hero, entry, 188))
+        self.assertEqual(hero["gold"], 1)
+
+    def test_sorcerer_142_fight_cannot_be_skipped_and_undo(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {142: "Sorcier. Victoire au 396.", 396: "Victoire."}
+        w.go_to(142)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Sorcier", 11, 18))
+        self.assertTrue(w._combat_exit_pending(396))
+        with patch.object(QMessageBox, "information") as alert:
+            w.follow_link(QUrl("paragraph:396"))
+            alert.assert_called_once()
+        w.enemy_endurance.setValue(2)
+        with patch.object(w, "_roll", side_effect=[
+                ([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 396)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 142)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
