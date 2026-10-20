@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 226 paragraphes vérifiés ponctuellement ; 174 à étudier et valider individuellement.
+- 244 paragraphes vérifiés ponctuellement ; 156 à étudier et valider individuellement.
 - 35 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 216, 239, 241, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 191 paragraphes conditionnels, jets de dés ou combats particuliers. 18 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 195, 209, 213, 243, 389.
+- 209 paragraphes conditionnels, jets de dés ou combats particuliers. 20 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 195, 209, 213, 243, 298, 316, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -289,3 +289,18 @@ Les passages **261, 262, 265, 267, 268, 269, 270, 271, 272, 274, 276, 277, 278, 
 Les autres itinéraires relus sont transcrits explicitement. Les règles complexes des §§263, 266, 275, 279, 282, 286 et 289 ne sont pas encore considérées comme vérifiées : les interactions avec le dialogue, les objets, la Chance, les combats successifs ou l'issue finale doivent être modélisées entièrement.
 
 Cinq nouveaux tests couvrent les itinéraires exacts, les quatre boutons du §267, la bifurcation selon l'inventaire au §287, la protection des liens, le Fromage conservé avant son utilisation et l'absence de double paiement au §272.
+
+### Pont, nage et Loup-garou — §§291 à 320
+
+**18 paragraphes** examinés et catalogués à partir du PDF français de 1982 : **291, 293, 297, 298, 299, 300, 301, 302, 303, 304, 307, 308, 312, 314, 315, 316, 318 et 320**. Les §§310 et 317 existaient déjà et n'ont pas été modifiés.
+
+- **§298** : sur le pont glissant, un seul dé ; **6 → §86** (chute dans l'eau), **1 à 5 → §7** (berge nord), sans pénalité supplémentaire au moment du jet. La scène d'arrivée décide des suites.
+- **§316** : nage depuis la berge sud, **deux dés ≤ Endurance** → §151, sinon retour §218 où un repas est possible. Aucune Chance dépensée et aucun malus d'Endurance arbitraire au §316.
+- **§304** : Loup-garou **H8/E8** ; victoire §203, fuite possible à tout moment par la porte sud §66 avec le coût de fuite ordinaire. Le lien de victoire demeure bloqué pendant le combat et l'annulation restaure son état.
+- **§303** : herse fermée et deux leviers, droit → §128, gauche → §243, où les blessures pair/impair déjà cataloguées restent inchangées.
+- **§308** : quatre directions (ouest §187, nord §54, sud §160, est §354), avec quatre boutons distincts ; aucun trajet déduit du texte n'est perdu.
+- **§291** : cul-de-sac est §315, bifurcation ouest §52 ou porte nord §227. Les autres itinéraires des §§293, 297, 299, 300, 301, 302, 307, 312, 314, 315, 318 et 320 sont explicites et sans effets inventés.
+
+Les §§292 (possession de chandelle bleue), 294 (fouille et récompense), 295/306 (combat d'un monstre commun avec reprise contextuelle), 296 (ouvrage sur les Dragons), 305 (trois tests de Chance successifs), 309 (Rats successifs), 311 (dalles et équipement), 313 (deux objets parmi quatre) et 319 (objet découvert) sont volontairement laissés en attente d'une modélisation complète.
+
+**Six tests supplémentaires** contrôlent les itinéraires, les six résultats du dé du pont, les onze totaux de nage, la navigation et Undo, la fuite face au Loup-garou et les quatre choix du carrefour.
