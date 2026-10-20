@@ -1901,6 +1901,80 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.character["provisions"], 3)
         self.assertEqual(w.character["endurance"], 20)
 
+    def test_new_routes_145_to_154_match_pdf(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        expected = {
+            145: [363], 146: [366, 11], 148: [230],
+            149: [181, 265, 355], 150: [222, 297, 133], 154: [41]
+        }
+        for paragraph, targets in expected.items():
+            with self.subTest(paragraph=paragraph):
+                routes = available_routes({}, data["paragraphs"][str(paragraph)])
+                self.assertEqual([route["target"] for route in routes], targets)
+
+    def test_bronze_key_99_at_145_optional_without_repeating_luck(self):
+        from book_events import DATA_PATH, apply_entry, apply_option
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"chance": 5, "initial": {"chance": 9},
+                "inventory": []}
+        entered, chosen = set(), set()
+        self.assertTrue(apply_entry(hero, entered, 145, data))
+        self.assertEqual(hero["chance"], 6)
+        self.assertNotIn("Clé de bronze 99", hero["inventory"])
+        self.assertTrue(apply_option(hero, chosen, 145, "cle99", data))
+        self.assertIn("Clé de bronze 99", hero["inventory"])
+        self.assertFalse(apply_entry(hero, entered, 145, data))
+        self.assertFalse(apply_option(hero, chosen, 145, "cle99", data))
+        self.assertEqual(hero["chance"], 6)
+
+    def test_dragon_152_prepared_victory_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {152: "Dragon.", 371: "Après le Dragon."}
+        w.go_to(152)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Dragon", 10, 12))
+        self.assertTrue(w._combat_exit_pending(371))
+        w.enemy_endurance.setValue(2)
+        with patch.object(w, "_roll", side_effect=[
+                ([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 371)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 152)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
+    def test_door_156_skill_check_two_dice_all_results(self):
+        from book_events import DATA_PATH, resolve_roll
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        roll = data["paragraphs"]["156"]["roll"]
+        for total in range(2, 13):
+            with self.subTest(total=total):
+                target = resolve_roll(roll, total, {"habilete": 8})["target"]
+                self.assertEqual(target, 343 if total <= 8 else 92)
+
+    def test_door_156_failure_goes_to_92_and_undo(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {156: "Enfoncer la porte.", 343: "Ouverte.", 92: "Échec."}
+        w.character["habilete"] = 8
+        w.go_to(156)
+        with patch.object(QMessageBox, "information") as alert:
+            w.follow_link(QUrl("paragraph:343"))
+            alert.assert_called_once()
+        with patch.object(w, "_roll", return_value=([5, 5], 10)):
+            w.resolve_book_roll(156)
+        self.assertEqual(w.current_paragraph, 92)
+        self.assertEqual(w.character["habilete"], 8)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 156)
+        self.assertNotIn(156, w.completed_book_events)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
