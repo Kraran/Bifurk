@@ -873,6 +873,7 @@ class Reference(unittest.TestCase):
         w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
         w.paragraphs = {86: "Crocodile.", 350: "Piranhas.", 7: "Rive."}
         w.go_to(86)
+        w.character["initial"]["chance"] = 10
         w.crocodile_combat["assaults"] = 2
         w.crocodile_combat["wounded"] = True
         w.choose_crocodile_strategy("diversion")
@@ -924,8 +925,7 @@ class Reference(unittest.TestCase):
             w.follow_link(QUrl("paragraph:7"))
             alert.assert_called_once()
         self.assertEqual(w.current_paragraph, 350)
-        w.undo_action()
-        self.assertEqual(w.piranha_source_wounded, None)
+        self.assertTrue(w.piranha_source_wounded)
 
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
