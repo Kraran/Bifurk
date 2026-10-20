@@ -1376,6 +1376,83 @@ class Reference(unittest.TestCase):
         w.follow_catalogue_choice(303)
         self.assertEqual(w.current_paragraph, 303)
 
+    def test_verified_early_choice_routes_35_36_57_84(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        choices = {
+            35: [136, 361],
+            36: [263, 353],
+            57: [16, 2, 119],
+            84: [204, 280, 377],
+        }
+        for paragraph, expected in choices.items():
+            with self.subTest(paragraph=paragraph):
+                entry = data["paragraphs"][str(paragraph)]
+                self.assertEqual(
+                    [route["target"] for route in available_routes({}, entry)],
+                    expected)
+
+    def test_shelter_77_meal_is_optional_and_undoable(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {77: "Un abri pour manger ; est 345, ouest 18.",
+                        345: "Est.", 18: "Ouest."}
+        w.character["endurance"] = 10
+        w.character["provisions"] = 3
+        w.go_to(77)
+        self.assertEqual((w.character["endurance"], w.character["provisions"]), (10, 3))
+        buttons = [
+            w.event_layout.itemAt(i).widget()
+            for i in range(w.event_layout.count())
+            if hasattr(w.event_layout.itemAt(i).widget(), "text")
+        ]
+        meal_buttons = [b for b in buttons if "Prendre un repas" in b.text()]
+        self.assertEqual(len(meal_buttons), 1)
+        self.assertTrue(meal_buttons[0].isEnabled())
+        meal_buttons[0].click()
+        self.assertEqual((w.character["endurance"], w.character["provisions"]), (14, 2))
+        w.undo_action()
+        self.assertEqual((w.character["endurance"], w.character["provisions"]), (10, 3))
+        w.follow_catalogue_choice(345)
+        self.assertEqual(w.current_paragraph, 345)
+        self.assertEqual((w.character["endurance"], w.character["provisions"]), (10, 3))
+
+    def test_shelter_77_meal_disabled_without_provisions(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {77: "Abri.", 345: "Est.", 18: "Ouest."}
+        w.character["provisions"] = 0
+        w.go_to(77)
+        buttons = [
+            w.event_layout.itemAt(i).widget()
+            for i in range(w.event_layout.count())
+            if hasattr(w.event_layout.itemAt(i).widget(), "text")
+        ]
+        meal_buttons = [b for b in buttons if "Prendre un repas" in b.text()]
+        self.assertEqual(len(meal_buttons), 1)
+        self.assertFalse(meal_buttons[0].isEnabled())
+        self.assertEqual(w.character["provisions"], 0)
+        w.follow_catalogue_choice(18)
+        self.assertEqual(w.current_paragraph, 18)
+
+    def test_ogre_57_branch_to_scripted_encounter(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {57: "Ogre.", 16: "Le combat contre l'Ogre.",
+                        2: "Fuite.", 119: "Diversion."}
+        w.go_to(57)
+        w.follow_catalogue_choice(16)
+        self.assertEqual(w.current_paragraph, 16)
+        self.assertEqual(
+            (w.enemy_name.text(), w.enemy_skill.value(), w.enemy_endurance.value()),
+            ("Ogre", 8, 10))
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 57)
+        self.assertNotIn(16, w.prepared_book_encounters)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
