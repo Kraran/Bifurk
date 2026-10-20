@@ -153,16 +153,25 @@ class Reference(unittest.TestCase):
         self.assertIn("Clé de bronze 9", w.character["inventory"])
         self.assertIn("50:cle9", w.completed_optional_events)
 
-    def test_special_combat_still_shows_prepare_button(self):
+    def test_special_combat_is_autoprepared_without_reset_button(self):
         from book_events import DATA_PATH
         w = self.window
         w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
         w.paragraphs = {16: "OGRE HABILETÉ: 8 ENDURANCE: 10"}
         w.go_to(16)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Ogre", 8, 10))
         labels = [w.event_layout.itemAt(i).widget().text()
                   for i in range(w.event_layout.count())
                   if hasattr(w.event_layout.itemAt(i).widget(), "text")]
-        self.assertTrue(any("Préparer le combat" in label for label in labels))
+        self.assertFalse(any("Préparer le combat" in label for label in labels))
+        w.enemy_endurance.setValue(3)
+        w._render_choices_and_events(w.paragraphs[16])
+        self.assertEqual(w.enemy_endurance.value(), 3)
+        labels = [w.event_layout.itemAt(i).widget().text()
+                  for i in range(w.event_layout.count())
+                  if hasattr(w.event_layout.itemAt(i).widget(), "text")]
+        self.assertFalse(any("Préparer le combat" in label for label in labels))
 
     def test_luck_trial_checks_score_before_spending_point(self):
         from book_events import DATA_PATH
@@ -1234,9 +1243,9 @@ class Reference(unittest.TestCase):
         completed = set()
         self.assertEqual(hero["provisions"], 4)
         self.assertEqual(len(available_options(hero, entry, completed, 38)), 1)
-        self.assertTrue(apply_option(hero, completed, 38, "oeufs_caille", data))
+        self.assertTrue(apply_option(hero, completed, 38, "oeufs", data))
         self.assertEqual(hero["provisions"], 6)
-        self.assertFalse(apply_option(hero, completed, 38, "oeufs_caille", data))
+        self.assertFalse(apply_option(hero, completed, 38, "oeufs", data))
         self.assertEqual(hero["provisions"], 6)
 
     def test_enchanted_bench_meal_caps_stats_and_consumes_one_provision(self):
