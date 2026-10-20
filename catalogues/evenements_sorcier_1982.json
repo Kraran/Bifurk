@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 48,
+  "reviewed_count": 49,
   "review_pending": [
     1,
     3,
@@ -127,7 +127,6 @@
     151,
     152,
     154,
-    155,
     156,
     157,
     158,
@@ -1028,6 +1027,12 @@
         }
       ],
       "note": "L'épée ramassée à la rivière blesse le héros (-1 Endurance), devient inutilisable et est jetée. Son abandon ne retire pas l'épée d'origine."
+    },
+    "155": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Bouclier au croissant facultatif : nécessite d'abandonner un objet ; utilisé en combat, un lancer de 6 réduit de 1 point la blessure reçue (2→1, 1→0).",
+      "shield_pickup": true
     },
     "185": {
       "status": "verifie",
