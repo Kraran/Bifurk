@@ -58,6 +58,9 @@ def apply_effects(character, effects):
             inventory = character.setdefault("inventory", [])
             if effect["name"] in inventory and effect["name"] not in character.get("locked_items", []):
                 inventory.remove(effect["name"])
+            if character.get("equipped_weapon") == effect["name"]:
+                character["equipped_weapon"] = next(
+                    (name for name in ("Épée magique", "Épée") if name in inventory), None)
         elif effect["kind"] == "locked_item":
             inventory = character.setdefault("inventory", [])
             if effect["name"] not in inventory:
@@ -65,12 +68,67 @@ def apply_effects(character, effects):
             locked = character.setdefault("locked_items", [])
             if effect["name"] not in locked:
                 locked.append(effect["name"])
+        elif effect["kind"] == "equip_weapon":
+            # L'effet de changement d'arme doit être la dernière étape.
+            equip_weapon(character, effect["name"])
         elif effect["kind"] == "item":
             inventory = character.setdefault("inventory", [])
             if effect["name"] not in inventory:
                 inventory.append(effect["name"])
         else:
             raise ValueError("Effet inconnu : " + str(effect["kind"]))
+
+
+
+WEAPON_BONUSES = {
+    "Épée": 0,
+    "Épée magique": 2,
+    "Épée trouvée dans la rivière": 1,
+}
+
+
+def equipped_weapon(character):
+    """Anciennes sauvegardes : choisir l'épée disponible la plus appropriée."""
+    inventory = character.get("inventory", [])
+    selected = character.get("equipped_weapon")
+    if selected in inventory and selected in WEAPON_BONUSES:
+        return selected
+    return next((name for name in ("Épée magique", "Épée", "Épée trouvée dans la rivière")
+                 if name in inventory), None)
+
+
+def equip_weapon(character, name):
+    """Change d'arme ; seul le bonus de l'épée magique altère la fiche.
+
+    Le bonus de l'épée de la rivière n'agit que sur la force d'attaque.
+    Aucun objet n'est créé par l'équipement et un objet absent est refusé.
+    """
+    if name not in WEAPON_BONUSES or name not in character.get("inventory", []):
+        return False
+    old = equipped_weapon(character)
+    if old == name:
+        character["equipped_weapon"] = name
+        return False
+    magic_active = bool(character.get("magic_sword_bonus_active", old == "Épée magique"))
+    if magic_active and name != "Épée magique":
+        character.setdefault("initial", {})["habilete"] = max(
+            0, int(character["initial"]["habilete"]) - 2)
+        character["habilete"] = max(0, int(character["habilete"]) - 2)
+        character["magic_sword_bonus_active"] = False
+    elif name == "Épée magique" and not magic_active:
+        character.setdefault("initial", {})["habilete"] = int(
+            character["initial"]["habilete"]) + 2
+        character["habilete"] = min(
+            character["initial"]["habilete"], int(character["habilete"]) + 2)
+        character["magic_sword_bonus_active"] = True
+    character["equipped_weapon"] = name
+    return True
+
+
+def combat_skill(character):
+    """Habileté de combat effective, sans modifier l'Habileté de la fiche."""
+    bonus = 1 if equipped_weapon(character) == "Épée trouvée dans la rivière" else 0
+    return int(character["habilete"]) + bonus
 
 
 def resolve_roll(roll, total, character):
