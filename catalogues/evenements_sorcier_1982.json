@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 149,
+  "reviewed_count": 150,
   "review_pending": [
     1,
     4,
@@ -89,7 +89,6 @@
     215,
     216,
     217,
-    218,
     219,
     220,
     221,
@@ -2533,6 +2532,29 @@
           }
         ]
       }
+    },
+    "218": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Quatre manières de traverser la rivière : bac §3, radeau §386, pont §209, nage §316. Les coûts et épreuves sont gérés aux paragraphes correspondants.",
+      "routes": [
+        {
+          "target": 3,
+          "label": "Sonner la cloche du bac"
+        },
+        {
+          "target": 386,
+          "label": "Utiliser le radeau"
+        },
+        {
+          "target": 209,
+          "label": "Traverser le pont branlant"
+        },
+        {
+          "target": 316,
+          "label": "Traverser à la nage"
+        }
+      ]
     },
     "243": {
       "status": "verifie",
