@@ -268,3 +268,9 @@ Dix-neuf passages sont désormais vérifiés : **237, 238, 239, 240, 241, 242, 2
 - **§244** : repos avec repas proposé par §143 ou nage vers §399. Les coûts sont à gérer au paragraphe de destination, jamais débités en double à l'arrivée au §244.
 
 Six tests supplémentaires vérifient les routes, les effets automatiques, les six issues du dé, le Serpent et les Chauves-souris, ainsi que le §212 après revisite, boutons et liens compris. Les paragraphes §253 et §258 demandent encore une analyse des objets facultatifs et de la scène complète avant modélisation.
+
+### Correctif Qt/PyMuPDF : lien `paragraph:369`
+
+Le message `QTextBrowser: No document for paragraph:369` provenait du comportement natif de `QTextBrowser`, qui tentait de résoudre les liens `paragraph:` en documents Qt malgré la connexion de `anchorClicked` à `MainWindow.follow_link`. La configuration applique maintenant **`setOpenLinks(False)`** en plus de `setOpenExternalLinks(False)` : Bifurk intercepte tous les liens internes, ce qui conserve les contrôles de routes (dont la bouteille §212/§369).
+
+L'extraction utilise désormais **`import pymupdf`** et **`pymupdf.open`**, évitant l'avertissement de dépréciation du module `fitz` avec les versions récentes de PyMuPDF. Deux tests de non-régression vérifient la configuration Qt, l'émission de `anchorClicked`, la navigation et l'interdiction de reboire au §212.
