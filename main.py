@@ -953,7 +953,8 @@ class MainWindow(QMainWindow):
         if not self._restoring and number == 86:
             entry = verified_entry(self.book_event_catalogue, number)
             combat = entry.get("combat", {}) if entry else {}
-            if combat.get("mode") == "limite_assauts" and self.crocodile_combat is None:
+            if (combat.get("mode") == "limite_assauts" and self.crocodile_combat is None
+                    and number not in self.prepared_book_encounters):
                 self.crocodile_combat = {"paragraph": number, "assaults": 0,
                                          "phase": "initial"}
                 self._set_book_enemy(combat["enemies"][0])
@@ -1214,6 +1215,7 @@ class MainWindow(QMainWindow):
             self._render_choices_and_events(self.paragraphs[86])
             return
         self.crocodile_combat = None
+        self.prepared_book_encounters.add(86)
         if target in self.paragraphs:
             self.go_to(target)
             self.rules_log.setText(f"Combat contre le Crocodile terminé : §{target}.")
