@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, verified_entry, apply_effects, resolve_roll
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -188,13 +188,14 @@ class MainWindow(QMainWindow):
         self.illustration_catalogue = None
         self.book_event_catalogue = None
         self.completed_book_events = set()
+        self.completed_optional_events = set()
         self.paragraphs = {}
         self.current_paragraph = None
         self.visited_paragraphs = []
         self.transitions = []
         self.character = {
             "habilete": 8, "endurance": 20, "chance": 8,
-            "provisions": 10, "inventory": ["Épée", "Armure de cuir", "Lanterne"],
+            "provisions": 10, "gold": 1, "inventory": ["Épée", "Armure de cuir", "Lanterne"],
             "potion": "Aucune", "potion_doses": 0,
             "initial": {"habilete": 8, "endurance": 20, "chance": 8}
         }
@@ -392,7 +393,7 @@ class MainWindow(QMainWindow):
         stats_group = QGroupBox("⚔  FEUILLE D’AVENTURIER")
         stats_grid = QGridLayout(stats_group)
         self.stat_spins = {}
-        stats = [("HABILETÉ", "habilete"), ("ENDURANCE", "endurance"), ("CHANCE", "chance"), ("Provisions", "provisions")]
+        stats = [("HABILETÉ", "habilete"), ("ENDURANCE", "endurance"), ("CHANCE", "chance"), ("Provisions", "provisions"), ("Pièces d'or", "gold")]
         for row, (label, key) in enumerate(stats):
             stats_grid.addWidget(QLabel(label), row, 0)
             spin = QSpinBox()
@@ -400,11 +401,11 @@ class MainWindow(QMainWindow):
             spin.valueChanged.connect(lambda value, k=key: self.set_stat(k, value))
             self.stat_spins[key] = spin
             stats_grid.addWidget(spin, row, 1)
-        stats_grid.addWidget(QLabel("Potion"), 4, 0)
+        stats_grid.addWidget(QLabel("Potion"), 5, 0)
         self.potion_combo = QComboBox()
         self.potion_combo.addItems(["Aucune", "Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune"])
         self.potion_combo.currentTextChanged.connect(self.change_potion)
-        stats_grid.addWidget(self.potion_combo, 4, 1)
+        stats_grid.addWidget(self.potion_combo, 5, 1)
         self.stat_bars = {}
         for key, label in (("endurance", "Vitalité"), ("chance", "Fortune"), ("habilete", "Maîtrise")):
             bar = QProgressBar()
@@ -630,6 +631,7 @@ class MainWindow(QMainWindow):
         self.illustration_catalogue = catalogue_for_pdf(path)
         self.book_event_catalogue = load_book_events(path)
         self.completed_book_events = set()
+        self.completed_optional_events = set()
         self.paragraphs = paragraphs
         if self.illustration_catalogue is None:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
@@ -712,17 +714,24 @@ class MainWindow(QMainWindow):
             notice.setWordWrap(True)
             self.event_layout.addWidget(notice)
             if scripted["mode"] == "automatique":
-                self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une seule fois dans cette partie."))
-                return
+                self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
+            for option in scripted.get("options", []):
+                button = QPushButton(option["label"])
+                marker = f"{self.current_paragraph}:{option['id']}"
+                button.setEnabled(marker not in self.completed_optional_events)
+                button.clicked.connect(lambda checked=False, n=self.current_paragraph, oid=option["id"]: self.apply_optional_book_event(n, oid))
+                self.event_layout.addWidget(button)
             if scripted["mode"] == "des" and "roll" in scripted:
                 button = QPushButton("🎲 Lancer le dé et appliquer le résultat vérifié")
                 button.setEnabled(self.current_paragraph not in self.completed_book_events)
                 button.clicked.connect(lambda checked=False, n=self.current_paragraph: self.resolve_book_roll(n))
                 self.event_layout.addWidget(button)
                 return
-            # Ne pas réactiver les suggestions approximatives sur un événement revu.
-            self.event_layout.addWidget(QLabel("Événement spécial : automatisation non encore disponible."))
-            return
+            if scripted["mode"] in ("automatique", "conditionnel") and (
+                    scripted["mode"] == "automatique" or scripted.get("options")):
+                return
+            # Les combats complexes conservent les commandes habituelles :
+            # aucune prise en charge complète n'est encore garantie.
         monsters = encounters(text)
         if monsters:
             self.event_layout.addWidget(QLabel("⚔ Rencontres détectées (à confirmer)"))
@@ -855,6 +864,15 @@ class MainWindow(QMainWindow):
         self.character[key] = after
         self._refresh_character()
         self.rules_log.setText(f"Événement appliqué : {label} {before} → {after}.")
+
+    def apply_optional_book_event(self, number, option_id):
+        if number != self.current_paragraph:
+            return
+        if apply_option(self.character, self.completed_optional_events, number,
+                        option_id, self.book_event_catalogue):
+            self._refresh_character()
+            self.rules_log.setText(f"Objet ou ressource récupéré au paragraphe {number}.")
+            self._render_choices_and_events(self.paragraphs[number])
 
     def resolve_book_roll(self, number):
         """Effectue une seule fois un jet spécial, puis applique son issue."""
@@ -1002,6 +1020,7 @@ class MainWindow(QMainWindow):
         for key, value in self.character["initial"].items():
             self.character[key] = value
         self.character["provisions"] = 10
+        self.character["gold"] = 1
         self._refresh_character()
         self.rules_log.setText(f"Personnage créé : Habileté {skill_roll+6}, Endurance {endurance_roll+12}, Chance {luck_roll+6}.")
 
@@ -1154,6 +1173,7 @@ class MainWindow(QMainWindow):
     def _snapshot(self):
         return {"character": copy.deepcopy(self.character),
                 "completed_book_events": sorted(self.completed_book_events),
+                "completed_optional_events": sorted(self.completed_optional_events),
                 "current_paragraph": self.current_paragraph,
                 "visited_paragraphs": list(self.visited_paragraphs),
                 "transitions": copy.deepcopy(self.transitions),
@@ -1185,6 +1205,7 @@ class MainWindow(QMainWindow):
         try:
             self.character = copy.deepcopy(state["character"])
             self.completed_book_events = set(state.get("completed_book_events", []))
+            self.completed_optional_events = set(state.get("completed_optional_events", []))
             self.visited_paragraphs = list(state["visited_paragraphs"])
             self.transitions = copy.deepcopy(state.get("transitions", []))
             self._refresh_character()
@@ -1346,6 +1367,7 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, "PDF introuvable", "Le grimoire est absent du dossier portable. Réimportez-le pour naviguer.")
             self._restore({"character": data.get("character", self.character),
                            "completed_book_events": data.get("completed_book_events", []),
+                           "completed_optional_events": data.get("completed_optional_events", []),
                            "visited_paragraphs": data.get("visited_paragraphs", []),
                            "transitions": data.get("transitions", []),
                            "current_paragraph": data.get("current_paragraph")})
@@ -1376,6 +1398,7 @@ def _track_action(method, label):
 for _name, _label in {
     "go_to": "Changer de paragraphe", "apply_detected_event": "Appliquer un événement",
     "resolve_book_roll": "Résoudre une épreuve du livre",
+    "apply_optional_book_event": "Choisir une récompense du livre",
     "create_character": "Créer un personnage", "test_luck": "Tenter sa Chance",
     "eat_meal": "Prendre un repas", "drink_potion": "Boire une potion",
     "combat_round": "Assaut de combat", "add_item": "Ajouter un objet",
