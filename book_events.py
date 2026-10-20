@@ -36,6 +36,12 @@ def apply_effects(character, effects):
                 cap = int(character.get("initial", {}).get(key, value))
                 value = min(value, cap)
             character[key] = value
+        elif effect["kind"] == "restore_floor":
+            key = effect["key"]
+            initial = int(character.get("initial", {}).get(key, character.get(key, 0)))
+            target = max(0, initial - int(effect["below_initial"]))
+            # Restauration sans diminution si le personnage est déjà en meilleure forme.
+            character[key] = max(int(character.get(key, 0)), target)
         elif effect["kind"] == "item":
             inventory = character.setdefault("inventory", [])
             if effect["name"] not in inventory:
@@ -60,6 +66,29 @@ def resolve_roll(roll, total, character):
         if matched:
             return branch
     raise ValueError("Aucune issue définie pour ce jet")
+
+
+def available_routes(character, entry):
+    """Retourne les itinéraires légitimes pour l'état actuel du personnage."""
+    if not entry:
+        return []
+    available = []
+    inventory = {str(x).casefold() for x in character.get("inventory", [])}
+    for route in entry.get("routes", []):
+        condition = route.get("when")
+        if condition is None:
+            allowed = True
+        elif condition["kind"] == "has_item":
+            allowed = condition["name"].casefold() in inventory
+        elif condition["kind"] == "missing_item":
+            allowed = condition["name"].casefold() not in inventory
+        elif condition["kind"] == "min_stat":
+            allowed = int(character.get(condition["key"], 0)) >= int(condition["value"])
+        else:
+            raise ValueError("Condition de route inconnue : " + str(condition["kind"]))
+        if allowed:
+            available.append(route)
+    return available
 
 
 def apply_option(character, completed_options, paragraph, option_id, catalogue):
