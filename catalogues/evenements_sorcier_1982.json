@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 57,
+  "reviewed_count": 60,
   "review_pending": [
     1,
     4,
@@ -40,7 +40,6 @@
     58,
     59,
     60,
-    61,
     62,
     63,
     64,
@@ -50,7 +49,6 @@
     68,
     69,
     70,
-    71,
     72,
     73,
     76,
@@ -266,7 +264,6 @@
     307,
     308,
     309,
-    310,
     311,
     312,
     313,
@@ -852,6 +849,49 @@
       ],
       "note": "L'ancienne épée est jetée dans la rivière et le héros conserve la nouvelle arme (+1 Habileté uniquement quand elle est utilisée en combat)."
     },
+    "61": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Araignée géante H7/E8 ; victoire §29 ; fuite autorisée après deux assauts vers §375, avec blessure réglementaire.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Araignée géante",
+            "skill": 7,
+            "stamina": 8
+          }
+        ],
+        "victory_target": 29,
+        "escape_target": 375,
+        "escape_after_assaults": 2
+      }
+    },
+    "71": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Lutin endormi : test de Chance ; réussite §301, échec §248. La Chance baisse de 1 après la comparaison.",
+      "roll": {
+        "dice": 2,
+        "pre_effects": [
+          {
+            "kind": "stat",
+            "key": "chance",
+            "amount": -1
+          }
+        ],
+        "branches": [
+          {
+            "when": "lte_stat",
+            "key": "chance",
+            "target": 301
+          },
+          {
+            "when": "otherwise",
+            "target": 248
+          }
+        ]
+      }
+    },
     "74": {
       "status": "verifie",
       "mode": "des",
@@ -1325,6 +1365,17 @@
               "name": "Cinq piquets de bois"
             }
           ]
+        }
+      ]
+    },
+    "310": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Après le premier coup porté à l'Être (§41), les armes ordinaires se révèlent inefficaces. Changer d'arme reste facultatif ; suite §211.",
+      "routes": [
+        {
+          "target": 211,
+          "label": "Poursuivre après avoir constaté l'invulnérabilité de l'Être"
         }
       ]
     },
