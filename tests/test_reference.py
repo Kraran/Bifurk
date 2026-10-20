@@ -564,6 +564,26 @@ class Reference(unittest.TestCase):
         self.assertEqual((character["habilete"], character["chance"]), (8, 7))
         self.assertFalse(apply_entry(character, completed, 259, data))
 
+    def test_paragraph_189_has_both_choices_and_links(self):
+        """Le §189 propose §90 ET §25, y compris avec « irez alors »."""
+        passage = ("Vous pouvez traverser cette pièce (et vous rendre au 90), "
+                   "ou vous attarder pour contempler les tableaux "
+                   "(vous irez alors au 25).")
+        self.assertEqual([target for _, _, target in destinations(passage)], [90, 25])
+        html = render_links(passage, {25, 90})
+        self.assertIn('href="paragraph:90"', html)
+        self.assertIn('href="paragraph:25"', html)
+        w = self.window
+        self.assertEqual([choice["target"] for choice in w._paragraph_choices(passage)],
+                         [90, 25])
+
+    def test_destination_irez_alors_whitespace_variants(self):
+        for expression in ("vous irez alors au 25", "vous irez au 25",
+                           "irez alors au 25", "vous allez alors au 25",
+                           "vous allez au 25"):
+            with self.subTest(expression=expression):
+                self.assertEqual([n for _, _, n in destinations(expression)], [25])
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
