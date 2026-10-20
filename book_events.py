@@ -158,6 +158,30 @@ def take_moon_shield(character, discarded_item):
 
 
 
+def throw_diversion_item(character, discarded_item=None):
+    """§119 : sacrifier un objet transporté, sinon une pièce d'or si sac vide."""
+    inventory = character.setdefault("inventory", [])
+    if not inventory:
+        if discarded_item is not None or int(character.get("gold", 0)) < 1:
+            return False
+        character["gold"] -= 1
+        return True
+    if (discarded_item not in inventory
+            or discarded_item in character.get("locked_items", [])):
+        return False
+    if character.get("equipped_weapon") == discarded_item:
+        if discarded_item == "Épée magique" and character.get("magic_sword_bonus_active"):
+            initial = character.setdefault("initial", {})
+            initial["habilete"] = max(0, int(initial["habilete"]) - 2)
+            character["habilete"] = max(0, int(character["habilete"]) - 2)
+            character["magic_sword_bonus_active"] = False
+        character["equipped_weapon"] = None
+    if discarded_item == SHIELD_NAME:
+        character["shield_equipped"] = False
+    inventory.remove(discarded_item)
+    return True
+
+
 def trade_inventory_item(character, new_item, discarded_item):
     """Un seul échange, sans abandonner un objet maudit ni créer un doublon."""
     inventory = character.setdefault("inventory", [])
