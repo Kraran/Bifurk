@@ -1193,32 +1193,37 @@ class MainWindow(QMainWindow):
         self.go_to(target)
 
     def throw_book_diversion(self):
-        """§119 : sacrifice obligatoire d'un objet ou d'une pièce, si sac vide."""
+        """§119 : libre choix entre un objet transporté et une pièce d'or."""
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
         if not entry or not entry.get("diversion_discard") or 119 in self.completed_book_events:
             return
-        inventory = self.character.get("inventory", [])
-        if inventory:
-            candidates = [name for name in inventory
-                          if name not in self.character.get("locked_items", [])]
-            if not candidates:
-                QMessageBox.information(
-                    self, "Diversion impossible", "Aucun objet transporté ne peut être abandonné.")
+        candidates = [name for name in self.character.get("inventory", [])
+                      if name not in self.character.get("locked_items", [])]
+        gold_available = int(self.character.get("gold", 0)) >= 1
+        if not candidates and not gold_available:
+            QMessageBox.information(
+                self, "Diversion impossible",
+                "Il faut un objet abandonnable ou au moins une pièce d'or.")
+            return
+        if candidates:
+            coin_label = "🪙 Jeter une pièce d'or"
+            choices = ([coin_label] if gold_available else []) + candidates
+            selected, accepted = QInputDialog.getItem(
+                self, "Diversion contre l'Ogre", "Que souhaitez-vous jeter ?",
+                choices, 0, False)
+            if not accepted:
                 return
-            discarded, accepted = QInputDialog.getItem(
-                self, "Diversion contre l'Ogre", "Objet à jeter :", candidates, 0, False)
-            if not accepted or not throw_diversion_item(self.character, discarded):
-                return
-            message = f"Objet jeté : {discarded}."
+            use_gold = gold_available and selected == coin_label
+            discarded = None if use_gold else selected
         else:
-            if not throw_diversion_item(self.character):
-                QMessageBox.information(
-                    self, "Diversion impossible", "Il faut au moins une pièce d'or.")
-                return
-            message = "Sac vide : une pièce d'or jetée."
+            discarded = None
+        if not throw_diversion_item(self.character, discarded):
+            return
         self.completed_book_events.add(119)
         self._refresh_character()
         self._render_choices_and_events(self.paragraphs[119])
+        message = ("Une pièce d'or jetée." if discarded is None
+                   else f"Objet jeté : {discarded}.")
         self.rules_log.setText(message + " Vous pouvez repartir vers le §269.")
 
     def take_book_trade(self, item_id):
