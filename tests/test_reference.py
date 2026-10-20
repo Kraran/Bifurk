@@ -1539,6 +1539,86 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.current_paragraph, 253)
         self.assertEqual(w.character["provisions"], 0)
 
+    def test_verified_routes_92_through_115_match_1982_pdf(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        expected = {
+            92: [71], 93: [8], 94: [260, 329], 95: [205],
+            96: [374], 97: [334, 247, 292], 98: [358],
+            99: [383], 100: [346, 91], 101: [327],
+            102: [303, 19, 68], 103: [252, 359],
+            104: [49], 107: [148, 197], 111: [249],
+            113: [285, 78], 114: [359], 115: [95, 313, 330],
+        }
+        for paragraph, destinations in expected.items():
+            with self.subTest(paragraph=paragraph):
+                entry = data["paragraphs"][str(paragraph)]
+                actual = available_routes({}, entry)
+                self.assertEqual([route["target"] for route in actual], destinations)
+                self.assertTrue(all(route["label"].strip() for route in actual))
+                self.assertEqual(len(actual), len(set(destinations)))
+
+    def test_room_102_can_choose_two_goblins_combat_19(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {102: "Salle de torture.", 303: "Couloir.",
+                        19: "Deux Lutins.", 68: "Feinte.", 317: "Fromage."}
+        w.go_to(102)
+        self.assertEqual(w.choice_layout.count(), 3)
+        w.follow_catalogue_choice(19)
+        self.assertEqual(w.current_paragraph, 19)
+        self.assertEqual(w.book_combat_sequence, {"paragraph": 19, "index": 0})
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Lutin 1", 5, 5))
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 102)
+        self.assertIsNone(w.book_combat_sequence)
+
+    def test_room_97_three_distinct_choices_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {97: "Vieil homme.", 334: "Conversation.",
+                        247: "Attaque.", 292: "Départ."}
+        w.go_to(97)
+        self.assertEqual(w.choice_layout.count(), 3)
+        w.follow_catalogue_choice(334)
+        self.assertEqual(w.current_paragraph, 334)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 97)
+
+    def test_hand_108_prepares_combat_and_victory_185(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {108: "Une main vous agrippe.", 185: "Victoire."}
+        w.go_to(108)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Main", 6, 4))
+        w.enemy_endurance.setValue(2)
+        with patch.object(w, "_roll", side_effect=[
+                ([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 185)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 108)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
+    def test_hand_108_cannot_skip_combat_via_text_link(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {108: "Si victoire rendez-vous au 185.", 185: "Victoire."}
+        w.go_to(108)
+        self.assertTrue(w._combat_exit_pending(185))
+        with patch.object(QMessageBox, "information") as alert:
+            w.follow_link(QUrl("paragraph:185"))
+            alert.assert_called_once()
+        self.assertEqual(w.current_paragraph, 108)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
