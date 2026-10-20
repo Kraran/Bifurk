@@ -5,7 +5,7 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 48 paragraphes vérifiés ponctuellement ; 352 à étudier et valider individuellement.
+- 49 paragraphes vérifiés ponctuellement ; 351 à étudier et valider individuellement.
 - 25 paragraphes avec effets obligatoires automatisés : 11, 25, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 388 et 390.
 - 23 autres paragraphes classés comme conditionnels, jets de dés ou combats particuliers. Onze épreuves sont désormais exécutables : 2, 18, 47, 53, 55, 74, 82 (facultatif), 83, 91, 243 et 389. Au §91, un test de Chance est suivi, uniquement en cas de réussite, d'un second lancer de deux dés déterminant les pièces d'or gagnées. Les autres restent documentés sans application automatique.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
@@ -59,6 +59,15 @@ Le champ `equipped_weapon` distingue les armes dans le sac de celle effectivemen
 - Épée magique (§27) : son bonus de +2 sur Habileté actuelle et maximale n'est actif **que lorsqu'elle est équipée**. Changer d'arme retire ces deux points des valeurs, puis les remet lorsque l'épée est rééquipée ; aucun cumul supplémentaire n'est permis. Le gain de Chance du §27 reste indépendant de ce choix.
 
 Ces changements affectent également les combats particuliers qui utilisent `combat_round` et l'état sauvegardé. Quatre tests supplémentaires couvrent la comparaison des forces d'attaque, le changement d'arme, le §56 et l'annulation. Le port d'une arme ne prétend pas résoudre les autres règles de combat qui ne sont pas encore cataloguées.
+
+
+### Bouclier au croissant du §155
+
+Le bouclier est **facultatif**, mais sa prise oblige à abandonner une pièce d'équipement. Un dialogue propose uniquement les objets présents dans le sac qui ne sont pas verrouillés par une malédiction. Si le joueur ne choisit aucun objet, aucune prise n'a lieu. Le bouclier entre alors dans le sac, utilisable via une case à cocher ; son activation est enregistrée dans la partie.
+
+Lorsqu'un monstre blesse le héros pendant un combat où le bouclier est utilisé, un dé supplémentaire est lancé : sur **6**, la blessure est réduite d'un point (2→1 ; 1→0) ; les cinq autres faces laissent les dégâts inchangés. La réduction intervient après un éventuel test de Chance, et seulement lors d'une blessure reçue, jamais lors d'un coup porté par le joueur. Le bouclier retiré de l'inventaire se désactive.
+
+Le §155 fait passer les **paragraphes individuellement revus à 49/400** et **65 méthodes de test** couvrent désormais les mécanismes documentés, dont quatre nouvelles sur le bouclier. Les combats avec des règles ne passant pas par `combat_round` restent à examiner.
 
 ## Suite
 
