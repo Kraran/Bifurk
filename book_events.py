@@ -68,6 +68,9 @@ def apply_effects(character, effects):
             locked = character.setdefault("locked_items", [])
             if effect["name"] not in locked:
                 locked.append(effect["name"])
+        elif effect["kind"] == "activate_magic_sword":
+            character["equipped_weapon"] = "Épée magique"
+            character["magic_sword_bonus_active"] = True
         elif effect["kind"] == "equip_weapon":
             # L'effet de changement d'arme doit être la dernière étape.
             equip_weapon(character, effect["name"])
