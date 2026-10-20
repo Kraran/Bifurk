@@ -744,6 +744,62 @@ class Reference(unittest.TestCase):
         self.assertEqual(hero["endurance"], 8)
         self.assertEqual(hero["inventory"], ["Épée magique", "Armure de cuir"])
 
+    def test_river_sword_combat_bonus_only_while_equipped(self):
+        from book_events import combat_skill, equip_weapon
+        hero = {"habilete": 8, "initial": {"habilete": 10},
+                "inventory": ["Épée", "Épée trouvée dans la rivière"],
+                "equipped_weapon": "Épée"}
+        self.assertEqual(combat_skill(hero), 8)
+        self.assertTrue(equip_weapon(hero, "Épée trouvée dans la rivière"))
+        self.assertEqual(combat_skill(hero), 9)
+        self.assertEqual(hero["habilete"], 8)
+        self.assertTrue(equip_weapon(hero, "Épée"))
+        self.assertEqual(combat_skill(hero), 8)
+        self.assertFalse(equip_weapon(hero, "Épée inexistante"))
+
+    def test_magic_sword_bonus_disappears_and_returns_on_switch(self):
+        from book_events import DATA_PATH, apply_entry, apply_option, equip_weapon, combat_skill
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"habilete": 8, "chance": 7,
+                "initial": {"habilete": 10, "chance": 9},
+                "inventory": ["Épée", "Épée trouvée dans la rivière"],
+                "equipped_weapon": "Épée"}
+        self.assertTrue(apply_entry(hero, set(), 27, data))
+        self.assertTrue(apply_option(hero, set(), 27, "epee_magique", data))
+        self.assertEqual((hero["habilete"], hero["initial"]["habilete"]), (10, 12))
+        self.assertEqual(hero["equipped_weapon"], "Épée magique")
+        self.assertTrue(equip_weapon(hero, "Épée trouvée dans la rivière"))
+        self.assertEqual((hero["habilete"], hero["initial"]["habilete"]), (8, 10))
+        self.assertEqual(combat_skill(hero), 9)
+        self.assertTrue(equip_weapon(hero, "Épée magique"))
+        self.assertEqual((hero["habilete"], hero["initial"]["habilete"]), (10, 12))
+        self.assertFalse(equip_weapon(hero, "Épée magique"))
+
+    def test_weapon_switch_is_undoable_and_not_a_stat_bonus_from_river(self):
+        w = self.window
+        w.character["inventory"].append("Épée trouvée dans la rivière")
+        w.character["equipped_weapon"] = "Épée"
+        w._refresh_character()
+        w.change_weapon("Épée trouvée dans la rivière")
+        self.assertEqual(w.character["equipped_weapon"], "Épée trouvée dans la rivière")
+        self.assertEqual(w.character["habilete"], 8)
+        w.undo_action()
+        self.assertEqual(w.character["equipped_weapon"], "Épée")
+        w.redo_action()
+        self.assertEqual(w.character["equipped_weapon"], "Épée trouvée dans la rivière")
+
+    def test_river_sword_replaces_old_weapon_at_56(self):
+        from book_events import DATA_PATH, apply_entry, equipped_weapon, combat_skill
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"habilete": 8, "initial": {"habilete": 10},
+                "inventory": ["Épée"], "equipped_weapon": "Épée"}
+        visited = set()
+        self.assertTrue(apply_entry(hero, visited, 344, data))
+        self.assertTrue(apply_entry(hero, visited, 56, data))
+        self.assertNotIn("Épée", hero["inventory"])
+        self.assertEqual(equipped_weapon(hero), "Épée trouvée dans la rivière")
+        self.assertEqual(combat_skill(hero), 9)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
