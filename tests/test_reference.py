@@ -153,7 +153,6 @@ class Reference(unittest.TestCase):
         self.window.test_luck()
         self.assertGreaterEqual(self.window.character['chance'], 0)
 
-    @unittest.expectedFailure
     def test_known_combat_undo_restores_enemy(self):
         w = self.window
         before = w.enemy_endurance.value()
@@ -161,6 +160,19 @@ class Reference(unittest.TestCase):
             w.combat_round()
         w.undo_action()
         self.assertEqual(w.enemy_endurance.value(), before)
+
+    def test_combat_enemy_state_roundtrip(self):
+        w = self.window
+        w.enemy_name.setText("Orque")
+        w.enemy_skill.setValue(7)
+        w.enemy_endurance.setValue(9)
+        state = w._snapshot()
+        w.enemy_name.setText("Gobelin")
+        w.enemy_skill.setValue(5)
+        w.enemy_endurance.setValue(2)
+        w._restore(state)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(), w.enemy_endurance.value()), ("Orque", 7, 9))
+        self.assertEqual((w._save_data()["enemy_name"], w._save_data()["enemy_endurance"]), ("Orque", 9))
 
     def test_known_loading_restores_catalogue(self):
         if not self.pdf:
