@@ -216,6 +216,52 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.enemy_name.text(), name)
         self.assertEqual(w.prepared_book_encounters, set())
 
+    def test_holy_water_restores_to_floor_without_lowering_current_stats(self):
+        from book_events import DATA_PATH, apply_entry
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        char = {"endurance": 7, "habilete": 5, "chance": 4,
+                "initial": {"endurance": 20, "habilete": 11, "chance": 9},
+                "inventory": []}
+        done = set()
+        self.assertTrue(apply_entry(char, done, 109, data))
+        self.assertEqual((char["endurance"], char["habilete"], char["chance"]),
+                         (18, 10, 8))
+        char2 = {"endurance": 20, "habilete": 11, "chance": 8,
+                 "initial": {"endurance": 20, "habilete": 11, "chance": 9},
+                 "inventory": []}
+        self.assertTrue(apply_entry(char2, set(), 109, data))
+        self.assertEqual((char2["endurance"], char2["habilete"], char2["chance"]),
+                         (20, 11, 9))
+
+    def test_book_routes_follow_inventory_and_gold(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))["paragraphs"]
+        char = {"gold": 0, "inventory": []}
+        self.assertEqual([r["target"] for r in available_routes(char, data["264"])], [129])
+        self.assertEqual([r["target"] for r in available_routes(char, data["204"])], [280, 377])
+        char["inventory"].append("Clé du Hangar à Bateaux")
+        char["gold"] = 1
+        self.assertEqual([r["target"] for r in available_routes(char, data["264"])], [80])
+        self.assertEqual([r["target"] for r in available_routes(char, data["204"])], [130, 280, 377])
+
+    def test_book_route_buttons_respect_inventory(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {264: "La porte résiste.", 80: "Porte ouverte.", 129: "Rivière."}
+        w.character["inventory"] = []
+        w.go_to(264)
+        def destinations():
+            return [w.choice_layout.itemAt(i).widget().text()
+                    for i in range(w.choice_layout.count())
+                    if hasattr(w.choice_layout.itemAt(i).widget(), "text")]
+        self.assertTrue(any("§129" in label for label in destinations()))
+        self.assertFalse(any("§80" in label for label in destinations()))
+        w.character["inventory"].append("Clé du Hangar à Bateaux")
+        w.go_to(264)
+        self.assertTrue(any("§80" in label for label in destinations()))
+        self.assertFalse(any("§129" in label for label in destinations()))
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
