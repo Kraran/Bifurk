@@ -219,6 +219,19 @@ def piranha_stamina(crocodile_wounded, die=None):
     return 5 if die <= 2 else 1
 
 
+
+def enchanted_bench_meal(character):
+    """§15 : un repas normal (+4 E), le banc (+2 E et +1 H) et 1 Provision."""
+    if int(character.get("provisions", 0)) < 1:
+        return False
+    character["provisions"] -= 1
+    apply_effects(character, [
+        {"kind": "stat", "key": "endurance", "amount": 6},
+        {"kind": "stat", "key": "habilete", "amount": 1},
+    ])
+    return True
+
+
 def resolve_roll(roll, total, character):
     """Résultat déterministe d'un jet défini dans le catalogue."""
     if not 1 <= roll["dice"] <= 2 or not roll["dice"] <= total <= 6 * roll["dice"]:
