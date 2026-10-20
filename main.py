@@ -758,6 +758,11 @@ class MainWindow(QMainWindow):
             self.event_layout.addWidget(notice)
             if scripted["mode"] == "automatique":
                 self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
+            if scripted.get("optional_meal"):
+                meal_btn = QPushButton("Prendre un repas dans l'abri (+4 Endurance ; -1 Provision)")
+                meal_btn.setEnabled(self.character.get("provisions", 0) > 0)
+                meal_btn.clicked.connect(lambda checked=False: self.eat_meal())
+                self.event_layout.addWidget(meal_btn)
             if scripted.get("enchanted_meal") and self.current_paragraph not in self.completed_book_events:
                 btn = QPushButton("Prendre le repas enchanté (1 Provision ; +6 E, +1 H)")
                 btn.setEnabled(self.character.get("provisions", 0) > 0)
