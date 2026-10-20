@@ -1137,7 +1137,8 @@ class MainWindow(QMainWindow):
     def _advance_scripted_sequence(self):
         """Après la victoire, prépare le suivant ; à la fin, va à la sortie prescrite."""
         state = self.book_combat_sequence
-        if not state or self.enemy_endurance.value() > 0:
+        if (not state or self.current_paragraph != state["paragraph"]
+                or self.enemy_endurance.value() > 0):
             return
         entry = verified_entry(self.book_event_catalogue, state["paragraph"])
         if not entry:
