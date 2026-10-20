@@ -1125,7 +1125,9 @@ class MainWindow(QMainWindow):
         expected = (combat.get("first_hit_target") if combat.get("mode") == "first_hit"
                     else combat.get("victory_target") if len(combat.get("enemies", [])) == 1
                     else None)
-        return expected == target and self.current_paragraph not in self.prepared_book_encounters
+        return (expected == target and (
+            combat.get("mode") == "first_hit"
+            or self.enemy_endurance.value() > 0))
 
     def follow_catalogue_choice(self, target):
         """Toutes les issues vérifiées passent par le même contrôle de ressources."""
