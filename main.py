@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -758,8 +758,13 @@ class MainWindow(QMainWindow):
             self.event_layout.addWidget(notice)
             if scripted["mode"] == "automatique":
                 self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
+            if scripted.get("optional_meal_restore") == 2:
+                shared_btn = QPushButton("Partager un repas (+2 Endurance ; -1 Provision)")
+                shared_btn.setEnabled(self.character.get("provisions", 0) > 0)
+                shared_btn.clicked.connect(lambda checked=False: self.eat_shared_meal())
+                self.event_layout.addWidget(shared_btn)
             if scripted.get("optional_meal"):
-                meal_btn = QPushButton("Prendre un repas dans l'abri (+4 Endurance ; -1 Provision)")
+                meal_btn = QPushButton("Prendre un repas (+4 Endurance ; -1 Provision)")
                 meal_btn.setEnabled(self.character.get("provisions", 0) > 0)
                 meal_btn.clicked.connect(lambda checked=False: self.eat_meal())
                 self.event_layout.addWidget(meal_btn)
@@ -1321,6 +1326,18 @@ class MainWindow(QMainWindow):
         if (entry and entry.get("optional_meal")
                 and self.current_paragraph in self.paragraphs):
             self._render_choices_and_events(self.paragraphs[self.current_paragraph])
+
+    def eat_shared_meal(self):
+        """§131 : le repas se partage, la restauration n'est que de deux points."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if not entry or entry.get("optional_meal_restore") != 2:
+            return
+        if not shared_meal(self.character):
+            self.rules_log.setText("Impossible de partager le repas sans provision.")
+            return
+        self._refresh_character()
+        self.rules_log.setText("Repas partagé : Endurance +2 (plafonnée), Provisions -1.")
+        self._render_choices_and_events(self.paragraphs[self.current_paragraph])
 
     def drink_potion(self):
         potion = self.character.get("potion", "Aucune")
@@ -1970,7 +1987,8 @@ for _name, _label in {
     "roll_piranha_target": "Déterminer la cible des Piranhas",
     "apply_optional_book_event": "Choisir une récompense du livre",
     "create_character": "Créer un personnage", "test_luck": "Tenter sa Chance",
-    "eat_meal": "Prendre un repas", "drink_potion": "Boire une potion",
+    "eat_meal": "Prendre un repas", "eat_shared_meal": "Partager un repas",
+    "drink_potion": "Boire une potion",
     "combat_round": "Assaut de combat", "add_item": "Ajouter un objet",
     "remove_item": "Retirer un objet", "change_potion": "Changer de potion",
     "change_weapon": "Changer d'arme",
