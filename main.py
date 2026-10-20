@@ -1011,7 +1011,7 @@ class MainWindow(QMainWindow):
             entry = verified_entry(self.book_event_catalogue, number)
             combat = entry.get("combat", {}) if entry else {}
             opponents = combat.get("enemies", [])
-            if (len(opponents) == 1 and not combat.get("mode")
+            if (len(opponents) == 1 and combat.get("mode") in (None, "first_hit")
                     and number not in self.prepared_book_encounters):
                 opponent = opponents[0]
                 self.enemy_name.setText(opponent["name"])
@@ -1306,6 +1306,32 @@ class MainWindow(QMainWindow):
         self.combat_state.setText(
             f"⚔ {monster['name']} · H {monster['skill']} · Endurance {monster['stamina']}")
 
+    def _finish_single_book_combat(self, successful_hit=False):
+        """Résout uniquement la sortie confirmée par le catalogue du livre."""
+        number = self.current_paragraph
+        entry = verified_entry(self.book_event_catalogue, number)
+        combat = entry.get("combat", {}) if entry else {}
+        if len(combat.get("enemies", [])) != 1 or self.character["endurance"] <= 0:
+            return
+        if combat.get("mode") == "first_hit":
+            if not successful_hit:
+                return
+            target = combat.get("first_hit_target")
+        elif combat.get("mode") is None and self.enemy_endurance.value() <= 0:
+            target = combat.get("victory_target")
+        else:
+            return
+        if target is None:
+            return
+        self.prepared_book_encounters.add(number)
+        if target in self.paragraphs:
+            self.go_to(target)
+            self.rules_log.setText(
+                f"Combat du §{number} terminé selon le livre : §{target}.")
+        else:
+            self.rules_log.setText(
+                f"Combat du §{number} terminé : ouvrez le §{target}.")
+
     def _advance_scripted_sequence(self):
         """Après la victoire, prépare le suivant ; à la fin, va à la sortie prescrite."""
         state = self.book_combat_sequence
@@ -1505,6 +1531,7 @@ class MainWindow(QMainWindow):
             if self.enemy_endurance.value() == 0:
                 self.rules_log.setText(self.rules_log.text() + "  ⚑ Victoire !")
                 self._advance_scripted_sequence()
+            self._finish_single_book_combat(successful_hit=True)
         else:
             outcome = QMessageBox(self)
             outcome.setWindowTitle("Le monstre vous touche !")
