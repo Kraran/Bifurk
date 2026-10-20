@@ -3,11 +3,13 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
+from book_actions import BookActions
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
-    QGroupBox, QLineEdit, QListWidget, QListWidgetItem, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar)
+    QGroupBox, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar)
 
 APP_NAME = "Bifurk — 1.0.13"
 # Répertoire portable : à côté de l'exécutable empaqueté ou du script.
@@ -77,10 +79,10 @@ def resolve_book_reference(reference):
 def extract_paragraphs(pdf_path):
     """Extract numbered paragraphs from a text-based PDF using PyMuPDF."""
     try:
-        import fitz
+        import pymupdf
     except ImportError as exc:
         raise RuntimeError("PyMuPDF n'est pas installé. Lancez : pip install PyMuPDF") from exc
-    doc = fitz.open(pdf_path)
+    doc = pymupdf.open(pdf_path)
     text = "\n".join(page.get_text("text", sort=True) for page in doc)
     # Normalize common PDF line-break artifacts while preserving paragraph boundaries.
     text = text.replace("\u00ad", "")
@@ -175,7 +177,7 @@ def set_bronze_titlebar(widget):
         pass
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, BookActions):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(APP_NAME)
@@ -185,13 +187,23 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(930, 650)
         self.pdf_path = None
         self.illustration_catalogue = None
+        self.book_event_catalogue = None
+        self.completed_book_events = set()
+        self.completed_optional_events = set()
+        self.prepared_book_encounters = set()
+        self.book_combat_sequence = None
+        self.crocodile_combat = None
+        self.piranha_source_wounded = None
+        self.piranha_combat = None
+        self.book_combat_assaults = {}
         self.paragraphs = {}
         self.current_paragraph = None
         self.visited_paragraphs = []
         self.transitions = []
         self.character = {
             "habilete": 8, "endurance": 20, "chance": 8,
-            "provisions": 10, "inventory": ["Épée", "Armure de cuir", "Lanterne"],
+            "provisions": 10, "gold": 1, "inventory": ["Épée", "Armure de cuir", "Lanterne"],
+            "locked_items": [],
             "potion": "Aucune", "potion_doses": 0,
             "initial": {"habilete": 8, "endurance": 20, "chance": 8}
         }
@@ -342,6 +354,8 @@ class MainWindow(QMainWindow):
         cover_button.clicked.connect(self.show_cover)
         reader_layout.addWidget(cover_button)
         self.reader = QTextBrowser()
+        # Les liens paragraph:NNN sont gérés par follow_link, jamais par QTextBrowser.
+        self.reader.setOpenLinks(False)
         self.reader.setOpenExternalLinks(False)
         self.reader.anchorClicked.connect(self.follow_link)
         self.reader.setObjectName("reader")
@@ -389,7 +403,7 @@ class MainWindow(QMainWindow):
         stats_group = QGroupBox("⚔  FEUILLE D’AVENTURIER")
         stats_grid = QGridLayout(stats_group)
         self.stat_spins = {}
-        stats = [("HABILETÉ", "habilete"), ("ENDURANCE", "endurance"), ("CHANCE", "chance"), ("Provisions", "provisions")]
+        stats = [("HABILETÉ", "habilete"), ("ENDURANCE", "endurance"), ("CHANCE", "chance"), ("Provisions", "provisions"), ("Pièces d'or", "gold")]
         for row, (label, key) in enumerate(stats):
             stats_grid.addWidget(QLabel(label), row, 0)
             spin = QSpinBox()
@@ -397,11 +411,11 @@ class MainWindow(QMainWindow):
             spin.valueChanged.connect(lambda value, k=key: self.set_stat(k, value))
             self.stat_spins[key] = spin
             stats_grid.addWidget(spin, row, 1)
-        stats_grid.addWidget(QLabel("Potion"), 4, 0)
+        stats_grid.addWidget(QLabel("Potion"), 5, 0)
         self.potion_combo = QComboBox()
         self.potion_combo.addItems(["Aucune", "Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune"])
         self.potion_combo.currentTextChanged.connect(self.change_potion)
-        stats_grid.addWidget(self.potion_combo, 4, 1)
+        stats_grid.addWidget(self.potion_combo, 5, 1)
         self.stat_bars = {}
         for key, label in (("endurance", "Vitalité"), ("chance", "Fortune"), ("habilete", "Maîtrise")):
             bar = QProgressBar()
@@ -436,6 +450,12 @@ class MainWindow(QMainWindow):
         self.equipment_label.setWordWrap(True)
         self.equipment_label.setObjectName("equipment")
         inv_layout.insertWidget(0, self.equipment_label)
+        self.weapon_combo = QComboBox()
+        self.weapon_combo.currentTextChanged.connect(self.change_weapon)
+        inv_layout.insertWidget(1, self.weapon_combo)
+        self.shield_check = QCheckBox("Utiliser le bouclier au croissant")
+        self.shield_check.toggled.connect(self.change_shield_use)
+        inv_layout.insertWidget(2, self.shield_check)
         side_layout.addWidget(inv_group, 1)
 
         dice_group = QGroupBox("⚄  DÉS DU DESTIN")
@@ -625,6 +645,17 @@ class MainWindow(QMainWindow):
             return
         self.pdf_path = path
         self.illustration_catalogue = catalogue_for_pdf(path)
+        self.book_event_catalogue = load_book_events(path)
+        for key in ("book_state", "book_visits", "book_facts"):
+            self.character.pop(key, None)
+        self.completed_book_events = set()
+        self.completed_optional_events = set()
+        self.prepared_book_encounters = set()
+        self.book_combat_sequence = None
+        self.crocodile_combat = None
+        self.piranha_source_wounded = None
+        self.piranha_combat = None
+        self.book_combat_assaults = {}
         self.paragraphs = paragraphs
         if self.illustration_catalogue is None:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
@@ -687,6 +718,36 @@ class MainWindow(QMainWindow):
     def _render_choices_and_events(self, text):
         self._clear_dynamic_layout(self.choice_layout)
         choices = self._paragraph_choices(text)
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        escape_target = entry.get("combat", {}).get("escape_target") if entry else None
+        if self.current_paragraph == 179 and self.character.get("book_facts", {}).get("minotaur_dead"):
+            escape_target = None
+        if entry and "routes" in entry:
+            # Ne présenter que les chemins permis par les objets et ressources actuels.
+            choices = [{"target": route["target"], "label": route["label"]}
+                       for route in available_routes(self.character, entry)]
+        choices = [choice for choice in choices
+                   if not self._combat_exit_pending(choice["target"])
+                   and not self._book_blocked(choice["target"])]
+        # §212 : la bouteille ne peut être essayée qu'une fois dans une partie.
+        if self.current_paragraph == 212 and 369 in self.visited_paragraphs:
+            choices = [choice for choice in choices if choice["target"] != 369]
+        if entry and entry.get("enchanted_meal") and self.current_paragraph not in self.completed_book_events:
+            choices = []
+        if (entry and entry.get("diversion_discard")
+                and self.current_paragraph not in self.completed_book_events):
+            choices = []
+        if (self.current_paragraph == 350 and self.piranha_combat
+                and self.piranha_combat.get("status") != "victory"):
+            choices = [choice for choice in choices if choice["target"] != 7]
+        if (entry and entry.get("mode") == "des"
+                and self.current_paragraph not in self.completed_book_events
+                and "roll" in entry):
+            roll_targets = {branch.get("target") for branch in entry["roll"]["branches"]}
+            choices = [choice for choice in choices if choice["target"] not in roll_targets]
+        if escape_target is not None:
+            # La sortie par la fuite est exclusivement proposée avec sa pénalité.
+            choices = [c for c in choices if c["target"] != escape_target]
         if not choices:
             self.choice_layout.addWidget(QLabel("Aucune destination explicite détectée dans ce paragraphe."))
         else:
@@ -695,13 +756,114 @@ class MainWindow(QMainWindow):
                 button = QPushButton(f"{choice['label']}  →  §{target}")
                 button.setToolTip(f"Ouvrir le paragraphe {target}")
                 button.setEnabled(target in self.paragraphs)
-                button.clicked.connect(lambda checked=False, n=target: self.go_to(n))
+                if entry and "routes" in entry:
+                    button.clicked.connect(lambda checked=False, n=target: self.follow_catalogue_choice(n))
+                else:
+                    button.clicked.connect(lambda checked=False, n=target: self.go_to(n))
                 self.choice_layout.addWidget(button)
                 if target not in self.paragraphs:
                     button.setToolTip(f"Destination {target} non détectée dans le PDF importé")
         self._render_conditions(text)
         self._clear_dynamic_layout(self.event_layout)
-        monsters = encounters(text)
+        scripted = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if scripted:
+            notice = QLabel("✦ Événement du livre vérifié : " + scripted["note"])
+            notice.setWordWrap(True)
+            self.event_layout.addWidget(notice)
+            self._book_buttons(scripted)
+            if scripted["mode"] == "automatique":
+                self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
+            if (scripted.get("diversion_discard")
+                    and self.current_paragraph not in self.completed_book_events):
+                btn = QPushButton("Faire diversion : jeter un objet ou 1 pièce d'or")
+                btn.clicked.connect(lambda checked=False: self.throw_book_diversion())
+                self.event_layout.addWidget(btn)
+            if scripted.get("optional_meal_restore") == 2:
+                shared_btn = QPushButton("Partager un repas (+2 Endurance ; -1 Provision)")
+                shared_btn.setEnabled(self.character.get("provisions", 0) > 0)
+                shared_btn.clicked.connect(lambda checked=False: self.eat_shared_meal())
+                self.event_layout.addWidget(shared_btn)
+            if scripted.get("optional_meal"):
+                meal_btn = QPushButton("Prendre un repas (+4 Endurance ; -1 Provision)")
+                meal_btn.setEnabled(self.character.get("provisions", 0) > 0)
+                meal_btn.clicked.connect(lambda checked=False: self.eat_meal())
+                self.event_layout.addWidget(meal_btn)
+            if scripted.get("enchanted_meal") and self.current_paragraph not in self.completed_book_events:
+                btn = QPushButton("Prendre le repas enchanté (1 Provision ; +6 E, +1 H)")
+                btn.setEnabled(self.character.get("provisions", 0) > 0)
+                btn.clicked.connect(lambda checked=False: self.take_enchanted_meal())
+                self.event_layout.addWidget(btn)
+            if scripted.get("trade_choices") and not any(
+                    k.startswith(f"{self.current_paragraph}:trade:")
+                    for k in self.completed_optional_events):
+                for choice in scripted["trade_choices"]:
+                    btn = QPushButton(f"Échanger un objet contre : {choice['name']}")
+                    btn.clicked.connect(
+                        lambda checked=False, item_id=choice["id"]: self.take_book_trade(item_id))
+                    self.event_layout.addWidget(btn)
+            if scripted.get("shield_pickup") and SHIELD_NAME not in self.character.get("inventory", []):
+                btn = QPushButton("Prendre le bouclier (abandonner un objet)")
+                btn.clicked.connect(lambda checked=False: self.take_book_shield())
+                self.event_layout.addWidget(btn)
+            for option in available_options(self.character, scripted,
+                                            self.completed_optional_events,
+                                            self.current_paragraph):
+                button = QPushButton(option["label"])
+                button.clicked.connect(lambda checked=False, n=self.current_paragraph, oid=option["id"]: self.apply_optional_book_event(n, oid))
+                self.event_layout.addWidget(button)
+            if scripted["mode"] in ("des", "des_optionnel") and "roll" in scripted:
+                button = QPushButton("🎲 Lancer le dé et appliquer le résultat vérifié")
+                button.setEnabled(self.current_paragraph not in self.completed_book_events)
+                button.clicked.connect(lambda checked=False, n=self.current_paragraph: self.resolve_book_roll(n))
+                self.event_layout.addWidget(button)
+                return
+            if scripted["mode"] in ("automatique", "conditionnel") and (
+                    scripted["mode"] == "automatique" or scripted.get("options")
+                    or scripted.get("special") or scripted.get("trade_choices")
+                    or scripted.get("loot_choices") or "routes" in scripted):
+                return
+            # Les commandes d'assaut et de fuite restent communes aux combats.
+        state = self.crocodile_combat
+        if (state and self.current_paragraph == 86 and state["phase"] == "initial"
+                and state["assaults"] >= 2 and self.enemy_endurance.value() > 0):
+            continue_btn = QPushButton("Continuer le combat contre le Crocodile")
+            continue_btn.clicked.connect(lambda checked=False: self.choose_crocodile_strategy("continue"))
+            self.event_layout.addWidget(continue_btn)
+            diversion_btn = QPushButton("Faire un dernier assaut puis rejoindre le §350")
+            diversion_btn.clicked.connect(lambda checked=False: self.choose_crocodile_strategy("diversion"))
+            self.event_layout.addWidget(diversion_btn)
+        if escape_target is not None:
+            combat_rules = entry["combat"]
+            permitted = flee_available(combat_rules, self.book_combat_assaults.get(self.current_paragraph, 0),
+                                       1 if combat_rules.get("precombat_escape") else self.enemy_endurance.value(), self.character["endurance"])
+            if combat_rules.get("escape_luck_interval"):
+                permitted = permitted and self.book_combat_assaults.get(self.current_paragraph, 0) >= self._book_state(self.current_paragraph).get("escape_after", 6)
+            escape_label = ("Tenter sa Chance pour fuir (blessure de fuite)"
+                            if combat_rules.get("escape_luck_interval")
+                            else "Fuir le combat (pénalité obligatoire)")
+            btn = QPushButton(f"{escape_label} → §{escape_target}")
+            btn.setEnabled(permitted and escape_target in self.paragraphs)
+            btn.clicked.connect(lambda checked=False, n=self.current_paragraph: self.escape_scripted_combat(n))
+            self.event_layout.addWidget(btn)
+        if self.current_paragraph == 350 and self.piranha_combat:
+            if self.piranha_combat.get("status") == "roll_pending":
+                dice_button = QPushButton("🎲 Déterminer qui subit l'attaque des Piranhas (1d6)")
+                dice_button.clicked.connect(lambda checked=False: self.roll_piranha_target())
+                self.event_layout.addWidget(dice_button)
+            elif self.piranha_combat.get("status") == "fighting":
+                self.event_layout.addWidget(QLabel(
+                    f"Piranhas préparés · H 5 / E {self.piranha_combat['stamina']}."
+                    " Combattez-les avec les commandes d'assaut."))
+        # Le §350 possède deux profils conditionnels : la détection générique
+        # ne doit pas permettre de remplacer le profil obtenu par les règles.
+        # Un combat préparé depuis le catalogue ne doit jamais pouvoir
+        # être réinitialisé par le détecteur heuristique d'adversaires.
+        scripted_combat = scripted.get("combat", {}) if scripted else {}
+        if scripted_combat.get("enemies") or scripted_combat.get("precombat_escape"):
+            # Les règles ci-dessus couvrent ces rencontres. Ne pas proposer en
+            # parallèle des effets ou des adversaires déduits du texte brut.
+            return
+        monsters = ([] if scripted_combat.get("enemies") else encounters(text))
         if monsters:
             self.event_layout.addWidget(QLabel("⚔ Rencontres détectées (à confirmer)"))
             for monster in monsters:
@@ -718,6 +880,19 @@ class MainWindow(QMainWindow):
             note.setWordWrap(True)
             self.event_layout.addWidget(note)
         for label, target in combat['exits']:
+            if self._combat_exit_pending(target) or self._book_blocked(target):
+                continue
+            if (entry and entry.get("mode") == "des"
+                    and self.current_paragraph not in self.completed_book_events
+                    and "roll" in entry
+                    and target in {branch.get("target") for branch in entry["roll"]["branches"]}):
+                continue
+            if (self.current_paragraph == 350 and target == 7
+                    and self.piranha_combat
+                    and self.piranha_combat.get("status") != "victory"):
+                continue
+            if target == escape_target:
+                continue  # Ne pas créer un lien de fuite sans pénalité.
             button = QPushButton(f'Issue possible — {label} → §{target}')
             button.setEnabled(target in self.paragraphs)
             button.setToolTip('Vérifiez que cette issue est bien applicable avant de voyager.')
@@ -834,6 +1009,54 @@ class MainWindow(QMainWindow):
         self._refresh_character()
         self.rules_log.setText(f"Événement appliqué : {label} {before} → {after}.")
 
+    def apply_optional_book_event(self, number, option_id):
+        if number != self.current_paragraph or self.character["endurance"] <= 0:
+            return
+        if apply_option(self.character, self.completed_optional_events, number,
+                        option_id, self.book_event_catalogue):
+            self._refresh_character()
+            self.rules_log.setText(f"Objet ou ressource récupéré au paragraphe {number}.")
+            self._render_choices_and_events(self.paragraphs[number])
+
+    def resolve_book_roll(self, number):
+        """Effectue une seule fois un jet spécial, puis applique son issue."""
+        entry = verified_entry(self.book_event_catalogue, number)
+        if (number != self.current_paragraph or not entry or entry["mode"] not in ("des", "des_optionnel")
+                or "roll" not in entry or number in self.completed_book_events
+                or self.character["endurance"] <= 0):
+            return
+        dice = entry["roll"]["dice"]
+        rolls, total = self._roll(dice)
+        outcome = resolve_roll(entry["roll"], total, self.character)
+        if outcome["target"] not in self.paragraphs:
+            QMessageBox.warning(self, "Paragraphe absent",
+                                f"Impossible de résoudre l'épreuve : §{outcome['target']} non chargé.")
+            return
+        followup = outcome.get("followup")
+        extra_text = ""
+        extra_effects = []
+        if followup:
+            if followup["kind"] != "stat" or followup["key"] != "gold" or followup["dice"] not in (1, 2):
+                raise ValueError("Deuxième tirage non pris en charge")
+            extra_rolls, extra_total = self._roll(followup["dice"])
+            extra_effects = [{"kind": "stat", "key": "gold", "amount": extra_total}]
+            extra_text = f" ; gains : {extra_rolls} = {extra_total} pièces d'or"
+        self.completed_book_events.add(number)
+        # Le seuil de Chance est évalué AVANT de consommer un point.
+        apply_effects(self.character, entry["roll"].get("pre_effects", []))
+        apply_effects(self.character, outcome.get("effects", []))
+        apply_effects(self.character, [
+            {"kind": "stat", "key": effect["key"], "amount": total * effect["multiplier"]}
+            for effect in entry["roll"].get("roll_effects", [])])
+        apply_effects(self.character, extra_effects)
+        self._refresh_character()
+        self.rules_log.setText(
+            f"Épreuve §{number} : dés {rolls} = {total}{extra_text} ; destination §{outcome['target']}.")
+        if self.character["endurance"] > 0:
+            self.go_to(outcome["target"])
+        else:
+            self._render_choices_and_events(self.paragraphs[number])
+
     def go_to(self, number):
         if number not in self.paragraphs:
             QMessageBox.information(self, "Paragraphe absent", f"Le paragraphe {number} n'a pas été détecté dans le PDF chargé.")
@@ -842,6 +1065,49 @@ class MainWindow(QMainWindow):
         if previous is not None and previous != number and not self._restoring:
             self.transitions.append([previous, number])
         self.current_paragraph = number
+        if not self._restoring:
+            self._enter_complex_book(number, previous)
+        if not self._restoring and apply_entry(self.character, self.completed_book_events, number, self.book_event_catalogue):
+            self._refresh_character()
+            self.rules_log.setText(f"Effets vérifiés appliqués automatiquement au paragraphe {number}.")
+        if not self._restoring:
+            entry = verified_entry(self.book_event_catalogue, number)
+            combat = entry.get("combat", {}) if entry else {}
+            opponents = combat.get("enemies", [])
+            if (len(opponents) == 1 and combat.get("mode") in (None, "first_hit")
+                    and not (number == 179 and self.character.get("book_facts", {}).get("minotaur_dead"))
+                    and number not in self.prepared_book_encounters):
+                opponent = opponents[0]
+                self.enemy_name.setText(opponent["name"])
+                self.enemy_skill.setValue(opponent["skill"])
+                self.enemy_endurance.setValue(opponent["stamina"])
+                self.prepared_book_encounters.add(number)
+                self.combat_state.setText(
+                    f"⚔ {opponent['name']} · H {opponent['skill']} · Endurance {opponent['stamina']}")
+                self.combat_journal.clear()
+        if not self._restoring and number == 86:
+            entry = verified_entry(self.book_event_catalogue, number)
+            combat = entry.get("combat", {}) if entry else {}
+            if (combat.get("mode") == "limite_assauts" and self.crocodile_combat is None
+                    and number not in self.prepared_book_encounters):
+                self.crocodile_combat = {"paragraph": number, "assaults": 0,
+                                         "phase": "initial", "wounded": False}
+                self._set_book_enemy(combat["enemies"][0])
+        if (not self._restoring and number == 350
+                and self.piranha_source_wounded is not None
+                and number not in self.prepared_book_encounters):
+            if self.piranha_source_wounded:
+                self._prepare_piranhas(1)
+            else:
+                self.piranha_combat = {"status": "roll_pending"}
+        if not self._restoring:
+            entry = verified_entry(self.book_event_catalogue, number)
+            combat = entry.get("combat", {}) if entry else {}
+            if (combat.get("mode") == "sequence" and len(combat.get("enemies", [])) > 1
+                    and self.book_combat_sequence is None
+                    and number not in self.prepared_book_encounters):
+                self.book_combat_sequence = {"paragraph": number, "index": 0}
+                self._set_book_enemy(combat["enemies"][0])
         if number not in self.visited_paragraphs:
             self.visited_paragraphs.append(number)
         self.goto_spin.setValue(number)
@@ -913,18 +1179,167 @@ class MainWindow(QMainWindow):
             suffix = f" ({index}/{len(entries)})" if len(entries) > 1 else ""
             self._show_illustration(entry, f"Illustration — paragraphe {self.current_paragraph}{suffix}")
 
+    def _combat_exit_pending(self, target):
+        """La destination d'un combat reste inaccessible tant qu'il n'est pas résolu."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        combat = entry.get("combat", {}) if entry else {}
+        expected = (combat.get("first_hit_target") if combat.get("mode") == "first_hit"
+                    else combat.get("victory_target") if len(combat.get("enemies", [])) == 1
+                    else None)
+        if (combat.get("mode") == "sequence"
+                and target == combat.get("victory_target")):
+            return self.current_paragraph not in self.prepared_book_encounters
+        return (expected == target and (
+            combat.get("mode") == "first_hit"
+            or self.enemy_endurance.value() > 0))
+
+    def take_enchanted_meal(self):
+        """§15 : une seule restauration enchantée et une seule provision."""
+        if self.current_paragraph != 15 or 15 in self.completed_book_events:
+            return
+        entry = verified_entry(self.book_event_catalogue, 15)
+        if not entry or not entry.get("enchanted_meal"):
+            return
+        if not enchanted_bench_meal(self.character):
+            self.rules_log.setText("Pas de Provisions pour le repas au banc.")
+            return
+        self.completed_book_events.add(15)
+        self._refresh_character()
+        self.rules_log.setText(
+            "Repas au banc : une Provision utilisée ; Endurance +6 et Habileté +1 (plafonds respectés).")
+        self._render_choices_and_events(self.paragraphs[15])
+
+    def follow_catalogue_choice(self, target):
+        """Toutes les issues vérifiées passent par le même contrôle de ressources."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if (not entry or target not in self.paragraphs
+                or self._combat_exit_pending(target) or self._book_blocked(target)
+                or (self.current_paragraph == 212 and target == 369
+                    and 369 in self.visited_paragraphs)
+                or (entry.get("diversion_discard")
+                    and self.current_paragraph not in self.completed_book_events)
+                or (entry.get("enchanted_meal")
+                    and self.current_paragraph not in self.completed_book_events)
+                or not follow_catalogue_route(self.character, entry, target)):
+            QMessageBox.information(
+                self, "Chemin inaccessible", "Les conditions de ce passage ne sont pas remplies.")
+            return
+        self._refresh_character()
+        if self.character["endurance"] > 0:
+            self.go_to(target)
+        else:
+            self._render_choices_and_events(self.paragraphs[self.current_paragraph])
+
+    def throw_book_diversion(self):
+        """§119 : libre choix entre un objet transporté et une pièce d'or."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if not entry or not entry.get("diversion_discard") or 119 in self.completed_book_events:
+            return
+        candidates = [name for name in self.character.get("inventory", [])
+                      if name not in self.character.get("locked_items", [])]
+        gold_available = int(self.character.get("gold", 0)) >= 1
+        if not candidates and not gold_available:
+            QMessageBox.information(
+                self, "Diversion impossible",
+                "Il faut un objet abandonnable ou au moins une pièce d'or.")
+            return
+        if candidates:
+            coin_label = "🪙 Jeter une pièce d'or"
+            choices = ([coin_label] if gold_available else []) + candidates
+            selected, accepted = QInputDialog.getItem(
+                self, "Diversion contre l'Ogre", "Que souhaitez-vous jeter ?",
+                choices, 0, False)
+            if not accepted:
+                return
+            use_gold = gold_available and selected == coin_label
+            discarded = None if use_gold else selected
+        else:
+            discarded = None
+        if not throw_diversion_item(self.character, discarded):
+            return
+        self.completed_book_events.add(119)
+        self._refresh_character()
+        self._render_choices_and_events(self.paragraphs[119])
+        message = ("Une pièce d'or jetée." if discarded is None
+                   else f"Objet jeté : {discarded}.")
+        self.rules_log.setText(message + " Vous pouvez repartir vers le §269.")
+
+    def take_book_trade(self, item_id):
+        """Échange facultatif : un seul choix par rencontre, abandon réel requis."""
+        number = self.current_paragraph
+        entry = verified_entry(self.book_event_catalogue, number)
+        choice = next((c for c in entry.get("trade_choices", [])
+                       if c["id"] == item_id), None) if entry else None
+        marker = f"{number}:trade:{item_id}"
+        if (choice is None or marker in self.completed_optional_events
+                or self.character["endurance"] <= 0
+                or any(k.startswith(f"{number}:trade:") for k in self.completed_optional_events)):
+            return
+        candidates = [name for name in self.character.get("inventory", [])
+                      if name not in self.character.get("locked_items", [])
+                      and name != choice["name"]]
+        if not candidates:
+            QMessageBox.information(self, "Échange impossible", "Aucun équipement à abandonner.")
+            return
+        discarded, accepted = QInputDialog.getItem(
+            self, "Échange d'équipement", "Objet à abandonner :", candidates, 0, False)
+        if accepted and trade_inventory_item(self.character, choice["name"], discarded):
+            apply_effects(self.character, choice.get("extra_effects", []))
+            self.completed_optional_events.add(marker)
+            self._refresh_character()
+            self._render_choices_and_events(self.paragraphs[number])
+            self.rules_log.setText(
+                f"Objet abandonné : {discarded}. Objet récupéré : {choice['name']}.")
+
     def follow_link(self, url):
         value = url.toString()
-        if value.startswith("paragraph:"):
-            try:
-                self.go_to(int(value.split(":", 1)[1]))
-            except ValueError:
-                return
+        match = re.search(r"paragraph(?::|%3A)(\d+)", value, re.I)
+        if not match:
             return
-        # QTextBrowser may serialize href with percent encoding.
-        match = re.search(r"paragraph%3A(\d+)", value, re.I)
-        if match:
-            self.go_to(int(match.group(1)))
+        target = int(match.group(1))
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if self._book_blocked(target):
+            QMessageBox.information(self, "Action du livre nécessaire",
+                                    "Résolvez d’abord l’action vérifiée de ce passage.")
+            return
+        if self._combat_exit_pending(target):
+            QMessageBox.information(
+                self, "Combat obligatoire",
+                "Terminez d'abord l'affrontement avant d'atteindre cette issue.")
+            return
+        if (self.current_paragraph == 212 and target == 369
+                and 369 in self.visited_paragraphs):
+            QMessageBox.information(
+                self, "Bouteille déjà essayée",
+                "Vous avez déjà essayé de boire ce liquide.")
+            return
+        if (entry and entry.get("diversion_discard")
+                and self.current_paragraph not in self.completed_book_events
+                and target == 269):
+            QMessageBox.information(
+                self, "Diversion nécessaire", "Jetez un objet avant de quitter l'Ogre.")
+            return
+        if (entry and entry.get("mode") == "des"
+                and self.current_paragraph not in self.completed_book_events
+                and "roll" in entry
+                and target in {branch.get("target") for branch in entry["roll"]["branches"]}):
+            QMessageBox.information(
+                self, "Jet obligatoire",
+                "Lancez d'abord les dés du livre avant de suivre cette destination.")
+            return
+        if (self.current_paragraph == 350 and target == 7
+                and self.piranha_combat
+                and self.piranha_combat.get("status") != "victory"):
+            QMessageBox.information(
+                self, "Piranhas", "Il faut vaincre les Piranhas avant de rejoindre le §7.")
+            return
+        if entry and target == entry.get("combat", {}).get("escape_target"):
+            self.escape_scripted_combat(self.current_paragraph)
+            return
+        if entry and "routes" in entry:
+            self.follow_catalogue_choice(target)
+            return
+        self.go_to(target)
 
     def _refresh_character(self):
         for key, spin in self.stat_spins.items():
@@ -936,6 +1351,22 @@ class MainWindow(QMainWindow):
         self.potion_combo.blockSignals(False)
         self.inventory_list.clear()
         self.inventory_list.addItems(self.character.get("inventory", []))
+        self.shield_check.blockSignals(True)
+        self.shield_check.setVisible(SHIELD_NAME in self.character.get("inventory", []))
+        self.shield_check.setChecked(bool(self.character.get("shield_equipped", False)))
+        self.shield_check.blockSignals(False)
+        weapon = equipped_weapon(self.character)
+        self.weapon_combo.blockSignals(True)
+        self.weapon_combo.clear()
+        self.weapon_combo.addItems([name for name in ("Épée", "Épée magique", "Épée trouvée dans la rivière")
+                                    if name in self.character.get("inventory", [])])
+        if weapon:
+            self.weapon_combo.setCurrentText(weapon)
+        self.weapon_combo.blockSignals(False)
+        self.equipment_label.setText(
+            f"⚔ Arme : {weapon or 'Aucune'}"
+            + (" (+1 en combat)" if weapon == "Épée trouvée dans la rivière" else "")
+            + "     ◈ Protection : Armure de cuir")
         initial = self.character.get("initial", {})
         for key, bar in self.stat_bars.items():
             maximum = max(1, int(initial.get(key, self.character.get(key, 1))))
@@ -962,6 +1393,9 @@ class MainWindow(QMainWindow):
         for key, value in self.character["initial"].items():
             self.character[key] = value
         self.character["provisions"] = 10
+        self.character["gold"] = 1
+        self.character["equipped_weapon"] = "Épée"
+        self.character["magic_sword_bonus_active"] = False
         self._refresh_character()
         self.rules_log.setText(f"Personnage créé : Habileté {skill_roll+6}, Endurance {endurance_roll+12}, Chance {luck_roll+6}.")
 
@@ -987,6 +1421,22 @@ class MainWindow(QMainWindow):
         self.character["provisions"] -= 1
         self._refresh_character()
         self.rules_log.setText(f"Repas consommé : Endurance {current} → {self.character['endurance']} (maximum {cap}). Provisions -1.")
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if (entry and entry.get("optional_meal")
+                and self.current_paragraph in self.paragraphs):
+            self._render_choices_and_events(self.paragraphs[self.current_paragraph])
+
+    def eat_shared_meal(self):
+        """§131 : le repas se partage, la restauration n'est que de deux points."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if not entry or entry.get("optional_meal_restore") != 2:
+            return
+        if not shared_meal(self.character):
+            self.rules_log.setText("Impossible de partager le repas sans provision.")
+            return
+        self._refresh_character()
+        self.rules_log.setText("Repas partagé : Endurance +2 (plafonnée), Provisions -1.")
+        self._render_choices_and_events(self.paragraphs[self.current_paragraph])
 
     def drink_potion(self):
         potion = self.character.get("potion", "Aucune")
@@ -1013,92 +1463,392 @@ class MainWindow(QMainWindow):
         self.rules_log.setText(f"Potion utilisée : {label} {old} → {target}. Doses restantes : {doses-1}.")
 
     def _log_assault(self, player_rolls, enemy_rolls, player_attack, enemy_attack, outcome):
+        self._book_round_played = True
+        if (self.crocodile_combat
+                and self.current_paragraph == self.crocodile_combat["paragraph"]):
+            self.crocodile_combat["assaults"] += 1
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if entry and "escape_target" in entry.get("combat", {}):
+            number = self.current_paragraph
+            self.book_combat_assaults[number] = self.book_combat_assaults.get(number, 0) + 1
         self.combat_journal.insertItem(0, f"Vous {player_rolls} = {player_attack} | Ennemi {enemy_rolls} = {enemy_attack} | {outcome}")
         self.combat_state.setText(f"⚔  {self.enemy_name.text()} • Endurance {self.enemy_endurance.value()} | Héros {self.character['endurance']}")
         while self.combat_journal.count() > 60:
             self.combat_journal.takeItem(self.combat_journal.count() - 1)
 
+    def _set_book_enemy(self, monster):
+        """Initialise un adversaire vérifié sans changer les données du héros."""
+        self.enemy_name.setText(monster["name"])
+        self.enemy_skill.setValue(monster["skill"])
+        self.enemy_endurance.setValue(monster["stamina"])
+        self.combat_state.setText(
+            f"⚔ {monster['name']} · H {monster['skill']} · Endurance {monster['stamina']}")
+
+    def _finish_single_book_combat(self, successful_hit=False):
+        """Résout uniquement la sortie confirmée par le catalogue du livre."""
+        number = self.current_paragraph
+        entry = verified_entry(self.book_event_catalogue, number)
+        combat = entry.get("combat", {}) if entry else {}
+        if len(combat.get("enemies", [])) != 1 or self.character["endurance"] <= 0:
+            return
+        if combat.get("mode") == "first_hit":
+            if not successful_hit:
+                return
+            target = combat.get("first_hit_target")
+        elif combat.get("mode") in (None, "silver", "ghoul") and self.enemy_endurance.value() <= 0:
+            target = combat.get("victory_target")
+        else:
+            return
+        if target is None:
+            return
+        if combat.get("victory_fact"):
+            self.character.setdefault("book_facts", {})[combat["victory_fact"]] = True
+        self.prepared_book_encounters.add(number)
+        if target in self.paragraphs:
+            self.go_to(target)
+            self.rules_log.setText(
+                f"Combat du §{number} terminé selon le livre : §{target}.")
+        else:
+            self.rules_log.setText(
+                f"Combat du §{number} terminé : ouvrez le §{target}.")
+
+    def _advance_scripted_sequence(self):
+        """Après la victoire, prépare le suivant ; à la fin, va à la sortie prescrite."""
+        state = self.book_combat_sequence
+        if (not state or self.current_paragraph != state["paragraph"]
+                or self.enemy_endurance.value() > 0):
+            return
+        entry = verified_entry(self.book_event_catalogue, state["paragraph"])
+        if not entry:
+            return
+        combat = entry.get("combat", {})
+        if combat.get("mode") != "sequence":
+            return
+        monsters = combat["enemies"]
+        apply_effects(self.character, combat.get("stage_effects", {}).get(str(state["index"]), []))
+        self._refresh_character()
+        index = state["index"] + 1
+        if index < len(monsters):
+            state["index"] = index
+            self._set_book_enemy(monsters[index])
+            self.rules_log.setText(
+                f"Adversaire vaincu. Combat suivant : {index+1}/{len(monsters)} — {monsters[index]['name']}.")
+        else:
+            target = combat.get("victory_target")
+            self.book_combat_sequence = None
+            self.prepared_book_encounters.add(state["paragraph"])
+            if target in self.paragraphs:
+                self.rules_log.setText(f"Tous les adversaires vaincus. Destination §{target}.")
+                self.go_to(target)
+            else:
+                self.rules_log.setText(
+                    f"Tous les adversaires vaincus. Ouvrez manuellement le §{target}.")
+
+    def escape_scripted_combat(self, number):
+        """Fuite vérifiée : restriction d'assauts, blessure, Chance puis navigation."""
+        if number != self.current_paragraph:
+            return
+        entry = verified_entry(self.book_event_catalogue, number)
+        rules = entry.get("combat", {}) if entry else {}
+        target = rules.get("escape_target")
+        if number == 179 and self.character.get("book_facts", {}).get("minotaur_dead"):
+            if target in self.paragraphs:
+                self.go_to(target)
+            return
+        if (target not in self.paragraphs or not flee_available(
+                rules, self.book_combat_assaults.get(number, 0),
+                1 if rules.get("precombat_escape") else self.enemy_endurance.value(), self.character["endurance"])):
+            return
+        if rules.get("escape_luck_interval"):
+            self._vampire_escape(rules)
+            return
+        attempt = QMessageBox.question(
+            self, "Fuir le combat", "Tenter votre Chance pour la blessure de fuite ?\n"
+            "Sans Chance : -2 Endurance. Chance réussie : -1. Échec : -3.",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        rolls = None
+        if attempt == QMessageBox.Yes:
+            rolls, total = self._roll(2)
+        else:
+            total = None
+        damage, cost = escape_damage(self.character["chance"], total)
+        self.character["chance"] = max(0, self.character["chance"] - cost)
+        self.character["endurance"] = max(0, self.character["endurance"] - damage)
+        if self.character["endurance"] > 0:
+            lost = int(rules.get("escape_provisions_lost", 0))
+            if lost > 0:
+                self.character["provisions"] = max(
+                    0, int(self.character.get("provisions", 0)) - lost)
+        if self.book_combat_sequence and self.book_combat_sequence["paragraph"] == number:
+            self.book_combat_sequence = None
+        self._refresh_character()
+        if self.character["endurance"] <= 0:
+            self.rules_log.setText("La blessure de fuite est mortelle : Endurance à zéro.")
+            self._render_choices_and_events(self.paragraphs[number])
+            return
+        self.go_to(target)
+        self.rules_log.setText(
+            f"Fuite du §{number} vers le §{target} : -{damage} Endurance"
+            + (f", test de Chance {rolls} (Chance -1)." if rolls else "."))
+
+    def choose_crocodile_strategy(self, phase):
+        state = self.crocodile_combat
+        if (not state or self.current_paragraph != 86 or phase not in ("continue", "diversion")
+                or state["phase"] != "initial" or state["assaults"] < 2
+                or self.enemy_endurance.value() <= 0):
+            return
+        state["phase"] = phase
+        self.rules_log.setText(
+            "Continuez jusqu'à la victoire." if phase == "continue"
+            else "Un seul assaut supplémentaire, puis destination §350.")
+        self._render_choices_and_events(self.paragraphs[86])
+
+    def _prepare_piranhas(self, stamina):
+        if self.current_paragraph != 350 or 350 in self.prepared_book_encounters:
+            return
+        self.piranha_combat = {"status": "fighting", "stamina": stamina}
+        self._set_book_enemy({"name": "Piranhas", "skill": 5, "stamina": stamina})
+        self.combat_journal.clear()
+
+    def roll_piranha_target(self):
+        """§350 : ne lancer le dé que si le Crocodile est indemne."""
+        if (self.current_paragraph != 350 or self.piranha_source_wounded is not False
+                or not self.piranha_combat
+                or self.piranha_combat.get("status") != "roll_pending"):
+            return
+        rolls, total = self._roll(1)
+        stamina = piranha_stamina(False, total)
+        self._prepare_piranhas(stamina)
+        self._render_choices_and_events(self.paragraphs[350])
+        self.rules_log.setText(
+            f"§350 : dé {rolls[0]} ; Piranhas H5/E{stamina}.")
+
+    def _finish_piranha_round(self):
+        if (self.current_paragraph != 350 or not self.piranha_combat
+                or self.piranha_combat.get("status") != "fighting"
+                or self.enemy_endurance.value() > 0
+                or self.character["endurance"] <= 0):
+            return
+        entry = verified_entry(self.book_event_catalogue, 350)
+        combat = entry.get("combat", {}) if entry else {}
+        if combat.get("mode") != "piranhas":
+            return
+        from book_events import apply_effects
+        apply_effects(self.character, combat["victory_effects"])
+        self.completed_book_events.add(350)
+        self._refresh_character()
+        self.piranha_combat = {"status": "victory"}
+        self.prepared_book_encounters.add(350)
+        target = combat["victory_target"]
+        if target in self.paragraphs:
+            self.go_to(target)
+            self.rules_log.setText(
+                "Piranhas vaincus : Chance +1 ; §7. Un repas reste facultatif.")
+        else:
+            self.rules_log.setText(f"Piranhas vaincus : Chance +1. Ouvrez le §{target}.")
+
+    def _finish_crocodile_round(self):
+        state = self.crocodile_combat
+        if not state or self.current_paragraph != state["paragraph"]:
+            return
+        entry = verified_entry(self.book_event_catalogue, 86)
+        if not entry:
+            return
+        combat = entry["combat"]
+        if self.character["endurance"] <= 0:
+            self.rules_log.setText("Votre Endurance est à zéro : l'aventure est terminée.")
+            return
+        if state["phase"] == "diversion" and state["assaults"] >= 3:
+            target = combat["diversion_target"]
+        elif self.enemy_endurance.value() <= 0:
+            target = combat["continue_target"]
+        else:
+            self._render_choices_and_events(self.paragraphs[86])
+            return
+        if target == 350:
+            self.piranha_source_wounded = bool(state.get("wounded", False))
+        self.crocodile_combat = None
+        self.prepared_book_encounters.add(86)
+        if target in self.paragraphs:
+            self.go_to(target)
+            self.rules_log.setText(f"Combat contre le Crocodile terminé : §{target}.")
+        else:
+            self.rules_log.setText(f"Combat terminé : ouvrez manuellement le §{target}.")
+
     def combat_round(self):
+        self._book_round_played = False
+        if self._complex_round_blocked():
+            return
+        state = self.crocodile_combat
+        if (state and self.current_paragraph == state["paragraph"]
+                and state["phase"] == "initial" and state["assaults"] >= 2
+                and self.enemy_endurance.value() > 0):
+            self.rules_log.setText(
+                "Après deux assauts contre le Crocodile, choisissez une stratégie dans les événements.")
+            return
         if self.enemy_endurance.value() <= 0:
             self.rules_log.setText("Le monstre est déjà vaincu.")
             return
         enemy_rolls, enemy_total = self._roll(2)
         player_rolls, player_total = self._roll(2)
         enemy_attack = self.enemy_skill.value() + enemy_total
-        player_attack = self.character["habilete"] + player_total
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        combat_rules = entry.get("combat", {}) if entry else {}
+        player_attack = combat_skill(self.character) + player_total + combat_rules.get("attack_bonus", 0)
         if player_attack == enemy_attack:
             self.rules_log.setText(f"Égalité ({player_attack} contre {enemy_attack}) : aucun dégât. Relancez l'assaut.")
             self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, "Parade")
             return
         if player_attack > enemy_attack:
+            entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+            if entry and entry.get("combat", {}).get("mode") == "invulnerable":
+                self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack,
+                                  "Arme ordinaire inefficace : aucune blessure au monstre")
+                return
             outcome = QMessageBox(self)
             outcome.setWindowTitle("Vous touchez !")
-            outcome.setText(f"Votre force d'attaque {player_attack} dépasse celle du monstre ({enemy_attack}).\nDégâts de base : 2 Endurance au monstre.")
+            base_damage = combat_rules.get("hit_damage", 2)
+            outcome.setText(f"Votre force d'attaque {player_attack} dépasse celle du monstre ({enemy_attack}).\nDégâts de base : {base_damage} Endurance au monstre.")
             outcome.setInformativeText("Voulez-vous tenter votre Chance pour aggraver la blessure ?")
             outcome.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             outcome.button(QMessageBox.Yes).setText("Tenter ma Chance")
             outcome.button(QMessageBox.No).setText("Non")
             answer = outcome.exec()
-            damage = 2
+            damage = base_damage
             if answer == QMessageBox.Yes:
                 luck_rolls, luck_total = self._roll(2)
                 was_lucky = luck_total <= self.character["chance"]
                 self.character["chance"] = max(0, self.character["chance"] - 1)
                 if was_lucky:
-                    damage = 4
-                    luck_text = f"Chance réussie ({luck_total}) : 4 dégâts au total."
+                    damage = base_damage + 2
+                    luck_text = f"Chance réussie ({luck_total}) : {damage} dégâts au total."
                 else:
-                    damage = 1
-                    luck_text = f"Chance ratée ({luck_total}) : seulement 1 dégât au total."
+                    damage = max(0, base_damage - 1)
+                    luck_text = f"Chance ratée ({luck_total}) : {damage} dégât(s) au total."
             else:
                 luck_text = ""
             self.enemy_endurance.setValue(max(0, self.enemy_endurance.value() - damage))
+            if (self.crocodile_combat and self.current_paragraph == 86
+                    and damage > 0):
+                self.crocodile_combat["wounded"] = True
             self._refresh_character()
             self.rules_log.setText(f"Vous touchez ({player_attack} contre {enemy_attack}). {luck_text} {self.enemy_name.text()} : -{damage} Endurance.")
             self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, f"Monstre -{damage} PV")
             if self.enemy_endurance.value() == 0:
-                self.rules_log.setText(self.rules_log.text() + "  ⚑ Victoire ! Vérifiez les instructions de sortie du paragraphe.")
+                self.rules_log.setText(self.rules_log.text() + "  ⚑ Victoire !")
+                self._advance_scripted_sequence()
+            self._finish_single_book_combat(successful_hit=True)
         else:
+            base_damage = 2
+            if combat_rules.get("defense_roll"):
+                _, defense_die = self._roll(1)
+                base_damage = 2 if defense_die % 2 else 1 if defense_die in (2, 4) else 0
+                if base_damage == 0:
+                    self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack,
+                                      "Invisibilité : coup paré (6), aucun dégât")
+                    return
             outcome = QMessageBox(self)
             outcome.setWindowTitle("Le monstre vous touche !")
-            outcome.setText(f"Force d'attaque du monstre {enemy_attack} contre la vôtre {player_attack}.\nVous perdez 2 Endurance.")
+            outcome.setText(f"Force d'attaque du monstre {enemy_attack} contre la vôtre {player_attack}.\nVous perdez {base_damage} Endurance.")
             outcome.setInformativeText("Voulez-vous tenter votre Chance pour minimiser la blessure ?")
             outcome.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
             outcome.button(QMessageBox.Yes).setText("Tenter ma Chance")
             outcome.button(QMessageBox.No).setText("Non")
             answer = outcome.exec()
-            damage = 2
+            damage = base_damage
             if answer == QMessageBox.Yes:
                 luck_rolls, luck_total = self._roll(2)
                 was_lucky = luck_total <= self.character["chance"]
                 self.character["chance"] = max(0, self.character["chance"] - 1)
                 if was_lucky:
-                    damage = 1
-                    luck_text = f"Chance réussie ({luck_total}) : blessure réduite à 1."
+                    damage = max(0, base_damage - 1)
+                    luck_text = f"Chance réussie ({luck_total}) : blessure réduite à {damage}."
                 else:
-                    damage = 3
-                    luck_text = f"Chance ratée ({luck_total}) : blessure aggravée à 3."
+                    damage = base_damage + 1
+                    luck_text = f"Chance ratée ({luck_total}) : blessure aggravée à {damage}."
             else:
                 luck_text = ""
+            shield_note = ""
+            if self.character.get("shield_equipped") and SHIELD_NAME in self.character.get("inventory", []):
+                shield_rolls, shield_total = self._roll(1)
+                reduced = shield_damage(damage, shield_total)
+                shield_note = f" Bouclier {shield_rolls}: -{damage - reduced} dégât."
+                damage = reduced
             self.character["endurance"] = max(0, self.character["endurance"] - damage)
             self._refresh_character()
-            self.rules_log.setText(f"Le monstre vous touche ({enemy_attack} contre {player_attack}). {luck_text} Vous : -{damage} Endurance.")
+            self.rules_log.setText(f"Le monstre vous touche ({enemy_attack} contre {player_attack}). {luck_text}{shield_note} Vous : -{damage} Endurance.")
             self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, f"Héros -{damage} PV")
             if self.character['endurance'] == 0:
                 self.rules_log.setText(self.rules_log.text() + "  ☠ Votre Endurance est à zéro.")
+            self._book_wound(damage)
+
+    def change_shield_use(self, active):
+        if SHIELD_NAME not in self.character.get("inventory", []):
+            return
+        self.character["shield_equipped"] = bool(active)
+        self.rules_log.setText(
+            "Bouclier équipé." if active else "Bouclier rangé dans le sac.")
+
+    def take_book_shield(self):
+        if self.current_paragraph != 155:
+            return
+        entry = verified_entry(self.book_event_catalogue, 155)
+        if not entry or not entry.get("shield_pickup"):
+            return
+        candidates = [x for x in self.character.get("inventory", [])
+                      if x not in self.character.get("locked_items", [])
+                      and x != SHIELD_NAME]
+        if not candidates:
+            QMessageBox.information(self, "Bouclier", "Aucun objet abandonnable.")
+            return
+        item, ok = QInputDialog.getItem(
+            self, "Bouclier au croissant", "Objet à abandonner :", candidates, 0, False)
+        if ok and take_moon_shield(self.character, item):
+            self._refresh_character()
+            self._render_choices_and_events(self.paragraphs[155])
+            self.rules_log.setText(f"Bouclier récupéré ; objet abandonné : {item}.")
+
+    def change_weapon(self, name):
+        """Équiper une arme présente dans le sac ; opération annulable."""
+        if not name:
+            return
+        if equip_weapon(self.character, name):
+            self._refresh_character()
+            self.rules_log.setText(
+                f"Arme équipée : {name}. Habileté de combat : {combat_skill(self.character)}.")
 
     def add_item(self):
         item = self.item_input.text().strip()
         if item:
             self.character.setdefault("inventory", []).append(item)
-            self.inventory_list.addItem(item)
+            self._refresh_character()
             self.item_input.clear()
 
     def remove_item(self):
         row = self.inventory_list.currentRow()
         if row >= 0:
+            item = self.character["inventory"][row]
+            if item in self.character.get("locked_items", []):
+                QMessageBox.information(
+                    self, "Objet maudit",
+                    f"Vous ne pouvez pas retirer {item} : cet objet est ensorcelé.")
+                return
+            if equipped_weapon(self.character) == item:
+                other = next((name for name in ("Épée", "Épée magique", "Épée trouvée dans la rivière")
+                              if name != item and name in self.character["inventory"]), None)
+                if other:
+                    equip_weapon(self.character, other)
+                elif item == "Épée magique" and self.character.get("magic_sword_bonus_active"):
+                    self.character["initial"]["habilete"] = max(
+                        0, self.character["initial"]["habilete"] - 2)
+                    self.character["habilete"] = max(0, self.character["habilete"] - 2)
+                    self.character["magic_sword_bonus_active"] = False
             self.character["inventory"].pop(row)
-            self.inventory_list.takeItem(row)
+            if item == SHIELD_NAME:
+                self.character["shield_equipped"] = False
+            if self.character.get("equipped_weapon") == item:
+                self.character["equipped_weapon"] = None
+            self._refresh_character()
 
     def roll_dice(self):
         notation = self.dice_combo.currentText()
@@ -1113,6 +1863,14 @@ class MainWindow(QMainWindow):
 
     def _snapshot(self):
         return {"character": copy.deepcopy(self.character),
+                "completed_book_events": sorted(self.completed_book_events),
+                "completed_optional_events": sorted(self.completed_optional_events),
+                "prepared_book_encounters": sorted(self.prepared_book_encounters),
+                "book_combat_sequence": copy.deepcopy(self.book_combat_sequence),
+                "crocodile_combat": copy.deepcopy(self.crocodile_combat),
+                "piranha_source_wounded": self.piranha_source_wounded,
+                "piranha_combat": copy.deepcopy(self.piranha_combat),
+                "book_combat_assaults": copy.deepcopy(self.book_combat_assaults),
                 "current_paragraph": self.current_paragraph,
                 "visited_paragraphs": list(self.visited_paragraphs),
                 "transitions": copy.deepcopy(self.transitions),
@@ -1143,7 +1901,19 @@ class MainWindow(QMainWindow):
         self._restoring = True
         try:
             self.character = copy.deepcopy(state["character"])
+            # Les anciennes sauvegardes n'enregistraient pas la pièce d'or initiale.
+            self.character.setdefault("gold", 1)
+            self.character.setdefault("locked_items", [])
+            self.completed_book_events = set(state.get("completed_book_events", []))
+            self.completed_optional_events = set(state.get("completed_optional_events", []))
+            self.prepared_book_encounters = set(state.get("prepared_book_encounters", []))
+            self.book_combat_sequence = copy.deepcopy(state.get("book_combat_sequence"))
+            self.crocodile_combat = copy.deepcopy(state.get("crocodile_combat"))
+            self.piranha_source_wounded = state.get("piranha_source_wounded")
+            self.piranha_combat = copy.deepcopy(state.get("piranha_combat"))
+            self.book_combat_assaults = {int(k): int(v) for k, v in state.get("book_combat_assaults", {}).items()}
             self.visited_paragraphs = list(state["visited_paragraphs"])
+            self._sync_book_facts()
             self.transitions = copy.deepcopy(state.get("transitions", []))
             self._refresh_character()
             if "enemy_skill" in state:
@@ -1296,12 +2066,24 @@ class MainWindow(QMainWindow):
                 illustration_catalogue = catalogue_for_pdf(pdf)
                 self.paragraphs = paragraphs
                 self.illustration_catalogue = illustration_catalogue
+                self.book_event_catalogue = load_book_events(pdf)
                 self.book_label.setText(Path(pdf).name)
                 if self.paragraphs:
                     self.goto_spin.setMaximum(max(self.paragraphs))
             elif pdf_reference:
                 QMessageBox.warning(self, "PDF introuvable", "Le grimoire est absent du dossier portable. Réimportez-le pour naviguer.")
             self._restore({"character": data.get("character", self.character),
+                           "completed_book_events": data.get("completed_book_events", []),
+                           "completed_optional_events": data.get("completed_optional_events", []),
+                           "prepared_book_encounters": data.get("prepared_book_encounters", []),
+                           "book_combat_sequence": data.get("book_combat_sequence"),
+                           "crocodile_combat": data.get("crocodile_combat"),
+                           "piranha_source_wounded": data.get("piranha_source_wounded"),
+                           "piranha_combat": data.get("piranha_combat"),
+                           "book_combat_assaults": data.get("book_combat_assaults", {}),
+                           "enemy_name": data.get("enemy_name", self.enemy_name.text()),
+                           "enemy_skill": data.get("enemy_skill", self.enemy_skill.value()),
+                           "enemy_endurance": data.get("enemy_endurance", self.enemy_endurance.value()),
                            "visited_paragraphs": data.get("visited_paragraphs", []),
                            "transitions": data.get("transitions", []),
                            "current_paragraph": data.get("current_paragraph")})
@@ -1320,9 +2102,20 @@ def _track_action(method, label):
             return method(self, *args, **kwargs)
         depth = getattr(self, "_action_depth", 0)
         before = self._snapshot() if depth == 0 else None
+        combat_paragraph = self.current_paragraph
         self._action_depth = depth + 1
         try:
-            return method(self, *args, **kwargs)
+            result = method(self, *args, **kwargs)
+            if method.__name__ == "combat_round" and depth == 0:
+                if self._book_round_played:
+                    self._finish_complex_round(combat_paragraph)
+                self._finish_crocodile_round()
+                self._finish_piranha_round()
+                current = verified_entry(self.book_event_catalogue, self.current_paragraph)
+                if (current and "escape_target" in current.get("combat", {})
+                        and self.current_paragraph in self.paragraphs):
+                    self._render_choices_and_events(self.paragraphs[self.current_paragraph])
+            return result
         finally:
             self._action_depth -= 1
             if depth == 0:
@@ -1331,10 +2124,24 @@ def _track_action(method, label):
 
 for _name, _label in {
     "go_to": "Changer de paragraphe", "apply_detected_event": "Appliquer un événement",
+    "perform_book_action": "Résoudre une action du livre",
+    "resolve_book_roll": "Résoudre une épreuve du livre",
+    "escape_scripted_combat": "Fuir un combat du livre",
+    "choose_crocodile_strategy": "Choisir une stratégie contre le Crocodile",
+    "roll_piranha_target": "Déterminer la cible des Piranhas",
+    "apply_optional_book_event": "Choisir une récompense du livre",
     "create_character": "Créer un personnage", "test_luck": "Tenter sa Chance",
-    "eat_meal": "Prendre un repas", "drink_potion": "Boire une potion",
+    "eat_meal": "Prendre un repas", "eat_shared_meal": "Partager un repas",
+    "drink_potion": "Boire une potion",
     "combat_round": "Assaut de combat", "add_item": "Ajouter un objet",
-    "remove_item": "Retirer un objet", "change_potion": "Changer de potion"
+    "remove_item": "Retirer un objet", "change_potion": "Changer de potion",
+    "change_weapon": "Changer d'arme",
+    "change_shield_use": "Utiliser le bouclier",
+    "take_book_shield": "Prendre le bouclier",
+    "take_book_trade": "Échanger un équipement du livre",
+    "throw_book_diversion": "Jeter un objet pour détourner l'Ogre",
+    "take_enchanted_meal": "Manger au banc enchanté",
+    "follow_catalogue_choice": "Suivre un itinéraire vérifié"
 }.items():
     setattr(MainWindow, _name, _track_action(getattr(MainWindow, _name), _label))
 

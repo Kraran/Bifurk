@@ -32,3 +32,25 @@ Bifurk/
 Les dialogues Qt peuvent contenir des libellés propres à une version de Qt qui ne sont traduits intégralement que si les fichiers `.qm` correspondants sont présents. Les traductions de secours couvrent les libellés usuels du sélecteur, mais leur exhaustivité visuelle reste à vérifier sur Windows.
 
 Le mode portable concerne les **données de Bifurk**. Windows, Python et Qt peuvent créer leurs propres caches ou fichiers temporaires hors du dossier de l'application ; une garantie absolue « aucune écriture extérieure par aucun composant » nécessite une validation spécifique de l'exécutable empaqueté.
+
+## Tests de développement sur Windows
+
+Depuis le dossier du projet, dans PowerShell (créer `.venv` seulement s’il n’existe pas) :
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+$env:QT_QPA_PLATFORM = "offscreen"
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+Remove-Item Env:QT_QPA_PLATFORM
+```
+
+Le PDF privé de référence, placé à la racine du projet, active les tests d’extraction et de rendu. Sans ce fichier, ces contrôles sont ignorés. Le cadrage de la couverture possède un défaut connu signalé comme échec attendu. Le PDF ne doit pas être ajouté à Git.
+
+Pour tester visuellement après les tests :
+
+```powershell
+.\.venv\Scripts\python.exe main.py
+```
+
+Le catalogue couvre les 400 paragraphes de l’édition vérifiée. La logique du dernier lot et les scénarios de validation sont détaillés dans [la documentation des événements](catalogues/README_evenements.md).
