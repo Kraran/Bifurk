@@ -5,7 +5,7 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 53 paragraphes vérifiés ponctuellement ; 347 à étudier et valider individuellement.
+- 55 paragraphes vérifiés ponctuellement ; 345 à étudier et valider individuellement.
 - 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
 - 25 paragraphes avec règles conditionnelles, dés ou combats particuliers. 12 épreuves de dés cataloguées (dont un lancer facultatif) : 2, 18, 47, 53, 55, 74, 82, 83, 91, 209, 243, 389. Au §91, la réussite du test de Chance lance ensuite deux dés pour les pièces d'or gagnées.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
@@ -95,4 +95,11 @@ Examiner chaque paragraphe restant, notamment les combats en série, les tests d
 Pour les entrées en mode `des`, Bifurk masque les boutons de destination conditionnés par un jet tant que le lancer obligatoire n'a pas été résolu. Les liens correspondants dans le texte sont également bloqués avec un message, sans interdire le saut manuel de débogage.
 
 Les métadonnées de ce catalogue sont propres au PDF de référence ; aucune page du livre n'est recopiée dans le dépôt.
+
+
+### Passeur du §3 et outils du §34
+
+- **§3** : la traversée payée demande **3 pièces d'or**, débitées au moment où le joueur choisit le §272 (bouton ou lien du texte) ; le §127 (« menacer ») reste possible sans payer. Si le héros a moins de 3 pièces, le chemin payant n'est pas proposé et son activation directe est refusée. Le débit et la navigation constituent une seule action annulable.
+- **§34** : le maillet en bois dur et le ciseau à lame d'argent sont **mutuellement exclusifs**. En choisir un demande d'abandonner un objet réel du sac, à l'exception des objets verrouillés par une malédiction. Aucun échange n'a lieu si le joueur annule le dialogue. La perte éventuelle d'une arme équipée actualise son état et son bonus. Après l'échange, la suite est le §96.
+- Quatre tests garantissent les refus sans modification, le paiement unique par trajet, l'échange exclusif et l'annulation. Les actions sont pilotées par les données du catalogue plutôt que par une détection heuristique des mots du texte.
 
