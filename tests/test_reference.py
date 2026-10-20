@@ -1226,6 +1226,71 @@ class Reference(unittest.TestCase):
         self.assertEqual([route["target"] for route in available_routes(hero, entry)], [211])
         self.assertEqual(hero["habilete"], 8)
 
+    def test_quail_eggs_38_are_optional_and_once(self):
+        from book_events import DATA_PATH, apply_option, available_options
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"provisions": 4, "inventory": []}
+        entry = data["paragraphs"]["38"]
+        completed = set()
+        self.assertEqual(hero["provisions"], 4)
+        self.assertEqual(len(available_options(hero, entry, completed, 38)), 1)
+        self.assertTrue(apply_option(hero, completed, 38, "oeufs_caille", data))
+        self.assertEqual(hero["provisions"], 6)
+        self.assertFalse(apply_option(hero, completed, 38, "oeufs_caille", data))
+        self.assertEqual(hero["provisions"], 6)
+
+    def test_enchanted_bench_meal_caps_stats_and_consumes_one_provision(self):
+        from book_events import enchanted_bench_meal
+        hero = {"endurance": 10, "habilete": 7, "provisions": 2,
+                "initial": {"endurance": 20, "habilete": 9}}
+        self.assertTrue(enchanted_bench_meal(hero))
+        self.assertEqual((hero["endurance"], hero["habilete"], hero["provisions"]),
+                         (16, 8, 1))
+        hero["endurance"], hero["habilete"] = 18, 9
+        self.assertTrue(enchanted_bench_meal(hero))
+        self.assertEqual((hero["endurance"], hero["habilete"], hero["provisions"]),
+                         (20, 9, 0))
+        self.assertFalse(enchanted_bench_meal(hero))
+
+    def test_bench_58_must_have_food_to_visit_15(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        entry = data["paragraphs"]["58"]
+        self.assertEqual([r["target"] for r in available_routes(
+            {"provisions": 0}, entry)], [367])
+        self.assertEqual([r["target"] for r in available_routes(
+            {"provisions": 1}, entry)], [15, 367])
+
+    def test_enchanted_meal_15_is_required_once_and_undoable(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {15: "Banc enchanté. Rendez-vous au 367.",
+                        367: "Le couloir."}
+        w.character["provisions"] = 3
+        w.character["endurance"] = 10
+        w.character["habilete"] = 7
+        w.go_to(15)
+        with patch.object(QMessageBox, "information") as warning:
+            w.follow_link(QUrl("paragraph:367"))
+            warning.assert_called_once()
+        self.assertEqual(w.current_paragraph, 15)
+        w.take_enchanted_meal()
+        self.assertEqual(w.character["provisions"], 2)
+        self.assertEqual(w.character["endurance"], 16)
+        self.assertEqual(w.character["habilete"], 8)
+        self.assertIn(15, w.completed_book_events)
+        w.take_enchanted_meal()
+        self.assertEqual(w.character["provisions"], 2)
+        w.undo_action()
+        self.assertNotIn(15, w.completed_book_events)
+        self.assertEqual((w.character["provisions"], w.character["endurance"],
+                          w.character["habilete"]), (3, 10, 7))
+        w.take_enchanted_meal()
+        w.follow_catalogue_choice(367)
+        self.assertEqual(w.current_paragraph, 367)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
