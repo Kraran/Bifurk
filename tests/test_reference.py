@@ -419,6 +419,73 @@ class Reference(unittest.TestCase):
         w._advance_scripted_sequence()
         self.assertEqual(w.book_combat_sequence["index"], 0)
 
+    def test_crocodile_two_assaults_then_diversion(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {86: "Le Crocodile.", 259: "Victoire.", 350: "Remous."}
+        w.go_to(86)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Crocodile", 7, 6))
+        with patch.object(w, "_roll", return_value=([3, 3], 6)):
+            # 8+6 against 7+6 : two successful assaults, no Chance.
+            with patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+                w.combat_round()
+                w.combat_round()
+        self.assertEqual(w.crocodile_combat["assaults"], 2)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+        with patch.object(w, "_roll") as dice:
+            w.combat_round()
+            dice.assert_not_called()
+        w.choose_crocodile_strategy("diversion")
+        self.assertEqual(w.crocodile_combat["phase"], "diversion")
+        with patch.object(w, "_roll", return_value=([3, 3], 6)), \\
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 350)
+        self.assertIsNone(w.crocodile_combat)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 86)
+        self.assertEqual(w.crocodile_combat["phase"], "diversion")
+        self.assertEqual(w.crocodile_combat["assaults"], 2)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
+    def test_crocodile_victory_and_continue_choice(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {86: "Le Crocodile.", 259: "Victoire.", 350: "Remous."}
+        w.go_to(86)
+        with patch.object(w, "_roll", return_value=([3, 3], 6)), \\
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+            w.combat_round()
+        w.choose_crocodile_strategy("continue")
+        self.assertEqual(w.crocodile_combat["phase"], "continue")
+        with patch.object(w, "_roll", return_value=([3, 3], 6)), \\
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 259)
+        self.assertIsNone(w.crocodile_combat)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 86)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
+    def test_crocodile_tied_assault_counts_and_restores(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {86: "Le Crocodile.", 259: "Victoire.", 350: "Remous."}
+        w.go_to(86)
+        # Player 8+5 = 13, crocodile 7+6 = 13.
+        with patch.object(w, "_roll", side_effect=[
+                ([3, 3], 6), ([2, 3], 5)]):
+            w.combat_round()
+        self.assertEqual(w.crocodile_combat["assaults"], 1)
+        self.assertEqual(w.enemy_endurance.value(), 6)
+        w.undo_action()
+        self.assertEqual(w.crocodile_combat["assaults"], 0)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
