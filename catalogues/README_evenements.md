@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 124 paragraphes vérifiés ponctuellement ; 276 à étudier et valider individuellement.
+- 126 paragraphes vérifiés ponctuellement ; 274 à étudier et valider individuellement.
 - 29 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 95 paragraphes conditionnels, jets de dés ou combats particuliers. 14 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 209, 243, 389.
+- 97 paragraphes conditionnels, jets de dés ou combats particuliers. 14 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -193,3 +193,10 @@ Le PDF français de 1982 confirme trois nouvelles entrées :
 Cinq tests supplémentaires couvrent la liste des issues du §122, le partage du repas et ses plafonds, la disponibilité des provisions, la récompense facultative et l'annulation de plusieurs actions. Les anciens identifiants d'options du catalogue ne changent pas.
 
 Les passages §§119, 125, 130, 139, 140 et 143 demandent des contraintes plus complexes (objet jeté, boucle de Chance, mises, clés et combats simultanés) et restent dans la file de revue ; ne pas les simuler par une simple route sans effets.
+
+### Diversion contre l'Ogre §119 et fuite devant le Ver marin géant §143
+
+- **§119** : la diversion exige de **rayer un objet transporté du sac**. Si l'inventaire est entièrement vide, on jette à la place **une pièce d'or** ; sans objet ni or, l'action est impossible. Les objets verrouillés ne peuvent pas être abandonnés. Jeter une épée magique équipée retire aussi son bonus actif, et jeter le bouclier le déséquipe. Le §269 ne s'ouvre qu'après ce sacrifice ; un lien direct ne peut pas l'ignorer. Le choix de l'objet passe par la boîte de dialogue existante, avec Undo.
+- **§143** : combat contre le **Ver marin géant H7/E7** ; victoire §44. Fuite au §399 seulement **après trois assauts** ; sa pénalité d'Endurance et la Chance éventuelle suivent les règles normales de fuite, auxquelles s'ajoute **une provision perdue** (repas commencé puis abandonné). Si la fuite est mortelle, la destination n'est pas atteinte. L'annulation restaure les provisions, Endurance et progression.
+
+Cinq tests supplémentaires contrôlent le sacrifice d'objet et d'or, les objets maudits, le blocage du passage, la victoire contre le Ver marin, les trois assauts de fuite, la perte du repas et l'annulation. Les anciennes options du catalogue conservent leurs identifiants.
