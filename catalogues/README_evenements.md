@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 60 paragraphes vérifiés ponctuellement ; 340 à étudier et valider individuellement.
+- 62 paragraphes vérifiés ponctuellement ; 338 à étudier et valider individuellement.
 - 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 32 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
+- 34 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -120,3 +120,11 @@ Les métadonnées de ce catalogue sont propres au PDF de référence ; aucune pa
 - **§310** : suite vérifiée de l'Être du §41 ; le héros constate l'inefficacité de son attaque, peut choisir une autre arme et poursuit au §211. Aucun bonus de caractéristique n'est inventé.
 - Cinq tests ciblent les deux assauts de fuite, les conséquences de victoire, le seuil de Chance, les deux issues de l'épreuve et l'annulation.
 
+
+### Banc enchanté et provisions — §§15, 38 et 58
+
+- **§38** : récupération *facultative* d'œufs de caille donnant **deux repas supplémentaires**, soit +2 Provisions, une seule fois. Puis §66.
+- **§58** : deux itinéraires explicites : continuer vers §367 sans manger ou s'arrêter au §15 pour un repas, à condition de disposer d'au moins une provision. Le contrôle de disponibilité s'applique aux liens du texte aussi bien qu'aux boutons.
+- **§15** : pour manger au banc enchanté, le joueur lance l'action dédiée une seule fois. Elle consomme **1 Provision**, rend jusqu'à **6 Endurance** (+4 du repas et +2 du banc) et jusqu'à **1 Habileté**, sans dépasser les totaux initiaux. Le passage vers §367 est bloqué tant que cette action n'a pas été résolue. La progression, les ressources et les statistiques sont annulables ensemble.
+
+Les tests vérifient l'absence de provisions, les limites des caractéristiques, le caractère facultatif du butin et la non-répétition des effets. **La base s'applique exclusivement au PDF dont l'empreinte est enregistrée**, sans reprise de son texte.
