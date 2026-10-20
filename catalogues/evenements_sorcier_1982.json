@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 29,
+  "reviewed_count": 30,
   "review_pending": [
     1,
     3,
@@ -40,7 +40,6 @@
     45,
     46,
     48,
-    50,
     52,
     54,
     56,
@@ -434,8 +433,25 @@
     },
     "28": {
       "status": "verifie",
-      "mode": "conditionnel",
-      "note": "Chance +2, Habileté +2 ; bourse de 8 pièces d'or à intégrer dans une monnaie structurée."
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 2
+        },
+        {
+          "kind": "stat",
+          "key": "habilete",
+          "amount": 2
+        },
+        {
+          "kind": "stat",
+          "key": "gold",
+          "amount": 8
+        }
+      ],
+      "note": "Après le Géant : Chance +2, Habileté +2 et bourse de huit pièces d'or."
     },
     "32": {
       "status": "verifie",
@@ -445,7 +461,20 @@
     "38": {
       "status": "verifie",
       "mode": "conditionnel",
-      "note": "Prise facultative d'œufs : +2 provisions."
+      "note": "Œufs de caille facultatifs : deux repas supplémentaires.",
+      "options": [
+        {
+          "id": "oeufs",
+          "label": "Prendre les œufs de caille (+2 provisions)",
+          "effects": [
+            {
+              "kind": "stat",
+              "key": "provisions",
+              "amount": 2
+            }
+          ]
+        }
+      ]
     },
     "39": {
       "status": "verifie",
@@ -494,6 +523,23 @@
         }
       ],
       "note": "Assommé avant de poursuivre au §122."
+    },
+    "50": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Clé de bronze numéro 9, prise facultative.",
+      "options": [
+        {
+          "id": "cle9",
+          "label": "Prendre la clé de bronze n° 9",
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Clé de bronze 9"
+            }
+          ]
+        }
+      ]
     },
     "51": {
       "status": "verifie",
@@ -570,8 +616,20 @@
     },
     "147": {
       "status": "verifie",
-      "mode": "conditionnel",
-      "note": "Une pièce d'or récupérée et Chance +2 ; comptabilité d'or à créer."
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "gold",
+          "amount": 1
+        },
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 2
+        }
+      ],
+      "note": "La boîte contient une pièce d'or conservée ; Chance +2."
     },
     "153": {
       "status": "verifie",
@@ -605,7 +663,19 @@
           "amount": 1
         }
       ],
-      "note": "Victoire contre le Loup-Garou : Chance +1 ; clés et repas facultatifs."
+      "note": "Victoire contre le Loup-Garou : Chance +1 ; clés facultatives.",
+      "options": [
+        {
+          "id": "cles_hangar",
+          "label": "Prendre le trousseau de clés du Hangar à Bateaux",
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Clé du Hangar à Bateaux"
+            }
+          ]
+        }
+      ]
     },
     "243": {
       "status": "verifie",
