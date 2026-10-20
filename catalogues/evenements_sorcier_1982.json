@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 46,
+  "reviewed_count": 47,
   "review_pending": [
     1,
     3,
@@ -307,7 +307,6 @@
     339,
     340,
     341,
-    344,
     345,
     346,
     347,
@@ -999,8 +998,19 @@
     },
     "153": {
       "status": "verifie",
-      "mode": "conditionnel",
-      "note": "Endurance -1 et épée enchantée abandonnée ; inventaire à mettre à jour."
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "endurance",
+          "amount": -1
+        },
+        {
+          "kind": "discard_if_present",
+          "name": "Épée trouvée dans la rivière"
+        }
+      ],
+      "note": "L'épée ramassée à la rivière blesse le héros (-1 Endurance), devient inutilisable et est jetée. Son abandon ne retire pas l'épée d'origine."
     },
     "185": {
       "status": "verifie",
@@ -1016,8 +1026,19 @@
     },
     "202": {
       "status": "verifie",
-      "mode": "conditionnel",
-      "note": "Casque maudit indéposable et Habileté -1 ; statut d'équipement persistant."
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "habilete",
+          "amount": -1
+        },
+        {
+          "kind": "locked_item",
+          "name": "Casque ensorcelé"
+        }
+      ],
+      "note": "Casque maudit : Habileté -1, casque impossible à retirer. Le casque est verrouillé dans le sac et dans les sauvegardes."
     },
     "203": {
       "status": "verifie",
@@ -1196,6 +1217,27 @@
         }
       ],
       "note": "Chute dans la fosse : Endurance -1."
+    },
+    "344": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "item",
+          "name": "Épée trouvée dans la rivière"
+        }
+      ],
+      "note": "Épée découverte dans la rivière ; donne +1 Habileté lors de son utilisation au combat, bonus d'arme restant à gérer. Choix de jeter l'ancienne épée (§56) ou garder les deux (§153).",
+      "routes": [
+        {
+          "target": 56,
+          "label": "Jeter l'ancienne épée à la rivière"
+        },
+        {
+          "target": 153,
+          "label": "Conserver les deux épées"
+        }
+      ]
     },
     "350": {
       "status": "verifie",
