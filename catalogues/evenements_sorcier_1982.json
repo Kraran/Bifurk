@@ -467,7 +467,21 @@
     "47": {
       "status": "verifie",
       "mode": "des",
-      "note": "1d6 : 6 vers §158 ; 1 à 5 vers §298."
+      "note": "1 dé ; 6 : chute vers §158 ; sinon §298.",
+      "roll": {
+        "dice": 1,
+        "branches": [
+          {
+            "when": "eq",
+            "value": 6,
+            "target": 158
+          },
+          {
+            "when": "otherwise",
+            "target": 298
+          }
+        ]
+      }
     },
     "49": {
       "status": "verifie",
@@ -489,12 +503,50 @@
     "53": {
       "status": "verifie",
       "mode": "des",
-      "note": "2d6 sous Habileté vers §155 ; sinon -1 Endurance puis §300."
+      "note": "2 dés sous Habileté : §155 ; sinon Endurance -1 puis §300.",
+      "roll": {
+        "dice": 2,
+        "branches": [
+          {
+            "when": "lte_stat",
+            "key": "habilete",
+            "target": 155
+          },
+          {
+            "when": "otherwise",
+            "target": 300,
+            "effects": [
+              {
+                "kind": "stat",
+                "key": "endurance",
+                "amount": -1
+              }
+            ]
+          }
+        ]
+      }
     },
     "55": {
       "status": "verifie",
       "mode": "des",
-      "note": "2d6 sous Chance ET Endurance vers §7 ; sinon §166. Ne coûte pas de Chance."
+      "note": "2 dés sous Chance et Endurance : §7 ; sinon §166. Aucun point de Chance consommé.",
+      "roll": {
+        "dice": 2,
+        "branches": [
+          {
+            "when": "lte_both",
+            "keys": [
+              "chance",
+              "endurance"
+            ],
+            "target": 7
+          },
+          {
+            "when": "otherwise",
+            "target": 166
+          }
+        ]
+      }
     },
     "75": {
       "status": "verifie",
@@ -558,7 +610,44 @@
     "243": {
       "status": "verifie",
       "mode": "des",
-      "note": "1d6 pair : Habileté -1, Endurance -2 ; impair : Habileté -3, Endurance -1, puis §128."
+      "note": "1d6 pair : Habileté -1, Endurance -2 ; impair : Habileté -3, Endurance -1, puis §128.",
+      "roll": {
+        "dice": 1,
+        "branches": [
+          {
+            "when": "even",
+            "target": 128,
+            "effects": [
+              {
+                "kind": "stat",
+                "key": "habilete",
+                "amount": -1
+              },
+              {
+                "kind": "stat",
+                "key": "endurance",
+                "amount": -2
+              }
+            ]
+          },
+          {
+            "when": "otherwise",
+            "target": 128,
+            "effects": [
+              {
+                "kind": "stat",
+                "key": "habilete",
+                "amount": -3
+              },
+              {
+                "kind": "stat",
+                "key": "endurance",
+                "amount": -1
+              }
+            ]
+          }
+        ]
+      }
     },
     "247": {
       "status": "verifie",
