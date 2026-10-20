@@ -1739,7 +1739,7 @@
     "119": {
       "status": "verifie",
       "mode": "conditionnel",
-      "note": "Diversion contre l'Ogre : jeter un objet de l'équipement (rayé de la liste), ou 1 pièce d'or si l'inventaire est vide. Puis §269.",
+      "note": "Diversion contre l'Ogre : choisir librement de jeter un objet abandonnable du sac OU une pièce d'or, même lorsque l'inventaire n'est pas vide. Puis §269.",
       "diversion_discard": true,
       "routes": [
         {
