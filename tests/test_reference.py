@@ -1701,6 +1701,74 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.current_paragraph, 142)
         self.assertEqual(w.enemy_endurance.value(), 2)
 
+    def test_four_gray_creatures_122_three_routes(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        self.assertEqual([r["target"] for r in available_routes(
+            {}, data["paragraphs"]["122"])], [268, 282, 13])
+
+    def test_shared_meal_131_reduces_restoration_and_consumes_food(self):
+        from book_events import shared_meal
+        hero = {"endurance": 10, "provisions": 2,
+                "initial": {"endurance": 20}}
+        self.assertTrue(shared_meal(hero))
+        self.assertEqual((hero["endurance"], hero["provisions"]), (12, 1))
+        hero["endurance"] = 19
+        self.assertTrue(shared_meal(hero))
+        self.assertEqual((hero["endurance"], hero["provisions"]), (20, 0))
+        self.assertFalse(shared_meal(hero))
+
+    def test_shared_meal_131_ui_optional_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {131: "Repas partagé.", 291: "Couloir."}
+        w.character["endurance"] = 10
+        w.character["provisions"] = 1
+        w.go_to(131)
+        self.assertEqual((w.character["endurance"], w.character["provisions"]), (10, 1))
+        widgets = [w.event_layout.itemAt(i).widget()
+                   for i in range(w.event_layout.count())]
+        meal = [widget for widget in widgets if hasattr(widget, "text")
+                and "Partager un repas" in widget.text()]
+        self.assertEqual(len(meal), 1)
+        meal[0].click()
+        self.assertEqual((w.character["endurance"], w.character["provisions"]), (12, 0))
+        w.undo_action()
+        self.assertEqual((w.character["endurance"], w.character["provisions"]), (10, 1))
+        w.follow_catalogue_choice(291)
+        self.assertEqual(w.current_paragraph, 291)
+        self.assertEqual(w.character["provisions"], 1)
+
+    def test_creature_treasure_135_optional_gold_and_automatic_luck(self):
+        from book_events import DATA_PATH, apply_entry, apply_option
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"chance": 5, "gold": 2, "provisions": 1,
+                "initial": {"chance": 10}, "inventory": []}
+        completed, chosen = set(), set()
+        self.assertTrue(apply_entry(hero, completed, 135, data))
+        self.assertEqual((hero["chance"], hero["gold"]), (7, 2))
+        self.assertFalse(apply_entry(hero, completed, 135, data))
+        self.assertTrue(apply_option(hero, chosen, 135, "or18", data))
+        self.assertEqual(hero["gold"], 20)
+        self.assertFalse(apply_option(hero, chosen, 135, "or18", data))
+
+    def test_creature_treasure_135_undo_reward_and_exit(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {135: "La boîte contenant l'or.", 360: "Porte nord."}
+        w.character["chance"] = 4
+        w.character["gold"] = 1
+        w.go_to(135)
+        self.assertEqual((w.character["chance"], w.character["gold"]), (6, 1))
+        w.apply_optional_book_event(135, "or18")
+        self.assertEqual(w.character["gold"], 19)
+        w.undo_action()
+        self.assertEqual((w.character["chance"], w.character["gold"]), (6, 1))
+        w.undo_action()
+        self.assertEqual(w.character["chance"], 4)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
