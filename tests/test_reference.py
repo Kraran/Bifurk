@@ -210,11 +210,14 @@ class Reference(unittest.TestCase):
         w = self.window
         w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
         w.paragraphs = {20: "Quatre Nains attaquent.", 86: "Le Crocodile."}
-        name = w.enemy_name.text()
         w.go_to(20)
+        self.assertEqual(w.enemy_name.text(), "Nain 1")
         w.go_to(86)
-        self.assertEqual(w.enemy_name.text(), name)
+        # Le Crocodile à deux assauts exige encore un moteur dédié :
+        # aucun combat particulier ne doit l'écraser automatiquement.
+        self.assertEqual(w.enemy_name.text(), "Nain 1")
         self.assertEqual(w.prepared_book_encounters, set())
+        self.assertEqual(w.book_combat_sequence["index"], 0)
 
     def test_holy_water_restores_to_floor_without_lowering_current_stats(self):
         from book_events import DATA_PATH, apply_entry
