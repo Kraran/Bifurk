@@ -815,7 +815,11 @@
           }
         ],
         "mode": "limite_assauts",
-        "max_assaults": 2
+        "max_assaults": 2,
+        "continue_target": 259,
+        "diversion_target": 350,
+        "diversion_extra_assaults": 1,
+        "note": "Deux assauts obligatoires, ensuite choix : poursuivre ou un assaut supplémentaire puis §350."
       }
     },
     "91": {
