@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 186 paragraphes vérifiés ponctuellement ; 214 à étudier et valider individuellement.
-- 33 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 216, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 153 paragraphes conditionnels, jets de dés ou combats particuliers. 18 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 195, 209, 213, 243, 389.
+- 205 paragraphes vérifiés ponctuellement ; 195 à étudier et valider individuellement.
+- 35 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 216, 239, 241, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
+- 170 paragraphes conditionnels, jets de dés ou combats particuliers. 18 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 195, 209, 213, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -252,3 +252,19 @@ Dix-neuf paragraphes supplémentaires ont été examinés et catalogués : **212
 - **Non traités** : §211 (arme d'argent et fuite avec blessure), §221 (choix du premier équipement inscrit), §227 (pièce vide à la revisite), §230 (Goule et paralysie après quatre blessures). Ces règles exigent une mémoire d'état ou un traitement de combat spécifique.
 
 Cinq nouveaux tests couvrent les itinéraires, les onze totaux possibles au §213, l'échec et Undo, la restauration exacte de la fontaine, le repas facultatif et Undo. 
+
+### Édition 1982 : §§237 à 260 et correction de la revisite §212
+
+Dix-neuf passages sont désormais vérifiés : **237, 238, 239, 240, 241, 242, 244, 245, 246, 248, 249, 250, 251, 252, 254, 255, 256, 257 et 260**. Les §§243, 247 et 259 avaient déjà leurs effets correctement catalogués ; ils sont conservés sans réécriture. Les sorties §§247 → 292 et 259 → 7 sont ajoutées.
+
+- **§212** : une tentative antérieure de boire le liquide (visite du §369) rend cette action indisponible. L'interface masque le bouton §369 lors des passages suivants au §212 et interdit la destination aussi bien en cliquant sur le texte qu'en invoquant une route. Le §120 reste accessible. Le suivi utilise l'historique `visited_paragraphs`, enregistré et restauré avec la partie.
+- **§239** : la chandelle permet **Chance +1** une fois, sortie §88 ou examen des peintures §149.
+- **§240** : Serpent H5/E2, victoire §145. La clé n°99 du §145 reste un ramassage facultatif indépendant.
+- **§241** : malus **Habileté -1** une seule fois, puis §90.
+- **§242** : attaquer le coffre §379 ou vérifier les trois clés §139 ; **§254** : quatre choix possibles devant le Vampire (§352, §333, §279, §380).
+- **§243** : piège du levier déjà catalogué, pair → H-1/E-2, impair → H-3/E-1, destination §128. Le résolveur de dés accepte désormais également la condition explicite `odd`, testée indépendamment ; les branches existantes de §243 restent inchangées.
+- **§248** : Farfadet H6/E5, victoire §301.
+- **§251** : trois Chauves-souris géantes attaquent comme **une seule créature H6/E6**, victoire §344, fuite vers §399 avec la pénalité normale.
+- **§244** : repos avec repas proposé par §143 ou nage vers §399. Les coûts sont à gérer au paragraphe de destination, jamais débités en double à l'arrivée au §244.
+
+Six tests supplémentaires vérifient les routes, les effets automatiques, les six issues du dé, le Serpent et les Chauves-souris, ainsi que le §212 après revisite, boutons et liens compris. Les paragraphes §253 et §258 demandent encore une analyse des objets facultatifs et de la scène complète avant modélisation.
