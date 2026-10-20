@@ -687,6 +687,63 @@ class Reference(unittest.TestCase):
         w.undo_action()
         self.assertIn("Fromage", w.character["inventory"])
 
+    def test_cursed_helmet_is_locked_and_skill_penalty_once(self):
+        from book_events import DATA_PATH, apply_entry
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"habilete": 9, "initial": {"habilete": 10},
+                "inventory": [], "locked_items": []}
+        visited = set()
+        self.assertTrue(apply_entry(hero, visited, 202, data))
+        self.assertEqual(hero["habilete"], 8)
+        self.assertIn("Casque ensorcelé", hero["inventory"])
+        self.assertIn("Casque ensorcelé", hero["locked_items"])
+        self.assertFalse(apply_entry(hero, visited, 202, data))
+        self.assertEqual(hero["habilete"], 8)
+
+    def test_cursed_helmet_cannot_be_removed_in_ui_and_undo_restores(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {202: "Casque maudit.", 87: "Sortie."}
+        w.go_to(202)
+        self.assertIn("Casque ensorcelé", w.character["locked_items"])
+        idx = w.character["inventory"].index("Casque ensorcelé")
+        w.inventory_list.setCurrentRow(idx)
+        with patch.object(QMessageBox, "information") as message:
+            w.remove_item()
+            message.assert_called_once()
+        self.assertIn("Casque ensorcelé", w.character["inventory"])
+        w.undo_action()
+        self.assertNotIn("Casque ensorcelé", w.character.get("inventory", []))
+        self.assertNotIn("Casque ensorcelé", w.character.get("locked_items", []))
+
+    def test_river_sword_acquired_and_discarded_at_153(self):
+        from book_events import DATA_PATH, apply_entry
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"endurance": 20, "initial": {"endurance": 20},
+                "inventory": ["Épée"], "locked_items": []}
+        visited = set()
+        self.assertTrue(apply_entry(hero, visited, 344, data))
+        self.assertIn("Épée trouvée dans la rivière", hero["inventory"])
+        self.assertTrue(apply_entry(hero, visited, 153, data))
+        self.assertEqual(hero["endurance"], 19)
+        self.assertNotIn("Épée trouvée dans la rivière", hero["inventory"])
+        self.assertIn("Épée", hero["inventory"])
+        self.assertFalse(apply_entry(hero, visited, 153, data))
+
+    def test_river_sword_discard_keeps_other_equipment_and_routes(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        entry = data["paragraphs"]["344"]
+        self.assertEqual([r["target"] for r in available_routes(
+            {"inventory": ["Épée"]}, entry)], [56, 153])
+        hero = {"endurance": 9, "initial": {"endurance": 20},
+                "inventory": ["Épée magique", "Armure de cuir"]}
+        from book_events import apply_entry
+        self.assertTrue(apply_entry(hero, set(), 153, data))
+        self.assertEqual(hero["endurance"], 8)
+        self.assertEqual(hero["inventory"], ["Épée magique", "Armure de cuir"])
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
