@@ -728,7 +728,7 @@ class MainWindow(QMainWindow):
                 button.setEnabled(marker not in self.completed_optional_events)
                 button.clicked.connect(lambda checked=False, n=self.current_paragraph, oid=option["id"]: self.apply_optional_book_event(n, oid))
                 self.event_layout.addWidget(button)
-            if scripted["mode"] == "des" and "roll" in scripted:
+            if scripted["mode"] in ("des", "des_optionnel") and "roll" in scripted:
                 button = QPushButton("🎲 Lancer le dé et appliquer le résultat vérifié")
                 button.setEnabled(self.current_paragraph not in self.completed_book_events)
                 button.clicked.connect(lambda checked=False, n=self.current_paragraph: self.resolve_book_roll(n))
@@ -884,7 +884,7 @@ class MainWindow(QMainWindow):
     def resolve_book_roll(self, number):
         """Effectue une seule fois un jet spécial, puis applique son issue."""
         entry = verified_entry(self.book_event_catalogue, number)
-        if (number != self.current_paragraph or not entry or entry["mode"] != "des"
+        if (number != self.current_paragraph or not entry or entry["mode"] not in ("des", "des_optionnel")
                 or "roll" not in entry or number in self.completed_book_events):
             return
         dice = entry["roll"]["dice"]
