@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 64 paragraphes vérifiés ponctuellement ; 336 à étudier et valider individuellement.
+- 69 paragraphes vérifiés ponctuellement ; 331 à étudier et valider individuellement.
 - 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 36 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
+- 41 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -136,3 +136,13 @@ Les tests vérifient l'absence de provisions, les limites des caractéristiques,
 - **§317** : le morceau de **Fromage** est facultatif, acquis au plus une fois, avant de continuer au §303. Le nom de l'objet est exactement celui attendu par le §32 ; le jeter aux rats retire le Fromage du sac et donne le bonus de Chance correspondant.
 - Quatre nouveaux tests couvrent la progression de la série, la victoire, le blocage du renvoi, le Fromage et l'annulation. La suite compte **96 méthodes de test** sur cette branche.
 
+
+### Itinéraires contrôlés §§35, 36, 57, 84 et repas du §77
+
+- **§35** : gaz dans la chambre ; soit fuite au §136, soit tentative de récupérer la clé au §361. Aucun dégât n'est supposé avant le paragraphe suivant.
+- **§36** : face au vieil homme, calmer au §263 ou attaquer au §353.
+- **§57** : devant l'Ogre, attaque au §16, fuite discrète au §2 ou diversion au §119. Choisir §16 prépare le combat déjà catalogué H8/E10.
+- **§84** : à la rencontre du vieil homme et de son familier ailé, s'asseoir au §204, repartir au §280 ou attaquer au §377.
+- **§77** : abri sûr avec repas **facultatif** ; le bouton de repas réutilise la règle existante (+4 Endurance plafonnée, -1 Provision), uniquement si des provisions restent. L'entrée au §77 ne consomme rien ; on peut directement partir à l'est vers §345 ou à l'ouest vers §18. L'utilisation du repas est annulable.
+
+Quatre tests supplémentaires couvrent les choix exacts, le repas volontaire et non disponible sans provisions, puis la préparation de l'Ogre et l'annulation. Les options déjà cataloguées conservent leurs identifiants historiques.
