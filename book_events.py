@@ -49,9 +49,22 @@ def apply_effects(character, effects):
             character["initial"][key] = max(0, current_max + delta)
         elif effect["kind"] == "remove_item":
             inventory = character.setdefault("inventory", [])
+            if effect["name"] in character.get("locked_items", []):
+                raise ValueError("Objet maudit impossible à retirer : " + effect["name"])
             if effect["name"] not in inventory:
                 raise ValueError("Objet requis absent : " + effect["name"])
             inventory.remove(effect["name"])
+        elif effect["kind"] == "discard_if_present":
+            inventory = character.setdefault("inventory", [])
+            if effect["name"] in inventory and effect["name"] not in character.get("locked_items", []):
+                inventory.remove(effect["name"])
+        elif effect["kind"] == "locked_item":
+            inventory = character.setdefault("inventory", [])
+            if effect["name"] not in inventory:
+                inventory.append(effect["name"])
+            locked = character.setdefault("locked_items", [])
+            if effect["name"] not in locked:
+                locked.append(effect["name"])
         elif effect["kind"] == "item":
             inventory = character.setdefault("inventory", [])
             if effect["name"] not in inventory:
@@ -146,7 +159,8 @@ def apply_option(character, completed_options, paragraph, option_id, catalogue):
     inventory = list(character.get("inventory", []))
     for effect in option["effects"]:
         if effect["kind"] == "remove_item":
-            if effect["name"] not in inventory:
+            if (effect["name"] not in inventory
+                    or effect["name"] in character.get("locked_items", [])):
                 return False
             inventory.remove(effect["name"])
     apply_effects(character, option["effects"])
