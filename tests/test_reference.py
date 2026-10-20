@@ -30,6 +30,31 @@ class Reference(unittest.TestCase):
         self.window.deleteLater()
         self.app.processEvents()
 
+    def test_reading_mode_preserves_adventure_and_restores_sidebar(self):
+        w = self.window
+        w.paragraphs = {1: "Un couloir mène au 2.", 2: "Une porte."}
+        w.go_to(1)
+        before = w._snapshot()
+        w.toggle_reading_mode()
+        self.assertTrue(w.side_panel.isHidden())
+        self.assertIn("Afficher la fiche", w.reading_mode_btn.text())
+        self.assertEqual(w._snapshot(), before)
+        w.toggle_reading_mode()
+        self.assertFalse(w.side_panel.isHidden())
+        self.assertIn("Lecture épurée", w.reading_mode_btn.text())
+        self.assertEqual(w._snapshot(), before)
+
+    def test_reading_mode_keeps_navigation_available(self):
+        w = self.window
+        w.paragraphs = {1: "Allez au 2.", 2: "La sortie."}
+        w.go_to(1)
+        w.toggle_reading_mode()
+        w.go_to(2)
+        self.assertEqual(w.current_paragraph, 2)
+        self.assertEqual(w.visited_paragraphs, [1, 2])
+        w.toggle_reading_mode()
+        self.assertFalse(w.side_panel.isHidden())
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
