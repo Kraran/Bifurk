@@ -994,6 +994,24 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.character["chance"], 3)
         self.assertEqual(w.current_paragraph, None)
 
+    def test_mandatory_dice_links_cannot_skip_roll_209(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {
+            209: "Sur 6, rendez-vous au 158. Sinon rendez-vous au 47.",
+            47: "Couloir.", 158: "Rivière."}
+        w.go_to(209)
+        with patch.object(QMessageBox, "information") as message:
+            w.follow_link(QUrl("paragraph:158"))
+            message.assert_called_once()
+        self.assertEqual(w.current_paragraph, 209)
+        self.assertEqual(w._paragraph_choices(w.paragraphs[209])[-1]["target"], 47)
+        with patch.object(w, "_roll", return_value=([6], 6)):
+            w.resolve_book_roll(209)
+        self.assertEqual(w.current_paragraph, 158)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
