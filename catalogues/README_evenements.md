@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 133 paragraphes vérifiés ponctuellement ; 267 à étudier et valider individuellement.
+- 150 paragraphes vérifiés ponctuellement ; 250 à étudier et valider individuellement.
 - 29 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 104 paragraphes conditionnels, jets de dés ou combats particuliers. 15 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 209, 243, 389.
+- 121 paragraphes conditionnels, jets de dés ou combats particuliers. 16 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -219,3 +219,12 @@ Sept nouveaux paragraphes ont été vérifiés dans le PDF de 1982 : **146, 148,
 Cinq tests supplémentaires vérifient les routes, la clé, la victoire contre le Dragon et son annulation, les onze totaux de deux dés et le blocage de la porte avant l'épreuve.
 
 Les passages complexes §125 (tests de Chance répétés), §130 (pari), §139 (trois clés) et §140 (plusieurs attaques dans le même assaut) restent en attente d'une modélisation complète.
+
+### Traversée de rivière §§166, 158 et 218 ; parcours §§157–180
+
+- **§166** : le héros regagne la rive sud en nageant. Un dé obligatoire décide de la suite : **1 à 4 → §218**, **5 ou 6 → §158** (Piranhas). Aucun effet automatique sur la Chance ou l'Endurance ne figure à ce stade.
+- **§158** : combat jusqu'à la victoire contre les **Piranhas H5/E5**, considérés comme une seule créature ; destination §218. Le moteur prépare cet adversaire et bloque l'accès au §218 par le lien de victoire avant sa défaite. Le repas après combat reste volontaire : la commande générale « Prendre un repas » est disponible.
+- **§218** : les quatre moyens de traverser sont proposés : bac §3, radeau §386, pont §209 ou nage §316. Le coût du bac n'est pas facturé au §218, puisqu'il est proposé au §3 ; les éventuelles autres épreuves sont gérées par leurs propres paragraphes.
+- **Itinéraires vérifiés** : §§157, 160, 162, 164, 167, 168, 169, 171, 174, 175, 176, 177, 178 et 180. Le §168 propose trois stratégies devant le Chef des Farfadets ; le §177 offre trois chemins distincts. Aucune dépense ou récompense non mentionnée n'est créée.
+
+Six nouveaux tests couvrent les routes, les six faces du dé §166, la préparation et la victoire contre les Piranhas, le blocage des renvois prématurés, les quatre choix du §218 et Undo. Les autres passages exigeant des combats spécifiques ou des règles de ressources sont laissés en attente.
