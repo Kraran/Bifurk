@@ -2256,6 +2256,118 @@ class Reference(unittest.TestCase):
         w.follow_catalogue_choice(384)
         self.assertEqual(w.current_paragraph, 384)
 
+    def test_corridor_routes_237_to_260_match_pdf(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        expected = {
+            237: [285], 238: [70, 180, 329], 239: [88, 149],
+            241: [90], 242: [379, 139], 244: [143, 399],
+            245: [198], 246: [329, 180, 70], 247: [292],
+            249: [141, 165], 250: [366], 252: [312, 226],
+            254: [352, 333, 279, 380], 255: [193, 93],
+            256: [398, 297, 114], 257: [168, 293],
+            259: [7], 260: [359, 329],
+        }
+        for n, destinations in expected.items():
+            with self.subTest(paragraph=n):
+                actual = available_routes({}, data["paragraphs"][str(n)])
+                self.assertEqual([route["target"] for route in actual], destinations)
+                self.assertTrue(all(route["label"] for route in actual))
+
+    def test_candle_239_and_portrait_241_automatic_effects_only_once(self):
+        from book_events import DATA_PATH, apply_entry
+        catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"chance": 4, "habilete": 8,
+                "initial": {"chance": 10, "habilete": 11}}
+        completed = set()
+        self.assertTrue(apply_entry(hero, completed, 239, catalogue))
+        self.assertEqual(hero["chance"], 5)
+        self.assertTrue(apply_entry(hero, completed, 241, catalogue))
+        self.assertEqual(hero["habilete"], 7)
+        self.assertFalse(apply_entry(hero, completed, 239, catalogue))
+        self.assertFalse(apply_entry(hero, completed, 241, catalogue))
+        self.assertEqual((hero["chance"], hero["habilete"]), (5, 7))
+
+    def test_trap_243_even_and_odd_die_with_existing_option_ids(self):
+        from book_events import DATA_PATH, resolve_roll
+        catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        rules = catalogue["paragraphs"]["243"]["roll"]
+        for die in range(1, 7):
+            with self.subTest(die=die):
+                branch = resolve_roll(rules, die, {})
+                self.assertEqual(branch["target"], 128)
+                amounts = {e["key"]: e["amount"] for e in branch["effects"]}
+                self.assertEqual(amounts,
+                    {"habilete": -1, "endurance": -2} if die % 2 == 0
+                    else {"habilete": -3, "endurance": -1})
+        self.assertEqual(
+            resolve_roll({"dice": 1, "branches": [
+                {"when": "odd", "target": 128},
+                {"when": "otherwise", "target": 1}]}, 5, {})["target"], 128)
+
+    def test_serpent_240_prepares_combat_before_key_at_145(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {240: "Serpent : victoire §145.", 145: "Clé n°99.", 363: "Sortie."}
+        w.go_to(240)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Serpent", 5, 2))
+        with patch.object(QMessageBox, "information") as alert:
+            w.follow_link(QUrl("paragraph:145"))
+            alert.assert_called_once()
+        with patch.object(w, "_roll", side_effect=[
+                ([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 145)
+        self.assertNotIn("Clé de bronze 99", w.character["inventory"])
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 240)
+
+    def test_giant_bats_251_can_escape_immediately_or_win(self):
+        from book_events import DATA_PATH, flee_available
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {251: "Chauves-souris.", 344: "Victoire.", 399: "Rivière."}
+        w.go_to(251)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Chauves-souris géantes", 6, 6))
+        rules = w.book_event_catalogue["paragraphs"]["251"]["combat"]
+        self.assertTrue(flee_available(rules, 0, 6, 20))
+        previous = w.character["endurance"]
+        with patch.object(QMessageBox, "question", return_value=QMessageBox.No):
+            w.escape_scripted_combat(251)
+        self.assertEqual(w.current_paragraph, 399)
+        self.assertEqual(w.character["endurance"], previous - 2)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 251)
+
+    def test_revisit_212_hides_drink_after_369_and_protects_link(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {212: "Boire §369 ou poursuivre §120.",
+                        369: "Liquide.", 120: "Nord."}
+        w.go_to(212)
+        self.assertEqual(w.choice_layout.count(), 2)
+        w.follow_catalogue_choice(369)
+        self.assertEqual(w.current_paragraph, 369)
+        w.go_to(212)
+        self.assertEqual(w.choice_layout.count(), 1)
+        with patch.object(QMessageBox, "information") as alert:
+            w.follow_link(QUrl("paragraph:369"))
+            alert.assert_called_once()
+        self.assertEqual(w.current_paragraph, 212)
+        with patch.object(QMessageBox, "information") as alert:
+            w.follow_catalogue_choice(369)
+            alert.assert_called_once()
+        self.assertEqual(w.current_paragraph, 212)
+        w.follow_catalogue_choice(120)
+        self.assertEqual(w.current_paragraph, 120)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
