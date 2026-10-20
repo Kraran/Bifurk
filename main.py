@@ -190,6 +190,7 @@ class MainWindow(QMainWindow):
         self.completed_book_events = set()
         self.completed_optional_events = set()
         self.prepared_book_encounters = set()
+        self.book_combat_sequence = None
         self.paragraphs = {}
         self.current_paragraph = None
         self.visited_paragraphs = []
@@ -634,6 +635,7 @@ class MainWindow(QMainWindow):
         self.completed_book_events = set()
         self.completed_optional_events = set()
         self.prepared_book_encounters = set()
+        self.book_combat_sequence = None
         self.paragraphs = paragraphs
         if self.illustration_catalogue is None:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
@@ -938,6 +940,13 @@ class MainWindow(QMainWindow):
                 self.combat_state.setText(
                     f"⚔ {opponent['name']} · H {opponent['skill']} · Endurance {opponent['stamina']}")
                 self.combat_journal.clear()
+        if not self._restoring and number == 20:
+            entry = verified_entry(self.book_event_catalogue, number)
+            combat = entry.get("combat", {}) if entry else {}
+            if (combat.get("mode") == "sequence" and len(combat.get("enemies", [])) > 1
+                    and self.book_combat_sequence is None):
+                self.book_combat_sequence = {"paragraph": number, "index": 0}
+                self._set_book_enemy(combat["enemies"][0])
         if number not in self.visited_paragraphs:
             self.visited_paragraphs.append(number)
         self.goto_spin.setValue(number)
@@ -1117,6 +1126,42 @@ class MainWindow(QMainWindow):
         while self.combat_journal.count() > 60:
             self.combat_journal.takeItem(self.combat_journal.count() - 1)
 
+    def _set_book_enemy(self, monster):
+        """Initialise un adversaire vérifié sans changer les données du héros."""
+        self.enemy_name.setText(monster["name"])
+        self.enemy_skill.setValue(monster["skill"])
+        self.enemy_endurance.setValue(monster["stamina"])
+        self.combat_state.setText(
+            f"⚔ {monster['name']} · H {monster['skill']} · Endurance {monster['stamina']}")
+
+    def _advance_scripted_sequence(self):
+        """Après la victoire, prépare le suivant ; à la fin, va à la sortie prescrite."""
+        state = self.book_combat_sequence
+        if not state or self.enemy_endurance.value() > 0:
+            return
+        entry = verified_entry(self.book_event_catalogue, state["paragraph"])
+        if not entry:
+            return
+        combat = entry.get("combat", {})
+        if combat.get("mode") != "sequence":
+            return
+        monsters = combat["enemies"]
+        index = state["index"] + 1
+        if index < len(monsters):
+            state["index"] = index
+            self._set_book_enemy(monsters[index])
+            self.rules_log.setText(
+                f"Adversaire vaincu. Combat suivant : {index+1}/{len(monsters)} — {monsters[index]['name']}.")
+        else:
+            target = combat.get("victory_target")
+            self.book_combat_sequence = None
+            if target in self.paragraphs:
+                self.rules_log.setText(f"Tous les adversaires vaincus. Destination §{target}.")
+                self.go_to(target)
+            else:
+                self.rules_log.setText(
+                    f"Tous les adversaires vaincus. Ouvrez manuellement le §{target}.")
+
     def combat_round(self):
         if self.enemy_endurance.value() <= 0:
             self.rules_log.setText("Le monstre est déjà vaincu.")
@@ -1156,7 +1201,8 @@ class MainWindow(QMainWindow):
             self.rules_log.setText(f"Vous touchez ({player_attack} contre {enemy_attack}). {luck_text} {self.enemy_name.text()} : -{damage} Endurance.")
             self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, f"Monstre -{damage} PV")
             if self.enemy_endurance.value() == 0:
-                self.rules_log.setText(self.rules_log.text() + "  ⚑ Victoire ! Vérifiez les instructions de sortie du paragraphe.")
+                self.rules_log.setText(self.rules_log.text() + "  ⚑ Victoire !")
+                self._advance_scripted_sequence()
         else:
             outcome = QMessageBox(self)
             outcome.setWindowTitle("Le monstre vous touche !")
@@ -1215,6 +1261,7 @@ class MainWindow(QMainWindow):
                 "completed_book_events": sorted(self.completed_book_events),
                 "completed_optional_events": sorted(self.completed_optional_events),
                 "prepared_book_encounters": sorted(self.prepared_book_encounters),
+                "book_combat_sequence": copy.deepcopy(self.book_combat_sequence),
                 "current_paragraph": self.current_paragraph,
                 "visited_paragraphs": list(self.visited_paragraphs),
                 "transitions": copy.deepcopy(self.transitions),
@@ -1250,6 +1297,7 @@ class MainWindow(QMainWindow):
             self.completed_book_events = set(state.get("completed_book_events", []))
             self.completed_optional_events = set(state.get("completed_optional_events", []))
             self.prepared_book_encounters = set(state.get("prepared_book_encounters", []))
+            self.book_combat_sequence = copy.deepcopy(state.get("book_combat_sequence"))
             self.visited_paragraphs = list(state["visited_paragraphs"])
             self.transitions = copy.deepcopy(state.get("transitions", []))
             self._refresh_character()
@@ -1413,6 +1461,7 @@ class MainWindow(QMainWindow):
                            "completed_book_events": data.get("completed_book_events", []),
                            "completed_optional_events": data.get("completed_optional_events", []),
                            "prepared_book_encounters": data.get("prepared_book_encounters", []),
+                           "book_combat_sequence": data.get("book_combat_sequence"),
                            "visited_paragraphs": data.get("visited_paragraphs", []),
                            "transitions": data.get("transitions", []),
                            "current_paragraph": data.get("current_paragraph")})
