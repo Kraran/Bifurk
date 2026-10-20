@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 88 paragraphes vérifiés ponctuellement ; 312 à étudier et valider individuellement.
+- 107 paragraphes vérifiés ponctuellement ; 293 à étudier et valider individuellement.
 - 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 60 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
+- 79 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -156,3 +156,17 @@ Quatre tests supplémentaires couvrent les choix exacts, le repas volontaire et 
 - **§90** : possibilité de consommer un repas ordinaire en faisant halte, sans obligation ; départ vers §253 quel que soit le choix. Le bouton de repas s'actualise quand la provision restante tombe à zéro, sans réinitialiser l'action. Annuler restaure le repas et l'état du bouton.
 
 Cinq nouveaux tests contrôlent tous ces renvois, l'absence de destinations en double, le nombre de boutons dans l'interface, le repos volontaire et le mécanisme d'annulation. Le catalogue ne contient pas le texte protégé du livre.
+
+### Revue de la tranche §§92 à 115 — 19 passages supplémentaires
+
+Les paragraphes **92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 107, 108, 111, 113, 114 et 115** ont été relus dans le PDF 1982. Les renvois des 18 paragraphes de navigation sont reproduits dans le catalogue en métadonnées `routes`, sans aucun texte long du livre ni récompense inventée.
+
+- **§97** : trois approches du vieil homme (discuter §334, attaquer §247, repartir §292).
+- **§102** : trois stratégies devant les tortionnaires du Nain (quitter §303, attaquer §19, tenter la feinte §68). Le choix §19 prépare bien les deux Lutins successifs déjà catalogués.
+- **§100** : partie de jeu honnête §346 ou tricherie §91, qui possède déjà sa propre épreuve de dés.
+- **§103** : tirer le levier §252 ou repartir §359 ; **§115** : inspecter les armes §95, un corps §313 ou les tonneaux §330.
+- **§108** : combat vérifié contre une **Main H6/E4** ; victoire au §185, dont les effets existants sont conservés. Impossible de cliquer le renvoi de victoire avant la fin du combat.
+
+Cinq nouveaux tests couvrent les renvois exacts, les trois choix du §97, les trois choix du §102 et son combat séquentiel, la Main, la protection du lien et les retours via annuler.
+
+Le §105, dont les itinéraires nécessitent un objet spécifique, reste volontairement dans la file de revue jusqu'à ce que les noms exacts des objets soient harmonisés ; aucun trajet inventé n'y est ajouté.
