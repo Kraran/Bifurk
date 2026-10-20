@@ -200,6 +200,7 @@ class MainWindow(QMainWindow):
         self.character = {
             "habilete": 8, "endurance": 20, "chance": 8,
             "provisions": 10, "gold": 1, "inventory": ["Épée", "Armure de cuir", "Lanterne"],
+            "locked_items": [],
             "potion": "Aucune", "potion_doses": 0,
             "initial": {"habilete": 8, "endurance": 20, "chance": 8}
         }
@@ -1368,6 +1369,12 @@ class MainWindow(QMainWindow):
     def remove_item(self):
         row = self.inventory_list.currentRow()
         if row >= 0:
+            item = self.character["inventory"][row]
+            if item in self.character.get("locked_items", []):
+                QMessageBox.information(
+                    self, "Objet maudit",
+                    f"Vous ne pouvez pas retirer {item} : cet objet est ensorcelé.")
+                return
             self.character["inventory"].pop(row)
             self.inventory_list.takeItem(row)
 
@@ -1422,6 +1429,7 @@ class MainWindow(QMainWindow):
             self.character = copy.deepcopy(state["character"])
             # Les anciennes sauvegardes n'enregistraient pas la pièce d'or initiale.
             self.character.setdefault("gold", 1)
+            self.character.setdefault("locked_items", [])
             self.completed_book_events = set(state.get("completed_book_events", []))
             self.completed_optional_events = set(state.get("completed_optional_events", []))
             self.prepared_book_encounters = set(state.get("prepared_book_encounters", []))
