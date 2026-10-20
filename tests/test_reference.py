@@ -1079,6 +1079,75 @@ class Reference(unittest.TestCase):
         self.assertNotIn("Ciseau à lame d'argent", w.character["inventory"])
         self.assertFalse(any(k.startswith("34:trade:") for k in w.completed_optional_events))
 
+    def test_goblin_33_victory_opens_147_reward_once(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {33: "Farfadet.", 147: "Boîte.", 320: "Porte."}
+        w.character["chance"] = 5
+        w.go_to(33)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Farfadet", 6, 4))
+        with patch.object(w, "_roll", side_effect=[
+                ([1, 1], 2), ([6, 6], 12),
+                ([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+            self.assertEqual(w.current_paragraph, 33)
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 147)
+        self.assertEqual(w.character["gold"], 2)
+        self.assertEqual(w.character["chance"], 7)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 33)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+        self.assertEqual(w.character["gold"], 1)
+
+    def test_goblin_33_flee_cost_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {33: "Farfadet.", 320: "Couloir."}
+        w.go_to(33)
+        with patch.object(QMessageBox, "question", return_value=QMessageBox.No):
+            w.escape_scripted_combat(33)
+        self.assertEqual(w.current_paragraph, 320)
+        self.assertEqual(w.character["endurance"], 18)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 33)
+        self.assertEqual(w.character["endurance"], 20)
+
+    def test_etre_41_first_hit_opens_310_not_kill(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {41: "Être.", 310: "Invulnérable."}
+        w.go_to(41)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Être", 9, 6))
+        with patch.object(w, "_roll", side_effect=[
+                ([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 310)
+        self.assertEqual(w.enemy_endurance.value(), 4)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 41)
+        self.assertEqual(w.enemy_endurance.value(), 6)
+
+    def test_etre_41_outcome_is_blocked_before_first_hit(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {41: "Être. Rendez-vous au 310.", 310: "Arme inutile."}
+        w.go_to(41)
+        self.assertTrue(w._combat_exit_pending(310))
+        with patch.object(QMessageBox, "information") as alert:
+            w.follow_link(QUrl("paragraph:310"))
+            alert.assert_called_once()
+        self.assertEqual(w.current_paragraph, 41)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
