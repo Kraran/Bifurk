@@ -36,6 +36,14 @@ def apply_effects(character, effects):
                 cap = int(character.get("initial", {}).get(key, value))
                 value = min(value, cap)
             character[key] = value
+        elif effect["kind"] == "restore_initial":
+            key = effect["key"]
+            if key not in ("habilete", "endurance", "chance"):
+                raise ValueError("Caractéristique non restaurable : " + str(key))
+            initial = character.get("initial", {})
+            if key not in initial:
+                raise ValueError("Valeur initiale manquante : " + key)
+            character[key] = max(0, int(initial[key]))
         elif effect["kind"] == "restore_floor":
             key = effect["key"]
             initial = int(character.get("initial", {}).get(key, character.get(key, 0)))
