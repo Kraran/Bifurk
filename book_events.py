@@ -241,6 +241,7 @@ def resolve_roll(roll, total, character):
         matched = (
             condition == "otherwise"
             or condition == "eq" and total == branch["value"]
+            or condition == "lte" and total <= branch["value"]
             or condition == "even" and total % 2 == 0
             or condition == "lte_stat" and total <= character[branch["key"]]
             or condition == "lte_both" and all(total <= character[k] for k in branch["keys"])
