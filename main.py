@@ -996,16 +996,18 @@ class MainWindow(QMainWindow):
 
     def follow_link(self, url):
         value = url.toString()
-        if value.startswith("paragraph:"):
-            try:
-                self.go_to(int(value.split(":", 1)[1]))
-            except ValueError:
-                return
+        match = re.search(r"paragraph(?::|%3A)(\d+)", value, re.I)
+        if not match:
             return
-        # QTextBrowser may serialize href with percent encoding.
-        match = re.search(r"paragraph%3A(\d+)", value, re.I)
-        if match:
-            self.go_to(int(match.group(1)))
+        target = int(match.group(1))
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if entry and "routes" in entry:
+            allowed = {route["target"] for route in available_routes(self.character, entry)}
+            if target not in allowed:
+                QMessageBox.information(self, "Chemin inaccessible",
+                    "Les conditions de ce passage ne sont pas remplies.")
+                return
+        self.go_to(target)
 
     def _refresh_character(self):
         for key, spin in self.stat_spins.items():
