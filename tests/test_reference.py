@@ -1774,13 +1774,16 @@ class Reference(unittest.TestCase):
         hero = {"inventory": ["Fromage", "Épée"], "gold": 2,
                 "locked_items": []}
         self.assertFalse(throw_diversion_item(hero, "Absent"))
+        self.assertTrue(throw_diversion_item(hero))
+        self.assertEqual(hero["gold"], 1)
+        self.assertEqual(hero["inventory"], ["Fromage", "Épée"])
         self.assertTrue(throw_diversion_item(hero, "Fromage"))
         self.assertEqual(hero["inventory"], ["Épée"])
-        self.assertEqual(hero["gold"], 2)
+        self.assertEqual(hero["gold"], 1)
         self.assertTrue(throw_diversion_item(hero, "Épée"))
         self.assertEqual(hero["inventory"], [])
         self.assertTrue(throw_diversion_item(hero))
-        self.assertEqual(hero["gold"], 1)
+        self.assertEqual(hero["gold"], 0)
         self.assertFalse(throw_diversion_item({"inventory": [], "gold": 0}))
 
     def test_ogre_diversion_119_does_not_discard_locked_gear(self):
@@ -1788,8 +1791,49 @@ class Reference(unittest.TestCase):
         hero = {"inventory": ["Casque maudit"], "locked_items": ["Casque maudit"],
                 "gold": 3}
         self.assertFalse(throw_diversion_item(hero, "Casque maudit"))
-        self.assertFalse(throw_diversion_item(hero))
-        self.assertEqual(hero["gold"], 3)
+        self.assertTrue(throw_diversion_item(hero))
+        self.assertEqual(hero["gold"], 2)
+        self.assertEqual(hero["inventory"], ["Casque maudit"])
+
+    def test_ogre_diversion_119_ui_offers_coin_despite_inventory_and_undo(self):
+        from book_events import DATA_PATH
+        from PySide6.QtWidgets import QInputDialog
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {119: "Faire diversion puis §269.", 269: "Bifurcation."}
+        w.character["inventory"] = ["Épée", "Fromage"]
+        w.character["gold"] = 2
+        w.go_to(119)
+        def choose_gold(parent, title, prompt, choices, selected, editable):
+            self.assertIn("🪙 Jeter une pièce d'or", choices)
+            self.assertIn("Fromage", choices)
+            return ("🪙 Jeter une pièce d'or", True)
+        with patch.object(QInputDialog, "getItem", side_effect=choose_gold):
+            w.throw_book_diversion()
+        self.assertEqual(w.character["gold"], 1)
+        self.assertEqual(w.character["inventory"], ["Épée", "Fromage"])
+        self.assertIn(119, w.completed_book_events)
+        w.undo_action()
+        self.assertEqual(w.character["gold"], 2)
+        self.assertEqual(w.character["inventory"], ["Épée", "Fromage"])
+        self.assertNotIn(119, w.completed_book_events)
+
+    def test_ogre_diversion_119_coin_not_shown_without_gold(self):
+        from book_events import DATA_PATH
+        from PySide6.QtWidgets import QInputDialog
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {119: "Faire diversion.", 269: "Bifurcation."}
+        w.character["inventory"] = ["Fromage"]
+        w.character["gold"] = 0
+        w.go_to(119)
+        def choose_item(parent, title, prompt, choices, selected, editable):
+            self.assertEqual(choices, ["Fromage"])
+            return ("Fromage", True)
+        with patch.object(QInputDialog, "getItem", side_effect=choose_item):
+            w.throw_book_diversion()
+        self.assertEqual(w.character["inventory"], [])
+        self.assertEqual(w.character["gold"], 0)
 
     def test_ogre_diversion_119_ui_unlocks_route_and_undo(self):
         from book_events import DATA_PATH
