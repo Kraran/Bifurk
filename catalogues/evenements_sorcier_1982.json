@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 167,
+  "reviewed_count": 186,
   "review_pending": [
     1,
     4,
@@ -66,29 +66,10 @@
     201,
     206,
     211,
-    212,
-    213,
-    214,
-    215,
-    216,
-    217,
-    219,
-    220,
     221,
-    222,
-    223,
-    224,
-    225,
-    226,
     227,
-    228,
-    229,
     230,
-    231,
-    232,
-    233,
     234,
-    235,
     236,
     237,
     238,
@@ -2827,6 +2808,119 @@
       ],
       "note": "À la bifurcation : ouest §225 ou nord §357."
     },
+    "212": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §369, §120.",
+      "routes": [
+        {
+          "target": 369,
+          "label": "Boire le liquide de la bouteille"
+        },
+        {
+          "target": 120,
+          "label": "Poursuivre au nord"
+        }
+      ]
+    },
+    "213": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Porte verrouillée : test de 2 dés sous Habileté. Réussite §36, échec §314 et Endurance -1.",
+      "roll": {
+        "dice": 2,
+        "branches": [
+          {
+            "when": "lte_stat",
+            "key": "habilete",
+            "target": 36
+          },
+          {
+            "when": "otherwise",
+            "target": 314,
+            "effects": [
+              {
+                "kind": "stat",
+                "key": "endurance",
+                "amount": -1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "214": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §271, §104, §99.",
+      "routes": [
+        {
+          "target": 271,
+          "label": "Emprunter le passage nord-ouest"
+        },
+        {
+          "target": 104,
+          "label": "Ouvrir la porte au nord"
+        },
+        {
+          "target": 99,
+          "label": "Suivre la rivière vers l'est"
+        }
+      ]
+    },
+    "215": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §142, §105.",
+      "routes": [
+        {
+          "target": 142,
+          "label": "Attaquer le Sorcier à l'épée"
+        },
+        {
+          "target": 105,
+          "label": "Chercher un autre objet dans le sac"
+        }
+      ]
+    },
+    "216": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Fontaine : +4 Endurance et restauration à l'initial de l'Habileté et de la Chance ; repas facultatif, puis §384.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "endurance",
+          "amount": 4
+        },
+        {
+          "kind": "restore_initial",
+          "key": "habilete"
+        },
+        {
+          "kind": "restore_initial",
+          "key": "chance"
+        }
+      ],
+      "optional_meal": true,
+      "routes": [
+        {
+          "target": 384,
+          "label": "Sortir par la porte nord"
+        }
+      ]
+    },
+    "217": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §118.",
+      "routes": [
+        {
+          "target": 118,
+          "label": "Subir l'hypnose du Vampire"
+        }
+      ]
+    },
     "218": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -2847,6 +2941,161 @@
         {
           "target": 316,
           "label": "Traverser à la nage"
+        }
+      ]
+    },
+    "219": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §182.",
+      "routes": [
+        {
+          "target": 182,
+          "label": "Poursuivre au §182"
+        }
+      ]
+    },
+    "220": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §171.",
+      "routes": [
+        {
+          "target": 171,
+          "label": "Se réveiller au cul-de-sac"
+        }
+      ]
+    },
+    "222": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §85.",
+      "routes": [
+        {
+          "target": 85,
+          "label": "Continuer vers la croisée des chemins"
+        }
+      ]
+    },
+    "223": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §53, §300.",
+      "routes": [
+        {
+          "target": 53,
+          "label": "Essayer de forcer la porte"
+        },
+        {
+          "target": 300,
+          "label": "Continuer dans le couloir"
+        }
+      ]
+    },
+    "224": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §118.",
+      "routes": [
+        {
+          "target": 118,
+          "label": "Avancer sous le pouvoir du Vampire"
+        }
+      ]
+    },
+    "225": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §77, §63.",
+      "routes": [
+        {
+          "target": 77,
+          "label": "Continuer au nord"
+        },
+        {
+          "target": 63,
+          "label": "Tourner vers l'ouest"
+        }
+      ]
+    },
+    "226": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §267.",
+      "routes": [
+        {
+          "target": 267,
+          "label": "Continuer jusqu'au croisement"
+        }
+      ]
+    },
+    "228": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §85.",
+      "routes": [
+        {
+          "target": 85,
+          "label": "Retourner au croisement"
+        }
+      ]
+    },
+    "229": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §69.",
+      "routes": [
+        {
+          "target": 69,
+          "label": "Prendre le passage de droite"
+        }
+      ]
+    },
+    "231": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §182.",
+      "routes": [
+        {
+          "target": 182,
+          "label": "Poursuivre au §182"
+        }
+      ]
+    },
+    "232": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §375.",
+      "routes": [
+        {
+          "target": 375,
+          "label": "Revenir au croisement"
+        }
+      ]
+    },
+    "233": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §198.",
+      "routes": [
+        {
+          "target": 198,
+          "label": "Poursuivre au §198"
+        }
+      ]
+    },
+    "235": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Destinations vérifiées dans le PDF 1982 : §176, §5.",
+      "routes": [
+        {
+          "target": 176,
+          "label": "Choisir le passage ouest"
+        },
+        {
+          "target": 5,
+          "label": "Continuer au nord"
         }
       ]
     },
