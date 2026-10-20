@@ -8,7 +8,8 @@ import re
 
 from PySide6.QtWidgets import QPushButton, QMessageBox, QInputDialog
 from book_events import (apply_effects, condition_met,
-                         verified_entry, combat_skill, shield_damage, SHIELD_NAME)
+                         verified_entry, combat_skill, shield_damage, SHIELD_NAME,
+                         equipped_weapon, throw_diversion_item)
 
 
 class BookActions:
@@ -27,13 +28,15 @@ class BookActions:
         special = entry.get('special')
         state = self._book_state(number)
         if special in ('rope', 'three_luck', 'cards', 'keys', 'key_trap',
-                       'identify_loot', 'identify_next', 'wandering', 'stake_luck', 'armor_choice'):
+                       'identify_loot', 'identify_next', 'wandering', 'stake_luck', 'armor_choice', 'chest_luck'):
             return True  # Ces sorties sont résolues exclusivement par leur action.
         if entry.get('mode') == 'des' and number not in self.completed_book_events:
             return True
         if special == 'paired_combat':
             return number not in self.completed_book_events
         combat = entry.get('combat', {})
+        if number in (212, 393) and target == 369 and 369 in self.visited_paragraphs:
+            return True
         if number == 173 and target == 24:
             return True  # La troisième blessure déclenche elle-même cette sortie.
         if (special == 'opening_luck' and not state.get('opening_done')):
@@ -74,6 +77,7 @@ class BookActions:
                                                     ('Continuer contre le Vampire', 'stake_continue')],
             'opening_luck': [('Éviter la carcasse : tenter sa Chance', 'opening_luck')]
                 if not state.get('opening_done') else [],
+            'chest_luck': [('Frapper le coffre : tenter sa Chance', 'chest_luck')],
             'armor_choice': [('Conserver mon armure et jeter celle trouvée', 'armor_old'),
                              ('Conserver l’armure trouvée et jeter l’ancienne', 'armor_new')],
         }
@@ -102,10 +106,21 @@ class BookActions:
         if self.current_paragraph in self.paragraphs:
             self._render_choices_and_events(self.paragraphs[self.current_paragraph])
 
+    def _sync_book_facts(self):
+        """Reprend les marqueurs d'avant l'introduction des faits partagés."""
+        if 294 in self.completed_book_events or '390:pieces5' in self.completed_optional_events:
+            self.character.setdefault('book_facts', {})['first_body_searched'] = True
+        if 369 in self.visited_paragraphs:
+            self.character.setdefault('book_facts', {})['holy_water_consumed'] = True
+
     def _enter_complex_book(self, number, previous):
         entry = verified_entry(self.book_event_catalogue, number)
         if not entry:
             return
+        self._sync_book_facts()
+        if entry.get('entry_effects') and not self._book_state(number).get('entry_effects_applied'):
+            apply_effects(self.character, entry['entry_effects'])
+            self._book_state(number, True)['entry_effects_applied'] = True
         if previous != number:
             visits = self.character.setdefault('book_visits', {})
             # Une ancienne sauvegarde peut déjà avoir visité ce passage.
@@ -164,6 +179,7 @@ class BookActions:
             'stake_luck': {'stake_luck', 'stake_escape', 'stake_continue'},
             'silver_arrow': {'silver_arrow'}, 'paired_combat': {'pair_target'},
             'opening_luck': {'opening_luck'}, 'armor_choice': {'armor_old', 'armor_new'},
+            'chest_luck': {'chest_luck'},
         }
         if action != 'loot' and action not in permitted.get(special, set()):
             return
@@ -179,7 +195,7 @@ class BookActions:
             state = self._book_state(number, True)
             state.setdefault('loot', []).append(payload)
             apply_effects(self.character, choice['effects'])
-        elif action in ('rope', 'three_luck', 'key_trap', 'stake_luck', 'silver_arrow', 'opening_luck'):
+        elif action in ('rope', 'three_luck', 'key_trap', 'stake_luck', 'silver_arrow', 'opening_luck', 'chest_luck'):
             self._resolve_complex_luck(action, entry)
         elif action in ('cards', 'cards_luck', 'wager'):
             self._play_book_game(action)
@@ -229,9 +245,9 @@ class BookActions:
     def _resolve_complex_luck(self, action, entry):
         number = self.current_paragraph
         state = self._book_state(number)
-        target = {'rope':73, 'three_luck':162, 'stake_luck':327, 'silver_arrow':135}.get(action)
+        target = {'rope':73, 'three_luck':162, 'stake_luck':327, 'silver_arrow':135, 'chest_luck':139}.get(action)
         needed = {'rope':[73], 'three_luck':[108,162], 'stake_luck':[327,380,144],
-                  'silver_arrow':[135]}.get(action, [])
+                  'silver_arrow':[135], 'chest_luck':[139]}.get(action, [])
         if any(t not in self.paragraphs for t in needed):
             self.rules_log.setText('Une destination nécessaire à cette épreuve n’est pas chargée.')
             return
@@ -241,6 +257,11 @@ class BookActions:
             return
         if action == 'opening_luck' and state.get('opening_done'):
             return
+        if action == 'chest_luck':
+            sword = equipped_weapon(self.character)
+            if sword is None or sword in self.character.get('locked_items', []):
+                self.rules_log.setText('Il faut une épée utilisable pour frapper le coffre.')
+                return
         if action == 'silver_arrow' and not all(name in self.character.get('inventory', [])
                                               for name in ('Arc', 'Flèche d’argent')):
             return
@@ -286,6 +307,14 @@ class BookActions:
             state['opening_done'] = True
             if not lucky:
                 self.character['endurance'] = max(0, self.character['endurance']-1)
+        elif action == 'chest_luck':
+            self.completed_book_events.add(number)
+            if lucky:
+                throw_diversion_item(self.character, sword)
+                state['target'] = target
+                self.go_to(target)
+            else:
+                self.character['endurance'] = 0
         self.rules_log.setText(f'Épreuve §{number} : {total}, Chance -1 ; ' + ('réussite.' if lucky else 'échec.'))
 
     def _play_book_game(self, action):
@@ -332,21 +361,21 @@ class BookActions:
             if re.match(r'(?i)^cl[ée]\b', name):
                 match = re.search(r'\b(\d+)\b', name)
                 if match:
-                    keys.setdefault(int(match[1]), name)
+                    keys.setdefault(name.casefold(), (name, int(match[1])))
         if len(keys) < 3:
-            self.rules_log.setText('Trois clés portant des numéros distincts sont nécessaires ; aventure sans issue ici.')
+            self.rules_log.setText('Trois clés numérotées distinctes sont nécessaires ; aventure sans issue ici.')
             return
         selected = []
         for index in range(3):
-            names = [name for n, name in keys.items() if n not in selected]
+            names = [name for name, number in keys.values() if name not in selected]
             chosen, accepted = QInputDialog.getItem(self, 'Serrures du coffre',
                 f'Clé {index+1}/3 :', names, 0, False)
             if not accepted or chosen not in names:
                 return
-            selected.append(next(n for n, name in keys.items() if name == chosen))
-        combination = sorted(selected)
+            selected.append(chosen)
+        combination = sorted(keys[name.casefold()][1] for name in selected)
         state = self._book_state(139)
-        target = sum(selected)
+        target = sum(combination)
         if combination in state.get('tried', []) or target not in self.paragraphs:
             self.rules_log.setText('Combinaison déjà essayée ou destination absente ; aucune clé consommée.')
             return

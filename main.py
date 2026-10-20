@@ -1913,6 +1913,7 @@ class MainWindow(QMainWindow, BookActions):
             self.piranha_combat = copy.deepcopy(state.get("piranha_combat"))
             self.book_combat_assaults = {int(k): int(v) for k, v in state.get("book_combat_assaults", {}).items()}
             self.visited_paragraphs = list(state["visited_paragraphs"])
+            self._sync_book_facts()
             self.transitions = copy.deepcopy(state.get("transitions", []))
             self._refresh_character()
             if "enemy_skill" in state:

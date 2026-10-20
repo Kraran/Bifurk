@@ -1,6 +1,7 @@
 """Actions vérifiées pour une édition précise ; aucun texte du livre n'est embarqué."""
 import hashlib
 import json
+import re
 from pathlib import Path
 
 DATA_PATH = Path(__file__).resolve().parent / "catalogues" / "evenements_sorcier_1982.json"
@@ -317,6 +318,12 @@ def condition_met(character, condition):
     if condition is None:
         return True
     kind = condition["kind"]
+    if kind == "has_weapon":
+        return equipped_weapon(character) is not None
+    if kind == "min_keys":
+        keys = {name.casefold() for name in character.get("inventory", [])
+                if re.match(r"^cl[ée]s?\b", name, re.I)}
+        return len(keys) >= int(condition["count"])
     if kind in ("all", "any"):
         results = (condition_met(character, c) for c in condition["conditions"])
         return all(results) if kind == "all" else any(results)
@@ -411,6 +418,7 @@ def apply_entry(character, completed, paragraph, catalogue):
     entry = verified_entry(catalogue, paragraph)
     if not entry or entry["mode"] != "automatique" or paragraph in completed:
         return False
-    apply_effects(character, entry["effects"])
+    if condition_met(character, entry.get("when")):
+        apply_effects(character, entry["effects"])
     completed.add(paragraph)
     return True

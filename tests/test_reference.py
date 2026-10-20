@@ -2270,7 +2270,8 @@ class Reference(unittest.TestCase):
         }
         for n, destinations in expected.items():
             with self.subTest(paragraph=n):
-                actual = available_routes({}, data["paragraphs"][str(n)])
+                character = {"inventory": ["Épée"]} if n == 242 else {}
+                actual = available_routes(character, data["paragraphs"][str(n)])
                 self.assertEqual([route["target"] for route in actual], destinations)
                 self.assertTrue(all(route["label"] for route in actual))
 

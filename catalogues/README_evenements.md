@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 356 paragraphes vérifiés ponctuellement ; 44 à étudier et valider individuellement. Tous les §§1–350 ont désormais une entrée ; les passages restants sont dans les §§351–400.
-- 47 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 44, 49, 51, 56, 64, 75, 109, 110, 118, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 216, 239, 241, 247, 258, 259, 263, 264, 266, 294, 296, 313, 325, 327, 330, 342, 343, 344, 368, 376, 388, 390.
-- 309 autres paragraphes : routes conditionnelles, jets, choix et combats. 24 épreuves déclaratives : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 144, 156, 159, 166, 195, 209, 213, 243, 275, 298, 316, 339, 389. Les jets avec état (corde, traversée en trois tests, jeux, clés et Vampire) sont décrits séparément.
+- 400 paragraphes vérifiés ponctuellement ; aucune entrée restante dans `review_pending`. Cette couverture du catalogue ne remplace pas la validation de toutes les parties possibles.
+- 53 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 44, 49, 51, 56, 64, 75, 109, 110, 118, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 216, 239, 241, 247, 258, 259, 263, 264, 266, 294, 296, 313, 325, 327, 330, 342, 343, 344, 352, 355, 368, 371, 374, 376, 387, 388, 390, 400.
+- 347 autres paragraphes : routes, choix et combats. 25 épreuves déclaratives : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 144, 156, 159, 166, 195, 209, 213, 243, 275, 298, 316, 339, 361, 389. Les jets avec état sont décrits séparément.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -344,3 +344,30 @@ Validation locale avec le PDF de référence présent : **220 tests exécutés, 
 ```bash
 QT_QPA_PLATFORM=offscreen XDG_CACHE_HOME=/workspace/.cache/bifurk .venv/bin/python -m unittest discover -s tests -v
 ```
+
+### Dernier lot PR6 : §§351–400 et parcours jusqu’à la victoire
+
+Les **44 dernières entrées** ont été relues dans le même PDF. Le catalogue couvre maintenant **400/400 paragraphes**, avec `review_pending=[]`. Les six entrées déjà présentes dans ce lot ont aussi été contrôlées et complétées lorsque nécessaire. Le texte narratif et le PDF restent hors du suivi Git.
+
+- **§352/355** : pertes obligatoires d’Endurance ou d’Habileté, sans les appliquer deux fois à la simple réouverture du passage.
+- **§361** : la clé 125 est acquise dès l’entrée. L’épreuve est un **2d6 ≤ Habileté**, sans dépense de Chance. L’échec retire **2 Habileté et 3 Endurance** ; le §136 n’est ouvert que si le héros survit. Clé, jet et conséquences sont restaurés correctement par Annuler/Rétablir et chargement.
+- **§365** : cinq Farfadets successifs, profils **H6/E5, H6/E5, H4/E4, H3/E4, H2/E4** ; victoire §183, fuite payante §237. **§377** : Diablotin ailé **H5/E7**, victoire §196.
+- **§371/374** : Chance **+3/+2** plafonnée, repas facultatif, puis §274/207. Les champs de repas et de sortie du §376 ont été complétés.
+- **§379** : le coffre exige un test de Chance. La réussite détruit seulement l’épée utilisée et mène au §139 ; l’échec tue le héros. Détruire l’épée magique retire aussi son bonus de caractéristiques ; les autres armes sont conservées. Le §242 ne propose plus de frapper si aucune épée n’est disponible.
+- **§383** : la route vers §80 exige la clé du Hangar ; tentative de forcer §264 et retour §129 restent possibles. **§387** : combinaison mortelle, aucune sortie narrative.
+- **§390/294** : les cinq pièces du premier cadavre constituent un butin partagé. Les récupérer par un chemin interdit de les reprendre par l’autre. Les anciennes sauvegardes sont reconnues à partir de leurs marqueurs de fouille. Les boucles d’oreilles restent un objet, sans conversion automatique en or.
+- **§393/369/212** : huit pièces, parchemin et bouteille facultatifs. La bouteille est consommée à la première gorgée au §369 ; on ne peut plus la reprendre ni la boire à nouveau par l’autre itinéraire. Lire le parchemin sur place reste possible sans emporter son exemplaire. La disponibilité du reste du butin ne dépend pas de la consommation de la bouteille.
+- **§394** : Araignée **H7/E8**, **-2 à la Force d’Attaque** durant ce combat seulement ; l’Habileté de la fiche reste intacte. Victoire §232, où les bottes sont déchirées pour repartir.
+- **§396** : deux clés distinctes ouvrent la porte sans être consommées. À défaut, la forcer coûte **5 Endurance** ; une blessure mortelle ne permet pas de rejoindre §242. **§400** : victoire enregistrée, sans inventer un montant exact d’or à partir d’un trésor décrit comme valant « au moins » mille pièces.
+
+#### Correction indispensable : les deux clés 111
+
+Le PDF donne une clé portant **111 au §75** et une autre, **rouge, portant 111 au §258**. Malgré la formulation générale du §139, ce sont deux objets distincts. Les fusionner, ou imposer trois numéros différents, rendait la bonne combinaison impossible.
+
+La clé de la statue conserve son nom `Clé 111` pour compatibilité ; la seconde devient `Clé rouge 111`. La sélection exige trois objets distincts, mais autorise deux numéros identiques. La combinaison **99 + 111 + 111 = 321** mène maintenant par **§321 → §169 → §400**, vérifiée par un test qui collecte les clés dans leurs véritables passages. La même clé ne peut pas être sélectionnée deux fois.
+
+Les anciennes sauvegardes dans lesquelles les deux clés ont déjà été fusionnées ne permettent pas de reconstruire leur provenance de manière certaine. Aucun objet n’est recréé silencieusement : pour tester ce parcours, commencer une nouvelle partie ou ajouter manuellement `Clé rouge 111` uniquement si les deux clés avaient effectivement été récupérées.
+
+Les tests de `tests/test_final_events.py` contrôlent également les renvois du PDF sur les 50 paragraphes du lot, les onze résultats de l’épreuve du gaz, les morts, les objets détruits, le coût de la porte, les sauvegardes et l’absence de double butin. Les limites générales (politique de répétition conservatrice, saut manuel avancé et absence de renvoi explicite après le combat §289) restent documentées ; le défaut connu de cadrage de couverture reste hors de ce lot.
+
+Validation du dernier lot avec le PDF présent : **251 tests exécutés, 250 réussis, 1 échec attendu** pour le cadrage connu de la couverture ; aucun test ignoré. Le fichier `tests/test_final_events.py` ajoute 31 tests.

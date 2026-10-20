@@ -3,53 +3,8 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 356,
-  "review_pending": [
-    351,
-    352,
-    353,
-    354,
-    355,
-    356,
-    357,
-    358,
-    359,
-    360,
-    361,
-    362,
-    363,
-    364,
-    365,
-    366,
-    367,
-    369,
-    370,
-    371,
-    373,
-    374,
-    375,
-    377,
-    378,
-    379,
-    380,
-    381,
-    382,
-    383,
-    384,
-    385,
-    386,
-    387,
-    391,
-    392,
-    393,
-    394,
-    395,
-    396,
-    397,
-    398,
-    399,
-    400
-  ],
+  "reviewed_count": 400,
+  "review_pending": [],
   "paragraphs": {
     "1": {
       "status": "verifie",
@@ -2419,7 +2374,7 @@
     "139": {
       "status": "verifie",
       "mode": "conditionnel",
-      "note": "Choisir trois clés numérotées distinctes ; leur somme est la destination. Sans trois clés, aventure terminée.",
+      "note": "Choisir trois clés numérotées réellement distinctes ; additionner leurs numéros. Deux clés différentes peuvent porter le même numéro, notamment les deux 111 des §§75 et 258.",
       "special": "keys",
       "routes": []
     },
@@ -3800,7 +3755,14 @@
       "routes": [
         {
           "target": 369,
-          "label": "Boire le liquide de la bouteille"
+          "label": "Boire le liquide de la bouteille",
+          "when": {
+            "kind": "not",
+            "condition": {
+              "kind": "fact",
+              "key": "holy_water_consumed"
+            }
+          }
         },
         {
           "target": 120,
@@ -4277,7 +4239,10 @@
       "routes": [
         {
           "target": 379,
-          "label": "Frapper le coffre avec l'épée"
+          "label": "Frapper le coffre avec l'épée",
+          "when": {
+            "kind": "has_weapon"
+          }
         },
         {
           "target": 139,
@@ -4557,7 +4522,7 @@
     "258": {
       "status": "verifie",
       "mode": "automatique",
-      "note": "Après le Minotaure : Chance +2, 8 PO et clé 111 facultatives ; repas facultatif puis §54.",
+      "note": "Après le Minotaure : Chance +2, 8 PO et clé rouge 111 facultatives ; cette clé est distincte de la clé 111 de la statue. Repas facultatif puis §54.",
       "effects": [
         {
           "kind": "stat",
@@ -4584,7 +4549,7 @@
           "effects": [
             {
               "kind": "item",
-              "name": "Clé 111"
+              "name": "Clé rouge 111"
             }
           ]
         }
@@ -5291,6 +5256,11 @@
           "kind": "stat",
           "key": "chance",
           "amount": 1
+        },
+        {
+          "kind": "fact",
+          "key": "first_body_searched",
+          "value": true
         }
       ],
       "routes": [
@@ -5306,7 +5276,14 @@
           "target": 107,
           "label": "Continuer vers §107"
         }
-      ]
+      ],
+      "when": {
+        "kind": "not",
+        "condition": {
+          "kind": "fact",
+          "key": "first_body_searched"
+        }
+      }
     },
     "295": {
       "status": "verifie",
@@ -6363,6 +6340,320 @@
         ]
       }
     },
+    "351": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 76,
+          "label": "Continuer vers §76"
+        }
+      ]
+    },
+    "352": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Regard du Vampire : Endurance -1 ; épée §74 ou sac §279.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "endurance",
+          "amount": -1
+        }
+      ],
+      "routes": [
+        {
+          "target": 74,
+          "label": "Continuer vers §74"
+        },
+        {
+          "target": 279,
+          "label": "Continuer vers §279"
+        }
+      ]
+    },
+    "353": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 314,
+          "label": "Continuer vers §314"
+        }
+      ]
+    },
+    "354": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 308,
+          "label": "Continuer vers §308"
+        },
+        {
+          "target": 52,
+          "label": "Continuer vers §52"
+        },
+        {
+          "target": 14,
+          "label": "Continuer vers §14"
+        },
+        {
+          "target": 234,
+          "label": "Continuer vers §234"
+        }
+      ]
+    },
+    "355": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Bruit douloureux : Habileté -1 ; mur est §181 ou nord §265.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "habilete",
+          "amount": -1
+        }
+      ],
+      "routes": [
+        {
+          "target": 181,
+          "label": "Continuer vers §181"
+        },
+        {
+          "target": 265,
+          "label": "Continuer vers §265"
+        }
+      ]
+    },
+    "356": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 358,
+          "label": "Continuer vers §358"
+        }
+      ]
+    },
+    "357": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 269,
+          "label": "Continuer vers §269"
+        },
+        {
+          "target": 57,
+          "label": "Continuer vers §57"
+        }
+      ]
+    },
+    "358": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 142,
+          "label": "Continuer vers §142"
+        },
+        {
+          "target": 105,
+          "label": "Continuer vers §105"
+        },
+        {
+          "target": 389,
+          "label": "Continuer vers §389"
+        }
+      ]
+    },
+    "359": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 190,
+          "label": "Continuer vers §190"
+        },
+        {
+          "target": 94,
+          "label": "Continuer vers §94"
+        },
+        {
+          "target": 121,
+          "label": "Continuer vers §121"
+        },
+        {
+          "target": 385,
+          "label": "Continuer vers §385"
+        }
+      ]
+    },
+    "360": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 89,
+          "label": "Continuer vers §89"
+        }
+      ]
+    },
+    "361": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Clé 125 acquise ; 2d6 ≤ Habileté évite le gaz, sinon -2 Habileté et -3 Endurance ; si vivant → §136.",
+      "entry_effects": [
+        {
+          "kind": "item",
+          "name": "Clé 125"
+        }
+      ],
+      "roll": {
+        "dice": 2,
+        "branches": [
+          {
+            "when": "lte_stat",
+            "key": "habilete",
+            "target": 136,
+            "effects": []
+          },
+          {
+            "when": "otherwise",
+            "target": 136,
+            "effects": [
+              {
+                "kind": "stat",
+                "key": "habilete",
+                "amount": -2
+              },
+              {
+                "kind": "stat",
+                "key": "endurance",
+                "amount": -3
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "362": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 177,
+          "label": "Continuer vers §177"
+        }
+      ]
+    },
+    "363": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 370,
+          "label": "Continuer vers §370"
+        },
+        {
+          "target": 42,
+          "label": "Continuer vers §42"
+        }
+      ]
+    },
+    "364": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 256,
+          "label": "Continuer vers §256"
+        },
+        {
+          "target": 373,
+          "label": "Continuer vers §373"
+        }
+      ]
+    },
+    "365": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Cinq Farfadets successifs ; victoire §183 ; fuite à tout moment §237 avec pénalité.",
+      "combat": {
+        "mode": "sequence",
+        "enemies": [
+          {
+            "name": "Farfadet 1",
+            "skill": 6,
+            "stamina": 5
+          },
+          {
+            "name": "Farfadet 2",
+            "skill": 6,
+            "stamina": 5
+          },
+          {
+            "name": "Farfadet 3",
+            "skill": 4,
+            "stamina": 4
+          },
+          {
+            "name": "Farfadet 4",
+            "skill": 3,
+            "stamina": 4
+          },
+          {
+            "name": "Farfadet 5",
+            "skill": 2,
+            "stamina": 4
+          }
+        ],
+        "victory_target": 183,
+        "escape_target": 237
+      }
+    },
+    "366": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 89,
+          "label": "Continuer vers §89"
+        },
+        {
+          "target": 62,
+          "label": "Continuer vers §62"
+        }
+      ]
+    },
+    "367": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 235,
+          "label": "Continuer vers §235"
+        },
+        {
+          "target": 323,
+          "label": "Continuer vers §323"
+        }
+      ]
+    },
     "368": {
       "status": "verifie",
       "mode": "automatique",
@@ -6373,7 +6664,73 @@
           "amount": -3
         }
       ],
-      "note": "Attaque magique de Zagor : Endurance -3."
+      "note": "Attaque magique de Zagor : Endurance -3.",
+      "routes": [
+        {
+          "target": 142,
+          "label": "Continuer vers §142"
+        },
+        {
+          "target": 105,
+          "label": "Continuer vers §105"
+        }
+      ]
+    },
+    "369": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Une gorgée de la bouteille ; la bouteille n’est plus disponible ; restauration au §109.",
+      "routes": [
+        {
+          "target": 109,
+          "label": "Continuer vers §109"
+        }
+      ],
+      "entry_effects": [
+        {
+          "kind": "discard_if_present",
+          "name": "Bouteille d’eau sainte"
+        },
+        {
+          "kind": "fact",
+          "key": "holy_water_consumed",
+          "value": true
+        }
+      ]
+    },
+    "370": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 116,
+          "label": "Continuer vers §116"
+        },
+        {
+          "target": 42,
+          "label": "Continuer vers §42"
+        }
+      ]
+    },
+    "371": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Après le Dragon : Chance +3, repas facultatif, suite §274.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 3
+        }
+      ],
+      "optional_meal": true,
+      "routes": [
+        {
+          "target": 274,
+          "label": "Continuer vers §274"
+        }
+      ]
     },
     "372": {
       "status": "verifie",
@@ -6395,6 +6752,47 @@
         ],
         "victory_target": 21
       }
+    },
+    "373": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 85,
+          "label": "Continuer vers §85"
+        }
+      ]
+    },
+    "374": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Squelettes évités : Chance +2, repas facultatif, suite §207.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 2
+        }
+      ],
+      "optional_meal": true,
+      "routes": [
+        {
+          "target": 207,
+          "label": "Continuer vers §207"
+        }
+      ]
+    },
+    "375": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 5,
+          "label": "Continuer vers §5"
+        }
+      ]
     },
     "376": {
       "status": "verifie",
@@ -6419,7 +6817,171 @@
             }
           ]
         }
+      ],
+      "routes": [
+        {
+          "target": 291,
+          "label": "Continuer vers §291"
+        }
+      ],
+      "optional_meal": true
+    },
+    "377": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Diablotin ailé H5/E7, victoire §196 ; aucune fuite indiquée.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Diablotin ailé",
+            "skill": 5,
+            "stamina": 7
+          }
+        ],
+        "victory_target": 196
+      }
+    },
+    "378": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 296,
+          "label": "Continuer vers §296"
+        },
+        {
+          "target": 42,
+          "label": "Continuer vers §42"
+        }
       ]
+    },
+    "379": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Frapper le coffre : Chance ; réussite détruit l’épée utilisée puis §139 ; échec mortel.",
+      "special": "chest_luck",
+      "routes": []
+    },
+    "380": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 37,
+          "label": "Continuer vers §37"
+        }
+      ]
+    },
+    "381": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 84,
+          "label": "Continuer vers §84"
+        },
+        {
+          "target": 280,
+          "label": "Continuer vers §280"
+        }
+      ]
+    },
+    "382": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 396,
+          "label": "Continuer vers §396"
+        }
+      ]
+    },
+    "383": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Clé du Hangar : §80 ; sinon forcer §264 ou revenir à la rivière §129.",
+      "routes": [
+        {
+          "target": 80,
+          "label": "Ouvrir avec la clé du Hangar",
+          "when": {
+            "kind": "has_item",
+            "name": "Clé du Hangar à Bateaux"
+          }
+        },
+        {
+          "target": 264,
+          "label": "Tenter d’enfoncer la porte"
+        },
+        {
+          "target": 129,
+          "label": "Revenir à la rivière"
+        }
+      ]
+    },
+    "384": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 262,
+          "label": "Continuer vers §262"
+        },
+        {
+          "target": 307,
+          "label": "Continuer vers §307"
+        }
+      ]
+    },
+    "385": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 114,
+          "label": "Continuer vers §114"
+        },
+        {
+          "target": 297,
+          "label": "Continuer vers §297"
+        },
+        {
+          "target": 398,
+          "label": "Continuer vers §398"
+        }
+      ]
+    },
+    "386": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 55,
+          "label": "Continuer vers §55"
+        },
+        {
+          "target": 166,
+          "label": "Continuer vers §166"
+        }
+      ]
+    },
+    "387": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Trois clés incorrectes : piège mortel, fin de l’aventure.",
+      "effects": [
+        {
+          "kind": "death"
+        }
+      ],
+      "routes": []
     },
     "388": {
       "status": "verifie",
@@ -6436,7 +6998,13 @@
           "amount": -1
         }
       ],
-      "note": "L'épée blesse et la peur affaiblit : Endurance -1, Habileté -1."
+      "note": "L'épée blesse et la peur affaiblit : Endurance -1, Habileté -1.",
+      "routes": [
+        {
+          "target": 90,
+          "label": "Continuer vers §90"
+        }
+      ]
     },
     "389": {
       "status": "verifie",
@@ -6474,7 +7042,7 @@
           "amount": 2
         }
       ],
-      "note": "Après la Goule : Chance +2 ; bijoux et pièces d'or facultatifs.",
+      "note": "Goule vaincue : Chance +2 ; bijoux et cinq pièces facultatifs, sans fouiller deux fois le premier cadavre ; repas facultatif.",
       "options": [
         {
           "id": "boucles",
@@ -6494,10 +7062,248 @@
               "kind": "stat",
               "key": "gold",
               "amount": 5
+            },
+            {
+              "kind": "fact",
+              "key": "first_body_searched",
+              "value": true
+            }
+          ],
+          "when": {
+            "kind": "not",
+            "condition": {
+              "kind": "fact",
+              "key": "first_body_searched"
+            }
+          }
+        }
+      ],
+      "routes": [
+        {
+          "target": 120,
+          "label": "Poursuivre au nord"
+        },
+        {
+          "target": 393,
+          "label": "Fouiller le deuxième cadavre"
+        }
+      ],
+      "optional_meal": true
+    },
+    "391": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 52,
+          "label": "Continuer vers §52"
+        },
+        {
+          "target": 362,
+          "label": "Continuer vers §362"
+        },
+        {
+          "target": 48,
+          "label": "Continuer vers §48"
+        }
+      ]
+    },
+    "392": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 206,
+          "label": "Continuer vers §206"
+        },
+        {
+          "target": 329,
+          "label": "Continuer vers §329"
+        }
+      ]
+    },
+    "393": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Fouille : 8 PO, parchemin et bouteille facultatifs ; lire §212 ou goûter §369 si pas déjà essayé.",
+      "options": [
+        {
+          "id": "pieces8",
+          "label": "Prendre les huit pièces d’or",
+          "effects": [
+            {
+              "kind": "stat",
+              "key": "gold",
+              "amount": 8
+            }
+          ]
+        },
+        {
+          "id": "parchemin",
+          "label": "Prendre le vieux parchemin",
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Vieux parchemin"
+            }
+          ]
+        },
+        {
+          "id": "bouteille",
+          "label": "Prendre la bouteille",
+          "when": {
+            "kind": "not",
+            "condition": {
+              "kind": "fact",
+              "key": "holy_water_consumed"
+            }
+          },
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Bouteille d’eau sainte"
             }
           ]
         }
+      ],
+      "routes": [
+        {
+          "target": 212,
+          "label": "Lire le parchemin"
+        },
+        {
+          "target": 369,
+          "label": "Goûter le liquide",
+          "when": {
+            "kind": "not",
+            "condition": {
+              "kind": "fact",
+              "key": "holy_water_consumed"
+            }
+          }
+        }
       ]
+    },
+    "394": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Araignée géante H7/E8 ; bottes immobilisantes : -2 à la Force d’Attaque, sans modifier l’Habileté ; victoire §232.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Araignée géante",
+            "skill": 7,
+            "stamina": 8
+          }
+        ],
+        "attack_bonus": -2,
+        "victory_target": 232
+      }
+    },
+    "395": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 322,
+          "label": "Continuer vers §322"
+        },
+        {
+          "target": 34,
+          "label": "Continuer vers §34"
+        }
+      ]
+    },
+    "396": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Ouvrir la porte avec deux clés conservées ; sinon forcer en perdant 5 Endurance. Entrée §242 seulement si vivant.",
+      "routes": [
+        {
+          "target": 242,
+          "label": "Ouvrir avec deux clés",
+          "when": {
+            "kind": "min_keys",
+            "count": 2
+          }
+        },
+        {
+          "target": 242,
+          "label": "Forcer la porte (-5 Endurance)",
+          "effects": [
+            {
+              "kind": "stat",
+              "key": "endurance",
+              "amount": -5
+            }
+          ],
+          "when": {
+            "kind": "not",
+            "condition": {
+              "kind": "min_keys",
+              "count": 2
+            }
+          }
+        }
+      ]
+    },
+    "397": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 240,
+          "label": "Continuer vers §240"
+        },
+        {
+          "target": 363,
+          "label": "Continuer vers §363"
+        }
+      ]
+    },
+    "398": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 12,
+          "label": "Continuer vers §12"
+        },
+        {
+          "target": 364,
+          "label": "Continuer vers §364"
+        }
+      ]
+    },
+    "399": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés dans le PDF ; aucun coût ou gain supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 218,
+          "label": "Continuer vers §218"
+        }
+      ]
+    },
+    "400": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Victoire finale : trésor et grimoire obtenus, aventure achevée. Aucun montant exact de trésor n’est inventé.",
+      "effects": [
+        {
+          "kind": "fact",
+          "key": "adventure_won",
+          "value": true
+        }
+      ],
+      "ending": "victory",
+      "routes": []
     }
   }
 }
