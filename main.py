@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -721,6 +721,8 @@ class MainWindow(QMainWindow):
                        for route in available_routes(self.character, entry)]
         choices = [choice for choice in choices
                    if not self._combat_exit_pending(choice["target"])]
+        if entry and entry.get("enchanted_meal") and self.current_paragraph not in self.completed_book_events:
+            choices = []
         if (self.current_paragraph == 350 and self.piranha_combat
                 and self.piranha_combat.get("status") != "victory"):
             choices = [choice for choice in choices if choice["target"] != 7]
@@ -756,6 +758,11 @@ class MainWindow(QMainWindow):
             self.event_layout.addWidget(notice)
             if scripted["mode"] == "automatique":
                 self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
+            if scripted.get("enchanted_meal") and self.current_paragraph not in self.completed_book_events:
+                btn = QPushButton("Prendre le repas enchanté (1 Provision ; +6 E, +1 H)")
+                btn.setEnabled(self.character.get("provisions", 0) > 0)
+                btn.clicked.connect(lambda checked=False: self.take_enchanted_meal())
+                self.event_layout.addWidget(btn)
             if scripted.get("trade_choices") and not any(
                     k.startswith(f"{self.current_paragraph}:trade:")
                     for k in self.completed_optional_events):
@@ -1132,10 +1139,28 @@ class MainWindow(QMainWindow):
             combat.get("mode") == "first_hit"
             or self.enemy_endurance.value() > 0))
 
+    def take_enchanted_meal(self):
+        """§15 : une seule restauration enchantée et une seule provision."""
+        if self.current_paragraph != 15 or 15 in self.completed_book_events:
+            return
+        entry = verified_entry(self.book_event_catalogue, 15)
+        if not entry or not entry.get("enchanted_meal"):
+            return
+        if not enchanted_bench_meal(self.character):
+            self.rules_log.setText("Pas de Provisions pour le repas au banc.")
+            return
+        self.completed_book_events.add(15)
+        self._refresh_character()
+        self.rules_log.setText(
+            "Repas au banc : une Provision utilisée ; Endurance +6 et Habileté +1 (plafonds respectés).")
+        self._render_choices_and_events(self.paragraphs[15])
+
     def follow_catalogue_choice(self, target):
         """Toutes les issues vérifiées passent par le même contrôle de ressources."""
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
         if (not entry or target not in self.paragraphs
+                or (entry.get("enchanted_meal")
+                    and self.current_paragraph not in self.completed_book_events)
                 or not follow_catalogue_route(self.character, entry, target)):
             QMessageBox.information(
                 self, "Chemin inaccessible", "Les conditions de ce passage ne sont pas remplies.")
@@ -1938,6 +1963,7 @@ for _name, _label in {
     "change_shield_use": "Utiliser le bouclier",
     "take_book_shield": "Prendre le bouclier",
     "take_book_trade": "Échanger un équipement du livre",
+    "take_enchanted_meal": "Manger au banc enchanté",
     "follow_catalogue_choice": "Suivre un itinéraire vérifié"
 }.items():
     setattr(MainWindow, _name, _track_action(getattr(MainWindow, _name), _label))
