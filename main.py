@@ -781,6 +781,15 @@ class MainWindow(QMainWindow):
             btn.setEnabled(permitted and escape_target in self.paragraphs)
             btn.clicked.connect(lambda checked=False, n=self.current_paragraph: self.escape_scripted_combat(n))
             self.event_layout.addWidget(btn)
+        if self.current_paragraph == 350 and self.piranha_combat:
+            if self.piranha_combat.get("status") == "roll_pending":
+                dice_button = QPushButton("🎲 Déterminer qui subit l'attaque des Piranhas (1d6)")
+                dice_button.clicked.connect(lambda checked=False: self.roll_piranha_target())
+                self.event_layout.addWidget(dice_button)
+            elif self.piranha_combat.get("status") == "fighting":
+                self.event_layout.addWidget(QLabel(
+                    f"Piranhas préparés · H 5 / E {self.piranha_combat['stamina']}."
+                    " Combattez-les avec les commandes d'assaut."))
         monsters = encounters(text)
         if monsters:
             self.event_layout.addWidget(QLabel("⚔ Rencontres détectées (à confirmer)"))
@@ -990,6 +999,13 @@ class MainWindow(QMainWindow):
                 self.crocodile_combat = {"paragraph": number, "assaults": 0,
                                          "phase": "initial", "wounded": False}
                 self._set_book_enemy(combat["enemies"][0])
+        if (not self._restoring and number == 350
+                and self.piranha_source_wounded is not None
+                and number not in self.prepared_book_encounters):
+            if self.piranha_source_wounded:
+                self._prepare_piranhas(1)
+            else:
+                self.piranha_combat = {"status": "roll_pending"}
         if not self._restoring and number == 20:
             entry = verified_entry(self.book_event_catalogue, number)
             combat = entry.get("combat", {}) if entry else {}
@@ -1287,6 +1303,50 @@ class MainWindow(QMainWindow):
             "Continuez jusqu'à la victoire." if phase == "continue"
             else "Un seul assaut supplémentaire, puis destination §350.")
         self._render_choices_and_events(self.paragraphs[86])
+
+    def _prepare_piranhas(self, stamina):
+        if self.current_paragraph != 350 or 350 in self.prepared_book_encounters:
+            return
+        self.piranha_combat = {"status": "fighting", "stamina": stamina}
+        self._set_book_enemy({"name": "Piranhas", "skill": 5, "stamina": stamina})
+        self.combat_journal.clear()
+
+    def roll_piranha_target(self):
+        """§350 : ne lancer le dé que si le Crocodile est indemne."""
+        if (self.current_paragraph != 350 or self.piranha_source_wounded is not False
+                or not self.piranha_combat
+                or self.piranha_combat.get("status") != "roll_pending"):
+            return
+        rolls, total = self._roll(1)
+        stamina = piranha_stamina(False, total)
+        self._prepare_piranhas(stamina)
+        self._render_choices_and_events(self.paragraphs[350])
+        self.rules_log.setText(
+            f"§350 : dé {rolls[0]} ; Piranhas H5/E{stamina}.")
+
+    def _finish_piranha_round(self):
+        if (self.current_paragraph != 350 or not self.piranha_combat
+                or self.piranha_combat.get("status") != "fighting"
+                or self.enemy_endurance.value() > 0
+                or self.character["endurance"] <= 0):
+            return
+        entry = verified_entry(self.book_event_catalogue, 350)
+        combat = entry.get("combat", {}) if entry else {}
+        if combat.get("mode") != "piranhas":
+            return
+        from book_events import apply_effects
+        apply_effects(self.character, combat["victory_effects"])
+        self.completed_book_events.add(350)
+        self._refresh_character()
+        self.piranha_combat = {"status": "victory"}
+        self.prepared_book_encounters.add(350)
+        target = combat["victory_target"]
+        if target in self.paragraphs:
+            self.go_to(target)
+            self.rules_log.setText(
+                "Piranhas vaincus : Chance +1 ; §7. Un repas reste facultatif.")
+        else:
+            self.rules_log.setText(f"Piranhas vaincus : Chance +1. Ouvrez le §{target}.")
 
     def _finish_crocodile_round(self):
         state = self.crocodile_combat
@@ -1723,6 +1783,7 @@ def _track_action(method, label):
             result = method(self, *args, **kwargs)
             if method.__name__ == "combat_round" and depth == 0:
                 self._finish_crocodile_round()
+                self._finish_piranha_round()
                 if self.current_paragraph in (8, 16, 20) and self.current_paragraph in self.paragraphs:
                     self._render_choices_and_events(self.paragraphs[self.current_paragraph])
             return result
@@ -1737,6 +1798,7 @@ for _name, _label in {
     "resolve_book_roll": "Résoudre une épreuve du livre",
     "escape_scripted_combat": "Fuir un combat du livre",
     "choose_crocodile_strategy": "Choisir une stratégie contre le Crocodile",
+    "roll_piranha_target": "Déterminer la cible des Piranhas",
     "apply_optional_book_event": "Choisir une récompense du livre",
     "create_character": "Créer un personnage", "test_luck": "Tenter sa Chance",
     "eat_meal": "Prendre un repas", "drink_potion": "Boire une potion",
