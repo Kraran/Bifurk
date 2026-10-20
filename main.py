@@ -719,6 +719,8 @@ class MainWindow(QMainWindow):
             # Ne présenter que les chemins permis par les objets et ressources actuels.
             choices = [{"target": route["target"], "label": route["label"]}
                        for route in available_routes(self.character, entry)]
+        choices = [choice for choice in choices
+                   if not self._combat_exit_pending(choice["target"])]
         if (self.current_paragraph == 350 and self.piranha_combat
                 and self.piranha_combat.get("status") != "victory"):
             choices = [choice for choice in choices if choice["target"] != 7]
@@ -828,6 +830,8 @@ class MainWindow(QMainWindow):
             note.setWordWrap(True)
             self.event_layout.addWidget(note)
         for label, target in combat['exits']:
+            if self._combat_exit_pending(target):
+                continue
             if (entry and entry.get("mode") == "des"
                     and self.current_paragraph not in self.completed_book_events
                     and "roll" in entry
@@ -1114,6 +1118,15 @@ class MainWindow(QMainWindow):
             suffix = f" ({index}/{len(entries)})" if len(entries) > 1 else ""
             self._show_illustration(entry, f"Illustration — paragraphe {self.current_paragraph}{suffix}")
 
+    def _combat_exit_pending(self, target):
+        """La destination d'un combat reste inaccessible tant qu'il n'est pas résolu."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        combat = entry.get("combat", {}) if entry else {}
+        expected = (combat.get("first_hit_target") if combat.get("mode") == "first_hit"
+                    else combat.get("victory_target") if len(combat.get("enemies", [])) == 1
+                    else None)
+        return expected == target and self.current_paragraph not in self.prepared_book_encounters
+
     def follow_catalogue_choice(self, target):
         """Toutes les issues vérifiées passent par le même contrôle de ressources."""
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
@@ -1158,6 +1171,11 @@ class MainWindow(QMainWindow):
             return
         target = int(match.group(1))
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if self._combat_exit_pending(target):
+            QMessageBox.information(
+                self, "Combat obligatoire",
+                "Terminez d'abord l'affrontement avant d'atteindre cette issue.")
+            return
         if (entry and entry.get("mode") == "des"
                 and self.current_paragraph not in self.completed_book_events
                 and "roll" in entry
@@ -1889,7 +1907,9 @@ def _track_action(method, label):
             if method.__name__ == "combat_round" and depth == 0:
                 self._finish_crocodile_round()
                 self._finish_piranha_round()
-                if self.current_paragraph in (8, 16, 20) and self.current_paragraph in self.paragraphs:
+                current = verified_entry(self.book_event_catalogue, self.current_paragraph)
+                if (current and "escape_target" in current.get("combat", {})
+                        and self.current_paragraph in self.paragraphs):
                     self._render_choices_and_events(self.paragraphs[self.current_paragraph])
             return result
         finally:
