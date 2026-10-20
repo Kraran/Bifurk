@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 49 paragraphes vérifiés ponctuellement ; 351 à étudier et valider individuellement.
-- 25 paragraphes avec effets obligatoires automatisés : 11, 25, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 388 et 390.
-- 23 autres paragraphes classés comme conditionnels, jets de dés ou combats particuliers. Onze épreuves sont désormais exécutables : 2, 18, 47, 53, 55, 74, 82 (facultatif), 83, 91, 243 et 389. Au §91, un test de Chance est suivi, uniquement en cas de réussite, d'un second lancer de deux dés déterminant les pièces d'or gagnées. Les autres restent documentés sans application automatique.
+- 53 paragraphes vérifiés ponctuellement ; 347 à étudier et valider individuellement.
+- 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
+- 25 paragraphes avec règles conditionnelles, dés ou combats particuliers. 12 épreuves de dés cataloguées (dont un lancer facultatif) : 2, 18, 47, 53, 55, 74, 82, 83, 91, 209, 243, 389. Au §91, la réussite du test de Chance lance ensuite deux dés pour les pièces d'or gagnées.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -84,3 +84,15 @@ Une ouverture directe et isolée du §350 sans arriver du combat du §86 ne donn
 ## Suite
 
 Examiner chaque paragraphe restant, notamment les combats en série, les tests de Chance, les inventaires conditionnels, les objets consommables, les pertes et gains de maximum de caractéristiques et les issues de combat. Écrire un scénario de test par événement vérifié avant de l'activer. Ne pas déclarer la base exhaustive avant que les 400 paragraphes soient qualifiés.
+
+### Quatre nouveaux paragraphes vérifiés : §§170, 209, 273 et 376
+
+- **§170** : crucifix en argent inscrit comme **objet valant 4 pièces d'or**, sans ajouter immédiatement 4 pièces à la bourse. Le passage mène au §319.
+- **§209** : pont branlant, lancer **1d6 obligatoire** ; un résultat de 6 entraîne la chute au §158, tout autre résultat conduit au §47. Le système d'issue garantit la navigation et son annulation.
+- **§273** : les cinq piquets de bois peuvent être pris **facultativement** après la victoire contre le Barbare, avant de poursuivre au §189.
+- **§376** : les trois points de Chance gagnés après les quatre Nains sont **automatiques**, tandis que la collecte des pièces de cuivre valant 4 pièces d'or est **facultative**. Le repas est également facultatif ; la suite est §291.
+
+Pour les entrées en mode `des`, Bifurk masque les boutons de destination conditionnés par un jet tant que le lancer obligatoire n'a pas été résolu. Les liens correspondants dans le texte sont également bloqués avec un message, sans interdire le saut manuel de débogage.
+
+Les métadonnées de ce catalogue sont propres au PDF de référence ; aucune page du livre n'est recopiée dans le dépôt.
+
