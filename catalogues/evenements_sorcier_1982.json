@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 62,
+  "reviewed_count": 64,
   "review_pending": [
     1,
     4,
@@ -16,7 +16,6 @@
     13,
     14,
     17,
-    19,
     21,
     22,
     23,
@@ -268,7 +267,6 @@
     314,
     315,
     316,
-    317,
     318,
     319,
     320,
@@ -489,6 +487,27 @@
             ]
           }
         ]
+      }
+    },
+    "19": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Deux Lutins combattent successivement : premier H5/E5, second H5/E6. Après leur défaite, §317.",
+      "combat": {
+        "mode": "sequence",
+        "enemies": [
+          {
+            "name": "Lutin 1",
+            "skill": 5,
+            "stamina": 5
+          },
+          {
+            "name": "Lutin 2",
+            "skill": 5,
+            "stamina": 6
+          }
+        ],
+        "victory_target": 317
       }
     },
     "20": {
@@ -1412,6 +1431,29 @@
         {
           "target": 211,
           "label": "Poursuivre après avoir constaté l'invulnérabilité de l'Être"
+        }
+      ]
+    },
+    "317": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Après les deux Lutins, ramasser facultativement le Fromage avant de poursuivre au §303.",
+      "options": [
+        {
+          "id": "fromage",
+          "label": "Ramasser le morceau de Fromage",
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Fromage"
+            }
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "target": 303,
+          "label": "Quitter la pièce vers le nord"
         }
       ]
     },
