@@ -62,6 +62,20 @@ def resolve_roll(roll, total, character):
     raise ValueError("Aucune issue définie pour ce jet")
 
 
+def apply_option(character, completed_options, paragraph, option_id, catalogue):
+    """Exécute au plus une fois un choix facultatif explicitement demandé."""
+    entry = verified_entry(catalogue, paragraph)
+    if entry is None:
+        return False
+    option = next((o for o in entry.get("options", []) if o["id"] == option_id), None)
+    marker = f"{paragraph}:{option_id}"
+    if option is None or marker in completed_options:
+        return False
+    apply_effects(character, option["effects"])
+    completed_options.add(marker)
+    return True
+
+
 def apply_entry(character, completed, paragraph, catalogue):
     """Applique une seule fois les effets obligatoires vérifiés.
 
