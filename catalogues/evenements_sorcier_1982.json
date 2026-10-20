@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 49,
+  "reviewed_count": 53,
   "review_pending": [
     1,
     3,
@@ -141,7 +141,6 @@
     167,
     168,
     169,
-    170,
     171,
     172,
     173,
@@ -176,7 +175,6 @@
     206,
     207,
     208,
-    209,
     210,
     211,
     212,
@@ -236,7 +234,6 @@
     270,
     271,
     272,
-    273,
     274,
     275,
     276,
@@ -334,7 +331,6 @@
     373,
     374,
     375,
-    376,
     377,
     378,
     379,
@@ -1034,6 +1030,17 @@
       "note": "Bouclier au croissant facultatif : nécessite d'abandonner un objet ; utilisé en combat, un lancer de 6 réduit de 1 point la blessure reçue (2→1, 1→0).",
       "shield_pickup": true
     },
+    "170": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Crucifix en argent massif d'une valeur de 4 pièces d'or : objet conservé (valeur de revente, pas 4 pièces immédiatement). Suite §319.",
+      "effects": [
+        {
+          "kind": "item",
+          "name": "Crucifix en argent (valeur 4 PO)"
+        }
+      ]
+    },
     "185": {
       "status": "verifie",
       "mode": "automatique",
@@ -1109,6 +1116,25 @@
           "label": "Attaquer le vieil homme"
         }
       ]
+    },
+    "209": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Pont pourri : lancer 1d6 ; 6 => chute §158, 1 à 5 => équilibre retrouvé §47.",
+      "roll": {
+        "dice": 1,
+        "branches": [
+          {
+            "when": "eq",
+            "value": 6,
+            "target": 158
+          },
+          {
+            "when": "otherwise",
+            "target": 47
+          }
+        ]
+      }
     },
     "243": {
       "status": "verifie",
@@ -1211,6 +1237,23 @@
         }
       ]
     },
+    "273": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Après victoire contre le Barbare, prendre facultativement cinq piquets de bois ; la suite est §189.",
+      "options": [
+        {
+          "id": "cinq_piquets",
+          "label": "Prendre les cinq piquets de bois",
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Cinq piquets de bois"
+            }
+          ]
+        }
+      ]
+    },
     "342": {
       "status": "verifie",
       "mode": "automatique",
@@ -1300,6 +1343,31 @@
         }
       ],
       "note": "Attaque magique de Zagor : Endurance -3."
+    },
+    "376": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Après les quatre Nains : Chance +3. Ramasser les pièces de cuivre valant 4 pièces d'or est facultatif ; repas facultatif, suite §291.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 3
+        }
+      ],
+      "options": [
+        {
+          "id": "pieces_cuivre",
+          "label": "Ramasser les pièces de cuivre (4 pièces d'or)",
+          "effects": [
+            {
+              "kind": "stat",
+              "key": "gold",
+              "amount": 4
+            }
+          ]
+        }
+      ]
     },
     "388": {
       "status": "verifie",
