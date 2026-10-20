@@ -164,6 +164,26 @@ class Reference(unittest.TestCase):
                   if hasattr(w.event_layout.itemAt(i).widget(), "text")]
         self.assertTrue(any("Préparer le combat" in label for label in labels))
 
+    def test_luck_trial_checks_score_before_spending_point(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {74: "Épreuve de Chance", 279: "Vous résistez.", 118: "Échec."}
+        w.character["chance"] = 8
+        w.go_to(74)
+        with patch.object(w, "_roll", return_value=([4, 4], 8)):
+            w.resolve_book_roll(74)
+        self.assertEqual(w.current_paragraph, 279)
+        self.assertEqual(w.character["chance"], 7)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 74)
+        self.assertEqual(w.character["chance"], 8)
+        self.assertNotIn(74, w.completed_book_events)
+        with patch.object(w, "_roll", return_value=([5, 4], 9)):
+            w.resolve_book_roll(74)
+        self.assertEqual(w.current_paragraph, 118)
+        self.assertEqual(w.character["chance"], 7)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
