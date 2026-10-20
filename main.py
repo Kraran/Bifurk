@@ -721,6 +721,9 @@ class MainWindow(QMainWindow):
                        for route in available_routes(self.character, entry)]
         choices = [choice for choice in choices
                    if not self._combat_exit_pending(choice["target"])]
+        # §212 : la bouteille ne peut être essayée qu'une fois dans une partie.
+        if self.current_paragraph == 212 and 369 in self.visited_paragraphs:
+            choices = [choice for choice in choices if choice["target"] != 369]
         if entry and entry.get("enchanted_meal") and self.current_paragraph not in self.completed_book_events:
             choices = []
         if (entry and entry.get("diversion_discard")
@@ -1181,6 +1184,8 @@ class MainWindow(QMainWindow):
         """Toutes les issues vérifiées passent par le même contrôle de ressources."""
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
         if (not entry or target not in self.paragraphs
+                or (self.current_paragraph == 212 and target == 369
+                    and 369 in self.visited_paragraphs)
                 or (entry.get("diversion_discard")
                     and self.current_paragraph not in self.completed_book_events)
                 or (entry.get("enchanted_meal")
@@ -1263,6 +1268,12 @@ class MainWindow(QMainWindow):
             QMessageBox.information(
                 self, "Combat obligatoire",
                 "Terminez d'abord l'affrontement avant d'atteindre cette issue.")
+            return
+        if (self.current_paragraph == 212 and target == 369
+                and 369 in self.visited_paragraphs):
+            QMessageBox.information(
+                self, "Bouteille déjà essayée",
+                "Vous avez déjà essayé de boire ce liquide.")
             return
         if (entry and entry.get("diversion_discard")
                 and self.current_paragraph not in self.completed_book_events
