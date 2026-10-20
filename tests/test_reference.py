@@ -119,6 +119,51 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.character["endurance"], 19)
         self.assertIn(53, w.completed_book_events)
 
+    def test_gold_and_optional_rewards_are_explicit(self):
+        from book_events import DATA_PATH, apply_option, apply_entry
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        character = {"gold": 1, "provisions": 10, "chance": 5,
+                     "initial": {"chance": 8}, "inventory": []}
+        completed, optional = set(), set()
+        self.assertTrue(apply_entry(character, completed, 147, data))
+        self.assertEqual(character["gold"], 2)
+        self.assertEqual(character["chance"], 7)
+        self.assertFalse(apply_option(character, optional, 50, "missing", data))
+        self.assertTrue(apply_option(character, optional, 50, "cle9", data))
+        self.assertFalse(apply_option(character, optional, 50, "cle9", data))
+        self.assertIn("Clé de bronze 9", character["inventory"])
+        self.assertEqual(character["provisions"], 10)
+        self.assertTrue(apply_option(character, optional, 38, "oeufs", data))
+        self.assertEqual(character["provisions"], 12)
+
+    def test_optional_reward_undo_and_redo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {50: "La petite clé de bronze."}
+        w.go_to(50)
+        self.assertNotIn("Clé de bronze 9", w.character["inventory"])
+        w.apply_optional_book_event(50, "cle9")
+        self.assertIn("Clé de bronze 9", w.character["inventory"])
+        self.assertIn("50:cle9", w.completed_optional_events)
+        w.undo_action()
+        self.assertNotIn("Clé de bronze 9", w.character["inventory"])
+        self.assertNotIn("50:cle9", w.completed_optional_events)
+        w.redo_action()
+        self.assertIn("Clé de bronze 9", w.character["inventory"])
+        self.assertIn("50:cle9", w.completed_optional_events)
+
+    def test_special_combat_still_shows_prepare_button(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {16: "OGRE HABILETÉ: 8 ENDURANCE: 10"}
+        w.go_to(16)
+        labels = [w.event_layout.itemAt(i).widget().text()
+                  for i in range(w.event_layout.count())
+                  if hasattr(w.event_layout.itemAt(i).widget(), "text")]
+        self.assertTrue(any("Préparer le combat" in label for label in labels))
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
