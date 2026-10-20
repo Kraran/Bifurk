@@ -1050,11 +1050,12 @@ class MainWindow(QMainWindow):
                 self._prepare_piranhas(1)
             else:
                 self.piranha_combat = {"status": "roll_pending"}
-        if not self._restoring and number == 20:
+        if not self._restoring:
             entry = verified_entry(self.book_event_catalogue, number)
             combat = entry.get("combat", {}) if entry else {}
             if (combat.get("mode") == "sequence" and len(combat.get("enemies", [])) > 1
-                    and self.book_combat_sequence is None):
+                    and self.book_combat_sequence is None
+                    and number not in self.prepared_book_encounters):
                 self.book_combat_sequence = {"paragraph": number, "index": 0}
                 self._set_book_enemy(combat["enemies"][0])
         if number not in self.visited_paragraphs:
@@ -1135,6 +1136,9 @@ class MainWindow(QMainWindow):
         expected = (combat.get("first_hit_target") if combat.get("mode") == "first_hit"
                     else combat.get("victory_target") if len(combat.get("enemies", [])) == 1
                     else None)
+        if (combat.get("mode") == "sequence"
+                and target == combat.get("victory_target")):
+            return self.current_paragraph not in self.prepared_book_encounters
         return (expected == target and (
             combat.get("mode") == "first_hit"
             or self.enemy_endurance.value() > 0))
@@ -1402,6 +1406,7 @@ class MainWindow(QMainWindow):
         else:
             target = combat.get("victory_target")
             self.book_combat_sequence = None
+            self.prepared_book_encounters.add(state["paragraph"])
             if target in self.paragraphs:
                 self.rules_log.setText(f"Tous les adversaires vaincus. Destination §{target}.")
                 self.go_to(target)
