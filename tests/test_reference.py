@@ -800,6 +800,61 @@ class Reference(unittest.TestCase):
         self.assertEqual(equipped_weapon(hero), "Épée trouvée dans la rivière")
         self.assertEqual(combat_skill(hero), 9)
 
+    def test_moon_shield_requires_relinquishing_an_item(self):
+        from book_events import SHIELD_NAME, take_moon_shield
+        hero = {"inventory": ["Épée", "Casque ensorcelé"],
+                "locked_items": ["Casque ensorcelé"],
+                "equipped_weapon": "Épée"}
+        before = list(hero["inventory"])
+        self.assertFalse(take_moon_shield(hero, "Casque ensorcelé"))
+        self.assertFalse(take_moon_shield(hero, "Objet imaginaire"))
+        self.assertEqual(hero["inventory"], before)
+        self.assertTrue(take_moon_shield(hero, "Épée"))
+        self.assertIn(SHIELD_NAME, hero["inventory"])
+        self.assertNotIn("Épée", hero["inventory"])
+        self.assertIsNone(hero["equipped_weapon"])
+        self.assertFalse(take_moon_shield(hero, "Casque ensorcelé"))
+        self.assertTrue(hero["shield_equipped"])
+
+    def test_moon_shield_reduces_damage_only_on_six(self):
+        from book_events import shield_damage
+        self.assertEqual(shield_damage(2, 6), 1)
+        self.assertEqual(shield_damage(1, 6), 0)
+        self.assertEqual(shield_damage(3, 6), 2)
+        self.assertEqual(shield_damage(2, 5), 2)
+        with self.assertRaises(ValueError):
+            shield_damage(2, 7)
+
+    def test_moon_shield_combat_and_undo(self):
+        from book_events import SHIELD_NAME
+        w = self.window
+        w.character["inventory"].append(SHIELD_NAME)
+        w.character["shield_equipped"] = True
+        w._refresh_character()
+        w.enemy_skill.setValue(12)
+        w.enemy_endurance.setValue(6)
+        with patch.object(w, "_roll", side_effect=[
+                ([6, 6], 12), ([1, 1], 2), ([6], 6)]), \\
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.character["endurance"], 19)
+        w.undo_action()
+        self.assertEqual(w.character["endurance"], 20)
+
+    def test_moon_shield_pickup_and_undo(self):
+        from book_events import DATA_PATH, SHIELD_NAME
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {155: "Le bouclier au croissant.", 300: "Couloir."}
+        w.go_to(155)
+        with patch("main.QInputDialog.getItem", return_value=("Épée", True)):
+            w.take_book_shield()
+        self.assertIn(SHIELD_NAME, w.character["inventory"])
+        self.assertNotIn("Épée", w.character["inventory"])
+        w.undo_action()
+        self.assertIn("Épée", w.character["inventory"])
+        self.assertNotIn(SHIELD_NAME, w.character["inventory"])
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
