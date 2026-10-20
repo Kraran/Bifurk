@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 60,
+  "reviewed_count": 62,
   "review_pending": [
     1,
     4,
@@ -15,7 +15,6 @@
     12,
     13,
     14,
-    15,
     17,
     19,
     21,
@@ -37,7 +36,6 @@
     52,
     54,
     57,
-    58,
     59,
     60,
     62,
@@ -431,6 +429,18 @@
       ],
       "note": "Repos auprès des outils animés ; plafonds de départ."
     },
+    "15": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Repas au banc enchanté : dépense 1 Provision ; restaure 4+2 Endurance, et 1 Habileté perdue, plafonnées aux valeurs initiales. Puis §367.",
+      "enchanted_meal": true,
+      "routes": [
+        {
+          "target": 367,
+          "label": "Quitter le banc et poursuivre"
+        }
+      ]
+    },
     "16": {
       "status": "verifie",
       "mode": "combat_special",
@@ -678,11 +688,11 @@
     "38": {
       "status": "verifie",
       "mode": "conditionnel",
-      "note": "Œufs de caille facultatifs : deux repas supplémentaires.",
+      "note": "Œufs de caille : prendre facultativement deux repas supplémentaires (+2 Provisions), puis §66.",
       "options": [
         {
-          "id": "oeufs",
-          "label": "Prendre les œufs de caille (+2 provisions)",
+          "id": "oeufs_caille",
+          "label": "Emporter les œufs de caille (+2 Provisions)",
           "effects": [
             {
               "kind": "stat",
@@ -690,6 +700,12 @@
               "amount": 2
             }
           ]
+        }
+      ],
+      "routes": [
+        {
+          "target": 66,
+          "label": "Repartir par la porte sud"
         }
       ]
     },
@@ -848,6 +864,26 @@
         }
       ],
       "note": "L'ancienne épée est jetée dans la rivière et le héros conserve la nouvelle arme (+1 Habileté uniquement quand elle est utilisée en combat)."
+    },
+    "58": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Arrêt facultatif pour prendre un repas au banc §15 ; sans repas continuer au §367.",
+      "routes": [
+        {
+          "target": 15,
+          "label": "S'arrêter pour manger au banc",
+          "when": {
+            "kind": "min_stat",
+            "key": "provisions",
+            "value": 1
+          }
+        },
+        {
+          "target": 367,
+          "label": "Continuer sans repas"
+        }
+      ]
     },
     "61": {
       "status": "verifie",
