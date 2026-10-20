@@ -834,7 +834,7 @@ class Reference(unittest.TestCase):
         w.enemy_skill.setValue(12)
         w.enemy_endurance.setValue(6)
         with patch.object(w, "_roll", side_effect=[
-                ([6, 6], 12), ([1, 1], 2), ([6], 6)]), \\
+                ([6, 6], 12), ([1, 1], 2), ([6], 6)]), \
                 patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
             w.combat_round()
         self.assertEqual(w.character["endurance"], 19)
