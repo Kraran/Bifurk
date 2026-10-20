@@ -2168,6 +2168,94 @@ class Reference(unittest.TestCase):
             self.assertFalse(apply_entry(char, done, paragraph, data))
         self.assertEqual(char["gold"], 6)
 
+    def test_verified_routes_212_to_235(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        expected = {
+            212: [369, 120], 214: [271, 104, 99],
+            215: [142, 105], 217: [118], 219: [182],
+            220: [171], 222: [85], 223: [53, 300],
+            224: [118], 225: [77, 63], 226: [267],
+            228: [85], 229: [69], 231: [182],
+            232: [375], 233: [198], 235: [176, 5],
+        }
+        for paragraph, targets in expected.items():
+            with self.subTest(paragraph=paragraph):
+                routes = available_routes({}, data["paragraphs"][str(paragraph)])
+                self.assertEqual([route["target"] for route in routes], targets)
+
+    def test_locked_door_213_all_dice_results_and_wound(self):
+        from book_events import DATA_PATH, resolve_roll
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        roll = data["paragraphs"]["213"]["roll"]
+        for total in range(2, 13):
+            with self.subTest(total=total):
+                outcome = resolve_roll(roll, total, {"habilete": 8})
+                self.assertEqual(outcome["target"], 36 if total <= 8 else 314)
+                self.assertEqual(outcome.get("effects", []),
+                    [] if total <= 8 else
+                    [{"kind": "stat", "key": "endurance", "amount": -1}])
+
+    def test_locked_door_213_failure_costs_endurance_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {213: "Porte verrouillée.", 314: "Couloir.", 36: "Pièce."}
+        w.character["habilete"] = 8
+        w.character["endurance"] = 14
+        w.go_to(213)
+        with patch.object(w, "_roll", return_value=([5, 5], 10)):
+            w.resolve_book_roll(213)
+        self.assertEqual(w.current_paragraph, 314)
+        self.assertEqual(w.character["endurance"], 13)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 213)
+        self.assertEqual(w.character["endurance"], 14)
+        self.assertNotIn(213, w.completed_book_events)
+
+    def test_fountain_216_exact_restoration_once_and_optional_food(self):
+        from book_events import DATA_PATH, apply_entry
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"endurance": 12, "habilete": 4, "chance": 2,
+                "initial": {"endurance": 18, "habilete": 9, "chance": 8},
+                "provisions": 2}
+        completed = set()
+        self.assertTrue(apply_entry(hero, completed, 216, data))
+        self.assertEqual((hero["endurance"], hero["habilete"],
+                          hero["chance"], hero["provisions"]), (16, 9, 8, 2))
+        self.assertFalse(apply_entry(hero, completed, 216, data))
+        self.assertEqual(hero["endurance"], 16)
+        self.assertTrue(data["paragraphs"]["216"]["optional_meal"])
+
+    def test_fountain_216_entry_meal_choice_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {216: "Fontaine.", 384: "Sortie."}
+        w.character["endurance"] = 10
+        w.character["habilete"] = 6
+        w.character["chance"] = 5
+        w.character["provisions"] = 2
+        w.go_to(216)
+        initial = w.character["initial"]
+        self.assertEqual(w.character["endurance"], 14)
+        self.assertEqual(w.character["habilete"], initial["habilete"])
+        self.assertEqual(w.character["chance"], initial["chance"])
+        self.assertEqual(w.character["provisions"], 2)
+        meal_buttons = [w.event_layout.itemAt(i).widget()
+            for i in range(w.event_layout.count())
+            if hasattr(w.event_layout.itemAt(i).widget(), "text")
+            and "Prendre un repas" in w.event_layout.itemAt(i).widget().text()]
+        self.assertEqual(len(meal_buttons), 1)
+        meal_buttons[0].click()
+        self.assertEqual(w.character["endurance"], 18)
+        self.assertEqual(w.character["provisions"], 1)
+        w.undo_action()
+        self.assertEqual(w.character["endurance"], 14)
+        self.assertEqual(w.character["provisions"], 2)
+        w.follow_catalogue_choice(384)
+        self.assertEqual(w.current_paragraph, 384)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
