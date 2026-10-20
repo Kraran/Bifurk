@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 64,
+  "reviewed_count": 69,
   "review_pending": [
     1,
     4,
@@ -23,8 +23,6 @@
     26,
     29,
     30,
-    35,
-    36,
     37,
     42,
     43,
@@ -34,7 +32,6 @@
     48,
     52,
     54,
-    57,
     59,
     60,
     62,
@@ -49,12 +46,10 @@
     72,
     73,
     76,
-    77,
     78,
     79,
     80,
     81,
-    84,
     85,
     87,
     88,
@@ -704,6 +699,36 @@
         }
       ]
     },
+    "35": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Gaz toxique : fuir vers §136 ou tenter de saisir la clé vers §361 ; aucun dégât immédiat prescrit ici.",
+      "routes": [
+        {
+          "target": 136,
+          "label": "Fuir la pièce enfumée"
+        },
+        {
+          "target": 361,
+          "label": "Retenir son souffle et saisir la clé"
+        }
+      ]
+    },
+    "36": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Vieil homme armé d'un pied de chaise : tenter de le calmer vers §263 ou dégainer et attaquer vers §353.",
+      "routes": [
+        {
+          "target": 263,
+          "label": "Essayer de calmer le vieil homme"
+        },
+        {
+          "target": 353,
+          "label": "Dégainer et l'attaquer"
+        }
+      ]
+    },
     "38": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -884,6 +909,25 @@
       ],
       "note": "L'ancienne épée est jetée dans la rivière et le héros conserve la nouvelle arme (+1 Habileté uniquement quand elle est utilisée en combat)."
     },
+    "57": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Avant la rencontre avec l'Ogre : l'attaquer §16 ; esquiver discrètement §2 ; détourner son attention §119.",
+      "routes": [
+        {
+          "target": 16,
+          "label": "Attaquer l'Ogre"
+        },
+        {
+          "target": 2,
+          "label": "Essayer de sortir discrètement"
+        },
+        {
+          "target": 119,
+          "label": "Faire diversion en jetant un objet"
+        }
+      ]
+    },
     "58": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -993,6 +1037,22 @@
       ],
       "note": "Butin et récompense après le combat ; le repas reste facultatif."
     },
+    "77": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Abri sûr au croisement : prendre facultativement un repas standard (+4 Endurance, 1 Provision consommée), puis direction est §345 ou ouest §18.",
+      "optional_meal": true,
+      "routes": [
+        {
+          "target": 345,
+          "label": "Aller vers l'est"
+        },
+        {
+          "target": 18,
+          "label": "Aller vers l'ouest"
+        }
+      ]
+    },
     "82": {
       "status": "verifie",
       "mode": "des_optionnel",
@@ -1050,6 +1110,25 @@
           }
         ]
       }
+    },
+    "84": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Vieil homme et créature ailée : s'asseoir §204, quitter la pièce §280 ou tirer l'épée §377.",
+      "routes": [
+        {
+          "target": 204,
+          "label": "S'asseoir à la table"
+        },
+        {
+          "target": 280,
+          "label": "Quitter la pièce"
+        },
+        {
+          "target": 377,
+          "label": "Attaquer l'homme"
+        }
+      ]
     },
     "86": {
       "status": "verifie",
