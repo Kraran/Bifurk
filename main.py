@@ -191,6 +191,7 @@ class MainWindow(QMainWindow):
         self.completed_optional_events = set()
         self.prepared_book_encounters = set()
         self.book_combat_sequence = None
+        self.crocodile_combat = None
         self.paragraphs = {}
         self.current_paragraph = None
         self.visited_paragraphs = []
@@ -636,6 +637,7 @@ class MainWindow(QMainWindow):
         self.completed_optional_events = set()
         self.prepared_book_encounters = set()
         self.book_combat_sequence = None
+        self.crocodile_combat = None
         self.paragraphs = paragraphs
         if self.illustration_catalogue is None:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
@@ -741,8 +743,16 @@ class MainWindow(QMainWindow):
                 return
             # Les combats complexes conservent les commandes habituelles :
             # aucune prise en charge complète n'est encore garantie.
+        state = self.crocodile_combat
+        if (state and self.current_paragraph == 86 and state["phase"] == "initial"
+                and state["assaults"] >= 2 and self.enemy_endurance.value() > 0):
+            continue_btn = QPushButton("Continuer le combat contre le Crocodile")
+            continue_btn.clicked.connect(lambda checked=False: self.choose_crocodile_strategy("continue"))
+            self.event_layout.addWidget(continue_btn)
+            diversion_btn = QPushButton("Faire un dernier assaut puis rejoindre le §350")
+            diversion_btn.clicked.connect(lambda checked=False: self.choose_crocodile_strategy("diversion"))
+            self.event_layout.addWidget(diversion_btn)
         monsters = encounters(text)
-        if monsters:
             self.event_layout.addWidget(QLabel("⚔ Rencontres détectées (à confirmer)"))
             for monster in monsters:
                 button = QPushButton(f"Préparer le combat : {monster['name']} · H {monster['skill']} / E {monster['stamina']}")
@@ -940,6 +950,13 @@ class MainWindow(QMainWindow):
                 self.combat_state.setText(
                     f"⚔ {opponent['name']} · H {opponent['skill']} · Endurance {opponent['stamina']}")
                 self.combat_journal.clear()
+        if not self._restoring and number == 86:
+            entry = verified_entry(self.book_event_catalogue, number)
+            combat = entry.get("combat", {}) if entry else {}
+            if combat.get("mode") == "limite_assauts" and self.crocodile_combat is None:
+                self.crocodile_combat = {"paragraph": number, "assaults": 0,
+                                         "phase": "initial"}
+                self._set_book_enemy(combat["enemies"][0])
         if not self._restoring and number == 20:
             entry = verified_entry(self.book_event_catalogue, number)
             combat = entry.get("combat", {}) if entry else {}
@@ -1121,6 +1138,9 @@ class MainWindow(QMainWindow):
         self.rules_log.setText(f"Potion utilisée : {label} {old} → {target}. Doses restantes : {doses-1}.")
 
     def _log_assault(self, player_rolls, enemy_rolls, player_attack, enemy_attack, outcome):
+        if (self.crocodile_combat
+                and self.current_paragraph == self.crocodile_combat["paragraph"]):
+            self.crocodile_combat["assaults"] += 1
         self.combat_journal.insertItem(0, f"Vous {player_rolls} = {player_attack} | Ennemi {enemy_rolls} = {enemy_attack} | {outcome}")
         self.combat_state.setText(f"⚔  {self.enemy_name.text()} • Endurance {self.enemy_endurance.value()} | Héros {self.character['endurance']}")
         while self.combat_journal.count() > 60:
@@ -1163,7 +1183,51 @@ class MainWindow(QMainWindow):
                 self.rules_log.setText(
                     f"Tous les adversaires vaincus. Ouvrez manuellement le §{target}.")
 
+    def choose_crocodile_strategy(self, phase):
+        state = self.crocodile_combat
+        if (not state or self.current_paragraph != 86 or phase not in ("continue", "diversion")
+                or state["phase"] != "initial" or state["assaults"] < 2
+                or self.enemy_endurance.value() <= 0):
+            return
+        state["phase"] = phase
+        self.rules_log.setText(
+            "Continuez jusqu'à la victoire." if phase == "continue"
+            else "Un seul assaut supplémentaire, puis destination §350.")
+        self._render_choices_and_events(self.paragraphs[86])
+
+    def _finish_crocodile_round(self):
+        state = self.crocodile_combat
+        if not state or self.current_paragraph != state["paragraph"]:
+            return
+        entry = verified_entry(self.book_event_catalogue, 86)
+        if not entry:
+            return
+        combat = entry["combat"]
+        if self.character["endurance"] <= 0:
+            self.rules_log.setText("Votre Endurance est à zéro : l'aventure est terminée.")
+            return
+        if state["phase"] == "diversion" and state["assaults"] >= 3:
+            target = combat["diversion_target"]
+        elif self.enemy_endurance.value() <= 0:
+            target = combat["continue_target"]
+        else:
+            self._render_choices_and_events(self.paragraphs[86])
+            return
+        self.crocodile_combat = None
+        if target in self.paragraphs:
+            self.go_to(target)
+            self.rules_log.setText(f"Combat contre le Crocodile terminé : §{target}.")
+        else:
+            self.rules_log.setText(f"Combat terminé : ouvrez manuellement le §{target}.")
+
     def combat_round(self):
+        state = self.crocodile_combat
+        if (state and self.current_paragraph == state["paragraph"]
+                and state["phase"] == "initial" and state["assaults"] >= 2
+                and self.enemy_endurance.value() > 0):
+            self.rules_log.setText(
+                "Après deux assauts contre le Crocodile, choisissez une stratégie dans les événements.")
+            return
         if self.enemy_endurance.value() <= 0:
             self.rules_log.setText("Le monstre est déjà vaincu.")
             return
@@ -1263,6 +1327,7 @@ class MainWindow(QMainWindow):
                 "completed_optional_events": sorted(self.completed_optional_events),
                 "prepared_book_encounters": sorted(self.prepared_book_encounters),
                 "book_combat_sequence": copy.deepcopy(self.book_combat_sequence),
+                "crocodile_combat": copy.deepcopy(self.crocodile_combat),
                 "current_paragraph": self.current_paragraph,
                 "visited_paragraphs": list(self.visited_paragraphs),
                 "transitions": copy.deepcopy(self.transitions),
@@ -1299,6 +1364,7 @@ class MainWindow(QMainWindow):
             self.completed_optional_events = set(state.get("completed_optional_events", []))
             self.prepared_book_encounters = set(state.get("prepared_book_encounters", []))
             self.book_combat_sequence = copy.deepcopy(state.get("book_combat_sequence"))
+            self.crocodile_combat = copy.deepcopy(state.get("crocodile_combat"))
             self.visited_paragraphs = list(state["visited_paragraphs"])
             self.transitions = copy.deepcopy(state.get("transitions", []))
             self._refresh_character()
@@ -1463,6 +1529,7 @@ class MainWindow(QMainWindow):
                            "completed_optional_events": data.get("completed_optional_events", []),
                            "prepared_book_encounters": data.get("prepared_book_encounters", []),
                            "book_combat_sequence": data.get("book_combat_sequence"),
+                           "crocodile_combat": data.get("crocodile_combat"),
                            "visited_paragraphs": data.get("visited_paragraphs", []),
                            "transitions": data.get("transitions", []),
                            "current_paragraph": data.get("current_paragraph")})
@@ -1483,7 +1550,10 @@ def _track_action(method, label):
         before = self._snapshot() if depth == 0 else None
         self._action_depth = depth + 1
         try:
-            return method(self, *args, **kwargs)
+            result = method(self, *args, **kwargs)
+            if method.__name__ == "combat_round" and depth == 0:
+                self._finish_crocodile_round()
+            return result
         finally:
             self._action_depth -= 1
             if depth == 0:
@@ -1493,6 +1563,7 @@ def _track_action(method, label):
 for _name, _label in {
     "go_to": "Changer de paragraphe", "apply_detected_event": "Appliquer un événement",
     "resolve_book_roll": "Résoudre une épreuve du livre",
+    "choose_crocodile_strategy": "Choisir une stratégie contre le Crocodile",
     "apply_optional_book_event": "Choisir une récompense du livre",
     "create_character": "Créer un personnage", "test_luck": "Tenter sa Chance",
     "eat_meal": "Prendre un repas", "drink_potion": "Boire une potion",
