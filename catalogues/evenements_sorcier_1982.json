@@ -691,7 +691,7 @@
       "note": "Œufs de caille : prendre facultativement deux repas supplémentaires (+2 Provisions), puis §66.",
       "options": [
         {
-          "id": "oeufs_caille",
+          "id": "oeufs",
           "label": "Emporter les œufs de caille (+2 Provisions)",
           "effects": [
             {
