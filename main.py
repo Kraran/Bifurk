@@ -78,10 +78,10 @@ def resolve_book_reference(reference):
 def extract_paragraphs(pdf_path):
     """Extract numbered paragraphs from a text-based PDF using PyMuPDF."""
     try:
-        import fitz
+        import pymupdf
     except ImportError as exc:
         raise RuntimeError("PyMuPDF n'est pas installé. Lancez : pip install PyMuPDF") from exc
-    doc = fitz.open(pdf_path)
+    doc = pymupdf.open(pdf_path)
     text = "\n".join(page.get_text("text", sort=True) for page in doc)
     # Normalize common PDF line-break artifacts while preserving paragraph boundaries.
     text = text.replace("\u00ad", "")
@@ -353,6 +353,8 @@ class MainWindow(QMainWindow):
         cover_button.clicked.connect(self.show_cover)
         reader_layout.addWidget(cover_button)
         self.reader = QTextBrowser()
+        # Les liens paragraph:NNN sont gérés par follow_link, jamais par QTextBrowser.
+        self.reader.setOpenLinks(False)
         self.reader.setOpenExternalLinks(False)
         self.reader.anchorClicked.connect(self.follow_link)
         self.reader.setObjectName("reader")
