@@ -5,7 +5,7 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 55 paragraphes vérifiés ponctuellement ; 345 à étudier et valider individuellement.
+- 57 paragraphes vérifiés ponctuellement ; 343 à étudier et valider individuellement.
 - 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
 - 25 paragraphes avec règles conditionnelles, dés ou combats particuliers. 12 épreuves de dés cataloguées (dont un lancer facultatif) : 2, 18, 47, 53, 55, 74, 82, 83, 91, 209, 243, 389. Au §91, la réussite du test de Chance lance ensuite deux dés pour les pièces d'or gagnées.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
@@ -102,4 +102,13 @@ Les métadonnées de ce catalogue sont propres au PDF de référence ; aucune pa
 - **§3** : la traversée payée demande **3 pièces d'or**, débitées au moment où le joueur choisit le §272 (bouton ou lien du texte) ; le §127 (« menacer ») reste possible sans payer. Si le héros a moins de 3 pièces, le chemin payant n'est pas proposé et son activation directe est refusée. Le débit et la navigation constituent une seule action annulable.
 - **§34** : le maillet en bois dur et le ciseau à lame d'argent sont **mutuellement exclusifs**. En choisir un demande d'abandonner un objet réel du sac, à l'exception des objets verrouillés par une malédiction. Aucun échange n'a lieu si le joueur annule le dialogue. La perte éventuelle d'une arme équipée actualise son état et son bonus. Après l'échange, la suite est le §96.
 - Quatre tests garantissent les refus sans modification, le paiement unique par trajet, l'échange exclusif et l'annulation. Les actions sont pilotées par les données du catalogue plutôt que par une détection heuristique des mots du texte.
+
+
+### Combats particuliers : Farfadet §33 et Être §41
+
+- **§33** : combat contre le **Farfadet H6/E4**. Une fuite vers §320 entraîne la pénalité réglementaire ; après sa défaite, §147 est ouvert automatiquement, avec l'or et la Chance accordés **une fois** par la boîte du §147. Annuler un assaut restaure l'Endurance du Farfadet, la position et les récompenses.
+- **§41** : combat contre **l'Être H9/E6**. À la première blessure *réellement infligée au monstre*, l'affrontement s'arrête immédiatement et Bifurk conduit au §310. Il ne faut **pas** attendre la mort de l'adversaire. Ce passage explique l'invulnérabilité de l'Être aux armes ordinaires.
+- Les liens et choix génériques vers §147/§310 ne peuvent plus contourner les objectifs du combat ; les commandes de navigation manuelle restent libres pour le débogage.
+- Aucun monstre préparé par le catalogue ne peut être remis à son Endurance initiale par un bouton heuristique « Préparer le combat » ; sa progression reste enregistrée et annulable.
+- Quatre nouveaux tests contrôlent la victoire du §33, sa fuite, le premier coup du §41 et la protection de sa destination.
 
