@@ -189,6 +189,7 @@ class MainWindow(QMainWindow):
         self.book_event_catalogue = None
         self.completed_book_events = set()
         self.completed_optional_events = set()
+        self.prepared_book_encounters = set()
         self.paragraphs = {}
         self.current_paragraph = None
         self.visited_paragraphs = []
@@ -632,6 +633,7 @@ class MainWindow(QMainWindow):
         self.book_event_catalogue = load_book_events(path)
         self.completed_book_events = set()
         self.completed_optional_events = set()
+        self.prepared_book_encounters = set()
         self.paragraphs = paragraphs
         if self.illustration_catalogue is None:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
@@ -902,6 +904,20 @@ class MainWindow(QMainWindow):
         if not self._restoring and apply_entry(self.character, self.completed_book_events, number, self.book_event_catalogue):
             self._refresh_character()
             self.rules_log.setText(f"Effets vérifiés appliqués automatiquement au paragraphe {number}.")
+        if not self._restoring:
+            entry = verified_entry(self.book_event_catalogue, number)
+            combat = entry.get("combat", {}) if entry else {}
+            opponents = combat.get("enemies", [])
+            if (len(opponents) == 1 and not combat.get("mode")
+                    and number not in self.prepared_book_encounters):
+                opponent = opponents[0]
+                self.enemy_name.setText(opponent["name"])
+                self.enemy_skill.setValue(opponent["skill"])
+                self.enemy_endurance.setValue(opponent["stamina"])
+                self.prepared_book_encounters.add(number)
+                self.combat_state.setText(
+                    f"⚔ {opponent['name']} · H {opponent['skill']} · Endurance {opponent['stamina']}")
+                self.combat_journal.clear()
         if number not in self.visited_paragraphs:
             self.visited_paragraphs.append(number)
         self.goto_spin.setValue(number)
@@ -1176,6 +1192,7 @@ class MainWindow(QMainWindow):
         return {"character": copy.deepcopy(self.character),
                 "completed_book_events": sorted(self.completed_book_events),
                 "completed_optional_events": sorted(self.completed_optional_events),
+                "prepared_book_encounters": sorted(self.prepared_book_encounters),
                 "current_paragraph": self.current_paragraph,
                 "visited_paragraphs": list(self.visited_paragraphs),
                 "transitions": copy.deepcopy(self.transitions),
@@ -1210,6 +1227,7 @@ class MainWindow(QMainWindow):
             self.character.setdefault("gold", 1)
             self.completed_book_events = set(state.get("completed_book_events", []))
             self.completed_optional_events = set(state.get("completed_optional_events", []))
+            self.prepared_book_encounters = set(state.get("prepared_book_encounters", []))
             self.visited_paragraphs = list(state["visited_paragraphs"])
             self.transitions = copy.deepcopy(state.get("transitions", []))
             self._refresh_character()
@@ -1372,6 +1390,7 @@ class MainWindow(QMainWindow):
             self._restore({"character": data.get("character", self.character),
                            "completed_book_events": data.get("completed_book_events", []),
                            "completed_optional_events": data.get("completed_optional_events", []),
+                           "prepared_book_encounters": data.get("prepared_book_encounters", []),
                            "visited_paragraphs": data.get("visited_paragraphs", []),
                            "transitions": data.get("transitions", []),
                            "current_paragraph": data.get("current_paragraph")})
