@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, verified_entry
+from book_events import load_book_events, apply_entry, verified_entry, apply_effects, resolve_roll
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -714,6 +714,15 @@ class MainWindow(QMainWindow):
             if scripted["mode"] == "automatique":
                 self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une seule fois dans cette partie."))
                 return
+            if scripted["mode"] == "des" and "roll" in scripted:
+                button = QPushButton("🎲 Lancer le dé et appliquer le résultat vérifié")
+                button.setEnabled(self.current_paragraph not in self.completed_book_events)
+                button.clicked.connect(lambda checked=False, n=self.current_paragraph: self.resolve_book_roll(n))
+                self.event_layout.addWidget(button)
+                return
+            # Ne pas réactiver les suggestions approximatives sur un événement revu.
+            self.event_layout.addWidget(QLabel("Événement spécial : automatisation non encore disponible."))
+            return
         monsters = encounters(text)
         if monsters:
             self.event_layout.addWidget(QLabel("⚔ Rencontres détectées (à confirmer)"))
@@ -846,6 +855,21 @@ class MainWindow(QMainWindow):
         self.character[key] = after
         self._refresh_character()
         self.rules_log.setText(f"Événement appliqué : {label} {before} → {after}.")
+
+    def resolve_book_roll(self, number):
+        """Effectue une seule fois un jet spécial, puis applique son issue."""
+        entry = verified_entry(self.book_event_catalogue, number)
+        if (number != self.current_paragraph or not entry or entry["mode"] != "des"
+                or "roll" not in entry or number in self.completed_book_events):
+            return
+        dice = entry["roll"]["dice"]
+        rolls, total = self._roll(dice)
+        outcome = resolve_roll(entry["roll"], total, self.character)
+        self.completed_book_events.add(number)
+        apply_effects(self.character, outcome.get("effects", []))
+        self._refresh_character()
+        self.rules_log.setText(f"Épreuve §{number} : dés {rolls} = {total} ; destination §{outcome['target']}.")
+        self.go_to(outcome["target"])
 
     def go_to(self, number):
         if number not in self.paragraphs:
@@ -1351,6 +1375,7 @@ def _track_action(method, label):
 
 for _name, _label in {
     "go_to": "Changer de paragraphe", "apply_detected_event": "Appliquer un événement",
+    "resolve_book_roll": "Résoudre une épreuve du livre",
     "create_character": "Créer un personnage", "test_luck": "Tenter sa Chance",
     "eat_meal": "Prendre un repas", "drink_potion": "Boire une potion",
     "combat_round": "Assaut de combat", "add_item": "Ajouter un objet",
