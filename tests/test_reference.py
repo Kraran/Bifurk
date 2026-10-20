@@ -262,6 +262,58 @@ class Reference(unittest.TestCase):
         self.assertTrue(any("§80" in label for label in destinations()))
         self.assertFalse(any("§129" in label for label in destinations()))
 
+    def test_luck_fall_paragraph_18_success_and_failure(self):
+        from book_events import DATA_PATH
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w = self.window
+        w.book_event_catalogue = data
+        w.paragraphs = {18: "Une fosse.", 261: "La bifurcation.", 348: "La chute."}
+        w.character["chance"] = 8
+        w.go_to(18)
+        with patch.object(w, "_roll", return_value=([3, 5], 8)):
+            w.resolve_book_roll(18)
+        self.assertEqual((w.current_paragraph, w.character["chance"],
+                          w.character["endurance"]), (261, 7, 20))
+        w.undo_action()
+        self.assertEqual((w.current_paragraph, w.character["chance"],
+                          w.character["endurance"]), (18, 8, 20))
+        with patch.object(w, "_roll", return_value=([5, 4], 9)):
+            w.resolve_book_roll(18)
+        self.assertEqual((w.current_paragraph, w.character["chance"],
+                          w.character["endurance"]), (348, 7, 19))
+
+    def test_optional_luck_trial_does_not_fire_on_entry(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {82: "Une boîte près du dormeur.", 208: "Couloir.", 147: "Boîte."}
+        w.go_to(82)
+        self.assertEqual(w.character["chance"], 8)
+        self.assertEqual(w.completed_book_events, set())
+        labels = [w.event_layout.itemAt(i).widget().text()
+                  for i in range(w.event_layout.count())
+                  if hasattr(w.event_layout.itemAt(i).widget(), "text")]
+        self.assertTrue(any("Lancer le dé" in t for t in labels))
+        self.assertTrue(any("§208" in w.choice_layout.itemAt(i).widget().text()
+                            for i in range(w.choice_layout.count())
+                            if hasattr(w.choice_layout.itemAt(i).widget(), "text")))
+
+    def test_direct_text_links_respect_scripted_routes(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {204: "Allez au 130.", 130: "Jeu.", 280: "Sortie.", 377: "Combat."}
+        w.character["gold"] = 0
+        w.go_to(204)
+        with patch.object(QMessageBox, "information") as message:
+            w.follow_link(QUrl("paragraph:130"))
+            self.assertEqual(w.current_paragraph, 204)
+            message.assert_called_once()
+        w.character["gold"] = 1
+        w.follow_link(QUrl("paragraph:130"))
+        self.assertEqual(w.current_paragraph, 130)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
