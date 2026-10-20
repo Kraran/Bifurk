@@ -719,6 +719,9 @@ class MainWindow(QMainWindow):
             # Ne présenter que les chemins permis par les objets et ressources actuels.
             choices = [{"target": route["target"], "label": route["label"]}
                        for route in available_routes(self.character, entry)]
+        if (self.current_paragraph == 350 and self.piranha_combat
+                and self.piranha_combat.get("status") != "victory"):
+            choices = [choice for choice in choices if choice["target"] != 7]
         if escape_target is not None:
             # La sortie par la fuite est exclusivement proposée avec sa pénalité.
             choices = [c for c in choices if c["target"] != escape_target]
@@ -807,6 +810,10 @@ class MainWindow(QMainWindow):
             note.setWordWrap(True)
             self.event_layout.addWidget(note)
         for label, target in combat['exits']:
+            if (self.current_paragraph == 350 and target == 7
+                    and self.piranha_combat
+                    and self.piranha_combat.get("status") != "victory"):
+                continue
             if target == escape_target:
                 continue  # Ne pas créer un lien de fuite sans pénalité.
             button = QPushButton(f'Issue possible — {label} → §{target}')
@@ -1091,6 +1098,12 @@ class MainWindow(QMainWindow):
             return
         target = int(match.group(1))
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if (self.current_paragraph == 350 and target == 7
+                and self.piranha_combat
+                and self.piranha_combat.get("status") != "victory"):
+            QMessageBox.information(
+                self, "Piranhas", "Il faut vaincre les Piranhas avant de rejoindre le §7.")
+            return
         if entry and target == entry.get("combat", {}).get("escape_target"):
             self.escape_scripted_combat(self.current_paragraph)
             return
