@@ -204,6 +204,7 @@ class MainWindow(QMainWindow):
         self._build_ui()
         self._set_theme()
         QShortcut(QKeySequence("F11"), self, activated=self.toggle_fullscreen)
+        QShortcut(QKeySequence("Ctrl+Shift+L"), self, activated=self.toggle_reading_mode)
         self._refresh_character()
         self._show_welcome()
 
@@ -256,6 +257,19 @@ class MainWindow(QMainWindow):
                             self.reading_font_family = family[0]
                         else:
                             self.ui_font_family = family[0]
+
+    def toggle_reading_mode(self):
+        """Masque ou rétablit la feuille d’aventurier sans modifier la partie."""
+        reading = self.side_panel.isVisible()
+        if reading:
+            self._reader_splitter_sizes = self.main_splitter.sizes()
+            self.side_panel.hide()
+        else:
+            self.side_panel.show()
+            if self._reader_splitter_sizes:
+                self.main_splitter.setSizes(self._reader_splitter_sizes)
+        self.reading_mode_btn.setText("◧  Afficher la fiche" if reading else "◨  Lecture épurée")
+        self.reading_mode_btn.setToolTip("Afficher ou masquer la fiche d’aventurier (Ctrl+Maj+L)")
 
     def change_reader_font_size(self, delta):
         self.reader_font_size = max(14, min(34, self.reader_font_size + delta))
@@ -327,6 +341,10 @@ class MainWindow(QMainWindow):
         title_row = QHBoxLayout()
         title_row.addWidget(self.paragraph_title)
         title_row.addStretch()
+        self.reading_mode_btn = QPushButton("◨  Lecture épurée")
+        self.reading_mode_btn.setToolTip("Afficher ou masquer la fiche d’aventurier (Ctrl+Maj+L)")
+        self.reading_mode_btn.clicked.connect(self.toggle_reading_mode)
+        title_row.addWidget(self.reading_mode_btn)
         minus_btn = QPushButton("A−")
         minus_btn.setToolTip("Réduire la taille du texte")
         minus_btn.clicked.connect(lambda: self.change_reader_font_size(-2))
@@ -521,7 +539,11 @@ class MainWindow(QMainWindow):
         scroll.setFrameShape(QFrame.NoFrame)
         scroll.setWidget(side)
         splitter.addWidget(scroll)
+        self.main_splitter = splitter
+        self.side_panel = side
+        self._reader_splitter_sizes = splitter.sizes()
         splitter.setSizes([810, 480])
+        self._reader_splitter_sizes = [810, 480]
         splitter.setChildrenCollapsible(False)
         root.addWidget(splitter, 1)
         self.setCentralWidget(central)
