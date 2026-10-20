@@ -584,6 +584,40 @@ class Reference(unittest.TestCase):
             with self.subTest(expression=expression):
                 self.assertEqual([n for _, _, n in destinations(expression)], [25])
 
+    def test_real_book_missing_destination_forms(self):
+        """Formulations contrôlées dans les §§36, 66, 67, 78, 130 et 330."""
+        examples = [
+            ("vous irez dans ce cas au 353", 353),
+            ("vous allez dans ce cas au 104", 104),
+            ("en vous rendant au 177", 177),
+            ("en allant au 237", 237),
+            ("Rendez-vous après au 280", 280),
+            ("Rendez-vous maintenant au 81", 81),
+            ("en vous rendant au 345", 345),
+        ]
+        for phrase, target in examples:
+            with self.subTest(phrase=phrase):
+                self.assertEqual([n for _, _, n in destinations(phrase)], [target])
+                self.assertIn(f'href="paragraph:{target}"',
+                              render_links(phrase, {target}))
+
+    def test_real_pdf_detects_second_choices_across_17_paragraphs(self):
+        """Audit ciblé fondé sur les passages de l'édition PDF fournie."""
+        if not self.paragraphs:
+            self.skipTest("PDF de référence absent")
+        expected = {
+            36: 353, 66: 104, 67: 177, 77: 345, 78: 237,
+            130: 280, 151: 158, 156: 92, 177: 391, 211: 173,
+            213: 314, 234: 43, 291: 315, 295: 48, 306: 291,
+            315: 306, 330: 81,
+        }
+        for paragraph, target in expected.items():
+            with self.subTest(paragraph=paragraph, target=target):
+                self.assertIn(paragraph, self.paragraphs)
+                choices = [number for _, _, number in
+                           destinations(self.paragraphs[paragraph])]
+                self.assertIn(target, choices)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
