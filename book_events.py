@@ -159,10 +159,10 @@ def take_moon_shield(character, discarded_item):
 
 
 def throw_diversion_item(character, discarded_item=None):
-    """§119 : sacrifier un objet transporté, sinon une pièce d'or si sac vide."""
+    """§119 : le joueur choisit de jeter un objet OU une pièce d'or."""
     inventory = character.setdefault("inventory", [])
-    if not inventory:
-        if discarded_item is not None or int(character.get("gold", 0)) < 1:
+    if discarded_item is None:
+        if int(character.get("gold", 0)) < 1:
             return False
         character["gold"] -= 1
         return True
