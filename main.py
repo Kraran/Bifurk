@@ -972,7 +972,7 @@ class MainWindow(QMainWindow):
     def test_luck(self):
         rolls, total = self._roll(2)
         lucky = total <= self.character["chance"]
-        self.character["chance"] -= 1
+        self.character["chance"] = max(0, self.character["chance"] - 1)
         self._refresh_character()
         verdict = "chanceux" if lucky else "malchanceux"
         self.rules_log.setText(f"Test de Chance : {rolls[0]} + {rolls[1]} = {total}. Vous êtes {verdict}. Chance -1.")
@@ -1043,7 +1043,7 @@ class MainWindow(QMainWindow):
             if answer == QMessageBox.Yes:
                 luck_rolls, luck_total = self._roll(2)
                 was_lucky = luck_total <= self.character["chance"]
-                self.character["chance"] -= 1
+                self.character["chance"] = max(0, self.character["chance"] - 1)
                 if was_lucky:
                     damage = 4
                     luck_text = f"Chance réussie ({luck_total}) : 4 dégâts au total."
@@ -1071,7 +1071,7 @@ class MainWindow(QMainWindow):
             if answer == QMessageBox.Yes:
                 luck_rolls, luck_total = self._roll(2)
                 was_lucky = luck_total <= self.character["chance"]
-                self.character["chance"] -= 1
+                self.character["chance"] = max(0, self.character["chance"] - 1)
                 if was_lucky:
                     damage = 1
                     luck_text = f"Chance réussie ({luck_total}) : blessure réduite à 1."

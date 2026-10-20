@@ -147,7 +147,6 @@ class Reference(unittest.TestCase):
             entry = cat['illustrations'][0]
             self.assertTrue(doc[entry['page_pdf'] - 1].rect.contains(fitz.Rect(entry['rect'])))
 
-    @unittest.expectedFailure
     def test_known_luck_cannot_be_negative(self):
         self.window.character['chance'] = 0
         self.window.test_luck()
