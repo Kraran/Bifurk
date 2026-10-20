@@ -618,6 +618,75 @@ class Reference(unittest.TestCase):
                            destinations(self.paragraphs[paragraph])]
                 self.assertIn(target, choices)
 
+    def test_magic_sword_optional_bonus_updates_initial_maximum(self):
+        from book_events import DATA_PATH, apply_entry, apply_option
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"habilete": 7, "chance": 6,
+                "initial": {"habilete": 9, "chance": 9},
+                "inventory": ["Épée"]}
+        done, options = set(), set()
+        self.assertTrue(apply_entry(hero, done, 27, data))
+        self.assertEqual(hero["chance"], 8)
+        self.assertEqual(hero["habilete"], 7)
+        self.assertEqual(hero["initial"]["habilete"], 9)
+        self.assertTrue(apply_option(hero, options, 27, "epee_magique", data))
+        self.assertEqual(hero["initial"]["habilete"], 11)
+        self.assertEqual(hero["habilete"], 9)
+        self.assertNotIn("Épée", hero["inventory"])
+        self.assertIn("Épée magique", hero["inventory"])
+        self.assertFalse(apply_option(hero, options, 27, "epee_magique", data))
+
+    def test_cyclops_gem_option_requires_item(self):
+        from book_events import DATA_PATH, apply_option, available_options
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        entry = data["paragraphs"]["31"]
+        hero = {"habilete": 7, "initial": {"habilete": 10},
+                "inventory": []}
+        done = set()
+        self.assertEqual(available_options(hero, entry, done, 31), [])
+        self.assertFalse(apply_option(hero, done, 31, "utiliser_pierre", data))
+        self.assertEqual(hero["habilete"], 7)
+        hero["inventory"].append("Pierre précieuse de la statue")
+        self.assertEqual(len(available_options(hero, entry, done, 31)), 1)
+        self.assertTrue(apply_option(hero, done, 31, "utiliser_pierre", data))
+        self.assertEqual(hero["habilete"], 9)
+        self.assertIn("Pierre précieuse de la statue", hero["inventory"])
+
+    def test_cheese_option_is_consumed_and_luck_awarded_once(self):
+        from book_events import DATA_PATH, apply_option, available_options
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        entry = data["paragraphs"]["32"]
+        hero = {"chance": 5, "initial": {"chance": 8}, "inventory": []}
+        done = set()
+        self.assertFalse(apply_option(hero, done, 32, "jeter_fromage", data))
+        hero["inventory"].append("Fromage")
+        self.assertEqual(len(available_options(hero, entry, done, 32)), 1)
+        self.assertTrue(apply_option(hero, done, 32, "jeter_fromage", data))
+        self.assertEqual(hero["chance"], 7)
+        self.assertNotIn("Fromage", hero["inventory"])
+        self.assertFalse(apply_option(hero, done, 32, "jeter_fromage", data))
+
+    def test_sword_and_cheese_actions_restore_with_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {27: "Épée magique.", 32: "Rats."}
+        w.character["inventory"] = ["Épée", "Fromage"]
+        w.character["habilete"] = 7
+        w.go_to(27)
+        initial_max = w.character["initial"]["habilete"]
+        w.apply_optional_book_event(27, "epee_magique")
+        self.assertEqual(w.character["initial"]["habilete"], initial_max + 2)
+        w.undo_action()
+        self.assertEqual(w.character["initial"]["habilete"], initial_max)
+        self.assertIn("Épée", w.character["inventory"])
+        self.assertNotIn("Épée magique", w.character["inventory"])
+        w.go_to(32)
+        w.apply_optional_book_event(32, "jeter_fromage")
+        self.assertNotIn("Fromage", w.character["inventory"])
+        w.undo_action()
+        self.assertIn("Fromage", w.character["inventory"])
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
