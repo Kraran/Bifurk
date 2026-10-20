@@ -3,6 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
+from book_events import load_book_events, apply_entry, verified_entry
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -185,6 +186,8 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(930, 650)
         self.pdf_path = None
         self.illustration_catalogue = None
+        self.book_event_catalogue = None
+        self.completed_book_events = set()
         self.paragraphs = {}
         self.current_paragraph = None
         self.visited_paragraphs = []
@@ -625,6 +628,8 @@ class MainWindow(QMainWindow):
             return
         self.pdf_path = path
         self.illustration_catalogue = catalogue_for_pdf(path)
+        self.book_event_catalogue = load_book_events(path)
+        self.completed_book_events = set()
         self.paragraphs = paragraphs
         if self.illustration_catalogue is None:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
@@ -701,6 +706,14 @@ class MainWindow(QMainWindow):
                     button.setToolTip(f"Destination {target} non détectée dans le PDF importé")
         self._render_conditions(text)
         self._clear_dynamic_layout(self.event_layout)
+        scripted = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if scripted:
+            notice = QLabel("✦ Événement du livre vérifié : " + scripted["note"])
+            notice.setWordWrap(True)
+            self.event_layout.addWidget(notice)
+            if scripted["mode"] == "automatique":
+                self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une seule fois dans cette partie."))
+                return
         monsters = encounters(text)
         if monsters:
             self.event_layout.addWidget(QLabel("⚔ Rencontres détectées (à confirmer)"))
@@ -842,6 +855,9 @@ class MainWindow(QMainWindow):
         if previous is not None and previous != number and not self._restoring:
             self.transitions.append([previous, number])
         self.current_paragraph = number
+        if not self._restoring and apply_entry(self.character, self.completed_book_events, number, self.book_event_catalogue):
+            self._refresh_character()
+            self.rules_log.setText(f"Effets vérifiés appliqués automatiquement au paragraphe {number}.")
         if number not in self.visited_paragraphs:
             self.visited_paragraphs.append(number)
         self.goto_spin.setValue(number)
@@ -1113,6 +1129,7 @@ class MainWindow(QMainWindow):
 
     def _snapshot(self):
         return {"character": copy.deepcopy(self.character),
+                "completed_book_events": sorted(self.completed_book_events),
                 "current_paragraph": self.current_paragraph,
                 "visited_paragraphs": list(self.visited_paragraphs),
                 "transitions": copy.deepcopy(self.transitions),
@@ -1143,6 +1160,7 @@ class MainWindow(QMainWindow):
         self._restoring = True
         try:
             self.character = copy.deepcopy(state["character"])
+            self.completed_book_events = set(state.get("completed_book_events", []))
             self.visited_paragraphs = list(state["visited_paragraphs"])
             self.transitions = copy.deepcopy(state.get("transitions", []))
             self._refresh_character()
@@ -1296,12 +1314,14 @@ class MainWindow(QMainWindow):
                 illustration_catalogue = catalogue_for_pdf(pdf)
                 self.paragraphs = paragraphs
                 self.illustration_catalogue = illustration_catalogue
+                self.book_event_catalogue = load_book_events(pdf)
                 self.book_label.setText(Path(pdf).name)
                 if self.paragraphs:
                     self.goto_spin.setMaximum(max(self.paragraphs))
             elif pdf_reference:
                 QMessageBox.warning(self, "PDF introuvable", "Le grimoire est absent du dossier portable. Réimportez-le pour naviguer.")
             self._restore({"character": data.get("character", self.character),
+                           "completed_book_events": data.get("completed_book_events", []),
                            "visited_paragraphs": data.get("visited_paragraphs", []),
                            "transitions": data.get("transitions", []),
                            "current_paragraph": data.get("current_paragraph")})
