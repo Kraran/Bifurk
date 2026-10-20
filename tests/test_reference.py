@@ -1975,6 +1975,81 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.current_paragraph, 156)
         self.assertNotIn(156, w.completed_book_events)
 
+    def test_corridors_157_to_180_match_verified_routes(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        expected = {
+            157: [4, 329], 160: [267], 162: [23, 69],
+            164: [129, 236], 167: [187, 359],
+            168: [372, 65, 293], 169: [400],
+            171: [337, 187], 174: [198], 175: [177, 267],
+            176: [270, 375], 177: [52, 391, 175],
+            178: [162], 180: [70, 329, 22],
+        }
+        for number, targets in expected.items():
+            with self.subTest(paragraph=number):
+                routes = available_routes({}, data["paragraphs"][str(number)])
+                self.assertEqual([r["target"] for r in routes], targets)
+                self.assertTrue(all(r["label"] for r in routes))
+
+    def test_swimming_166_six_results_one_die(self):
+        from book_events import DATA_PATH, resolve_roll
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        roll = data["paragraphs"]["166"]["roll"]
+        for die in range(1, 7):
+            with self.subTest(die=die):
+                target = resolve_roll(roll, die, {})["target"]
+                self.assertEqual(target, 218 if die <= 4 else 158)
+
+    def test_swimming_166_piranha_branch_undo_and_later_victory(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {166: "Nage dans la rivière.", 158: "Piranhas.",
+                        218: "Berge sud."}
+        w.go_to(166)
+        with patch.object(w, "_roll", return_value=([6], 6)):
+            w.resolve_book_roll(166)
+        self.assertEqual(w.current_paragraph, 158)
+        self.assertEqual(
+            (w.enemy_name.text(), w.enemy_skill.value(), w.enemy_endurance.value()),
+            ("Piranhas", 5, 5))
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 166)
+        self.assertNotIn(166, w.completed_book_events)
+        with patch.object(w, "_roll", return_value=([2], 2)):
+            w.resolve_book_roll(166)
+        self.assertEqual(w.current_paragraph, 218)
+
+    def test_piranhas_158_cannot_bypass_victory(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {158: "Piranhas. Si victoire au 218.", 218: "Berge sud."}
+        w.go_to(158)
+        self.assertTrue(w._combat_exit_pending(218))
+        with patch.object(QMessageBox, "information") as alert:
+            w.follow_link(QUrl("paragraph:218"))
+            alert.assert_called_once()
+        self.assertEqual(w.current_paragraph, 158)
+
+    def test_piranhas_158_victory_goes_218_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {158: "Piranhas.", 218: "Berge sud."}
+        w.go_to(158)
+        w.enemy_endurance.setValue(2)
+        with patch.object(w, "_roll", side_effect=[
+                ([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 218)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 158)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
