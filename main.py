@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -723,6 +723,9 @@ class MainWindow(QMainWindow):
                    if not self._combat_exit_pending(choice["target"])]
         if entry and entry.get("enchanted_meal") and self.current_paragraph not in self.completed_book_events:
             choices = []
+        if (entry and entry.get("diversion_discard")
+                and self.current_paragraph not in self.completed_book_events):
+            choices = []
         if (self.current_paragraph == 350 and self.piranha_combat
                 and self.piranha_combat.get("status") != "victory"):
             choices = [choice for choice in choices if choice["target"] != 7]
@@ -758,6 +761,11 @@ class MainWindow(QMainWindow):
             self.event_layout.addWidget(notice)
             if scripted["mode"] == "automatique":
                 self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
+            if (scripted.get("diversion_discard")
+                    and self.current_paragraph not in self.completed_book_events):
+                btn = QPushButton("Faire diversion : jeter un objet ou 1 pièce d'or")
+                btn.clicked.connect(lambda checked=False: self.throw_book_diversion())
+                self.event_layout.addWidget(btn)
             if scripted.get("optional_meal_restore") == 2:
                 shared_btn = QPushButton("Partager un repas (+2 Endurance ; -1 Provision)")
                 shared_btn.setEnabled(self.character.get("provisions", 0) > 0)
@@ -1173,6 +1181,8 @@ class MainWindow(QMainWindow):
         """Toutes les issues vérifiées passent par le même contrôle de ressources."""
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
         if (not entry or target not in self.paragraphs
+                or (entry.get("diversion_discard")
+                    and self.current_paragraph not in self.completed_book_events)
                 or (entry.get("enchanted_meal")
                     and self.current_paragraph not in self.completed_book_events)
                 or not follow_catalogue_route(self.character, entry, target)):
@@ -1181,6 +1191,35 @@ class MainWindow(QMainWindow):
             return
         self._refresh_character()
         self.go_to(target)
+
+    def throw_book_diversion(self):
+        """§119 : sacrifice obligatoire d'un objet ou d'une pièce, si sac vide."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if not entry or not entry.get("diversion_discard") or 119 in self.completed_book_events:
+            return
+        inventory = self.character.get("inventory", [])
+        if inventory:
+            candidates = [name for name in inventory
+                          if name not in self.character.get("locked_items", [])]
+            if not candidates:
+                QMessageBox.information(
+                    self, "Diversion impossible", "Aucun objet transporté ne peut être abandonné.")
+                return
+            discarded, accepted = QInputDialog.getItem(
+                self, "Diversion contre l'Ogre", "Objet à jeter :", candidates, 0, False)
+            if not accepted or not throw_diversion_item(self.character, discarded):
+                return
+            message = f"Objet jeté : {discarded}."
+        else:
+            if not throw_diversion_item(self.character):
+                QMessageBox.information(
+                    self, "Diversion impossible", "Il faut au moins une pièce d'or.")
+                return
+            message = "Sac vide : une pièce d'or jetée."
+        self.completed_book_events.add(119)
+        self._refresh_character()
+        self._render_choices_and_events(self.paragraphs[119])
+        self.rules_log.setText(message + " Vous pouvez repartir vers le §269.")
 
     def take_book_trade(self, item_id):
         """§34 : échanger un seul objet contre un seul outil du Squelette."""
@@ -1219,6 +1258,12 @@ class MainWindow(QMainWindow):
             QMessageBox.information(
                 self, "Combat obligatoire",
                 "Terminez d'abord l'affrontement avant d'atteindre cette issue.")
+            return
+        if (entry and entry.get("diversion_discard")
+                and self.current_paragraph not in self.completed_book_events
+                and target == 269):
+            QMessageBox.information(
+                self, "Diversion nécessaire", "Jetez un objet avant de quitter l'Ogre.")
             return
         if (entry and entry.get("mode") == "des"
                 and self.current_paragraph not in self.completed_book_events
@@ -1463,7 +1508,12 @@ class MainWindow(QMainWindow):
         damage, cost = escape_damage(self.character["chance"], total)
         self.character["chance"] = max(0, self.character["chance"] - cost)
         self.character["endurance"] = max(0, self.character["endurance"] - damage)
-        if number == 20:
+        if self.character["endurance"] > 0:
+            lost = int(rules.get("escape_provisions_lost", 0))
+            if lost > 0:
+                self.character["provisions"] = max(
+                    0, int(self.character.get("provisions", 0)) - lost)
+        if self.book_combat_sequence and self.book_combat_sequence["paragraph"] == number:
             self.book_combat_sequence = None
         self._refresh_character()
         if self.character["endurance"] <= 0:
@@ -1995,6 +2045,7 @@ for _name, _label in {
     "change_shield_use": "Utiliser le bouclier",
     "take_book_shield": "Prendre le bouclier",
     "take_book_trade": "Échanger un équipement du livre",
+    "throw_book_diversion": "Jeter un objet pour détourner l'Ogre",
     "take_enchanted_meal": "Manger au banc enchanté",
     "follow_catalogue_choice": "Suivre un itinéraire vérifié"
 }.items():
