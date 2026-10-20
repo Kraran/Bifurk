@@ -83,6 +83,42 @@ class Reference(unittest.TestCase):
         self.assertEqual(character["inventory"], ["Clé 111"])
         self.assertFalse(apply_entry(character, completed, 75, cat))
 
+    def test_scripted_roll_resolves_fortune_and_skill(self):
+        from book_events import DATA_PATH, resolve_roll
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))["paragraphs"]
+        character = {"habilete": 8, "chance": 9, "endurance": 15}
+        self.assertEqual(resolve_roll(data["47"]["roll"], 6, character)["target"], 158)
+        self.assertEqual(resolve_roll(data["47"]["roll"], 5, character)["target"], 298)
+        self.assertEqual(resolve_roll(data["53"]["roll"], 8, character)["target"], 155)
+        fail = resolve_roll(data["53"]["roll"], 9, character)
+        self.assertEqual(fail["target"], 300)
+        self.assertEqual(fail["effects"][0]["amount"], -1)
+        self.assertEqual(resolve_roll(data["55"]["roll"], 9, character)["target"], 7)
+        self.assertEqual(resolve_roll(data["55"]["roll"], 10, character)["target"], 166)
+        self.assertEqual(resolve_roll(data["243"]["roll"], 3, character)["effects"][0]["amount"], -3)
+        self.assertEqual(resolve_roll(data["243"]["roll"], 4, character)["effects"][0]["amount"], -1)
+
+    def test_scripted_roll_applies_effects_and_can_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.book_event_catalogue = data
+        w.paragraphs = {53: "Une porte.", 300: "Un couloir."}
+        w.go_to(53)
+        with patch.object(w, "_roll", return_value=([4, 5], 9)):
+            w.resolve_book_roll(53)
+        self.assertEqual(w.current_paragraph, 300)
+        self.assertEqual(w.character["endurance"], 19)
+        self.assertIn(53, w.completed_book_events)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 53)
+        self.assertEqual(w.character["endurance"], 20)
+        self.assertNotIn(53, w.completed_book_events)
+        w.redo_action()
+        self.assertEqual(w.current_paragraph, 300)
+        self.assertEqual(w.character["endurance"], 19)
+        self.assertIn(53, w.completed_book_events)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
