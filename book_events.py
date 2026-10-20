@@ -25,16 +25,9 @@ def verified_entry(catalogue, paragraph):
     return entry if entry and entry["status"] == "verifie" else None
 
 
-def apply_entry(character, completed, paragraph, catalogue):
-    """Applique une seule fois les effets obligatoires vérifiés.
-
-    completed et character font partie de l'état de partie : annuler / sauvegarder
-    doit donc les restaurer ensemble. Ne traite pas les choix et combats spéciaux.
-    """
-    entry = verified_entry(catalogue, paragraph)
-    if not entry or entry["mode"] != "automatique" or paragraph in completed:
-        return False
-    for effect in entry["effects"]:
+def apply_effects(character, effects):
+    """Applique des changements de caractéristiques bornés et des objets uniques."""
+    for effect in effects:
         if effect["kind"] == "stat":
             key = effect["key"]
             amount = int(effect["amount"])
@@ -49,5 +42,35 @@ def apply_entry(character, completed, paragraph, catalogue):
                 inventory.append(effect["name"])
         else:
             raise ValueError("Effet inconnu : " + str(effect["kind"]))
+
+
+def resolve_roll(roll, total, character):
+    """Résultat déterministe d'un jet défini dans le catalogue."""
+    if not 1 <= roll["dice"] <= 2 or not roll["dice"] <= total <= 6 * roll["dice"]:
+        raise ValueError("Jet de dés hors limites")
+    for branch in roll["branches"]:
+        condition = branch["when"]
+        matched = (
+            condition == "otherwise"
+            or condition == "eq" and total == branch["value"]
+            or condition == "even" and total % 2 == 0
+            or condition == "lte_stat" and total <= character[branch["key"]]
+            or condition == "lte_both" and all(total <= character[k] for k in branch["keys"])
+        )
+        if matched:
+            return branch
+    raise ValueError("Aucune issue définie pour ce jet")
+
+
+def apply_entry(character, completed, paragraph, catalogue):
+    """Applique une seule fois les effets obligatoires vérifiés.
+
+    completed et character font partie de l'état de partie : annuler / sauvegarder
+    doit donc les restaurer ensemble. Ne traite pas les choix et combats spéciaux.
+    """
+    entry = verified_entry(catalogue, paragraph)
+    if not entry or entry["mode"] != "automatique" or paragraph in completed:
+        return False
+    apply_effects(character, entry["effects"])
     completed.add(paragraph)
     return True
