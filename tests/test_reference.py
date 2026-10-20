@@ -1148,6 +1148,84 @@ class Reference(unittest.TestCase):
             alert.assert_called_once()
         self.assertEqual(w.current_paragraph, 41)
 
+    def test_spider_61_requires_two_assaults_to_escape(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {61: "Araignée géante.", 375: "Croisement.", 29: "Victoire."}
+        w.go_to(61)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Araignée géante", 7, 8))
+        with patch.object(QMessageBox, "question") as question:
+            w.escape_scripted_combat(61)
+            question.assert_not_called()
+        self.assertEqual(w.current_paragraph, 61)
+        # Deux égalités, sans dégâts et sans dialogue, comptent comme deux assauts.
+        with patch.object(w, "_roll", side_effect=[
+                ([3, 3], 6), ([2, 3], 5),
+                ([3, 3], 6), ([2, 3], 5)]):
+            w.combat_round()
+            w.combat_round()
+        self.assertEqual(w.book_combat_assaults[61], 2)
+        with patch.object(QMessageBox, "question", return_value=QMessageBox.No):
+            w.escape_scripted_combat(61)
+        self.assertEqual(w.current_paragraph, 375)
+        self.assertEqual(w.character["endurance"], 18)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 61)
+        self.assertEqual(w.character["endurance"], 20)
+        self.assertEqual(w.book_combat_assaults[61], 2)
+
+    def test_spider_61_victory_routes_to_29(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {61: "Araignée géante.", 29: "Après le combat.", 375: "Croisement."}
+        w.go_to(61)
+        w.enemy_endurance.setValue(2)
+        with patch.object(w, "_roll", side_effect=[([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 29)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 61)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
+    def test_guard_71_luck_is_checked_before_decrement(self):
+        from book_events import DATA_PATH, resolve_roll
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        test = data["paragraphs"]["71"]["roll"]
+        hero = {"chance": 8}
+        self.assertEqual(resolve_roll(test, 8, hero)["target"], 301)
+        self.assertEqual(resolve_roll(test, 9, hero)["target"], 248)
+        self.assertEqual(hero["chance"], 8)
+
+    def test_guard_71_roll_navigates_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {71: "Lutin endormi.", 301: "Passage.", 248: "Le garde se réveille."}
+        w.go_to(71)
+        with patch.object(w, "_roll", return_value=([4, 4], 8)):
+            w.resolve_book_roll(71)
+        self.assertEqual(w.current_paragraph, 301)
+        self.assertEqual(w.character["chance"], 7)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 71)
+        self.assertEqual(w.character["chance"], 8)
+        self.assertNotIn(71, w.completed_book_events)
+        with patch.object(w, "_roll", return_value=([6, 6], 12)):
+            w.resolve_book_roll(71)
+        self.assertEqual(w.current_paragraph, 248)
+
+    def test_310_exit_is_211_without_equipment_bonus(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"habilete": 8, "initial": {"habilete": 10}, "inventory": ["Épée"]}
+        entry = data["paragraphs"]["310"]
+        self.assertEqual([route["target"] for route in available_routes(hero, entry)], [211])
+        self.assertEqual(hero["habilete"], 8)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
