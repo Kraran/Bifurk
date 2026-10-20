@@ -927,6 +927,73 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.current_paragraph, 350)
         self.assertTrue(w.piranha_source_wounded)
 
+    def test_rotten_bridge_209_six_falls_otherwise_47(self):
+        from book_events import DATA_PATH, resolve_roll
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        roll = data["paragraphs"]["209"]["roll"]
+        for total in range(1, 7):
+            with self.subTest(total=total):
+                result = resolve_roll(roll, total, self.window.character)
+                self.assertEqual(result["target"], 158 if total == 6 else 47)
+
+    def test_rotten_bridge_209_roll_navigates_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {209: "Pont.", 47: "Vous tenez bon.", 158: "Chute."}
+        w.go_to(209)
+        with patch.object(w, "_roll", return_value=([5], 5)):
+            w.resolve_book_roll(209)
+        self.assertEqual(w.current_paragraph, 47)
+        self.assertIn(209, w.completed_book_events)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 209)
+        self.assertNotIn(209, w.completed_book_events)
+        with patch.object(w, "_roll", return_value=([6], 6)):
+            w.resolve_book_roll(209)
+        self.assertEqual(w.current_paragraph, 158)
+
+    def test_silver_crucifix_is_item_not_immediate_gold(self):
+        from book_events import DATA_PATH, apply_entry
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"gold": 2, "inventory": []}
+        done = set()
+        self.assertTrue(apply_entry(hero, done, 170, data))
+        self.assertEqual(hero["gold"], 2)
+        self.assertIn("Crucifix en argent (valeur 4 PO)", hero["inventory"])
+        self.assertFalse(apply_entry(hero, done, 170, data))
+
+    def test_wooden_stakes_273_are_optional_and_once(self):
+        from book_events import DATA_PATH, apply_entry, apply_option
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"inventory": []}
+        done, selected = set(), set()
+        self.assertFalse(apply_entry(hero, done, 273, data))
+        self.assertNotIn("Cinq piquets de bois", hero["inventory"])
+        self.assertTrue(apply_option(hero, selected, 273, "cinq_piquets", data))
+        self.assertIn("Cinq piquets de bois", hero["inventory"])
+        self.assertFalse(apply_option(hero, selected, 273, "cinq_piquets", data))
+
+    def test_dwarves_reward_376_luck_and_optional_coins_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {376: "Pièces de cuivre.", 291: "Couloir."}
+        w.character["chance"] = 3
+        w.character["gold"] = 1
+        w._refresh_character()
+        w.go_to(376)
+        self.assertEqual(w.character["chance"], 6)
+        self.assertEqual(w.character["gold"], 1)
+        w.apply_optional_book_event(376, "pieces_cuivre")
+        self.assertEqual(w.character["gold"], 5)
+        w.undo_action()
+        self.assertEqual(w.character["gold"], 1)
+        self.assertEqual(w.character["chance"], 6)
+        w.undo_action()
+        self.assertEqual(w.character["chance"], 3)
+        self.assertEqual(w.current_paragraph, None)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
