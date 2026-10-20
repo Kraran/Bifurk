@@ -1317,6 +1317,10 @@ class MainWindow(QMainWindow):
         self.character["provisions"] -= 1
         self._refresh_character()
         self.rules_log.setText(f"Repas consommé : Endurance {current} → {self.character['endurance']} (maximum {cap}). Provisions -1.")
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if (entry and entry.get("optional_meal")
+                and self.current_paragraph in self.paragraphs):
+            self._render_choices_and_events(self.paragraphs[self.current_paragraph])
 
     def drink_potion(self):
         potion = self.character.get("potion", "Aucune")
