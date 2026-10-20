@@ -2393,6 +2393,87 @@ class Reference(unittest.TestCase):
             alert.assert_called_once()
         self.assertEqual(w.current_paragraph, 212)
 
+    def test_verified_routes_261_to_290_match_pdf(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        expected = {
+            261: [345], 262: [199, 251], 265: [88],
+            267: [312, 246, 79, 349], 268: [13, 282],
+            269: [225], 270: [61, 394, 375], 271: [336, 214],
+            272: [7], 274: [324, 356, 98], 276: [182],
+            277: [146, 366, 11], 278: [156, 92], 280: [311],
+            281: [10], 283: [251], 284: [46, 392],
+            285: [213, 314], 288: [182], 290: [198],
+        }
+        for number, targets in expected.items():
+            with self.subTest(paragraph=number):
+                entry = data["paragraphs"][str(number)]
+                routes = available_routes({}, entry)
+                self.assertEqual([route["target"] for route in routes], targets)
+                self.assertEqual(len(routes), len({r["target"] for r in routes}))
+                self.assertTrue(all(route["label"] for route in routes))
+
+    def test_crossroads_267_has_four_independent_routes_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {267: "Carrefour.", 312: "Nord.", 246: "Sud.",
+                        79: "Ouest.", 349: "Est."}
+        w.go_to(267)
+        self.assertEqual(w.choice_layout.count(), 4)
+        w.follow_catalogue_choice(349)
+        self.assertEqual(w.current_paragraph, 349)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 267)
+
+    def test_giant_rats_287_requires_actual_cheese_not_old_choice_marker(self):
+        from book_events import DATA_PATH, available_routes
+        catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        entry = catalogue["paragraphs"]["287"]
+        with_cheese = {"inventory": ["Épée", "Fromage"]}
+        without_cheese = {"inventory": ["Épée"]}
+        self.assertEqual([r["target"] for r in available_routes(with_cheese, entry)], [32])
+        self.assertEqual([r["target"] for r in available_routes(without_cheese, entry)], [309])
+        self.assertEqual(with_cheese["inventory"], ["Épée", "Fromage"])
+        self.assertEqual(without_cheese["inventory"], ["Épée"])
+
+    def test_giant_rats_287_buttons_and_direct_text_links_follow_same_rule(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {287: "Rats géants, §32 ou §309.",
+                        32: "Le Fromage.", 309: "Trois Rats."}
+        w.character["inventory"] = ["Épée"]
+        w.go_to(287)
+        self.assertEqual(w.choice_layout.count(), 1)
+        with patch.object(QMessageBox, "information") as info:
+            w.follow_link(QUrl("paragraph:32"))
+            info.assert_called_once()
+        self.assertEqual(w.current_paragraph, 287)
+        w.character["inventory"].append("Fromage")
+        w._render_choices_and_events(w.paragraphs[287])
+        self.assertEqual(w.choice_layout.count(), 1)
+        with patch.object(QMessageBox, "information") as info:
+            w.follow_link(QUrl("paragraph:309"))
+            info.assert_called_once()
+        self.assertEqual(w.current_paragraph, 287)
+        w.follow_catalogue_choice(32)
+        self.assertEqual(w.current_paragraph, 32)
+        self.assertIn("Fromage", w.character["inventory"])
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 287)
+
+    def test_ferryman_272_has_no_second_charge_after_127(self):
+        from book_events import DATA_PATH, apply_entry, follow_catalogue_route
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        hero = {"gold": 10}
+        self.assertTrue(follow_catalogue_route(hero, data["paragraphs"]["127"], 272))
+        self.assertEqual(hero["gold"], 5)
+        self.assertFalse(apply_entry(hero, set(), 272, data))
+        self.assertTrue(follow_catalogue_route(hero, data["paragraphs"]["272"], 7))
+        self.assertEqual(hero["gold"], 5)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
