@@ -1455,6 +1455,8 @@ class MainWindow(QMainWindow):
                     self.character["habilete"] = max(0, self.character["habilete"] - 2)
                     self.character["magic_sword_bonus_active"] = False
             self.character["inventory"].pop(row)
+            if item == SHIELD_NAME:
+                self.character["shield_equipped"] = False
             if self.character.get("equipped_weapon") == item:
                 self.character["equipped_weapon"] = None
             self._refresh_character()
