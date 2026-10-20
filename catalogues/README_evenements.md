@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 205 paragraphes vérifiés ponctuellement ; 195 à étudier et valider individuellement.
+- 226 paragraphes vérifiés ponctuellement ; 174 à étudier et valider individuellement.
 - 35 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 216, 239, 241, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 170 paragraphes conditionnels, jets de dés ou combats particuliers. 18 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 195, 209, 213, 243, 389.
+- 191 paragraphes conditionnels, jets de dés ou combats particuliers. 18 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 195, 209, 213, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -274,3 +274,18 @@ Six tests supplémentaires vérifient les routes, les effets automatiques, les s
 Le message `QTextBrowser: No document for paragraph:369` provenait du comportement natif de `QTextBrowser`, qui tentait de résoudre les liens `paragraph:` en documents Qt malgré la connexion de `anchorClicked` à `MainWindow.follow_link`. La configuration applique maintenant **`setOpenLinks(False)`** en plus de `setOpenExternalLinks(False)` : Bifurk intercepte tous les liens internes, ce qui conserve les contrôles de routes (dont la bouteille §212/§369).
 
 L'extraction utilise désormais **`import pymupdf`** et **`pymupdf.open`**, évitant l'avertissement de dépréciation du module `fitz` avec les versions récentes de PyMuPDF. Deux tests de non-régression vérifient la configuration Qt, l'émission de `anchorClicked`, la navigation et l'interdiction de reboire au §212.
+
+### Revue de 21 passages §§261 à 290 — carrefour et Rats géants
+
+Les passages **261, 262, 265, 267, 268, 269, 270, 271, 272, 274, 276, 277, 278, 280, 281, 283, 284, 285, 287, 288 et 290** ont été relus dans le PDF français de 1982, sans recopier le texte du livre.
+
+- **§267** : quatre sorties explicites : nord §312, sud §246, ouest §79 et est §349. L'interface conserve les quatre boutons, et Annuler ramène au carrefour.
+- **§287** : face aux trois Rats géants, **avec du Fromage** → §32, **sans Fromage** → §309. Les boutons et les liens directs appliquent la même condition d'inventaire. Le Fromage n'est pas consommé lors de la navigation §287 → §32 : sa consommation facultative n'intervient qu'au §32 via l'option existante `jeter_fromage` (identifiant inchangé).
+- **§270** : trois choix dans la caverne (§61 exploration, §394 essayer les bottes, §375 repartir), sans prendre les bottes automatiquement.
+- **§274** : entrer en attaquant §324, saluer courtoisement §356 ou entrer discrètement §98.
+- **§277** : chercher un passage secret §146, sinon retour au carrefour puis nord §366 ou ouest §11.
+- **§272** : après la traversée en bac, direction §7. Aucun nouveau débit d'or au §272, car l'éventuel prix est traité au départ (notamment au §127).
+
+Les autres itinéraires relus sont transcrits explicitement. Les règles complexes des §§263, 266, 275, 279, 282, 286 et 289 ne sont pas encore considérées comme vérifiées : les interactions avec le dialogue, les objets, la Chance, les combats successifs ou l'issue finale doivent être modélisées entièrement.
+
+Cinq nouveaux tests couvrent les itinéraires exacts, les quatre boutons du §267, la bifurcation selon l'inventaire au §287, la protection des liens, le Fromage conservé avant son utilisation et l'absence de double paiement au §272.
