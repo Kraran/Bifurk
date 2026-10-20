@@ -486,6 +486,74 @@ class Reference(unittest.TestCase):
         w.undo_action()
         self.assertEqual(w.crocodile_combat["assaults"], 0)
 
+    def test_escape_gate_for_ogre_and_luckless_penalty(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {16: "OGRE HABILETÉ: 8 ENDURANCE: 10", 269: "Couloir."}
+        w.go_to(16)
+        with patch.object(QMessageBox, "question") as question:
+            w.escape_scripted_combat(16)
+            question.assert_not_called()
+        self.assertEqual(w.current_paragraph, 16)
+        # Deux égalités comptent comme deux assauts.
+        with patch.object(w, "_roll", return_value=([3, 3], 6)):
+            w.combat_round()
+            w.combat_round()
+        self.assertEqual(w.book_combat_assaults[16], 2)
+        with patch.object(QMessageBox, "question", return_value=QMessageBox.No):
+            w.escape_scripted_combat(16)
+        self.assertEqual((w.current_paragraph, w.character["endurance"],
+                          w.character["chance"]), (269, 18, 8))
+        w.undo_action()
+        self.assertEqual((w.current_paragraph, w.character["endurance"],
+                          w.book_combat_assaults[16]), (16, 20, 2))
+
+    def test_escape_uses_chance_and_restores_on_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {8: "BARBARE HABILETÉ: 7 ENDURANCE: 6", 189: "Couloir."}
+        w.go_to(8)
+        with patch.object(QMessageBox, "question", return_value=QMessageBox.Yes), \
+                patch.object(w, "_roll", return_value=([4, 4], 8)):
+            w.escape_scripted_combat(8)
+        self.assertEqual((w.current_paragraph, w.character["endurance"],
+                          w.character["chance"]), (189, 19, 7))
+        w.undo_action()
+        self.assertEqual((w.current_paragraph, w.character["endurance"],
+                          w.character["chance"]), (8, 20, 8))
+        with patch.object(QMessageBox, "question", return_value=QMessageBox.Yes), \
+                patch.object(w, "_roll", return_value=([6, 6], 12)):
+            w.escape_scripted_combat(8)
+        self.assertEqual((w.current_paragraph, w.character["endurance"],
+                          w.character["chance"]), (189, 17, 7))
+
+    def test_escape_dwarves_abandons_sequence_and_undo_restores(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {20: "Quatre Nains attaquent.", 291: "Porte."}
+        w.go_to(20)
+        self.assertEqual(w.book_combat_sequence["index"], 0)
+        with patch.object(QMessageBox, "question", return_value=QMessageBox.No):
+            w.escape_scripted_combat(20)
+        self.assertEqual(w.current_paragraph, 291)
+        self.assertIsNone(w.book_combat_sequence)
+        self.assertEqual(w.character["endurance"], 18)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 20)
+        self.assertEqual(w.book_combat_sequence["index"], 0)
+
+    def test_escape_engine_damage_rules(self):
+        from book_events import escape_damage, flee_available
+        self.assertEqual(escape_damage(8), (2, 0))
+        self.assertEqual(escape_damage(8, 8), (1, 1))
+        self.assertEqual(escape_damage(8, 9), (3, 1))
+        self.assertFalse(flee_available({"escape_target": 269, "escape_after_assaults": 2}, 1, 10, 20))
+        self.assertTrue(flee_available({"escape_target": 269, "escape_after_assaults": 2}, 2, 10, 20))
+        self.assertFalse(flee_available({"escape_target": 269}, 0, 0, 20))
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
