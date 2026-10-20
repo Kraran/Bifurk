@@ -1012,6 +1012,73 @@ class Reference(unittest.TestCase):
             w.resolve_book_roll(209)
         self.assertEqual(w.current_paragraph, 158)
 
+    def test_ferryman_3_gold_gate_and_transaction(self):
+        from book_events import DATA_PATH, available_routes, follow_catalogue_route
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        entry = data["paragraphs"]["3"]
+        hero = {"gold": 2, "inventory": []}
+        self.assertEqual([r["target"] for r in available_routes(hero, entry)], [127])
+        self.assertFalse(follow_catalogue_route(hero, entry, 272))
+        self.assertEqual(hero["gold"], 2)
+        hero["gold"] = 4
+        self.assertTrue(follow_catalogue_route(hero, entry, 272))
+        self.assertEqual(hero["gold"], 1)
+        self.assertTrue(follow_catalogue_route(hero, entry, 127))
+        self.assertEqual(hero["gold"], 1)
+
+    def test_ferryman_3_route_button_and_text_link_pay_once_undo(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {3: "Payer au 272 ou menacer au 127.", 272: "Barque.", 127: "Menace."}
+        w.character["gold"] = 3
+        w.go_to(3)
+        w.follow_catalogue_choice(272)
+        self.assertEqual((w.current_paragraph, w.character["gold"]), (272, 0))
+        w.undo_action()
+        self.assertEqual((w.current_paragraph, w.character["gold"]), (3, 3))
+        w.follow_link(QUrl("paragraph:272"))
+        self.assertEqual((w.current_paragraph, w.character["gold"]), (272, 0))
+        w.undo_action()
+        w.character["gold"] = 2
+        with patch.object(QMessageBox, "information") as msg:
+            w.follow_link(QUrl("paragraph:272"))
+            msg.assert_called_once()
+        self.assertEqual((w.current_paragraph, w.character["gold"]), (3, 2))
+
+    def test_book_trade_34_requires_relinquishing_unlocked_item(self):
+        from book_events import trade_inventory_item
+        hero = {"inventory": ["Épée", "Casque ensorcelé"],
+                "equipped_weapon": "Épée",
+                "locked_items": ["Casque ensorcelé"]}
+        self.assertFalse(trade_inventory_item(hero, "Maillet en bois dur", "Casque ensorcelé"))
+        self.assertFalse(trade_inventory_item(hero, "Maillet en bois dur", "Inexistant"))
+        self.assertEqual(hero["inventory"], ["Épée", "Casque ensorcelé"])
+        self.assertTrue(trade_inventory_item(hero, "Maillet en bois dur", "Épée"))
+        self.assertIsNone(hero["equipped_weapon"])
+        self.assertEqual(hero["inventory"], ["Casque ensorcelé", "Maillet en bois dur"])
+        self.assertFalse(trade_inventory_item(hero, "Maillet en bois dur", "Casque ensorcelé"))
+
+    def test_book_trade_34_single_choice_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {34: "Outils du Squelette.", 96: "Bruitage."}
+        w.go_to(34)
+        with patch("main.QInputDialog.getItem", return_value=("Épée", True)):
+            w.take_book_trade("ciseau")
+        self.assertIn("Ciseau à lame d'argent", w.character["inventory"])
+        self.assertNotIn("Épée", w.character["inventory"])
+        self.assertTrue(any(k.startswith("34:trade:") for k in w.completed_optional_events))
+        with patch("main.QInputDialog.getItem") as chooser:
+            w.take_book_trade("maillet")
+            chooser.assert_not_called()
+        w.undo_action()
+        self.assertIn("Épée", w.character["inventory"])
+        self.assertNotIn("Ciseau à lame d'argent", w.character["inventory"])
+        self.assertFalse(any(k.startswith("34:trade:") for k in w.completed_optional_events))
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
