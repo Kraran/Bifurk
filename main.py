@@ -260,7 +260,7 @@ class MainWindow(QMainWindow):
 
     def toggle_reading_mode(self):
         """Masque ou rétablit la feuille d’aventurier sans modifier la partie."""
-        reading = self.side_panel.isVisible()
+        reading = not self.side_panel.isHidden()
         if reading:
             self._reader_splitter_sizes = self.main_splitter.sizes()
             self.side_panel.hide()
