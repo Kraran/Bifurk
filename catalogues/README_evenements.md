@@ -5,11 +5,13 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 244 paragraphes vérifiés ponctuellement ; 156 à étudier et valider individuellement.
-- 35 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 216, 239, 241, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 209 paragraphes conditionnels, jets de dés ou combats particuliers. 20 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 195, 209, 213, 243, 298, 316, 389.
+- 356 paragraphes vérifiés ponctuellement ; 44 à étudier et valider individuellement. Tous les §§1–350 ont désormais une entrée ; les passages restants sont dans les §§351–400.
+- 47 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 44, 49, 51, 56, 64, 75, 109, 110, 118, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 216, 239, 241, 247, 258, 259, 263, 264, 266, 294, 296, 313, 325, 327, 330, 342, 343, 344, 368, 376, 388, 390.
+- 309 autres paragraphes : routes conditionnelles, jets, choix et combats. 24 épreuves déclaratives : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 144, 156, 159, 166, 195, 209, 213, 243, 275, 298, 316, 339, 389. Les jets avec état (corde, traversée en trois tests, jeux, clés et Vampire) sont décrits séparément.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
+
+Les sections ci-dessous consignent les étapes historiques de la revue. Les mentions anciennes « en attente » sont remplacées par le dernier lot décrit en fin de document. La couverture ci-dessus et `review_pending` décrivent l’état actuel.
 
 ## Sécurité de l'automatisation
 
@@ -23,7 +25,7 @@ Seules les entrées `status=verifie` et `mode=automatique` déclenchent des effe
 - La fuite est pilotée par les règles vérifiées des §8, §16 et §20. Le §16 exige deux assauts complets avant d'autoriser la fuite ; égalités comprises. Les autres la permettent durant l'affrontement.
 - Pénalité de fuite : -2 Endurance, ou tentative volontaire de Chance donnant -1 si chanceux ou -3 si malchanceux ; la Chance est testée avant de dépenser un point. Une fuite mortelle n'ouvre pas le paragraphe de destination.
 - Les boutons de fuite sans pénalité sont supprimés pour ces paragraphes ; les liens dans le texte passent par la même procédure contrôlée. Les commandes de navigation manuelle restent libres pour les usages avancés.
-- §259 : victoire contre le Crocodile, +1 Habileté et +2 Chance automatisés. §350 : rencontre conditionnelle avec les Piranhas documentée, **non automatisée** (dépend des blessures infligées au Crocodile).
+- §259 : victoire contre le Crocodile, +1 Habileté et +2 Chance automatisés. §350 : rencontre avec les Piranhas automatisée selon les blessures du Crocodile ; voir la section dédiée.
 - La première version compte les assauts de fuite en fonction du paragraphe et conserve les compteurs en sauvegarde / annulation. Ce mécanisme reste à valider par des parties complètes sur Windows.
 
 
@@ -304,3 +306,41 @@ Cinq nouveaux tests couvrent les itinéraires exacts, les quatre boutons du §26
 Les §§292 (possession de chandelle bleue), 294 (fouille et récompense), 295/306 (combat d'un monstre commun avec reprise contextuelle), 296 (ouvrage sur les Dragons), 305 (trois tests de Chance successifs), 309 (Rats successifs), 311 (dalles et équipement), 313 (deux objets parmi quatre) et 319 (objet découvert) sont volontairement laissés en attente d'une modélisation complète.
 
 **Six tests supplémentaires** contrôlent les itinéraires, les six résultats du dé du pont, les onze totaux de nage, la navigation et Undo, la fuite face au Loup-garou et les quatre choix du carrefour.
+
+### Reprise PR6 : §§321–350 et résolution du reliquat antérieur
+
+Le PDF fourni a été contrôlé contre l’empreinte SHA-256 du catalogue. **112 entrées nouvelles** portent la couverture de 244 à **356/400**. Tous les §§1–350 sont répertoriés ; le §372, lié à la poursuite du combat du §65, a également été vérifié. Aucun texte narratif du livre n’est ajouté au dépôt.
+
+- **§322** : clé de cuivre 66 facultative contre un équipement non maudit. **§328** : deux bois en Y avec le même coût. **§327** : butin groupé (30 PO, livre et bois en Y) contre un équipement ; Chance +3 et repas facultatif. Le dialogue annulé ne modifie rien ; les échanges se font au plus une fois.
+- **§325** : casque magique, +1 à la Force d’Attaque tant qu’il est équipé et possédé ; l’Habileté de la fiche ne change pas. **§330** : +6 Endurance et +1 Chance, plafonnés.
+- **§334/292** : chandelle bleue facultative à 20 PO, achat contrôlé au clic ; l’itinéraire dans les ténèbres dépend de sa possession.
+- **§331** : Troll H8/E8, victoire §287. **§338** : Cyclope de Fer H10/E10, victoire §75 ou fuite §93. **§333** : Troll Vampire H10/E10, victoire §327 ; fuite seulement après six assauts et un test de Chance réussi. Un échec ordinaire impose six nouveaux assauts ; un échec sur 11 ou 12 mène au §224. Le test d’autorisation de fuite ne remplace pas la blessure normale de fuite.
+- **§339** : fléchette, 1d6 Endurance perdu ; le §201 ne s’ouvre que si le héros survit. **§340/348** : les objets conditionnent réellement les routes ; Fromage jeté et Potion bue sont retirés du sac, avec navigation annulable.
+- **§346** : choix explicite entre le hasard (2d6 : pair perd, impair gagne) et la Chance. La réussite de Chance exige un second 2d6 pour le gain ; l’échec utilise le premier total pour la perte. Les pertes sont limitées à l’or disponible ; un gain ajoute 2 Chance, plafonnées. La partie est résolue une seule fois avant le §131.
+
+#### Cas complexes antérieurs
+
+- **§125** : tests de Chance répétés jusqu’à la libération ou la mort ; chaque échec coûte 1 Endurance et chaque test 1 Chance. **§305** : trois tests successifs, seuil actualisé après chaque dépense, arrêt au premier échec. L’avancement se sauvegarde et s’annule.
+- **§130** : mise de 1 à 20 PO sans dépasser la bourse, 2d6 pour chacun, égalité sans transfert, partie répétable ; chaque victoire accorde +2 H/E/C plafonnés. Le départ au §280 reste libre.
+- **§139/182/198** : sélection de trois clés numérotées distinctes réellement possédées, destination égale à leur somme, clés conservées. Une combinaison déjà tentée ne peut être réutilisée. Chaque nouvel essai infructueux au §182 coûte 2 Endurance ; au §198, un test de Chance précède tout nouvel essai (réussite : -2 Endurance, échec : mort). Sans trois clés, aucune issue ne peut être inventée.
+- **§313/221/319** : jusqu’à deux trouvailles parmi cinq, identification dans l’ordre choisi, puis sortie §81. L’or est identifié au §110 (8 PO, puis les 2 PO de la botte), le crucifix au §170 et l’épée au §27 ; aucun double gain n’est créé. Le §72 impose le choix d’une seule armure ; le bouclier du §132 peut être abandonné. **§201** : un seul butin parmi 25 PO, Potion d’Invisibilité ou gant.
+- **§206/227** : le nombre de visites détermine le chemin ; charger ou annuler ne crée pas une nouvelle visite. **§179/258** : Minotaure, fuite après trois assauts ; après sa mort, le retour traverse une pièce vide sans pénalité ni nouveau combat. Récompenses facultatives et Chance séparées.
+- **§199/236/282/309/372** : combats successifs ; les 2 Chance du §282 sont attribués après le premier Zombie, pas après la série entière. **§140** : chef, puis deux paires de Squelettes ; une cible choisie par paire peut être blessée, l’autre attaque en défense sans subir de dégâts. Chaque assaut complet et le choix de cible sont annulables.
+- **§230** : quatre blessures distinctes de la Goule causent la paralysie ; un dégât nul après protection ne compte pas. Mort ou paralysie mène au §64. **§211/173/24** : armes ordinaires inefficaces, arme d’argent nécessaire pour blesser, flèche d’argent avec arc facultative et consommée ; trois blessures déclenchent la suite et la perte d’Habileté, puis chaque troisième blessure supplémentaire retire 1 Habileté.
+- **§12/14/234/295/306 → §161** : un dé choisit l’un des six monstres ; la destination après victoire est mémorisée. Le §12 revient à l’alarme puis propose ses deux sorties ; une entrée isolée au §161 ne crée pas de destination.
+- **§17/144/279** : routes selon crucifix ou épieu, jets de Chance pour l’épieu et issues du Vampire. **§296/126/26** : la formule du Dragon est mémorisée indépendamment de l’inventaire.
+- **§39** : combat sous invisibilité enfin automatisé (+2 attaque, 3 dégâts infligés, dé de défense sur les six faces), sans modifier l’Habileté de base. **§116** : bonus d’attaque +1 propre aux deux Farfadets ivres. **§163** : test de Chance obligatoire avant le premier assaut. **§44** : fin du repas interrompu au §143, sans deuxième repas automatique à la revisite.
+
+#### État, contrôles et validation
+
+`book_actions.py` regroupe les interactions avec état. `character.book_state`, `book_visits` et `book_facts` sont inclus dans les instantanés existants ; les anciennes sauvegardes n’ont pas besoin de ces champs. Le chargement restaure aussi le nom, l’Habileté et l’Endurance de l’adversaire. Les actions et les navigations forment une seule entrée d’Annuler/Rétablir ; les ressources sont revérifiées au clic. Les boutons heuristiques ne doublent plus les effets des combats pris en charge.
+
+Les tests synthétiques couvrent les issues des dés, les seuils, les pertes mortelles, les annulations de dialogue, la consommation des objets, les plafonds, les routes interdites, les combats et le chargement d’un état intermédiaire. Un contrôle avec le PDF compare les renvois réels des §§321–350 au catalogue, en complément de l’extraction et du rendu des 400 paragraphes.
+
+**Limites conservées :** la plupart des événements restent protégés « une fois par partie », sauf répétition explicitement modélisée. La commande de saut manuel de paragraphe reste un outil avancé ; les contrôles portent sur les choix et liens du récit. Le §289 ne donne aucun renvoi explicite après son combat dans ce PDF : Bifurk n’en invente pas. Le défaut connu de cadrage de l’illustration de couverture reste un échec attendu distinct de ce travail. Les 44 passages encore dans `review_pending` appartiennent aux §§351–400.
+
+Validation locale avec le PDF de référence présent : **220 tests exécutés, 219 réussis, 1 échec attendu** (cadrage connu de la couverture), aucun test ignoré. Le nouveau fichier `tests/test_complex_events.py` ajoute 52 tests.
+
+```bash
+QT_QPA_PLATFORM=offscreen XDG_CACHE_HOME=/workspace/.cache/bifurk .venv/bin/python -m unittest discover -s tests -v
+```

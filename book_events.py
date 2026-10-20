@@ -28,7 +28,15 @@ def verified_entry(catalogue, paragraph):
 def apply_effects(character, effects):
     """Applique des changements de caractéristiques bornés et des objets uniques."""
     for effect in effects:
-        if effect["kind"] == "stat":
+        if effect["kind"] == "fact":
+            character.setdefault("book_facts", {})[effect["key"]] = effect.get("value", True)
+        elif effect["kind"] == "meal":
+            if character.get("provisions", 0) > 0:
+                character["provisions"] -= 1
+                apply_effects(character, [{"kind": "stat", "key": "endurance", "amount": 4}])
+        elif effect["kind"] == "death":
+            character["endurance"] = 0
+        elif effect["kind"] == "stat":
             key = effect["key"]
             amount = int(effect["amount"])
             value = max(0, int(character.get(key, 0)) + amount)
@@ -139,6 +147,9 @@ def equip_weapon(character, name):
 def combat_skill(character):
     """Habileté de combat effective, sans modifier l'Habileté de la fiche."""
     bonus = 1 if equipped_weapon(character) == "Épée trouvée dans la rivière" else 0
+    if ("Casque magique" in character.get("inventory", [])
+            and character.get("book_facts", {}).get("magic_helmet_equipped")):
+        bonus += 1
     return int(character["habilete"]) + bonus
 
 
@@ -218,12 +229,18 @@ def follow_catalogue_route(character, entry, target):
                   if r["target"] == target), None)
     if route is None:
         return False
+    for effect in route.get("effects", []):
+        if effect["kind"] == "remove_item" and (
+                effect["name"] not in character.get("inventory", [])
+                or effect["name"] in character.get("locked_items", [])):
+            return False
     cost = route.get("cost")
     if cost is not None:
         key, amount = cost["key"], int(cost["amount"])
         if amount < 0 or int(character.get(key, 0)) < amount:
             return False
         character[key] -= amount
+    apply_effects(character, route.get("effects", []))
     return True
 
 
@@ -300,6 +317,19 @@ def condition_met(character, condition):
     if condition is None:
         return True
     kind = condition["kind"]
+    if kind in ("all", "any"):
+        results = (condition_met(character, c) for c in condition["conditions"])
+        return all(results) if kind == "all" else any(results)
+    if kind == "not":
+        return not condition_met(character, condition["condition"])
+    if kind == "fact":
+        return character.get("book_facts", {}).get(condition["key"]) == condition.get("value", True)
+    if kind == "visit_count":
+        count = character.get("book_visits", {}).get(str(condition["paragraph"]), 0)
+        return condition.get("min", 0) <= count <= condition.get("max", float("inf"))
+    if kind == "silver_weapon":
+        return any(name in character.get("inventory", []) for name in (
+            "Ciseau à lame d'argent", "Ciseau à lame d’argent", "Arme en argent"))
     if kind in ("has_item", "missing_item"):
         inventory = {str(item).casefold() for item in character.get("inventory", [])}
         present = condition["name"].casefold() in inventory

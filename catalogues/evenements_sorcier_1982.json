@@ -3,119 +3,8 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 244,
+  "reviewed_count": 356,
   "review_pending": [
-    1,
-    4,
-    5,
-    6,
-    7,
-    10,
-    12,
-    13,
-    14,
-    17,
-    22,
-    24,
-    26,
-    29,
-    44,
-    45,
-    59,
-    60,
-    64,
-    65,
-    68,
-    69,
-    70,
-    72,
-    73,
-    76,
-    80,
-    81,
-    87,
-    88,
-    89,
-    105,
-    106,
-    112,
-    116,
-    118,
-    125,
-    126,
-    130,
-    132,
-    138,
-    139,
-    140,
-    144,
-    151,
-    159,
-    161,
-    163,
-    165,
-    172,
-    173,
-    179,
-    182,
-    186,
-    189,
-    192,
-    198,
-    199,
-    201,
-    206,
-    211,
-    221,
-    227,
-    230,
-    234,
-    236,
-    253,
-    258,
-    263,
-    266,
-    275,
-    279,
-    282,
-    286,
-    289,
-    292,
-    294,
-    295,
-    296,
-    305,
-    306,
-    309,
-    311,
-    313,
-    319,
-    321,
-    322,
-    323,
-    324,
-    325,
-    326,
-    327,
-    328,
-    329,
-    330,
-    331,
-    332,
-    333,
-    334,
-    335,
-    336,
-    337,
-    338,
-    339,
-    340,
-    341,
-    345,
-    346,
-    347,
-    348,
-    349,
     351,
     352,
     353,
@@ -136,7 +25,6 @@
     369,
     370,
     371,
-    372,
     373,
     374,
     375,
@@ -163,6 +51,21 @@
     400
   ],
   "paragraphs": {
+    "1": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 71,
+          "label": "Continuer vers §71"
+        },
+        {
+          "target": 278,
+          "label": "Continuer vers §278"
+        }
+      ]
+    },
     "2": {
       "status": "verifie",
       "mode": "des",
@@ -213,6 +116,58 @@
         }
       ]
     },
+    "4": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 46,
+          "label": "Continuer vers §46"
+        },
+        {
+          "target": 332,
+          "label": "Continuer vers §332"
+        }
+      ]
+    },
+    "5": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 97,
+          "label": "Continuer vers §97"
+        },
+        {
+          "target": 292,
+          "label": "Continuer vers §292"
+        }
+      ]
+    },
+    "6": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 89,
+          "label": "Continuer vers §89"
+        }
+      ]
+    },
+    "7": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 214,
+          "label": "Continuer vers §214"
+        }
+      ]
+    },
     "8": {
       "status": "verifie",
       "mode": "combat_special",
@@ -245,6 +200,17 @@
         }
       ]
     },
+    "10": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 77,
+          "label": "Continuer vers §77"
+        }
+      ]
+    },
     "11": {
       "status": "verifie",
       "mode": "automatique",
@@ -261,6 +227,64 @@
         }
       ],
       "note": "Repos auprès des outils animés ; plafonds de départ."
+    },
+    "12": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Alarme : combattre le monstre errant §161 puis revenir ici ; ensuite §256 ou §364.",
+      "encounter_return": 12,
+      "routes": [
+        {
+          "target": 161,
+          "label": "Continuer vers §161",
+          "when": {
+            "kind": "not",
+            "condition": {
+              "kind": "fact",
+              "key": "alarm12_done"
+            }
+          }
+        },
+        {
+          "target": 256,
+          "label": "Continuer vers §256",
+          "when": {
+            "kind": "fact",
+            "key": "alarm12_done"
+          }
+        },
+        {
+          "target": 364,
+          "label": "Continuer vers §364",
+          "when": {
+            "kind": "fact",
+            "key": "alarm12_done"
+          }
+        }
+      ]
+    },
+    "13": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 282,
+          "label": "Continuer vers §282"
+        }
+      ]
+    },
+    "14": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Monstre errant §161, puis reprise au §117.",
+      "encounter_return": 117,
+      "routes": [
+        {
+          "target": 161,
+          "label": "Continuer vers §161"
+        }
+      ]
     },
     "15": {
       "status": "verifie",
@@ -290,6 +314,13 @@
         "escape_target": 269,
         "escape_after_assaults": 2
       }
+    },
+    "17": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Chance avec épieu : réussite tue le Vampire ; échec le blesse de 3, puis fuite §380 ou suite §144.",
+      "special": "stake_luck",
+      "routes": []
     },
     "18": {
       "status": "verifie",
@@ -393,6 +424,17 @@
         }
       ]
     },
+    "22": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 4,
+          "label": "Continuer vers §4"
+        }
+      ]
+    },
     "23": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -408,6 +450,23 @@
         }
       ]
     },
+    "24": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Après trois blessures : Habileté -1 ; chaque troisième blessure suivante retire encore 1 Habileté ; fuite §360 ou victoire §135.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Être",
+            "skill": 9,
+            "stamina": 6
+          }
+        ],
+        "victory_target": 135,
+        "mode": "silver",
+        "escape_target": 360
+      }
+    },
     "25": {
       "status": "verifie",
       "mode": "automatique",
@@ -419,6 +478,17 @@
         }
       ],
       "note": "Influence du portrait de Zagor."
+    },
+    "26": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 371,
+          "label": "Continuer vers §371"
+        }
+      ]
     },
     "27": {
       "status": "verifie",
@@ -459,6 +529,12 @@
             }
           ]
         }
+      ],
+      "routes": [
+        {
+          "target": 319,
+          "label": "Continuer vers §319"
+        }
       ]
     },
     "28": {
@@ -482,6 +558,17 @@
         }
       ],
       "note": "Après le Géant : Chance +2, Habileté +2 et bourse de huit pièces d'or."
+    },
+    "29": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 375,
+          "label": "Continuer vers §375"
+        }
+      ]
     },
     "30": {
       "status": "verifie",
@@ -659,8 +746,21 @@
     },
     "39": {
       "status": "verifie",
-      "mode": "combat_special",
-      "note": "Combat sous invisibilité : bonus d'attaque, dégâts et défense particuliers."
+      "mode": "combat",
+      "note": "Sorcier sous invisibilité H11/E18 : attaque +2, blessure infligée 3 ; dégâts reçus sur 1d6 : impairs 2, 2/4 → 1, 6 → 0. Victoire §396.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Sorcier",
+            "skill": 11,
+            "stamina": 18
+          }
+        ],
+        "victory_target": 396,
+        "attack_bonus": 2,
+        "hit_damage": 3,
+        "defense_roll": true
+      }
     },
     "40": {
       "status": "verifie",
@@ -717,6 +817,33 @@
         {
           "label": "Aller au sud",
           "target": 52
+        }
+      ]
+    },
+    "44": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Fin du repas interrompu : une Provision et +4 Endurance si une Provision reste ; puis §399.",
+      "effects": [
+        {
+          "kind": "meal"
+        }
+      ],
+      "routes": [
+        {
+          "target": 399,
+          "label": "Continuer vers §399"
+        }
+      ]
+    },
+    "45": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 90,
+          "label": "Continuer vers §90"
         }
       ]
     },
@@ -808,7 +935,13 @@
           "amount": 2
         }
       ],
-      "note": "Après usage de la potion d'invisibilité, Chance +2."
+      "note": "Potion bue au §348 : Chance +2 ; suite §287.",
+      "routes": [
+        {
+          "target": 287,
+          "label": "Continuer vers §287"
+        }
+      ]
     },
     "52": {
       "status": "verifie",
@@ -954,6 +1087,28 @@
         }
       ]
     },
+    "59": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 150,
+          "label": "Continuer vers §150"
+        }
+      ]
+    },
+    "60": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 48,
+          "label": "Continuer vers §48"
+        }
+      ]
+    },
     "61": {
       "status": "verifie",
       "mode": "combat_special",
@@ -1001,6 +1156,32 @@
         }
       ]
     },
+    "64": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "death"
+        }
+      ],
+      "routes": [],
+      "note": "Mort ou paralysie face à la Goule : aventure terminée."
+    },
+    "65": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Poursuivre le combat §372 ou fuir §293 avec la pénalité habituelle.",
+      "combat": {
+        "escape_target": 293,
+        "precombat_escape": true
+      },
+      "routes": [
+        {
+          "target": 372,
+          "label": "Continuer vers §372"
+        }
+      ]
+    },
     "66": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -1031,6 +1212,39 @@
         }
       ]
     },
+    "68": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 303,
+          "label": "Continuer vers §303"
+        }
+      ]
+    },
+    "69": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 244,
+          "label": "Continuer vers §244"
+        }
+      ]
+    },
+    "70": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 267,
+          "label": "Continuer vers §267"
+        }
+      ]
+    },
     "71": {
       "status": "verifie",
       "mode": "des",
@@ -1056,6 +1270,24 @@
           }
         ]
       }
+    },
+    "72": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Choisir l’armure à conserver, abandonner l’autre, puis §319.",
+      "special": "armor_choice",
+      "routes": []
+    },
+    "73": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 218,
+          "label": "Continuer vers §218"
+        }
+      ]
     },
     "74": {
       "status": "verifie",
@@ -1103,6 +1335,17 @@
       ],
       "note": "Butin et récompense après le combat ; le repas reste facultatif."
     },
+    "76": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 244,
+          "label": "Continuer vers §244"
+        }
+      ]
+    },
     "77": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -1146,6 +1389,40 @@
         {
           "label": "Revenir au croisement",
           "target": 267
+        }
+      ]
+    },
+    "80": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 129,
+          "label": "Continuer vers §129"
+        },
+        {
+          "target": 123,
+          "label": "Continuer vers §123"
+        },
+        {
+          "target": 195,
+          "label": "Continuer vers §195"
+        },
+        {
+          "target": 140,
+          "label": "Continuer vers §140"
+        }
+      ]
+    },
+    "81": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 205,
+          "label": "Continuer vers §205"
         }
       ]
     },
@@ -1268,6 +1545,43 @@
         "diversion_extra_assaults": 1,
         "note": "Deux assauts obligatoires, ensuite choix : poursuivre ou un assaut supplémentaire puis §350."
       }
+    },
+    "87": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 262,
+          "label": "Continuer vers §262"
+        }
+      ]
+    },
+    "88": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 216,
+          "label": "Continuer vers §216"
+        },
+        {
+          "target": 384,
+          "label": "Continuer vers §384"
+        }
+      ]
+    },
+    "89": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 286,
+          "label": "Continuer vers §286"
+        }
+      ]
     },
     "90": {
       "status": "verifie",
@@ -1483,6 +1797,99 @@
         }
       ]
     },
+    "105": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Les objets proposés doivent figurer dans le sac ; Potion et flèche sont à usage unique.",
+      "routes": [
+        {
+          "target": 39,
+          "label": "Boire la Potion d’Invisibilité",
+          "effects": [
+            {
+              "kind": "remove_item",
+              "name": "Potion d'Invisibilité"
+            }
+          ],
+          "when": {
+            "kind": "has_item",
+            "name": "Potion d'Invisibilité"
+          }
+        },
+        {
+          "target": 382,
+          "label": "Brandir l’Œil du Cyclope",
+          "when": {
+            "kind": "has_item",
+            "name": "Pierre précieuse de la statue"
+          }
+        },
+        {
+          "target": 368,
+          "label": "Essayer le Fromage",
+          "when": {
+            "kind": "has_item",
+            "name": "Fromage"
+          }
+        },
+        {
+          "target": 194,
+          "label": "Tirer la flèche d’argent",
+          "effects": [
+            {
+              "kind": "remove_item",
+              "name": "Flèche d’argent"
+            }
+          ],
+          "when": {
+            "kind": "all",
+            "conditions": [
+              {
+                "kind": "has_item",
+                "name": "Arc"
+              },
+              {
+                "kind": "has_item",
+                "name": "Flèche d’argent"
+              }
+            ]
+          }
+        },
+        {
+          "target": 215,
+          "label": "Chercher le bâton en Y",
+          "when": {
+            "kind": "any",
+            "conditions": [
+              {
+                "kind": "has_item",
+                "name": "Morceau de bois en Y"
+              },
+              {
+                "kind": "has_item",
+                "name": "Deux morceaux de bois en Y"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "106": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Repos et repas facultatif avant le Dragon ; épée §152 ou mémoire §126.",
+      "optional_meal": true,
+      "routes": [
+        {
+          "target": 152,
+          "label": "Continuer vers §152"
+        },
+        {
+          "target": 126,
+          "label": "Continuer vers §126"
+        }
+      ]
+    },
     "107": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -1545,7 +1952,13 @@
           "amount": 10
         }
       ],
-      "note": "Huit pièces d'or puis deux supplémentaires trouvées dans la botte."
+      "note": "Huit pièces d'or puis deux supplémentaires trouvées dans la botte.",
+      "routes": [
+        {
+          "target": 319,
+          "label": "Continuer vers §319"
+        }
+      ]
     },
     "111": {
       "status": "verifie",
@@ -1555,6 +1968,21 @@
         {
           "label": "Poursuivre après le refus du vieil homme",
           "target": 249
+        }
+      ]
+    },
+    "112": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 142,
+          "label": "Continuer vers §142"
+        },
+        {
+          "target": 105,
+          "label": "Continuer vers §105"
         }
       ]
     },
@@ -1603,6 +2031,29 @@
         }
       ]
     },
+    "116": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Adversaires successifs ; victoire §378.",
+      "combat": {
+        "mode": "sequence",
+        "enemies": [
+          {
+            "name": "Farfadet ivre 1",
+            "skill": 5,
+            "stamina": 5
+          },
+          {
+            "name": "Farfadet ivre 2",
+            "skill": 4,
+            "stamina": 5
+          }
+        ],
+        "victory_target": 378,
+        "escape_target": 42,
+        "attack_bonus": 1
+      }
+    },
     "117": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -1617,6 +2068,17 @@
           "target": 308
         }
       ]
+    },
+    "118": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Le Vampire tue le héros : fin de l’aventure.",
+      "effects": [
+        {
+          "kind": "death"
+        }
+      ],
+      "routes": []
     },
     "119": {
       "status": "verifie",
@@ -1721,6 +2183,39 @@
         }
       ]
     },
+    "125": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Corde : tests de Chance répétés, -1 Chance à chaque jet, -1 Endurance à chaque échec ; réussite → §73.",
+      "special": "rope",
+      "routes": []
+    },
+    "126": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Formule mémorisée au §296 : §26 ; sinon combat §152.",
+      "routes": [
+        {
+          "target": 26,
+          "label": "Continuer vers §26",
+          "when": {
+            "kind": "fact",
+            "key": "dragon_formula"
+          }
+        },
+        {
+          "target": 152,
+          "label": "Continuer vers §152",
+          "when": {
+            "kind": "not",
+            "condition": {
+              "kind": "fact",
+              "key": "dragon_formula"
+            }
+          }
+        }
+      ]
+    },
     "127": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -1771,6 +2266,18 @@
         }
       ]
     },
+    "130": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Pari de 1 à 20 PO, limité à la bourse ; 2d6 chacun. Victoire : mise gagnée et +2 H/E/C. Égalité sans transfert. Départ libre §280.",
+      "special": "wager",
+      "routes": [
+        {
+          "target": 280,
+          "label": "Continuer vers §280"
+        }
+      ]
+    },
     "131": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -1780,6 +2287,33 @@
         {
           "label": "Quitter les amis et poursuivre",
           "target": 291
+        }
+      ]
+    },
+    "132": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Bouclier de bois facultativement conservé ou abandonné ; puis §319.",
+      "options": [
+        {
+          "id": "jeter_bouclier",
+          "label": "Jeter le bouclier de bois",
+          "when": {
+            "kind": "has_item",
+            "name": "Bouclier de bois"
+          },
+          "effects": [
+            {
+              "kind": "remove_item",
+              "name": "Bouclier de bois"
+            }
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "target": 319,
+          "label": "Continuer vers §319"
         }
       ]
     },
@@ -1867,6 +2401,72 @@
         }
       ]
     },
+    "138": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 163,
+          "label": "Continuer vers §163"
+        },
+        {
+          "target": 351,
+          "label": "Continuer vers §351"
+        }
+      ]
+    },
+    "139": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Choisir trois clés numérotées distinctes ; leur somme est la destination. Sans trois clés, aventure terminée.",
+      "special": "keys",
+      "routes": []
+    },
+    "140": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Chef puis deux paires de Squelettes. Dans chaque paire, choisir une cible à vaincre ; l’autre peut blesser mais ne subit pas de dégâts.",
+      "special": "paired_combat",
+      "combat": {
+        "mode": "paired",
+        "enemies": [
+          {
+            "name": "Chef Squelette",
+            "skill": 7,
+            "stamina": 5
+          }
+        ],
+        "pairs": [
+          [
+            {
+              "name": "Squelette A",
+              "skill": 6,
+              "stamina": 6
+            },
+            {
+              "name": "Squelette B",
+              "skill": 5,
+              "stamina": 6
+            }
+          ],
+          [
+            {
+              "name": "Squelette A",
+              "skill": 5,
+              "stamina": 5
+            },
+            {
+              "name": "Squelette B",
+              "skill": 6,
+              "stamina": 5
+            }
+          ]
+        ],
+        "victory_target": 395
+      },
+      "routes": []
+    },
     "141": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -1913,6 +2513,34 @@
         "escape_target": 399,
         "escape_after_assaults": 3,
         "escape_provisions_lost": 1
+      }
+    },
+    "144": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Second lancer de l’épieu : Chance, réussite → §101 ; échec → §217.",
+      "roll": {
+        "dice": 2,
+        "branches": [
+          {
+            "when": "lte_stat",
+            "target": 101,
+            "effects": [],
+            "key": "chance"
+          },
+          {
+            "when": "otherwise",
+            "target": 217,
+            "effects": []
+          }
+        ],
+        "pre_effects": [
+          {
+            "kind": "stat",
+            "key": "chance",
+            "amount": -1
+          }
+        ]
       }
     },
     "145": {
@@ -2026,6 +2654,32 @@
         }
       ]
     },
+    "151": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Retour épuisé vers §218 (Endurance -1), Crocodile §86 ou détour §158.",
+      "routes": [
+        {
+          "target": 218,
+          "label": "Revenir à la berge sud (-1 Endurance)",
+          "effects": [
+            {
+              "kind": "stat",
+              "key": "endurance",
+              "amount": -1
+            }
+          ]
+        },
+        {
+          "target": 86,
+          "label": "Continuer vers §86"
+        },
+        {
+          "target": 158,
+          "label": "Continuer vers §158"
+        }
+      ]
+    },
     "152": {
       "status": "verifie",
       "mode": "combat_special",
@@ -2123,6 +2777,40 @@
         "victory_target": 218
       }
     },
+    "159": {
+      "status": "verifie",
+      "mode": "des_optionnel",
+      "note": "Attaque §365 ou test de Chance facultatif pour sortir sans pénalité ; réussite §237, échec §365.",
+      "roll": {
+        "dice": 2,
+        "pre_effects": [
+          {
+            "kind": "stat",
+            "key": "chance",
+            "amount": -1
+          }
+        ],
+        "branches": [
+          {
+            "when": "lte_stat",
+            "key": "chance",
+            "target": 237,
+            "effects": []
+          },
+          {
+            "when": "otherwise",
+            "target": 365,
+            "effects": []
+          }
+        ]
+      },
+      "routes": [
+        {
+          "target": 365,
+          "label": "Continuer vers §365"
+        }
+      ]
+    },
     "160": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -2133,6 +2821,48 @@
           "target": 267
         }
       ]
+    },
+    "161": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Monstre errant tiré sur 1d6 ; retour à la destination mémorisée après victoire, aucun trésor.",
+      "special": "wandering",
+      "combat": {
+        "mode": "wandering",
+        "enemies": [
+          {
+            "name": "Lutin",
+            "skill": 5,
+            "stamina": 3
+          },
+          {
+            "name": "Farfadet",
+            "skill": 6,
+            "stamina": 3
+          },
+          {
+            "name": "Diablotin",
+            "skill": 6,
+            "stamina": 4
+          },
+          {
+            "name": "Rat géant",
+            "skill": 5,
+            "stamina": 4
+          },
+          {
+            "name": "Squelette",
+            "skill": 6,
+            "stamina": 5
+          },
+          {
+            "name": "Troll",
+            "skill": 8,
+            "stamina": 4
+          }
+        ]
+      },
+      "routes": []
     },
     "162": {
       "status": "verifie",
@@ -2149,6 +2879,24 @@
         }
       ]
     },
+    "163": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Géant H8/E9 : Chance avant le combat, échec -1 Endurance ; fuite après trois assauts §351, victoire §28.",
+      "special": "opening_luck",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Géant",
+            "skill": 8,
+            "stamina": 9
+          }
+        ],
+        "victory_target": 28,
+        "escape_target": 351,
+        "escape_after_assaults": 3
+      }
+    },
     "164": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -2161,6 +2909,25 @@
         {
           "label": "Attaquer les Squelettes",
           "target": 236
+        }
+      ]
+    },
+    "165": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 141,
+          "label": "Continuer vers §141"
+        },
+        {
+          "target": 66,
+          "label": "Continuer vers §66"
+        },
+        {
+          "target": 249,
+          "label": "Continuer vers §249"
         }
       ]
     },
@@ -2237,6 +3004,12 @@
           "kind": "item",
           "name": "Crucifix en argent (valeur 4 PO)"
         }
+      ],
+      "routes": [
+        {
+          "target": 319,
+          "label": "Continuer vers §319"
+        }
       ]
     },
     "171": {
@@ -2253,6 +3026,43 @@
           "target": 187
         }
       ]
+    },
+    "172": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 249,
+          "label": "Continuer vers §249"
+        },
+        {
+          "target": 141,
+          "label": "Continuer vers §141"
+        },
+        {
+          "target": 165,
+          "label": "Continuer vers §165"
+        }
+      ]
+    },
+    "173": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Combat avec arme d’argent. Troisième blessure → §24 ; flèche d’argent facultative avec Chance.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Être",
+            "skill": 9,
+            "stamina": 6
+          }
+        ],
+        "victory_target": 135,
+        "mode": "silver",
+        "escape_target": 360
+      },
+      "special": "silver_arrow"
     },
     "174": {
       "status": "verifie",
@@ -2325,6 +3135,45 @@
         }
       ]
     },
+    "179": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Minotaure H9/E9, fuite après trois assauts §54 ; victoire §258. Après sa mort, pièce vide → §54.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Minotaure",
+            "skill": 9,
+            "stamina": 9
+          }
+        ],
+        "victory_target": 258,
+        "escape_target": 54,
+        "escape_after_assaults": 3,
+        "victory_fact": "minotaur_dead"
+      },
+      "routes": [
+        {
+          "target": 258,
+          "label": "Continuer vers §258",
+          "when": {
+            "kind": "not",
+            "condition": {
+              "kind": "fact",
+              "key": "minotaur_dead"
+            }
+          }
+        },
+        {
+          "target": 54,
+          "label": "Continuer vers §54",
+          "when": {
+            "kind": "fact",
+            "key": "minotaur_dead"
+          }
+        }
+      ]
+    },
     "180": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -2365,6 +3214,20 @@
         }
       ],
       "note": "Douleur supplémentaire : Habileté -1 ; choisir le mur ouest §355 ou nord §265."
+    },
+    "182": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Mauvaise combinaison : Endurance -2 à chaque tentative ; essayer trois autres clés.",
+      "special": "keys",
+      "visit_effects": [
+        {
+          "kind": "stat",
+          "key": "endurance",
+          "amount": -2
+        }
+      ],
+      "routes": []
     },
     "183": {
       "status": "verifie",
@@ -2426,6 +3289,17 @@
         }
       ]
     },
+    "186": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 198,
+          "label": "Continuer vers §198"
+        }
+      ]
+    },
     "187": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -2457,6 +3331,21 @@
         "escape_after_assaults": 0
       },
       "note": "Rat-garou H8/E5 ; victoire §342, fuite immédiate par le pont §209 avec pénalité de fuite."
+    },
+    "189": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 90,
+          "label": "Continuer vers §90"
+        },
+        {
+          "target": 25,
+          "label": "Continuer vers §25"
+        }
+      ]
     },
     "190": {
       "status": "verifie",
@@ -2491,6 +3380,17 @@
         }
       ],
       "note": "Trois itinéraires après les conseils du Sorcier du labyrinthe."
+    },
+    "192": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 169,
+          "label": "Continuer vers §169"
+        }
+      ]
     },
     "193": {
       "status": "verifie",
@@ -2586,6 +3486,34 @@
       ],
       "note": "Herse abaissée : continuer §48 ou chercher un passage secret §295."
     },
+    "198": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Mauvaise combinaison : test de Chance, -2 Endurance si réussite, mort si échec ; puis nouvelles clés.",
+      "special": "key_trap",
+      "routes": []
+    },
+    "199": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Adversaires successifs ; victoire → §283.",
+      "combat": {
+        "mode": "sequence",
+        "enemies": [
+          {
+            "name": "Homme des Cavernes 1",
+            "skill": 7,
+            "stamina": 6
+          },
+          {
+            "name": "Homme des Cavernes 2",
+            "skill": 6,
+            "stamina": 4
+          }
+        ],
+        "victory_target": 283
+      }
+    },
     "200": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -2596,6 +3524,52 @@
         }
       ],
       "note": "Renvoi explicite vers §387."
+    },
+    "201": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Un seul butin facultatif : 25 PO, une Potion d'Invisibilité ou un gant de soie noire ; repas facultatif puis §293.",
+      "optional_meal": true,
+      "loot_choices": [
+        {
+          "id": "or",
+          "label": "Prendre les 25 pièces d’or",
+          "effects": [
+            {
+              "kind": "stat",
+              "key": "gold",
+              "amount": 25
+            }
+          ]
+        },
+        {
+          "id": "potion",
+          "label": "Prendre la Potion d’Invisibilité",
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Potion d'Invisibilité"
+            }
+          ]
+        },
+        {
+          "id": "gant",
+          "label": "Prendre le gant de soie noire",
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Gant de soie noire"
+            }
+          ]
+        }
+      ],
+      "loot_limit": 1,
+      "routes": [
+        {
+          "target": 293,
+          "label": "Continuer vers §293"
+        }
+      ]
     },
     "202": {
       "status": "verifie",
@@ -2686,6 +3660,31 @@
       ],
       "note": "Dans la crypte : fouiller §254 ou quitter §380."
     },
+    "206": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Première visite de la bibliothèque → §341 ; visites suivantes → §284.",
+      "routes": [
+        {
+          "target": 341,
+          "label": "Continuer vers §341",
+          "when": {
+            "kind": "visit_count",
+            "paragraph": 206,
+            "max": 1
+          }
+        },
+        {
+          "target": 284,
+          "label": "Continuer vers §284",
+          "when": {
+            "kind": "visit_count",
+            "paragraph": 206,
+            "min": 2
+          }
+        }
+      ]
+    },
     "207": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -2749,6 +3748,50 @@
         }
       ],
       "note": "À la bifurcation : ouest §225 ou nord §357."
+    },
+    "211": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Armes ordinaires inefficaces. Arme en argent → §173 ; fuite vers §360 avec blessure normale.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Être",
+            "skill": 9,
+            "stamina": 6
+          }
+        ],
+        "victory_target": 135,
+        "mode": "invulnerable",
+        "escape_target": 360
+      },
+      "routes": [
+        {
+          "target": 173,
+          "label": "Utiliser une arme d’argent",
+          "when": {
+            "kind": "any",
+            "conditions": [
+              {
+                "kind": "silver_weapon"
+              },
+              {
+                "kind": "all",
+                "conditions": [
+                  {
+                    "kind": "has_item",
+                    "name": "Arc"
+                  },
+                  {
+                    "kind": "has_item",
+                    "name": "Flèche d’argent"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
     },
     "212": {
       "status": "verifie",
@@ -2908,6 +3951,13 @@
         }
       ]
     },
+    "221": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Identifier les deux trouvailles dans leur ordre de choix ; le premier équipement initial ne compte pas.",
+      "special": "identify_loot",
+      "routes": []
+    },
     "222": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -2971,6 +4021,44 @@
         }
       ]
     },
+    "227": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Première visite : bavarder, partir, jouer ou combattre ; ensuite pièce vide → §291.",
+      "routes": [
+        {
+          "target": 131,
+          "label": "Continuer vers §131",
+          "when": {
+            "kind": "visit_count",
+            "paragraph": 227,
+            "max": 1
+          }
+        },
+        {
+          "target": 100,
+          "label": "Continuer vers §100",
+          "when": {
+            "kind": "visit_count",
+            "paragraph": 227,
+            "max": 1
+          }
+        },
+        {
+          "target": 20,
+          "label": "Continuer vers §20",
+          "when": {
+            "kind": "visit_count",
+            "paragraph": 227,
+            "max": 1
+          }
+        },
+        {
+          "target": 291,
+          "label": "Continuer vers §291"
+        }
+      ]
+    },
     "228": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -2992,6 +4080,24 @@
           "label": "Prendre le passage de droite"
         }
       ]
+    },
+    "230": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Goule H8/E7. Victoire → §390.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Goule",
+            "skill": 8,
+            "stamina": 7
+          }
+        ],
+        "victory_target": 390,
+        "mode": "ghoul",
+        "wound_limit": 4,
+        "defeat_target": 64
+      }
     },
     "231": {
       "status": "verifie",
@@ -3026,6 +4132,18 @@
         }
       ]
     },
+    "234": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Monstre errant §161, puis reprise au §43.",
+      "encounter_return": 43,
+      "routes": [
+        {
+          "target": 161,
+          "label": "Continuer vers §161"
+        }
+      ]
+    },
     "235": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3040,6 +4158,32 @@
           "label": "Continuer au nord"
         }
       ]
+    },
+    "236": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Adversaires successifs ; victoire §395.",
+      "combat": {
+        "mode": "sequence",
+        "enemies": [
+          {
+            "name": "Squelette A",
+            "skill": 6,
+            "stamina": 6
+          },
+          {
+            "name": "Squelette B",
+            "skill": 5,
+            "stamina": 5
+          },
+          {
+            "name": "Squelette C",
+            "skill": 6,
+            "stamina": 5
+          }
+        ],
+        "victory_target": 395
+      }
     },
     "237": {
       "status": "verifie",
@@ -3319,6 +4463,25 @@
         }
       ]
     },
+    "253": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois vérifiés ; aucun effet numérique supplémentaire prescrit.",
+      "routes": [
+        {
+          "target": 328,
+          "label": "Continuer vers §328"
+        },
+        {
+          "target": 125,
+          "label": "Continuer vers §125"
+        },
+        {
+          "target": 73,
+          "label": "Continuer vers §73"
+        }
+      ]
+    },
     "254": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3391,6 +4554,48 @@
         }
       ]
     },
+    "258": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Après le Minotaure : Chance +2, 8 PO et clé 111 facultatives ; repas facultatif puis §54.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 2
+        }
+      ],
+      "optional_meal": true,
+      "options": [
+        {
+          "id": "huit_pieces",
+          "label": "Prendre les huit pièces d’or",
+          "effects": [
+            {
+              "kind": "stat",
+              "key": "gold",
+              "amount": 8
+            }
+          ]
+        },
+        {
+          "id": "cle111",
+          "label": "Prendre la clé rouge 111",
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Clé 111"
+            }
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "target": 54,
+          "label": "Continuer vers §54"
+        }
+      ]
+    },
     "259": {
       "status": "verifie",
       "mode": "automatique",
@@ -3455,6 +4660,24 @@
         }
       ]
     },
+    "263": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Libération du prisonnier : Chance +1 ; sortie §314.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 1
+        }
+      ],
+      "routes": [
+        {
+          "target": 314,
+          "label": "Continuer vers §314"
+        }
+      ]
+    },
     "264": {
       "status": "verifie",
       "mode": "automatique",
@@ -3493,6 +4716,37 @@
         {
           "target": 88,
           "label": "Ouvrir la porte trouvée à tâtons"
+        }
+      ]
+    },
+    "266": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Arc, flèche d’argent et mallette ; Chance +1 ; repas facultatif puis §237.",
+      "effects": [
+        {
+          "kind": "item",
+          "name": "Arc"
+        },
+        {
+          "kind": "item",
+          "name": "Flèche d’argent"
+        },
+        {
+          "kind": "item",
+          "name": "Mallette"
+        },
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 1
+        }
+      ],
+      "optional_meal": true,
+      "routes": [
+        {
+          "target": 237,
+          "label": "Continuer vers §237"
         }
       ]
     },
@@ -3626,6 +4880,40 @@
         }
       ]
     },
+    "275": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Chance : griffure évitée si réussite, sinon Endurance -1 ; puis §230.",
+      "roll": {
+        "dice": 2,
+        "branches": [
+          {
+            "when": "lte_stat",
+            "target": 230,
+            "effects": [],
+            "key": "chance"
+          },
+          {
+            "when": "otherwise",
+            "target": 230,
+            "effects": [
+              {
+                "kind": "stat",
+                "key": "endurance",
+                "amount": -1
+              }
+            ]
+          }
+        ],
+        "pre_effects": [
+          {
+            "kind": "stat",
+            "key": "chance",
+            "amount": -1
+          }
+        ]
+      }
+    },
     "276": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3671,6 +4959,85 @@
         }
       ]
     },
+    "279": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Crucifix : fuite sans combat ; épieu : tentative de tuer ; sinon épée.",
+      "routes": [
+        {
+          "target": 380,
+          "label": "Repousser le Vampire au crucifix",
+          "when": {
+            "kind": "any",
+            "conditions": [
+              {
+                "kind": "has_item",
+                "name": "Crucifix en argent (valeur 4 PO)"
+              },
+              {
+                "kind": "has_item",
+                "name": "Crucifix en argent"
+              }
+            ]
+          }
+        },
+        {
+          "target": 17,
+          "label": "Attaquer avec un épieu",
+          "when": {
+            "kind": "any",
+            "conditions": [
+              {
+                "kind": "has_item",
+                "name": "Cinq piquets de bois"
+              },
+              {
+                "kind": "has_item",
+                "name": "Épieu"
+              }
+            ]
+          }
+        },
+        {
+          "target": 333,
+          "label": "Combattre à l’épée",
+          "when": {
+            "kind": "not",
+            "condition": {
+              "kind": "any",
+              "conditions": [
+                {
+                  "kind": "any",
+                  "conditions": [
+                    {
+                      "kind": "has_item",
+                      "name": "Cinq piquets de bois"
+                    },
+                    {
+                      "kind": "has_item",
+                      "name": "Épieu"
+                    }
+                  ]
+                },
+                {
+                  "kind": "any",
+                  "conditions": [
+                    {
+                      "kind": "has_item",
+                      "name": "Crucifix en argent (valeur 4 PO)"
+                    },
+                    {
+                      "kind": "has_item",
+                      "name": "Crucifix en argent"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
     "280": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3692,6 +5059,46 @@
           "label": "Rebrousser chemin jusqu'à la bifurcation"
         }
       ]
+    },
+    "282": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Adversaires successifs ; victoire → §115.",
+      "combat": {
+        "mode": "sequence",
+        "enemies": [
+          {
+            "name": "Zombie",
+            "skill": 7,
+            "stamina": 6
+          },
+          {
+            "name": "Zombie avec faux",
+            "skill": 6,
+            "stamina": 6
+          },
+          {
+            "name": "Zombie avec pioche",
+            "skill": 6,
+            "stamina": 6
+          },
+          {
+            "name": "Zombie avec hache",
+            "skill": 6,
+            "stamina": 5
+          }
+        ],
+        "victory_target": 115,
+        "stage_effects": {
+          "0": [
+            {
+              "kind": "stat",
+              "key": "chance",
+              "amount": 2
+            }
+          ]
+        }
+      }
     },
     "283": {
       "status": "verifie",
@@ -3734,6 +5141,29 @@
         }
       ]
     },
+    "286": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 294,
+          "label": "Continuer vers §294"
+        },
+        {
+          "target": 275,
+          "label": "Continuer vers §275"
+        },
+        {
+          "target": 148,
+          "label": "Continuer vers §148"
+        },
+        {
+          "target": 107,
+          "label": "Continuer vers §107"
+        }
+      ]
+    },
     "287": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3768,6 +5198,21 @@
         }
       ]
     },
+    "289": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Après destruction des cartes : Sorcier H7/E12. Le PDF ne donne pas de renvoi explicite après ce combat ; aucune destination inventée.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Sorcier",
+            "skill": 7,
+            "stamina": 12
+          }
+        ],
+        "victory_target": null
+      }
+    },
     "290": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3798,6 +5243,29 @@
         }
       ]
     },
+    "292": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Chandelle bleue possédée → §239 ; sinon → §40.",
+      "routes": [
+        {
+          "target": 239,
+          "label": "Continuer vers §239",
+          "when": {
+            "kind": "has_item",
+            "name": "Chandelle bleue"
+          }
+        },
+        {
+          "target": 40,
+          "label": "Continuer vers §40",
+          "when": {
+            "kind": "missing_item",
+            "name": "Chandelle bleue"
+          }
+        }
+      ]
+    },
     "293": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3806,6 +5274,67 @@
         {
           "target": 113,
           "label": "Prendre le passage est"
+        }
+      ]
+    },
+    "294": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Fouille : 5 PO et Chance +1 ; autres corps ou sortie.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "gold",
+          "amount": 5
+        },
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 1
+        }
+      ],
+      "routes": [
+        {
+          "target": 275,
+          "label": "Continuer vers §275"
+        },
+        {
+          "target": 148,
+          "label": "Continuer vers §148"
+        },
+        {
+          "target": 107,
+          "label": "Continuer vers §107"
+        }
+      ]
+    },
+    "295": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Monstre errant §161 ; après victoire, reprendre au §48.",
+      "encounter_return": 48,
+      "routes": [
+        {
+          "target": 161,
+          "label": "Continuer vers §161"
+        }
+      ]
+    },
+    "296": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Formule de neutralisation du Dragon mémorisée ; livre effacé puis §42.",
+      "effects": [
+        {
+          "kind": "fact",
+          "key": "dragon_formula",
+          "value": true
+        }
+      ],
+      "routes": [
+        {
+          "target": 42,
+          "label": "Continuer vers §42"
         }
       ]
     },
@@ -3931,6 +5460,25 @@
         "escape_after_assaults": 0
       }
     },
+    "305": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Trois tests successifs de Chance ; chaque jet dépense 1 Chance. Premier échec → §108, trois réussites → §162.",
+      "special": "three_luck",
+      "routes": []
+    },
+    "306": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Monstre errant §161 ; après victoire, reprendre au §291.",
+      "encounter_return": 291,
+      "routes": [
+        {
+          "target": 161,
+          "label": "Continuer vers §161"
+        }
+      ]
+    },
     "307": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3969,6 +5517,32 @@
         }
       ]
     },
+    "309": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Adversaires successifs ; victoire → §124.",
+      "combat": {
+        "mode": "sequence",
+        "enemies": [
+          {
+            "name": "Rat 1",
+            "skill": 5,
+            "stamina": 4
+          },
+          {
+            "name": "Rat 2",
+            "skill": 6,
+            "stamina": 3
+          },
+          {
+            "name": "Rat 3",
+            "skill": 5,
+            "stamina": 5
+          }
+        ],
+        "victory_target": 124
+      }
+    },
     "310": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3980,6 +5554,25 @@
         }
       ]
     },
+    "311": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 305,
+          "label": "Continuer vers §305"
+        },
+        {
+          "target": 178,
+          "label": "Continuer vers §178"
+        },
+        {
+          "target": 108,
+          "label": "Continuer vers §108"
+        }
+      ]
+    },
     "312": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3988,6 +5581,73 @@
         {
           "target": 308,
           "label": "Rejoindre le croisement"
+        }
+      ]
+    },
+    "313": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Choisir jusqu’à deux trouvailles ; Chance +1 et Habileté +1. Identification dans l’ordre au §221.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 1
+        },
+        {
+          "kind": "stat",
+          "key": "habilete",
+          "amount": 1
+        }
+      ],
+      "loot_limit": 2,
+      "remember_loot": true,
+      "loot_choices": [
+        {
+          "id": "armure",
+          "label": "Prendre l’armure",
+          "identify_target": 72,
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Armure trouvée"
+            }
+          ]
+        },
+        {
+          "id": "bouclier",
+          "label": "Prendre le bouclier de bois",
+          "identify_target": 132,
+          "effects": [
+            {
+              "kind": "item",
+              "name": "Bouclier de bois"
+            }
+          ]
+        },
+        {
+          "id": "epee",
+          "label": "Prendre l’épée d’acier",
+          "identify_target": 27,
+          "effects": []
+        },
+        {
+          "id": "or",
+          "label": "Prendre les 8 pièces d’or",
+          "identify_target": 110,
+          "effects": []
+        },
+        {
+          "id": "crucifix",
+          "label": "Prendre le crucifix en argent",
+          "identify_target": 170,
+          "effects": []
+        }
+      ],
+      "routes": [
+        {
+          "target": 221,
+          "label": "Continuer vers §221"
         }
       ]
     },
@@ -4078,6 +5738,13 @@
         }
       ]
     },
+    "319": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Identifier le second objet choisi, puis reprendre au §81.",
+      "special": "identify_next",
+      "routes": []
+    },
     "320": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -4086,6 +5753,450 @@
         {
           "target": 363,
           "label": "Poursuivre dans le couloir nord"
+        }
+      ]
+    },
+    "321": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 169,
+          "label": "Continuer vers §169"
+        }
+      ]
+    },
+    "322": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Clé de cuivre 66 facultative, en échange d'un équipement non maudit ; sortie §96.",
+      "trade_choices": [
+        {
+          "id": "cle66",
+          "name": "Clé de cuivre 66"
+        }
+      ],
+      "routes": [
+        {
+          "target": 96,
+          "label": "Continuer vers §96"
+        }
+      ]
+    },
+    "323": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 8,
+          "label": "Continuer vers §8"
+        },
+        {
+          "target": 255,
+          "label": "Continuer vers §255"
+        }
+      ]
+    },
+    "324": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 358,
+          "label": "Continuer vers §358"
+        }
+      ]
+    },
+    "325": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Casque magique équipé : +1 à la Force d’Attaque, sans modifier l’Habileté ; sortie §87.",
+      "effects": [
+        {
+          "kind": "item",
+          "name": "Casque magique"
+        },
+        {
+          "kind": "fact",
+          "key": "magic_helmet_equipped",
+          "value": true
+        }
+      ],
+      "routes": [
+        {
+          "target": 87,
+          "label": "Continuer vers §87"
+        }
+      ]
+    },
+    "326": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 35,
+          "label": "Continuer vers §35"
+        },
+        {
+          "target": 229,
+          "label": "Continuer vers §229"
+        }
+      ]
+    },
+    "327": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Chance +3 ; repas facultatif. Butin facultatif (30 PO, livre et bois en Y) contre un équipement.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 3
+        }
+      ],
+      "optional_meal": true,
+      "trade_choices": [
+        {
+          "id": "tresor_vampire",
+          "name": "Livre du Vampire",
+          "extra_effects": [
+            {
+              "kind": "stat",
+              "key": "gold",
+              "amount": 30
+            },
+            {
+              "kind": "item",
+              "name": "Morceau de bois en Y"
+            }
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "target": 380,
+          "label": "Continuer vers §380"
+        }
+      ]
+    },
+    "328": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Deux morceaux de bois en Y facultatifs contre un équipement ; nord §73 ou corde §125.",
+      "trade_choices": [
+        {
+          "id": "bois_y",
+          "name": "Deux morceaux de bois en Y"
+        }
+      ],
+      "routes": [
+        {
+          "target": 73,
+          "label": "Continuer vers §73"
+        },
+        {
+          "target": 125,
+          "label": "Continuer vers §125"
+        }
+      ]
+    },
+    "329": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 157,
+          "label": "Continuer vers §157"
+        },
+        {
+          "target": 392,
+          "label": "Continuer vers §392"
+        },
+        {
+          "target": 299,
+          "label": "Continuer vers §299"
+        },
+        {
+          "target": 238,
+          "label": "Continuer vers §238"
+        }
+      ]
+    },
+    "330": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Rhum : Endurance +6 et Chance +1, plafonnées ; sortie §81.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "endurance",
+          "amount": 6
+        },
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 1
+        }
+      ],
+      "routes": [
+        {
+          "target": 81,
+          "label": "Continuer vers §81"
+        }
+      ]
+    },
+    "331": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Troll H8/E8. Victoire → §287.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Troll",
+            "skill": 8,
+            "stamina": 8
+          }
+        ],
+        "victory_target": 287
+      }
+    },
+    "332": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 329,
+          "label": "Continuer vers §329"
+        },
+        {
+          "target": 4,
+          "label": "Continuer vers §4"
+        }
+      ]
+    },
+    "333": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Troll Vampire H10/E10. Victoire → §327.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Troll Vampire",
+            "skill": 10,
+            "stamina": 10
+          }
+        ],
+        "victory_target": 327,
+        "escape_target": 380,
+        "escape_after_assaults": 6,
+        "escape_luck_interval": 6,
+        "hypnosis_target": 224
+      }
+    },
+    "334": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Chandelle bleue facultative à 20 PO ; sortie §292.",
+      "options": [
+        {
+          "id": "chandelle",
+          "label": "Acheter une Chandelle bleue (20 PO)",
+          "when": {
+            "kind": "min_stat",
+            "key": "gold",
+            "value": 20
+          },
+          "effects": [
+            {
+              "kind": "stat",
+              "key": "gold",
+              "amount": -20
+            },
+            {
+              "kind": "item",
+              "name": "Chandelle bleue"
+            }
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "target": 292,
+          "label": "Continuer vers §292"
+        }
+      ]
+    },
+    "335": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 182,
+          "label": "Continuer vers §182"
+        }
+      ]
+    },
+    "336": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 66,
+          "label": "Continuer vers §66"
+        },
+        {
+          "target": 172,
+          "label": "Continuer vers §172"
+        },
+        {
+          "target": 249,
+          "label": "Continuer vers §249"
+        }
+      ]
+    },
+    "337": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 267,
+          "label": "Continuer vers §267"
+        }
+      ]
+    },
+    "338": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Cyclope de Fer H10/E10. Victoire → §75.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Cyclope de Fer",
+            "skill": 10,
+            "stamina": 10
+          }
+        ],
+        "victory_target": 75,
+        "escape_target": 93
+      }
+    },
+    "339": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Fléchette empoisonnée : perdre 1d6 Endurance ; si vivant → §201.",
+      "roll": {
+        "dice": 1,
+        "branches": [
+          {
+            "when": "otherwise",
+            "target": 201,
+            "effects": []
+          }
+        ],
+        "roll_effects": [
+          {
+            "key": "endurance",
+            "multiplier": -1
+          }
+        ]
+      }
+    },
+    "340": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Choix vérifiés ; les objets doivent être possédés pour être brandis ou jetés.",
+      "routes": [
+        {
+          "target": 388,
+          "label": "Lacérer le tableau avec une épée",
+          "when": {
+            "kind": "any",
+            "conditions": [
+              {
+                "kind": "has_item",
+                "name": "Épée"
+              },
+              {
+                "kind": "has_item",
+                "name": "Épée magique"
+              },
+              {
+                "kind": "has_item",
+                "name": "Épée trouvée dans la rivière"
+              }
+            ]
+          }
+        },
+        {
+          "target": 31,
+          "label": "Brandir la pierre du Cyclope",
+          "when": {
+            "kind": "has_item",
+            "name": "Pierre précieuse de la statue"
+          }
+        },
+        {
+          "target": 241,
+          "label": "Transpercer avec un épieu",
+          "when": {
+            "kind": "any",
+            "conditions": [
+              {
+                "kind": "has_item",
+                "name": "Cinq piquets de bois"
+              },
+              {
+                "kind": "has_item",
+                "name": "Épieu"
+              }
+            ]
+          }
+        },
+        {
+          "target": 45,
+          "label": "Jeter du Fromage",
+          "when": {
+            "kind": "has_item",
+            "name": "Fromage"
+          },
+          "effects": [
+            {
+              "kind": "remove_item",
+              "name": "Fromage"
+            }
+          ]
+        }
+      ]
+    },
+    "341": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 46,
+          "label": "Continuer vers §46"
+        },
+        {
+          "target": 392,
+          "label": "Continuer vers §392"
+        },
+        {
+          "target": 220,
+          "label": "Continuer vers §220"
+        },
+        {
+          "target": 191,
+          "label": "Continuer vers §191"
         }
       ]
     },
@@ -4104,7 +6215,13 @@
           "amount": 2
         }
       ],
-      "note": "Après le Rat-Garou : deux pièces d'or et Chance +2."
+      "note": "Après le Rat-Garou : deux pièces d'or et Chance +2.",
+      "routes": [
+        {
+          "target": 7,
+          "label": "Continuer vers §7"
+        }
+      ]
     },
     "343": {
       "status": "verifie",
@@ -4116,7 +6233,13 @@
           "amount": -1
         }
       ],
-      "note": "Chute dans la fosse : Endurance -1."
+      "note": "Chute dans la fosse : Endurance -1.",
+      "routes": [
+        {
+          "target": 92,
+          "label": "Continuer vers §92"
+        }
+      ]
     },
     "344": {
       "status": "verifie",
@@ -4136,6 +6259,79 @@
         {
           "target": 153,
           "label": "Conserver les deux épées"
+        }
+      ]
+    },
+    "345": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 381,
+          "label": "Continuer vers §381"
+        },
+        {
+          "target": 311,
+          "label": "Continuer vers §311"
+        }
+      ]
+    },
+    "346": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Cartes : choisir 2d6 (pair perd, impair gagne) ou la Chance puis 2d6 si réussite ; gain → Chance +2. Une partie puis §131.",
+      "special": "cards",
+      "routes": []
+    },
+    "347": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 182,
+          "label": "Continuer vers §182"
+        }
+      ]
+    },
+    "348": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Troll au §331 ou Potion d'Invisibilité consommée pour rejoindre §51.",
+      "routes": [
+        {
+          "target": 331,
+          "label": "Continuer vers §331"
+        },
+        {
+          "target": 51,
+          "label": "Boire la Potion d’Invisibilité",
+          "effects": [
+            {
+              "kind": "remove_item",
+              "name": "Potion d'Invisibilité"
+            }
+          ],
+          "when": {
+            "kind": "has_item",
+            "name": "Potion d'Invisibilité"
+          }
+        }
+      ]
+    },
+    "349": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement vérifiés dans le PDF de référence.",
+      "routes": [
+        {
+          "target": 267,
+          "label": "Continuer vers §267"
+        },
+        {
+          "target": 30,
+          "label": "Continuer vers §30"
         }
       ]
     },
@@ -4178,6 +6374,27 @@
         }
       ],
       "note": "Attaque magique de Zagor : Endurance -3."
+    },
+    "372": {
+      "status": "verifie",
+      "mode": "combat",
+      "note": "Adversaires successifs ; victoire §21.",
+      "combat": {
+        "mode": "sequence",
+        "enemies": [
+          {
+            "name": "Chef des Farfadets",
+            "skill": 7,
+            "stamina": 6
+          },
+          {
+            "name": "Serviteur",
+            "skill": 5,
+            "stamina": 3
+          }
+        ],
+        "victory_target": 21
+      }
     },
     "376": {
       "status": "verifie",
