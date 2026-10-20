@@ -400,7 +400,19 @@
     "8": {
       "status": "verifie",
       "mode": "combat_special",
-      "note": "Barbare H7 E6, fuite possible vers §189, victoire §273."
+      "note": "Barbare H7 E6, fuite possible vers §189, victoire §273.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Barbare",
+            "skill": 7,
+            "stamina": 6
+          }
+        ],
+        "victory_target": 273,
+        "escape_target": 189,
+        "escape_after_assaults": 0
+      }
     },
     "11": {
       "status": "verifie",
@@ -422,12 +434,52 @@
     "16": {
       "status": "verifie",
       "mode": "combat_special",
-      "note": "Ogre H8 E10 ; fuite seulement après le deuxième assaut, vers §269."
+      "note": "Ogre H8 E10 ; fuite seulement après le deuxième assaut, vers §269.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Ogre",
+            "skill": 8,
+            "stamina": 10
+          }
+        ],
+        "victory_target": 50,
+        "escape_target": 269,
+        "escape_after_assaults": 2
+      }
     },
     "20": {
       "status": "verifie",
       "mode": "combat_special",
-      "note": "Quatre nains en série ; fuite vers §291."
+      "note": "Quatre nains en série ; fuite vers §291.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Nain 1",
+            "skill": 7,
+            "stamina": 6
+          },
+          {
+            "name": "Nain 2",
+            "skill": 7,
+            "stamina": 7
+          },
+          {
+            "name": "Nain 3",
+            "skill": 4,
+            "stamina": 6
+          },
+          {
+            "name": "Nain 4",
+            "skill": 5,
+            "stamina": 5
+          }
+        ],
+        "victory_target": 376,
+        "escape_target": 291,
+        "mode": "sequence",
+        "note": "Quatre Nains un par un."
+      }
     },
     "25": {
       "status": "verifie",
@@ -684,7 +736,18 @@
     "86": {
       "status": "verifie",
       "mode": "combat_special",
-      "note": "Crocodile H7 E6 : combat limité à deux assauts ; l'issue dépend des règles propres au passage."
+      "note": "Crocodile H7 E6 : combat limité à deux assauts ; l'issue dépend des règles propres au passage.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Crocodile",
+            "skill": 7,
+            "stamina": 6
+          }
+        ],
+        "mode": "limite_assauts",
+        "max_assaults": 2
+      }
     },
     "109": {
       "status": "verifie",
