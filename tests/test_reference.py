@@ -213,11 +213,11 @@ class Reference(unittest.TestCase):
         w.go_to(20)
         self.assertEqual(w.enemy_name.text(), "Nain 1")
         w.go_to(86)
-        # Le Crocodile à deux assauts exige encore un moteur dédié :
-        # aucun combat particulier ne doit l'écraser automatiquement.
-        self.assertEqual(w.enemy_name.text(), "Nain 1")
+        # Le combat limité ne modifie pas la progression des Nains.
+        self.assertEqual(w.enemy_name.text(), "Crocodile")
         self.assertEqual(w.prepared_book_encounters, set())
         self.assertEqual(w.book_combat_sequence["index"], 0)
+        self.assertEqual(w.crocodile_combat["assaults"], 0)
 
     def test_holy_water_restores_to_floor_without_lowering_current_stats(self):
         from book_events import DATA_PATH, apply_entry
@@ -439,7 +439,7 @@ class Reference(unittest.TestCase):
             dice.assert_not_called()
         w.choose_crocodile_strategy("diversion")
         self.assertEqual(w.crocodile_combat["phase"], "diversion")
-        with patch.object(w, "_roll", return_value=([3, 3], 6)), \\
+        with patch.object(w, "_roll", return_value=([3, 3], 6)), \
                 patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
             w.combat_round()
         self.assertEqual(w.current_paragraph, 350)
@@ -456,13 +456,13 @@ class Reference(unittest.TestCase):
         w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
         w.paragraphs = {86: "Le Crocodile.", 259: "Victoire.", 350: "Remous."}
         w.go_to(86)
-        with patch.object(w, "_roll", return_value=([3, 3], 6)), \\
+        with patch.object(w, "_roll", return_value=([3, 3], 6)), \
                 patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
             w.combat_round()
             w.combat_round()
         w.choose_crocodile_strategy("continue")
         self.assertEqual(w.crocodile_combat["phase"], "continue")
-        with patch.object(w, "_roll", return_value=([3, 3], 6)), \\
+        with patch.object(w, "_roll", return_value=([3, 3], 6)), \
                 patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
             w.combat_round()
         self.assertEqual(w.current_paragraph, 259)
