@@ -793,7 +793,9 @@ class MainWindow(QMainWindow):
                 self.event_layout.addWidget(QLabel(
                     f"Piranhas préparés · H 5 / E {self.piranha_combat['stamina']}."
                     " Combattez-les avec les commandes d'assaut."))
-        monsters = encounters(text)
+        # Le §350 possède deux profils conditionnels : la détection générique
+        # ne doit pas permettre de remplacer le profil obtenu par les règles.
+        monsters = [] if (self.current_paragraph == 350 and self.piranha_combat) else encounters(text)
         if monsters:
             self.event_layout.addWidget(QLabel("⚔ Rencontres détectées (à confirmer)"))
             for monster in monsters:
