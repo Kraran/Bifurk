@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -192,6 +192,7 @@ class MainWindow(QMainWindow):
         self.prepared_book_encounters = set()
         self.book_combat_sequence = None
         self.crocodile_combat = None
+        self.book_combat_assaults = {}
         self.paragraphs = {}
         self.current_paragraph = None
         self.visited_paragraphs = []
@@ -638,6 +639,7 @@ class MainWindow(QMainWindow):
         self.prepared_book_encounters = set()
         self.book_combat_sequence = None
         self.crocodile_combat = None
+        self.book_combat_assaults = {}
         self.paragraphs = paragraphs
         if self.illustration_catalogue is None:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
@@ -701,10 +703,14 @@ class MainWindow(QMainWindow):
         self._clear_dynamic_layout(self.choice_layout)
         choices = self._paragraph_choices(text)
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        escape_target = entry.get("combat", {}).get("escape_target") if entry else None
         if entry and "routes" in entry:
             # Ne présenter que les chemins permis par les objets et ressources actuels.
             choices = [{"target": route["target"], "label": route["label"]}
                        for route in available_routes(self.character, entry)]
+        if escape_target is not None:
+            # La sortie par la fuite est exclusivement proposée avec sa pénalité.
+            choices = [c for c in choices if c["target"] != escape_target]
         if not choices:
             self.choice_layout.addWidget(QLabel("Aucune destination explicite détectée dans ce paragraphe."))
         else:
@@ -752,6 +758,14 @@ class MainWindow(QMainWindow):
             diversion_btn = QPushButton("Faire un dernier assaut puis rejoindre le §350")
             diversion_btn.clicked.connect(lambda checked=False: self.choose_crocodile_strategy("diversion"))
             self.event_layout.addWidget(diversion_btn)
+        if escape_target is not None:
+            combat_rules = entry["combat"]
+            permitted = flee_available(combat_rules, self.book_combat_assaults.get(self.current_paragraph, 0),
+                                       self.enemy_endurance.value(), self.character["endurance"])
+            btn = QPushButton(f"Fuir le combat (pénalité obligatoire) → §{escape_target}")
+            btn.setEnabled(permitted and escape_target in self.paragraphs)
+            btn.clicked.connect(lambda checked=False, n=self.current_paragraph: self.escape_scripted_combat(n))
+            self.event_layout.addWidget(btn)
         monsters = encounters(text)
         if monsters:
             self.event_layout.addWidget(QLabel("⚔ Rencontres détectées (à confirmer)"))
@@ -769,6 +783,8 @@ class MainWindow(QMainWindow):
             note.setWordWrap(True)
             self.event_layout.addWidget(note)
         for label, target in combat['exits']:
+            if target == escape_target:
+                continue  # Ne pas créer un lien de fuite sans pénalité.
             button = QPushButton(f'Issue possible — {label} → §{target}')
             button.setEnabled(target in self.paragraphs)
             button.setToolTip('Vérifiez que cette issue est bien applicable avant de voyager.')
@@ -1044,6 +1060,9 @@ class MainWindow(QMainWindow):
             return
         target = int(match.group(1))
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if entry and target == entry.get("combat", {}).get("escape_target"):
+            self.escape_scripted_combat(self.current_paragraph)
+            return
         if entry and "routes" in entry:
             allowed = {route["target"] for route in available_routes(self.character, entry)}
             if target not in allowed:
@@ -1143,6 +1162,10 @@ class MainWindow(QMainWindow):
         if (self.crocodile_combat
                 and self.current_paragraph == self.crocodile_combat["paragraph"]):
             self.crocodile_combat["assaults"] += 1
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if entry and "escape_target" in entry.get("combat", {}):
+            number = self.current_paragraph
+            self.book_combat_assaults[number] = self.book_combat_assaults.get(number, 0) + 1
         self.combat_journal.insertItem(0, f"Vous {player_rolls} = {player_attack} | Ennemi {enemy_rolls} = {enemy_attack} | {outcome}")
         self.combat_state.setText(f"⚔  {self.enemy_name.text()} • Endurance {self.enemy_endurance.value()} | Héros {self.character['endurance']}")
         while self.combat_journal.count() > 60:
@@ -1184,6 +1207,41 @@ class MainWindow(QMainWindow):
             else:
                 self.rules_log.setText(
                     f"Tous les adversaires vaincus. Ouvrez manuellement le §{target}.")
+
+    def escape_scripted_combat(self, number):
+        """Fuite vérifiée : restriction d'assauts, blessure, Chance puis navigation."""
+        if number != self.current_paragraph:
+            return
+        entry = verified_entry(self.book_event_catalogue, number)
+        rules = entry.get("combat", {}) if entry else {}
+        target = rules.get("escape_target")
+        if (target not in self.paragraphs or not flee_available(
+                rules, self.book_combat_assaults.get(number, 0),
+                self.enemy_endurance.value(), self.character["endurance"])):
+            return
+        attempt = QMessageBox.question(
+            self, "Fuir le combat", "Tenter votre Chance pour la blessure de fuite ?\n"
+            "Sans Chance : -2 Endurance. Chance réussie : -1. Échec : -3.",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        rolls = None
+        if attempt == QMessageBox.Yes:
+            rolls, total = self._roll(2)
+        else:
+            total = None
+        damage, cost = escape_damage(self.character["chance"], total)
+        self.character["chance"] = max(0, self.character["chance"] - cost)
+        self.character["endurance"] = max(0, self.character["endurance"] - damage)
+        if number == 20:
+            self.book_combat_sequence = None
+        self._refresh_character()
+        if self.character["endurance"] <= 0:
+            self.rules_log.setText("La blessure de fuite est mortelle : Endurance à zéro.")
+            self._render_choices_and_events(self.paragraphs[number])
+            return
+        self.go_to(target)
+        self.rules_log.setText(
+            f"Fuite du §{number} vers le §{target} : -{damage} Endurance"
+            + (f", test de Chance {rolls} (Chance -1)." if rolls else "."))
 
     def choose_crocodile_strategy(self, phase):
         state = self.crocodile_combat
@@ -1331,6 +1389,7 @@ class MainWindow(QMainWindow):
                 "prepared_book_encounters": sorted(self.prepared_book_encounters),
                 "book_combat_sequence": copy.deepcopy(self.book_combat_sequence),
                 "crocodile_combat": copy.deepcopy(self.crocodile_combat),
+                "book_combat_assaults": copy.deepcopy(self.book_combat_assaults),
                 "current_paragraph": self.current_paragraph,
                 "visited_paragraphs": list(self.visited_paragraphs),
                 "transitions": copy.deepcopy(self.transitions),
@@ -1368,6 +1427,7 @@ class MainWindow(QMainWindow):
             self.prepared_book_encounters = set(state.get("prepared_book_encounters", []))
             self.book_combat_sequence = copy.deepcopy(state.get("book_combat_sequence"))
             self.crocodile_combat = copy.deepcopy(state.get("crocodile_combat"))
+            self.book_combat_assaults = {int(k): int(v) for k, v in state.get("book_combat_assaults", {}).items()}
             self.visited_paragraphs = list(state["visited_paragraphs"])
             self.transitions = copy.deepcopy(state.get("transitions", []))
             self._refresh_character()
@@ -1533,6 +1593,7 @@ class MainWindow(QMainWindow):
                            "prepared_book_encounters": data.get("prepared_book_encounters", []),
                            "book_combat_sequence": data.get("book_combat_sequence"),
                            "crocodile_combat": data.get("crocodile_combat"),
+                           "book_combat_assaults": data.get("book_combat_assaults", {}),
                            "visited_paragraphs": data.get("visited_paragraphs", []),
                            "transitions": data.get("transitions", []),
                            "current_paragraph": data.get("current_paragraph")})
@@ -1556,6 +1617,8 @@ def _track_action(method, label):
             result = method(self, *args, **kwargs)
             if method.__name__ == "combat_round" and depth == 0:
                 self._finish_crocodile_round()
+                if self.current_paragraph in (8, 16, 20) and self.current_paragraph in self.paragraphs:
+                    self._render_choices_and_events(self.paragraphs[self.current_paragraph])
             return result
         finally:
             self._action_depth -= 1
@@ -1566,6 +1629,7 @@ def _track_action(method, label):
 for _name, _label in {
     "go_to": "Changer de paragraphe", "apply_detected_event": "Appliquer un événement",
     "resolve_book_roll": "Résoudre une épreuve du livre",
+    "escape_scripted_combat": "Fuir un combat du livre",
     "choose_crocodile_strategy": "Choisir une stratégie contre le Crocodile",
     "apply_optional_book_event": "Choisir une récompense du livre",
     "create_character": "Créer un personnage", "test_luck": "Tenter sa Chance",
