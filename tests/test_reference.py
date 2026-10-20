@@ -2368,6 +2368,33 @@ class Reference(unittest.TestCase):
         w.follow_catalogue_choice(120)
         self.assertEqual(w.current_paragraph, 120)
 
+    def test_reader_links_are_handled_by_bifurk_not_qtextbrowser(self):
+        from PySide6.QtCore import QUrl
+        w = self.window
+        self.assertFalse(w.reader.openLinks())
+        self.assertFalse(w.reader.openExternalLinks())
+        w.paragraphs = {212: "Boire au 369 ou continuer au 120.",
+                        369: "Bouteille.", 120: "Couloir."}
+        w.go_to(212)
+        with patch.object(w.reader, "setSource") as native_navigation:
+            w.reader.anchorClicked.emit(QUrl("paragraph:369"))
+            native_navigation.assert_not_called()
+        self.assertEqual(w.current_paragraph, 369)
+
+    def test_reader_links_preserve_212_revisit_protection(self):
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.paragraphs = {212: "Boire au 369 ou continuer au 120.",
+                        369: "Bouteille.", 120: "Couloir."}
+        w.go_to(212)
+        w.reader.anchorClicked.emit(QUrl("paragraph:369"))
+        w.go_to(212)
+        self.assertEqual(w.current_paragraph, 212)
+        with patch.object(QMessageBox, "information") as alert:
+            w.reader.anchorClicked.emit(QUrl("paragraph:369"))
+            alert.assert_called_once()
+        self.assertEqual(w.current_paragraph, 212)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
