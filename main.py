@@ -890,12 +890,27 @@ class MainWindow(QMainWindow):
         dice = entry["roll"]["dice"]
         rolls, total = self._roll(dice)
         outcome = resolve_roll(entry["roll"], total, self.character)
+        if outcome["target"] not in self.paragraphs:
+            QMessageBox.warning(self, "Paragraphe absent",
+                                f"Impossible de résoudre l'épreuve : §{outcome['target']} non chargé.")
+            return
+        followup = outcome.get("followup")
+        extra_text = ""
+        extra_effects = []
+        if followup:
+            if followup["kind"] != "stat" or followup["key"] != "gold" or followup["dice"] not in (1, 2):
+                raise ValueError("Deuxième tirage non pris en charge")
+            extra_rolls, extra_total = self._roll(followup["dice"])
+            extra_effects = [{"kind": "stat", "key": "gold", "amount": extra_total}]
+            extra_text = f" ; gains : {extra_rolls} = {extra_total} pièces d'or"
         self.completed_book_events.add(number)
-        # On compare le jet à la Chance AVANT d'en dépenser un point.
+        # Le seuil de Chance est évalué AVANT de consommer un point.
         apply_effects(self.character, entry["roll"].get("pre_effects", []))
         apply_effects(self.character, outcome.get("effects", []))
+        apply_effects(self.character, extra_effects)
         self._refresh_character()
-        self.rules_log.setText(f"Épreuve §{number} : dés {rolls} = {total} ; destination §{outcome['target']}.")
+        self.rules_log.setText(
+            f"Épreuve §{number} : dés {rolls} = {total}{extra_text} ; destination §{outcome['target']}.")
         self.go_to(outcome["target"])
 
     def go_to(self, number):
