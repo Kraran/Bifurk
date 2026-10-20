@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 150 paragraphes vérifiés ponctuellement ; 250 à étudier et valider individuellement.
-- 29 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 121 paragraphes conditionnels, jets de dés ou combats particuliers. 16 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 209, 243, 389.
+- 167 paragraphes vérifiés ponctuellement ; 233 à étudier et valider individuellement.
+- 32 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
+- 135 paragraphes conditionnels, jets de dés ou combats particuliers. 17 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 195, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -228,3 +228,15 @@ Les passages complexes §125 (tests de Chance répétés), §130 (pari), §139 (
 - **Itinéraires vérifiés** : §§157, 160, 162, 164, 167, 168, 169, 171, 174, 175, 176, 177, 178 et 180. Le §168 propose trois stratégies devant le Chef des Farfadets ; le §177 offre trois chemins distincts. Aucune dépense ou récompense non mentionnée n'est créée.
 
 Six nouveaux tests couvrent les routes, les six faces du dé §166, la préparation et la victoire contre les Piranhas, le blocage des renvois prématurés, les quatre choix du §218 et Undo. Les autres passages exigeant des combats spécifiques ou des règles de ressources sont laissés en attente.
+
+### Revues §§181–210 : Rat-garou, mensonge aux Squelettes et caractéristiques
+
+- **§181** : Habileté -1 automatiquement (douleur), puis mur ouest §355 ou nord §265.
+- **§183** : après les Farfadets, Habileté +1 et Endurance +5, chacune plafonnée au maximum initial ; choix facultatif d'ouvrir la mallette §266 ou de partir §237.
+- **§184** : tiroirs §322 ou outils §34. **§185** : après le bonus de Chance +2 déjà enregistré, sortie §162.
+- **§188** : Rat-garou H8/E5, victoire §342 ou fuite immédiate §209 avec le coût normal de fuite, réversible par Undo. La sortie victoire est inaccessible avant la défaite.
+- **§195** : un dé obligatoire ; 1–2 → §140 ; 3–4 → §164 ; 5–6 → §9 et Chance +2. Le gain n'est appliqué qu'à cette dernière branche, une fois.
+- **§196** : 5 pièces d'or acquises automatiquement dans le tiroir, une seule fois ; retour §280.
+- **Autres embranchements** : §§187, 190, 191, 193, 194, 197, 200, 205, 207, 208 et 210. Les renvois §§203 et 185 ont été complétés sans modifier leurs récompenses déjà enregistrées.
+
+Six tests supplémentaires couvrent les routes, les six faces du jet §195, la Chance et Undo, le Rat-garou (fuite et victoire), les sorties bloquées ainsi que les plafonds des récompenses automatiques. Les paragraphes §§182, 198, 199, 201 et 206 restent à examiner en profondeur, car ils demandent des mécaniques plus complexes.
