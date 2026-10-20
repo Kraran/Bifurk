@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 133,
+  "reviewed_count": 149,
   "review_pending": [
     1,
     4,
@@ -50,29 +50,13 @@
     140,
     144,
     151,
-    157,
-    158,
     159,
-    160,
     161,
-    162,
     163,
-    164,
     165,
-    166,
-    167,
-    168,
-    169,
-    171,
     172,
     173,
-    174,
-    175,
-    176,
-    177,
-    178,
     179,
-    180,
     181,
     182,
     183,
@@ -2204,6 +2188,141 @@
         ]
       }
     },
+    "157": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §4, §329.",
+      "routes": [
+        {
+          "label": "Suivre le passage vers le nord",
+          "target": 4
+        },
+        {
+          "label": "Ne pas franchir la porte",
+          "target": 329
+        }
+      ]
+    },
+    "158": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Piranhas H5/E5 combattus comme une seule créature ; combat jusqu'à la victoire, puis §218 où le héros peut prendre un repas.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Piranhas",
+            "skill": 5,
+            "stamina": 5
+          }
+        ],
+        "victory_target": 218
+      }
+    },
+    "160": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §267.",
+      "routes": [
+        {
+          "label": "Rejoindre la croisée des chemins",
+          "target": 267
+        }
+      ]
+    },
+    "162": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §23, §69.",
+      "routes": [
+        {
+          "label": "Poursuivre au nord",
+          "target": 23
+        },
+        {
+          "label": "Prendre le passage ouest",
+          "target": 69
+        }
+      ]
+    },
+    "164": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §129, §236.",
+      "routes": [
+        {
+          "label": "Battre en retraite vers la porte",
+          "target": 129
+        },
+        {
+          "label": "Attaquer les Squelettes",
+          "target": 236
+        }
+      ]
+    },
+    "166": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Traversée à la nage : un dé. 1 à 4 → rive sud §218 ; 5 ou 6 → Piranhas §158. Aucune perte supplémentaire indiquée ici.",
+      "roll": {
+        "dice": 1,
+        "branches": [
+          {
+            "when": "lte",
+            "value": 4,
+            "target": 218
+          },
+          {
+            "when": "otherwise",
+            "target": 158
+          }
+        ]
+      }
+    },
+    "167": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §187, §359.",
+      "routes": [
+        {
+          "label": "Franchir la porte secrète",
+          "target": 187
+        },
+        {
+          "label": "Refermer la porte et revenir au croisement",
+          "target": 359
+        }
+      ]
+    },
+    "168": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §372, §65, §293.",
+      "routes": [
+        {
+          "label": "Attaquer les deux Farfadets",
+          "target": 372
+        },
+        {
+          "label": "Bondir sur le Chef",
+          "target": 65
+        },
+        {
+          "label": "Quitter la pièce",
+          "target": 293
+        }
+      ]
+    },
+    "169": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §400.",
+      "routes": [
+        {
+          "label": "Ouvrir le coffre après avoir placé les clés",
+          "target": 400
+        }
+      ]
+    },
     "170": {
       "status": "verifie",
       "mode": "automatique",
@@ -2212,6 +2331,111 @@
         {
           "kind": "item",
           "name": "Crucifix en argent (valeur 4 PO)"
+        }
+      ]
+    },
+    "171": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §337, §187.",
+      "routes": [
+        {
+          "label": "Examiner le mur de l'impasse",
+          "target": 337
+        },
+        {
+          "label": "Retourner au sud",
+          "target": 187
+        }
+      ]
+    },
+    "174": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §198.",
+      "routes": [
+        {
+          "label": "Poursuivre",
+          "target": 198
+        }
+      ]
+    },
+    "175": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §177, §267.",
+      "routes": [
+        {
+          "label": "Franchir la porte est",
+          "target": 177
+        },
+        {
+          "label": "Poursuivre vers le croisement",
+          "target": 267
+        }
+      ]
+    },
+    "176": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §270, §375.",
+      "routes": [
+        {
+          "label": "Entrer dans la caverne",
+          "target": 270
+        },
+        {
+          "label": "Revenir à la bifurcation",
+          "target": 375
+        }
+      ]
+    },
+    "177": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §52, §391, §175.",
+      "routes": [
+        {
+          "label": "Suivre le passage vers le nord",
+          "target": 52
+        },
+        {
+          "label": "Suivre le passage vers le sud",
+          "target": 391
+        },
+        {
+          "label": "Franchir la porte secrète à l'ouest",
+          "target": 175
+        }
+      ]
+    },
+    "178": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §162.",
+      "routes": [
+        {
+          "label": "Franchir la porte nord",
+          "target": 162
+        }
+      ]
+    },
+    "180": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Directions vérifiées du PDF original : §70, §329, §22.",
+      "routes": [
+        {
+          "label": "Retourner à l'est",
+          "target": 70
+        },
+        {
+          "label": "Retourner au nord",
+          "target": 329
+        },
+        {
+          "label": "Examiner le cul-de-sac",
+          "target": 22
         }
       ]
     },
