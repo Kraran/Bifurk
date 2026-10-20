@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 226,
+  "reviewed_count": 244,
   "review_pending": [
     1,
     4,
@@ -80,34 +80,16 @@
     282,
     286,
     289,
-    291,
     292,
-    293,
     294,
     295,
     296,
-    297,
-    298,
-    299,
-    300,
-    301,
-    302,
-    303,
-    304,
     305,
     306,
-    307,
-    308,
     309,
     311,
-    312,
     313,
-    314,
-    315,
-    316,
-    318,
     319,
-    320,
     321,
     322,
     323,
@@ -3797,6 +3779,196 @@
         }
       ]
     },
+    "291": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §315, §52, §227.",
+      "routes": [
+        {
+          "target": 315,
+          "label": "Examiner le cul-de-sac est"
+        },
+        {
+          "target": 52,
+          "label": "Revenir à la bifurcation ouest"
+        },
+        {
+          "target": 227,
+          "label": "Essayer la porte au nord"
+        }
+      ]
+    },
+    "293": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §113.",
+      "routes": [
+        {
+          "target": 113,
+          "label": "Prendre le passage est"
+        }
+      ]
+    },
+    "297": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §150, §256.",
+      "routes": [
+        {
+          "target": 150,
+          "label": "Partir vers l'ouest"
+        },
+        {
+          "target": 256,
+          "label": "Partir vers l'est"
+        }
+      ]
+    },
+    "298": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Pont glissant : 1d6 ; seul 6 provoque une chute dans la rivière au §86 ; autre résultat §7.",
+      "roll": {
+        "dice": 1,
+        "branches": [
+          {
+            "when": "eq",
+            "value": 6,
+            "target": 86
+          },
+          {
+            "when": "otherwise",
+            "target": 7
+          }
+        ]
+      }
+    },
+    "299": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §260, §359.",
+      "routes": [
+        {
+          "target": 260,
+          "label": "Chercher des passages secrets"
+        },
+        {
+          "target": 359,
+          "label": "Poursuivre au nord"
+        }
+      ]
+    },
+    "300": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §102, §303.",
+      "routes": [
+        {
+          "target": 102,
+          "label": "Essayer la porte métallique"
+        },
+        {
+          "target": 303,
+          "label": "Continuer le couloir"
+        }
+      ]
+    },
+    "301": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §82, §208.",
+      "routes": [
+        {
+          "target": 82,
+          "label": "Ouvrir la porte aux ronflements"
+        },
+        {
+          "target": 208,
+          "label": "Continuer au nord"
+        }
+      ]
+    },
+    "302": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §198.",
+      "routes": [
+        {
+          "target": 198,
+          "label": "Poursuivre au §198"
+        }
+      ]
+    },
+    "303": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §128, §243.",
+      "routes": [
+        {
+          "target": 128,
+          "label": "Tirer le levier de droite"
+        },
+        {
+          "target": 243,
+          "label": "Tirer le levier de gauche"
+        }
+      ]
+    },
+    "304": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Loup-garou H8/E8. Fuite possible par la porte sud vers §66 selon les règles générales de fuite ; victoire §203.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Loup-garou",
+            "skill": 8,
+            "stamina": 8
+          }
+        ],
+        "victory_target": 203,
+        "escape_target": 66,
+        "escape_after_assaults": 0
+      }
+    },
+    "307": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §134, §87.",
+      "routes": [
+        {
+          "target": 134,
+          "label": "Essayer la porte de fer"
+        },
+        {
+          "target": 87,
+          "label": "Revenir à la bifurcation"
+        }
+      ]
+    },
+    "308": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §187, §54, §160, §354.",
+      "routes": [
+        {
+          "target": 187,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 54,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 160,
+          "label": "Aller au sud"
+        },
+        {
+          "target": 354,
+          "label": "Aller à l'est"
+        }
+      ]
+    },
     "310": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -3807,6 +3979,66 @@
           "label": "Poursuivre après avoir constaté l'invulnérabilité de l'Être"
         }
       ]
+    },
+    "312": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §308.",
+      "routes": [
+        {
+          "target": 308,
+          "label": "Rejoindre le croisement"
+        }
+      ]
+    },
+    "314": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §223, §300.",
+      "routes": [
+        {
+          "target": 223,
+          "label": "Ouvrir la porte est"
+        },
+        {
+          "target": 300,
+          "label": "Poursuivre dans le couloir"
+        }
+      ]
+    },
+    "315": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §306, §291.",
+      "routes": [
+        {
+          "target": 306,
+          "label": "Chercher un passage secret"
+        },
+        {
+          "target": 291,
+          "label": "Revenir dans le couloir"
+        }
+      ]
+    },
+    "316": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Nage : 2d6 comparés à l'Endurance, réussite §151, échec §218 où un repas est possible.",
+      "roll": {
+        "dice": 2,
+        "branches": [
+          {
+            "when": "lte_stat",
+            "key": "endurance",
+            "target": 151
+          },
+          {
+            "when": "otherwise",
+            "target": 218
+          }
+        ]
+      }
     },
     "317": {
       "status": "verifie",
@@ -3828,6 +4060,32 @@
         {
           "target": 303,
           "label": "Quitter la pièce vers le nord"
+        }
+      ]
+    },
+    "318": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §85, §228.",
+      "routes": [
+        {
+          "target": 85,
+          "label": "Revenir au croisement"
+        },
+        {
+          "target": 228,
+          "label": "Chercher un passage secret"
+        }
+      ]
+    },
+    "320": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF français 1982 : §363.",
+      "routes": [
+        {
+          "target": 363,
+          "label": "Poursuivre dans le couloir nord"
         }
       ]
     },
