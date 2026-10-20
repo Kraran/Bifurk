@@ -157,6 +157,44 @@ def take_moon_shield(character, discarded_item):
     return True
 
 
+
+def trade_inventory_item(character, new_item, discarded_item):
+    """Un seul échange, sans abandonner un objet maudit ni créer un doublon."""
+    inventory = character.setdefault("inventory", [])
+    if (not new_item or new_item in inventory or discarded_item == new_item
+            or discarded_item not in inventory
+            or discarded_item in character.get("locked_items", [])):
+        return False
+    # Réutilise la procédure de retrait des armes et du bouclier.
+    if character.get("equipped_weapon") == discarded_item:
+        if discarded_item == "Épée magique" and character.get("magic_sword_bonus_active"):
+            character.setdefault("initial", {})["habilete"] = max(
+                0, int(character["initial"]["habilete"]) - 2)
+            character["habilete"] = max(0, int(character["habilete"]) - 2)
+            character["magic_sword_bonus_active"] = False
+        character["equipped_weapon"] = None
+    if discarded_item == SHIELD_NAME:
+        character["shield_equipped"] = False
+    inventory.remove(discarded_item)
+    inventory.append(new_item)
+    return True
+
+
+def follow_catalogue_route(character, entry, target):
+    """Vérifie et paie une route cataloguée avant toute navigation."""
+    route = next((r for r in available_routes(character, entry)
+                  if r["target"] == target), None)
+    if route is None:
+        return False
+    cost = route.get("cost")
+    if cost is not None:
+        key, amount = cost["key"], int(cost["amount"])
+        if amount < 0 or int(character.get(key, 0)) < amount:
+            return False
+        character[key] -= amount
+    return True
+
+
 def shield_damage(damage, shield_roll):
     """Le bouclier §155 réduit une blessure de 1 sur un 6 (2→1, 1→0)."""
     if not 1 <= shield_roll <= 6:
