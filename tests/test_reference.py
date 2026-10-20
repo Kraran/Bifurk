@@ -314,6 +314,56 @@ class Reference(unittest.TestCase):
         w.follow_link(QUrl("paragraph:130"))
         self.assertEqual(w.current_paragraph, 130)
 
+    def test_paragraph_91_success_two_rolls_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {91: "Vous trichez aux cartes.", 131: "Vous partez." , 20: "Les Nains attaquent."}
+        w.character["chance"] = 8
+        w.character["gold"] = 1
+        w.go_to(91)
+        with patch.object(w, "_roll", side_effect=[
+                ([3, 5], 8), ([4, 6], 10)]) as rolls:
+            w.resolve_book_roll(91)
+            self.assertEqual(rolls.call_count, 2)
+        self.assertEqual(w.current_paragraph, 131)
+        self.assertEqual((w.character["chance"], w.character["gold"]), (7, 11))
+        self.assertIn(91, w.completed_book_events)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 91)
+        self.assertEqual((w.character["chance"], w.character["gold"]), (8, 1))
+        self.assertNotIn(91, w.completed_book_events)
+        w.redo_action()
+        self.assertEqual(w.current_paragraph, 131)
+        self.assertEqual((w.character["chance"], w.character["gold"]), (7, 11))
+
+    def test_paragraph_91_failure_one_roll_no_gold(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {91: "Vous trichez aux cartes.", 20: "Les Nains attaquent."}
+        w.character["chance"] = 8
+        w.character["gold"] = 1
+        w.go_to(91)
+        with patch.object(w, "_roll", return_value=([5, 5], 10)) as rolls:
+            w.resolve_book_roll(91)
+            rolls.assert_called_once_with(2)
+        self.assertEqual(w.current_paragraph, 20)
+        self.assertEqual((w.character["chance"], w.character["gold"]), (7, 1))
+
+    def test_scripted_roll_missing_destination_does_not_spend_luck(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {91: "Vous trichez aux cartes."}
+        w.go_to(91)
+        with patch.object(w, "_roll", return_value=([1, 1], 2)), patch.object(QMessageBox, "warning"):
+            w.resolve_book_roll(91)
+        self.assertEqual(w.current_paragraph, 91)
+        self.assertEqual(w.character["chance"], 8)
+        self.assertEqual(w.character["gold"], 1)
+        self.assertNotIn(91, w.completed_book_events)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
