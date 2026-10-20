@@ -1264,7 +1264,30 @@
     "350": {
       "status": "verifie",
       "mode": "combat_special",
-      "note": "Piranhas : si le Crocodile a été blessé, Piranhas H5/E1 ; sinon 1d6 (1-2 : H5/E5 ; 3-6 : H5/E1). Victoire → §7, Chance +1 puis repas facultatif ; moteur dédié encore nécessaire."
+      "note": "Piranhas : si Crocodile blessé au §86, H5/E1 sans dé ; sinon 1d6 : 1–2 H5/E5, 3–6 H5/E1. Victoire → §7 et Chance +1 ; repas facultatif après arrivée.",
+      "combat": {
+        "mode": "piranhas",
+        "enemies": [
+          {
+            "name": "Piranhas",
+            "skill": 5,
+            "stamina": 1
+          },
+          {
+            "name": "Piranhas",
+            "skill": 5,
+            "stamina": 5
+          }
+        ],
+        "victory_target": 7,
+        "victory_effects": [
+          {
+            "kind": "stat",
+            "key": "chance",
+            "amount": 1
+          }
+        ]
+      }
     },
     "368": {
       "status": "verifie",
