@@ -1206,6 +1206,8 @@ class MainWindow(QMainWindow):
         self._restoring = True
         try:
             self.character = copy.deepcopy(state["character"])
+            # Les anciennes sauvegardes n'enregistraient pas la pièce d'or initiale.
+            self.character.setdefault("gold", 1)
             self.completed_book_events = set(state.get("completed_book_events", []))
             self.completed_optional_events = set(state.get("completed_optional_events", []))
             self.visited_paragraphs = list(state["visited_paragraphs"])
