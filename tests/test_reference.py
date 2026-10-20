@@ -184,6 +184,38 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.current_paragraph, 118)
         self.assertEqual(w.character["chance"], 7)
 
+    def test_book_combat_is_prepared_once_without_resetting_enemy(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {8: "Le Barbare attaque.", 16: "L'Ogre attaque."}
+        w.go_to(8)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Barbare", 7, 6))
+        w.enemy_endurance.setValue(2)
+        w.go_to(8)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+        w.go_to(16)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Ogre", 8, 10))
+        self.assertEqual(w.prepared_book_encounters, {8, 16})
+        w.undo_action()
+        self.assertEqual(w.enemy_endurance.value(), 2)
+        self.assertEqual(w.prepared_book_encounters, {8})
+        w.redo_action()
+        self.assertEqual(w.enemy_endurance.value(), 10)
+
+    def test_sequence_combat_is_not_falsely_autoprepared(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {20: "Quatre Nains attaquent.", 86: "Le Crocodile."}
+        name = w.enemy_name.text()
+        w.go_to(20)
+        w.go_to(86)
+        self.assertEqual(w.enemy_name.text(), name)
+        self.assertEqual(w.prepared_book_encounters, set())
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
