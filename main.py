@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -192,6 +192,8 @@ class MainWindow(QMainWindow):
         self.prepared_book_encounters = set()
         self.book_combat_sequence = None
         self.crocodile_combat = None
+        self.piranha_source_wounded = None
+        self.piranha_combat = None
         self.book_combat_assaults = {}
         self.paragraphs = {}
         self.current_paragraph = None
@@ -646,6 +648,8 @@ class MainWindow(QMainWindow):
         self.prepared_book_encounters = set()
         self.book_combat_sequence = None
         self.crocodile_combat = None
+        self.piranha_source_wounded = None
+        self.piranha_combat = None
         self.book_combat_assaults = {}
         self.paragraphs = paragraphs
         if self.illustration_catalogue is None:
@@ -984,7 +988,7 @@ class MainWindow(QMainWindow):
             if (combat.get("mode") == "limite_assauts" and self.crocodile_combat is None
                     and number not in self.prepared_book_encounters):
                 self.crocodile_combat = {"paragraph": number, "assaults": 0,
-                                         "phase": "initial"}
+                                         "phase": "initial", "wounded": False}
                 self._set_book_enemy(combat["enemies"][0])
         if not self._restoring and number == 20:
             entry = verified_entry(self.book_event_catalogue, number)
@@ -1302,6 +1306,8 @@ class MainWindow(QMainWindow):
         else:
             self._render_choices_and_events(self.paragraphs[86])
             return
+        if target == 350:
+            self.piranha_source_wounded = bool(state.get("wounded", False))
         self.crocodile_combat = None
         self.prepared_book_encounters.add(86)
         if target in self.paragraphs:
@@ -1352,6 +1358,9 @@ class MainWindow(QMainWindow):
             else:
                 luck_text = ""
             self.enemy_endurance.setValue(max(0, self.enemy_endurance.value() - damage))
+            if (self.crocodile_combat and self.current_paragraph == 86
+                    and damage > 0):
+                self.crocodile_combat["wounded"] = True
             self._refresh_character()
             self.rules_log.setText(f"Vous touchez ({player_attack} contre {enemy_attack}). {luck_text} {self.enemy_name.text()} : -{damage} Endurance.")
             self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, f"Monstre -{damage} PV")
@@ -1479,6 +1488,8 @@ class MainWindow(QMainWindow):
                 "prepared_book_encounters": sorted(self.prepared_book_encounters),
                 "book_combat_sequence": copy.deepcopy(self.book_combat_sequence),
                 "crocodile_combat": copy.deepcopy(self.crocodile_combat),
+                "piranha_source_wounded": self.piranha_source_wounded,
+                "piranha_combat": copy.deepcopy(self.piranha_combat),
                 "book_combat_assaults": copy.deepcopy(self.book_combat_assaults),
                 "current_paragraph": self.current_paragraph,
                 "visited_paragraphs": list(self.visited_paragraphs),
@@ -1518,6 +1529,8 @@ class MainWindow(QMainWindow):
             self.prepared_book_encounters = set(state.get("prepared_book_encounters", []))
             self.book_combat_sequence = copy.deepcopy(state.get("book_combat_sequence"))
             self.crocodile_combat = copy.deepcopy(state.get("crocodile_combat"))
+            self.piranha_source_wounded = state.get("piranha_source_wounded")
+            self.piranha_combat = copy.deepcopy(state.get("piranha_combat"))
             self.book_combat_assaults = {int(k): int(v) for k, v in state.get("book_combat_assaults", {}).items()}
             self.visited_paragraphs = list(state["visited_paragraphs"])
             self.transitions = copy.deepcopy(state.get("transitions", []))
@@ -1684,6 +1697,8 @@ class MainWindow(QMainWindow):
                            "prepared_book_encounters": data.get("prepared_book_encounters", []),
                            "book_combat_sequence": data.get("book_combat_sequence"),
                            "crocodile_combat": data.get("crocodile_combat"),
+                           "piranha_source_wounded": data.get("piranha_source_wounded"),
+                           "piranha_combat": data.get("piranha_combat"),
                            "book_combat_assaults": data.get("book_combat_assaults", {}),
                            "visited_paragraphs": data.get("visited_paragraphs", []),
                            "transitions": data.get("transitions", []),
