@@ -554,6 +554,16 @@ class Reference(unittest.TestCase):
         self.assertTrue(flee_available({"escape_target": 269, "escape_after_assaults": 2}, 2, 10, 20))
         self.assertFalse(flee_available({"escape_target": 269}, 0, 0, 20))
 
+    def test_crocodile_victory_reward_from_paragraph_259(self):
+        from book_events import DATA_PATH, apply_entry
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        character = {"habilete": 7, "chance": 5,
+                     "initial": {"habilete": 10, "chance": 8}, "inventory": []}
+        completed = set()
+        self.assertTrue(apply_entry(character, completed, 259, data))
+        self.assertEqual((character["habilete"], character["chance"]), (8, 7))
+        self.assertFalse(apply_entry(character, completed, 259, data))
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
