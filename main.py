@@ -884,6 +884,8 @@ class MainWindow(QMainWindow):
         rolls, total = self._roll(dice)
         outcome = resolve_roll(entry["roll"], total, self.character)
         self.completed_book_events.add(number)
+        # On compare le jet à la Chance AVANT d'en dépenser un point.
+        apply_effects(self.character, entry["roll"].get("pre_effects", []))
         apply_effects(self.character, outcome.get("effects", []))
         self._refresh_character()
         self.rules_log.setText(f"Épreuve §{number} : dés {rolls} = {total} ; destination §{outcome['target']}.")
