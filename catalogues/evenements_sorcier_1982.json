@@ -518,8 +518,41 @@
     },
     "27": {
       "status": "verifie",
-      "mode": "conditionnel",
-      "note": "Échange facultatif d'épée magique, bonus sur maximum d'Habileté."
+      "mode": "automatique",
+      "note": "L'épée magique est facultative. Chance +2 dans tous les cas ; si elle est prise, maximum ET total actuel d'Habileté +2 et ancienne épée abandonnée.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 2
+        }
+      ],
+      "options": [
+        {
+          "id": "epee_magique",
+          "label": "Échanger mon épée contre l'épée magique (+2 Habileté maximum et actuelle)",
+          "effects": [
+            {
+              "kind": "initial_stat",
+              "key": "habilete",
+              "amount": 2
+            },
+            {
+              "kind": "stat",
+              "key": "habilete",
+              "amount": 2
+            },
+            {
+              "kind": "remove_item",
+              "name": "Épée"
+            },
+            {
+              "kind": "item",
+              "name": "Épée magique"
+            }
+          ]
+        }
+      ]
     },
     "28": {
       "status": "verifie",
@@ -546,12 +579,50 @@
     "31": {
       "status": "verifie",
       "mode": "conditionnel",
-      "note": "Si la pierre précieuse du Cyclope est possédée, elle permet d'affaiblir Zagor puis de gagner 2 Habileté ; ne pas appliquer sans vérifier l'objet."
+      "note": "Le bonus +2 Habileté ne peut être pris que si la pierre précieuse du Cyclope est dans le sac.",
+      "options": [
+        {
+          "id": "utiliser_pierre",
+          "label": "Présenter la pierre du Cyclope au Sorcier (+2 Habileté)",
+          "when": {
+            "kind": "has_item",
+            "name": "Pierre précieuse de la statue"
+          },
+          "effects": [
+            {
+              "kind": "stat",
+              "key": "habilete",
+              "amount": 2
+            }
+          ]
+        }
+      ]
     },
     "32": {
       "status": "verifie",
       "mode": "conditionnel",
-      "note": "Fromage jeté aux rats ; Chance +2 puis §124. Nécessite de décompter le Fromage pour maintenir l'inventaire."
+      "note": "Le Fromage est lancé aux rats et consommé ; Chance +2. La scène n'est exécutable que si le Fromage est présent.",
+      "options": [
+        {
+          "id": "jeter_fromage",
+          "label": "Jeter le Fromage aux rats (consommé ; Chance +2)",
+          "when": {
+            "kind": "has_item",
+            "name": "Fromage"
+          },
+          "effects": [
+            {
+              "kind": "remove_item",
+              "name": "Fromage"
+            },
+            {
+              "kind": "stat",
+              "key": "chance",
+              "amount": 2
+            }
+          ]
+        }
+      ]
     },
     "38": {
       "status": "verifie",
