@@ -3,12 +3,12 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
-    QGroupBox, QLineEdit, QListWidget, QListWidgetItem, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar)
+    QGroupBox, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar)
 
 APP_NAME = "Bifurk — 1.0.13"
 # Répertoire portable : à côté de l'exécutable empaqueté ou du script.
@@ -448,6 +448,9 @@ class MainWindow(QMainWindow):
         self.weapon_combo = QComboBox()
         self.weapon_combo.currentTextChanged.connect(self.change_weapon)
         inv_layout.insertWidget(1, self.weapon_combo)
+        self.shield_check = QCheckBox("Utiliser le bouclier au croissant")
+        self.shield_check.toggled.connect(self.change_shield_use)
+        inv_layout.insertWidget(2, self.shield_check)
         side_layout.addWidget(inv_group, 1)
 
         dice_group = QGroupBox("⚄  DÉS DU DESTIN")
@@ -736,6 +739,10 @@ class MainWindow(QMainWindow):
             self.event_layout.addWidget(notice)
             if scripted["mode"] == "automatique":
                 self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
+            if scripted.get("shield_pickup") and SHIELD_NAME not in self.character.get("inventory", []):
+                btn = QPushButton("Prendre le bouclier (abandonner un objet)")
+                btn.clicked.connect(lambda checked=False: self.take_book_shield())
+                self.event_layout.addWidget(btn)
             for option in available_options(self.character, scripted,
                                             self.completed_optional_events,
                                             self.current_paragraph):
@@ -1085,6 +1092,10 @@ class MainWindow(QMainWindow):
         self.potion_combo.blockSignals(False)
         self.inventory_list.clear()
         self.inventory_list.addItems(self.character.get("inventory", []))
+        self.shield_check.blockSignals(True)
+        self.shield_check.setVisible(SHIELD_NAME in self.character.get("inventory", []))
+        self.shield_check.setChecked(bool(self.character.get("shield_equipped", False)))
+        self.shield_check.blockSignals(False)
         weapon = equipped_weapon(self.character)
         self.weapon_combo.blockSignals(True)
         self.weapon_combo.clear()
@@ -1369,12 +1380,44 @@ class MainWindow(QMainWindow):
                     luck_text = f"Chance ratée ({luck_total}) : blessure aggravée à 3."
             else:
                 luck_text = ""
+            shield_note = ""
+            if self.character.get("shield_equipped") and SHIELD_NAME in self.character.get("inventory", []):
+                shield_rolls, shield_total = self._roll(1)
+                reduced = shield_damage(damage, shield_total)
+                shield_note = f" Bouclier {shield_rolls}: -{damage - reduced} dégât."
+                damage = reduced
             self.character["endurance"] = max(0, self.character["endurance"] - damage)
             self._refresh_character()
-            self.rules_log.setText(f"Le monstre vous touche ({enemy_attack} contre {player_attack}). {luck_text} Vous : -{damage} Endurance.")
+            self.rules_log.setText(f"Le monstre vous touche ({enemy_attack} contre {player_attack}). {luck_text}{shield_note} Vous : -{damage} Endurance.")
             self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, f"Héros -{damage} PV")
             if self.character['endurance'] == 0:
                 self.rules_log.setText(self.rules_log.text() + "  ☠ Votre Endurance est à zéro.")
+
+    def change_shield_use(self, active):
+        if SHIELD_NAME not in self.character.get("inventory", []):
+            return
+        self.character["shield_equipped"] = bool(active)
+        self.rules_log.setText(
+            "Bouclier équipé." if active else "Bouclier rangé dans le sac.")
+
+    def take_book_shield(self):
+        if self.current_paragraph != 155:
+            return
+        entry = verified_entry(self.book_event_catalogue, 155)
+        if not entry or not entry.get("shield_pickup"):
+            return
+        candidates = [x for x in self.character.get("inventory", [])
+                      if x not in self.character.get("locked_items", [])
+                      and x != SHIELD_NAME]
+        if not candidates:
+            QMessageBox.information(self, "Bouclier", "Aucun objet abandonnable.")
+            return
+        item, ok = QInputDialog.getItem(
+            self, "Bouclier au croissant", "Objet à abandonner :", candidates, 0, False)
+        if ok and take_moon_shield(self.character, item):
+            self._refresh_character()
+            self._render_choices_and_events(self.paragraphs[155])
+            self.rules_log.setText(f"Bouclier récupéré ; objet abandonné : {item}.")
 
     def change_weapon(self, name):
         """Équiper une arme présente dans le sac ; opération annulable."""
@@ -1682,7 +1725,9 @@ for _name, _label in {
     "eat_meal": "Prendre un repas", "drink_potion": "Boire une potion",
     "combat_round": "Assaut de combat", "add_item": "Ajouter un objet",
     "remove_item": "Retirer un objet", "change_potion": "Changer de potion",
-    "change_weapon": "Changer d'arme"
+    "change_weapon": "Changer d'arme",
+    "change_shield_use": "Utiliser le bouclier",
+    "take_book_shield": "Prendre le bouclier"
 }.items():
     setattr(MainWindow, _name, _track_action(getattr(MainWindow, _name), _label))
 
