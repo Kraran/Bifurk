@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 47,
+  "reviewed_count": 48,
   "review_pending": [
     1,
     3,
@@ -40,7 +40,6 @@
     48,
     52,
     54,
-    56,
     57,
     58,
     59,
@@ -548,6 +547,9 @@
             {
               "kind": "item",
               "name": "Épée magique"
+            },
+            {
+              "kind": "activate_magic_sword"
             }
           ]
         }
@@ -765,6 +767,21 @@
           }
         ]
       }
+    },
+    "56": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "discard_if_present",
+          "name": "Épée"
+        },
+        {
+          "kind": "equip_weapon",
+          "name": "Épée trouvée dans la rivière"
+        }
+      ],
+      "note": "L'ancienne épée est jetée dans la rivière et le héros conserve la nouvelle arme (+1 Habileté uniquement quand elle est utilisée en combat)."
     },
     "74": {
       "status": "verifie",
