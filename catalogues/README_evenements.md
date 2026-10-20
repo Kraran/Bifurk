@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 107 paragraphes vérifiés ponctuellement ; 293 à étudier et valider individuellement.
+- 121 paragraphes vérifiés ponctuellement ; 279 à étudier et valider individuellement.
 - 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 79 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
+- 93 paragraphes conditionnels, jets de dés ou combats particuliers. 14 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -170,3 +170,14 @@ Les paragraphes **92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 107, 
 Cinq nouveaux tests couvrent les renvois exacts, les trois choix du §97, les trois choix du §102 et son combat séquentiel, la Main, la protection du lien et les retours via annuler.
 
 Le §105, dont les itinéraires nécessitent un objet spécifique, reste volontairement dans la file de revue jusqu'à ce que les noms exacts des objets soient harmonisés ; aucun trajet inventé n'y est ajouté.
+
+### Nouveaux passages §§117 à 142
+
+Quatorze passages supplémentaires sont catalogués : **117, 120, 121, 123, 124, 127, 128, 129, 133, 134, 136, 137, 141 et 142**. Onze paragraphes contiennent uniquement des renvois confirmés, sans récompense fictive.
+
+- **§123** : jet obligatoire d'un dé pour tromper les Squelettes : 1 à 3 → §184 et Chance +2, 4 ou 5 → §164, 6 → §140. Le moteur de dés prend désormais en charge les conditions numériques `lte` et applique le bonus uniquement sur la première branche.
+- **§127** : payer le passeur transformé coûte **5 pièces d'or** et donne accès au §272. Sans les fonds, seul le §188 (combattre) est proposé. Le débit s'effectue en même temps que la navigation, y compris pour les liens du texte.
+- **§134** : choix de casque bronze → §202, fer → §325, ou retour → §87. Le casque en bronze est traité dans son propre paragraphe (§202), où la malédiction est déjà cataloguée.
+- **§142** : Sorcier **Habileté 11 / Endurance 18**, sans fuite. Victoire → §396. Le renvoi n'est pas cliquable avant la défaite de l'adversaire.
+
+Cinq tests supplémentaires couvrent les destinations, les six faces du dé, la Chance et l'annulation, le paiement et le combat final. Les paragraphes §§119, 125, 130, 131, 135, 139, 140 et 143 comportent des interactions plus complexes et restent volontairement à examiner plus profondément.
