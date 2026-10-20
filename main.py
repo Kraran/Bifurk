@@ -753,6 +753,7 @@ class MainWindow(QMainWindow):
             diversion_btn.clicked.connect(lambda checked=False: self.choose_crocodile_strategy("diversion"))
             self.event_layout.addWidget(diversion_btn)
         monsters = encounters(text)
+        if monsters:
             self.event_layout.addWidget(QLabel("⚔ Rencontres détectées (à confirmer)"))
             for monster in monsters:
                 button = QPushButton(f"Préparer le combat : {monster['name']} · H {monster['skill']} / E {monster['stamina']}")
