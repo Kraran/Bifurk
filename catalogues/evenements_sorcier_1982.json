@@ -4372,16 +4372,43 @@
     },
     "249": {
       "status": "verifie",
-      "mode": "conditionnel",
-      "note": "Renvois explicitement vérifiés dans le PDF : §141, §165.",
+      "mode": "combat",
+      "note": "Chien H7/E6 : souffle à chaque assaut (1d6, -1 E sur 1–2), ou esquive avec la Chance. Fuite pendant le combat vers §66 avec pénalité ; victoire : Chance +1, puis sortir §66 sans pénalité ou rester §304.",
+      "combat": {
+        "mode": "fire_breath",
+        "enemies": [
+          {
+            "name": "Chien",
+            "skill": 7,
+            "stamina": 6
+          }
+        ],
+        "escape_target": 66,
+        "victory_fact": "dog249_defeated",
+        "victory_effects": [
+          {
+            "kind": "stat",
+            "key": "chance",
+            "amount": 1
+          }
+        ]
+      },
       "routes": [
         {
-          "target": 141,
-          "label": "Demander des renseignements"
+          "target": 66,
+          "label": "Partir après la victoire",
+          "when": {
+            "kind": "fact",
+            "key": "dog249_defeated"
+          }
         },
         {
-          "target": 165,
-          "label": "Faire remarquer les lacets défaits"
+          "target": 304,
+          "label": "Rester auprès du vieil homme",
+          "when": {
+            "kind": "fact",
+            "key": "dog249_defeated"
+          }
         }
       ]
     },

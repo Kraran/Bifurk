@@ -113,6 +113,43 @@ class BookActions:
         if 369 in self.visited_paragraphs:
             self.character.setdefault('book_facts', {})['holy_water_consumed'] = True
 
+    def _resolve_fire_breath(self):
+        """§249 : une esquive par assaut, indépendante des coups ordinaires."""
+        use_luck = QMessageBox.question(
+            self, 'Souffle de feu du chien',
+            'Tenter votre Chance pour esquiver la flamme ?\n'
+            'Sans Chance : 1d6, blessure de 1 Endurance sur 1 ou 2.\n'
+            'Avec Chance : 2d6, blessure de 1 Endurance uniquement en cas d’échec.',
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if use_luck == QMessageBox.Yes:
+            rolls, total = self._roll(2)
+            hit = total > self.character['chance']
+            self.character['chance'] = max(0, self.character['chance'] - 1)
+            detail = f'Chance {rolls} = {total} (Chance -1)'
+        else:
+            rolls, total = self._roll(1)
+            hit = total <= 2
+            detail = f'1d6 {rolls} = {total}'
+        damage = int(hit)
+        self.character['endurance'] = max(0, self.character['endurance'] - damage)
+        self._refresh_character()
+        note = f'Souffle : {detail}, {damage} dégât.'
+        self.combat_journal.insertItem(0, note)
+        if self.character['endurance'] <= 0:
+            self._log_assault([], [], 0, 0, 'Souffle mortel avant les attaques')
+            self.rules_log.setText(note + ' Votre Endurance est à zéro.')
+            self._book_refresh()
+            return False
+        return True
+
+    def _finish_fire_dog(self, combat):
+        """La victoire donne le bonus une fois ; le joueur choisit sa sortie."""
+        key = combat['victory_fact']
+        if not self.character.get('book_facts', {}).get(key):
+            apply_effects(self.character, combat.get('victory_effects', []))
+            self.character.setdefault('book_facts', {})[key] = True
+        self._book_refresh()
+
     def _enter_complex_book(self, number, previous):
         entry = verified_entry(self.book_event_catalogue, number)
         if not entry:
