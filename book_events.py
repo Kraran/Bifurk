@@ -91,6 +91,26 @@ def available_routes(character, entry):
     return available
 
 
+def flee_available(combat, assaults, enemy_endurance, hero_endurance):
+    """La fuite n'existe que si le livre la permet et le combat se poursuit."""
+    return bool(combat and "escape_target" in combat
+                and assaults >= combat.get("escape_after_assaults", 0)
+                and enemy_endurance > 0 and hero_endurance > 0)
+
+
+def escape_damage(chance, dice_total=None):
+    """Pénalité normale 2 ; avec Chance : 1 si réussite, 3 si échec.
+
+    Renvoie (dégâts, points de Chance dépensés). La comparaison précède
+    la dépense, comme dans les règles de l'édition fournie.
+    """
+    if dice_total is None:
+        return 2, 0
+    if not 2 <= dice_total <= 12:
+        raise ValueError("Un test de Chance utilise deux dés à six faces")
+    return (1 if dice_total <= chance else 3), 1
+
+
 def apply_option(character, completed_options, paragraph, option_id, catalogue):
     """Exécute au plus une fois un choix facultatif explicitement demandé."""
     entry = verified_entry(catalogue, paragraph)
