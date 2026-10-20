@@ -2474,6 +2474,93 @@ class Reference(unittest.TestCase):
         self.assertTrue(follow_catalogue_route(hero, data["paragraphs"]["272"], 7))
         self.assertEqual(hero["gold"], 5)
 
+    def test_verified_routes_291_to_320_match_pdf(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        expected = {
+            291: [315, 52, 227], 293: [113],
+            297: [150, 256], 299: [260, 359],
+            300: [102, 303], 301: [82, 208], 302: [198],
+            303: [128, 243], 307: [134, 87],
+            308: [187, 54, 160, 354], 312: [308],
+            314: [223, 300], 315: [306, 291],
+            318: [85, 228], 320: [363],
+        }
+        for number, targets in expected.items():
+            with self.subTest(paragraph=number):
+                routes = available_routes({}, data["paragraphs"][str(number)])
+                self.assertEqual([route["target"] for route in routes], targets)
+                self.assertEqual(len({route["target"] for route in routes}), len(targets))
+
+    def test_bridge_298_one_die_only_six_causes_fall(self):
+        from book_events import DATA_PATH, resolve_roll
+        catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        roll = catalogue["paragraphs"]["298"]["roll"]
+        self.assertEqual(roll["dice"], 1)
+        for face in range(1, 7):
+            with self.subTest(face=face):
+                outcome = resolve_roll(roll, face, {})
+                self.assertEqual(outcome["target"], 86 if face == 6 else 7)
+                self.assertFalse(outcome.get("effects"))
+
+    def test_swim_316_uses_stamina_not_skill_and_has_no_chance_cost(self):
+        from book_events import DATA_PATH, resolve_roll
+        catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        roll = catalogue["paragraphs"]["316"]["roll"]
+        self.assertEqual(roll["dice"], 2)
+        for face_sum in range(2, 13):
+            with self.subTest(total=face_sum):
+                outcome = resolve_roll(roll, face_sum, {
+                    "endurance": 8, "habilete": 2, "chance": 1})
+                self.assertEqual(outcome["target"], 151 if face_sum <= 8 else 218)
+                self.assertFalse(outcome.get("effects"))
+
+    def test_bridge_298_roll_then_undo_preserves_character(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {298: "Pont glissant.", 86: "Rivière.", 7: "Berge."}
+        w.go_to(298)
+        initial = dict(w.character)
+        with patch.object(w, "_roll", return_value=([6], 6)):
+            w.resolve_book_roll(298)
+        self.assertEqual(w.current_paragraph, 86)
+        self.assertEqual(w.character, initial)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 298)
+        self.assertNotIn(298, w.completed_book_events)
+
+    def test_werewolf_304_fight_can_escape_to_66_or_win_203(self):
+        from book_events import DATA_PATH, flee_available
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {304: "Loup-garou.", 66: "Porte sud.", 203: "Victoire."}
+        w.go_to(304)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Loup-garou", 8, 8))
+        rules = w.book_event_catalogue["paragraphs"]["304"]["combat"]
+        self.assertTrue(flee_available(rules, 0, 8, 20))
+        self.assertTrue(w._combat_exit_pending(203))
+        with patch.object(QMessageBox, "question", return_value=QMessageBox.No):
+            w.escape_scripted_combat(304)
+        self.assertEqual(w.current_paragraph, 66)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 304)
+        self.assertEqual(w.enemy_endurance.value(), 8)
+
+    def test_crossroads_308_four_buttons_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {308: "Croisement.", 187: "Ouest.", 54: "Nord.",
+                        160: "Sud.", 354: "Est."}
+        w.go_to(308)
+        self.assertEqual(w.choice_layout.count(), 4)
+        w.follow_catalogue_choice(160)
+        self.assertEqual(w.current_paragraph, 160)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 308)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
