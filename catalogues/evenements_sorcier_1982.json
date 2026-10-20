@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 121,
+  "reviewed_count": 124,
   "review_pending": [
     1,
     4,
@@ -42,13 +42,10 @@
     116,
     118,
     119,
-    122,
     125,
     126,
     130,
-    131,
     132,
-    135,
     138,
     139,
     140,
@@ -1767,6 +1764,25 @@
         }
       ]
     },
+    "122": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Quatre êtres à la peau grise : parler §268, attaquer §282 ou tenter de fuir §13. Aucun dommage automatique à l'entrée.",
+      "routes": [
+        {
+          "label": "Essayer de parler aux quatre êtres",
+          "target": 268
+        },
+        {
+          "label": "Attaquer les êtres",
+          "target": 282
+        },
+        {
+          "label": "S'enfuir par la porte sud",
+          "target": 13
+        }
+      ]
+    },
     "123": {
       "status": "verifie",
       "mode": "des",
@@ -1863,6 +1879,18 @@
         }
       ]
     },
+    "131": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Rencontre amicale : repas facultatif partagé (1 Provision, +2 Endurance seulement), puis §291.",
+      "optional_meal_restore": 2,
+      "routes": [
+        {
+          "label": "Quitter les amis et poursuivre",
+          "target": 291
+        }
+      ]
+    },
     "133": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -1890,6 +1918,38 @@
         {
           "label": "Revenir à la bifurcation",
           "target": 87
+        }
+      ]
+    },
+    "135": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Victoire sur l'Être : Chance +2 automatiquement ; boîte de 18 pièces d'or facultative ; repas facultatif, puis §360.",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 2
+        }
+      ],
+      "optional_meal": true,
+      "options": [
+        {
+          "id": "or18",
+          "label": "Prendre les 18 pièces d'or de la boîte",
+          "effects": [
+            {
+              "kind": "stat",
+              "key": "gold",
+              "amount": 18
+            }
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "label": "Quitter la pièce par la porte nord",
+          "target": 360
         }
       ]
     },
