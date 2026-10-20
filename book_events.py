@@ -165,6 +165,22 @@ def shield_damage(damage, shield_roll):
 
 
 
+
+def piranha_stamina(crocodile_wounded, die=None):
+    """§350 : 5 Endurance si les Piranhas attaquent le héros, sinon 1.
+
+    Un Crocodile blessé détourne toujours le gros du banc de Piranhas.
+    S'il est indemne, les résultats 1–2 ciblent le héros, 3–6 le reptile.
+    """
+    if crocodile_wounded:
+        return 1
+    if die is None:
+        raise ValueError("Le §350 demande un dé si le Crocodile est indemne")
+    if not 1 <= die <= 6:
+        raise ValueError("Le §350 exige un dé à six faces")
+    return 5 if die <= 2 else 1
+
+
 def resolve_roll(roll, total, character):
     """Résultat déterministe d'un jet défini dans le catalogue."""
     if not 1 <= roll["dice"] <= 2 or not roll["dice"] <= total <= 6 * roll["dice"]:
