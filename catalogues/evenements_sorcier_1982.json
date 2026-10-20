@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 150,
+  "reviewed_count": 167,
   "review_pending": [
     1,
     4,
@@ -57,31 +57,14 @@
     172,
     173,
     179,
-    181,
     182,
-    183,
-    184,
     186,
-    187,
-    188,
     189,
-    190,
-    191,
     192,
-    193,
-    194,
-    195,
-    196,
-    197,
     198,
     199,
-    200,
     201,
-    205,
     206,
-    207,
-    208,
-    210,
     211,
     212,
     213,
@@ -2438,6 +2421,70 @@
         }
       ]
     },
+    "181": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "habilete",
+          "amount": -1
+        }
+      ],
+      "routes": [
+        {
+          "target": 355,
+          "label": "Chercher le mur ouest"
+        },
+        {
+          "target": 265,
+          "label": "Chercher le mur nord"
+        }
+      ],
+      "note": "Douleur supplémentaire : Habileté -1 ; choisir le mur ouest §355 ou nord §265."
+    },
+    "183": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "habilete",
+          "amount": 1
+        },
+        {
+          "kind": "stat",
+          "key": "endurance",
+          "amount": 5
+        }
+      ],
+      "routes": [
+        {
+          "target": 266,
+          "label": "Ouvrir la mallette"
+        },
+        {
+          "target": 237,
+          "label": "Laisser la mallette et sortir"
+        }
+      ],
+      "note": "Après les Farfadets : Habileté +1 et Endurance +5 (plafonnées) ; mallette §266 ou sortie §237."
+    },
+    "184": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 322,
+          "label": "Fouiller les tiroirs"
+        },
+        {
+          "target": 34,
+          "label": "Examiner les outils"
+        }
+      ],
+      "note": "Hangar à Bateaux libre : examiner les tiroirs §322 ou les outils §34."
+    },
     "185": {
       "status": "verifie",
       "mode": "automatique",
@@ -2448,7 +2495,184 @@
           "amount": 2
         }
       ],
-      "note": "Sortie de la salle dallée."
+      "note": "Sortie de la salle dallée.",
+      "routes": [
+        {
+          "target": 162,
+          "label": "Traverser la salle et poursuivre"
+        }
+      ]
+    },
+    "187": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 171,
+          "label": "Explorer le cul-de-sac au nord"
+        },
+        {
+          "target": 308,
+          "label": "Partir vers l'est"
+        }
+      ],
+      "note": "Tournant du couloir : nord §171 ou est §308."
+    },
+    "188": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Rat-garou",
+            "skill": 8,
+            "stamina": 5
+          }
+        ],
+        "victory_target": 342,
+        "escape_target": 209,
+        "escape_after_assaults": 0
+      },
+      "note": "Rat-garou H8/E5 ; victoire §342, fuite immédiate par le pont §209 avec pénalité de fuite."
+    },
+    "190": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 167,
+          "label": "Explorer le cul-de-sac nord"
+        },
+        {
+          "target": 359,
+          "label": "Revenir au croisement"
+        }
+      ],
+      "note": "Impasse au nord §167 ou retour §359."
+    },
+    "191": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 308,
+          "label": "Suivre les indications du Sorcier"
+        },
+        {
+          "target": 392,
+          "label": "Prendre un autre chemin par la porte sud"
+        },
+        {
+          "target": 46,
+          "label": "Sortir par la porte ouest"
+        }
+      ],
+      "note": "Trois itinéraires après les conseils du Sorcier du labyrinthe."
+    },
+    "193": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 93,
+          "label": "Laisser la pierre dans la statue"
+        },
+        {
+          "target": 338,
+          "label": "Essayer de dessertir l'œil précieux du Cyclope"
+        }
+      ],
+      "note": "Statue de Cyclope : laisser le joyau §93 ou tenter de le retirer §338."
+    },
+    "194": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 142,
+          "label": "Dégainer l'épée contre le Sorcier"
+        },
+        {
+          "target": 105,
+          "label": "Chercher un autre moyen dans le sac"
+        }
+      ],
+      "note": "La flèche échoue : affronter le Sorcier §142 ou examiner le sac §105."
+    },
+    "195": {
+      "status": "verifie",
+      "mode": "des",
+      "roll": {
+        "dice": 1,
+        "branches": [
+          {
+            "when": "lte",
+            "value": 2,
+            "target": 140
+          },
+          {
+            "when": "lte",
+            "value": 4,
+            "target": 164
+          },
+          {
+            "when": "otherwise",
+            "target": 9,
+            "effects": [
+              {
+                "kind": "stat",
+                "key": "chance",
+                "amount": 2
+              }
+            ]
+          }
+        ]
+      },
+      "note": "Mensonge aux Squelettes : 1–2 → §140 ; 3–4 → §164 ; 5–6 → §9 avec Chance +2."
+    },
+    "196": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "gold",
+          "amount": 5
+        }
+      ],
+      "routes": [
+        {
+          "target": 280,
+          "label": "Revenir vers la bifurcation au sud"
+        }
+      ],
+      "note": "Fouille du bureau : cinq pièces d'or trouvées automatiquement, puis §280."
+    },
+    "197": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 48,
+          "label": "Poursuivre droit devant"
+        },
+        {
+          "target": 295,
+          "label": "Chercher un passage secret dans le mur"
+        }
+      ],
+      "note": "Herse abaissée : continuer §48 ou chercher un passage secret §295."
+    },
+    "200": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 387,
+          "label": "Poursuivre au §387"
+        }
+      ],
+      "note": "Renvoi explicite vers §387."
     },
     "202": {
       "status": "verifie",
@@ -2488,6 +2712,16 @@
             }
           ]
         }
+      ],
+      "routes": [
+        {
+          "target": 38,
+          "label": "Ouvrir la porte ouest"
+        },
+        {
+          "target": 66,
+          "label": "Aller au sud"
+        }
       ]
     },
     "204": {
@@ -2514,6 +2748,51 @@
         }
       ]
     },
+    "205": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 254,
+          "label": "Fouiller la crypte"
+        },
+        {
+          "target": 380,
+          "label": "Quitter la crypte par la porte ouest"
+        }
+      ],
+      "note": "Dans la crypte : fouiller §254 ou quitter §380."
+    },
+    "207": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 83,
+          "label": "Gagner discrètement la porte nord"
+        },
+        {
+          "target": 154,
+          "label": "S'approcher discrètement du bureau"
+        }
+      ],
+      "note": "Éviter la créature : porte nord §83 ou bureau §154."
+    },
+    "208": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 397,
+          "label": "Essayer d'ouvrir la porte"
+        },
+        {
+          "target": 363,
+          "label": "Continuer dans le passage"
+        }
+      ],
+      "note": "Porte ou continuation, §397 ou §363."
+    },
     "209": {
       "status": "verifie",
       "mode": "des",
@@ -2532,6 +2811,21 @@
           }
         ]
       }
+    },
+    "210": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "routes": [
+        {
+          "target": 225,
+          "label": "Continuer vers l'ouest"
+        },
+        {
+          "target": 357,
+          "label": "Prendre la direction du nord"
+        }
+      ],
+      "note": "À la bifurcation : ouest §225 ou nord §357."
     },
     "218": {
       "status": "verifie",
