@@ -364,6 +364,58 @@ class Reference(unittest.TestCase):
         self.assertEqual(w.character["gold"], 1)
         self.assertNotIn(91, w.completed_book_events)
 
+    def test_four_dwarves_sequence_prepares_next_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {20: "Quatre Nains attaquent.", 376: "Victoire."}
+        w.go_to(20)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Nain 1", 7, 6))
+        self.assertEqual(w.book_combat_sequence, {"paragraph": 20, "index": 0})
+        w.enemy_endurance.setValue(2)
+        with patch.object(w, "_roll", side_effect=[([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Nain 2", 7, 7))
+        self.assertEqual(w.book_combat_sequence["index"], 1)
+        w.undo_action()
+        self.assertEqual(w.book_combat_sequence["index"], 0)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+        w.redo_action()
+        self.assertEqual(w.book_combat_sequence["index"], 1)
+        self.assertEqual(w.enemy_name.text(), "Nain 2")
+
+    def test_four_dwarves_victory_goes_to_376(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {20: "Quatre Nains attaquent.", 376: "Victoire."}
+        w.go_to(20)
+        w.book_combat_sequence["index"] = 3
+        w._set_book_enemy({"name": "Nain 4", "skill": 5, "stamina": 2})
+        with patch.object(w, "_roll", side_effect=[([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 376)
+        self.assertIsNone(w.book_combat_sequence)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 20)
+        self.assertEqual(w.book_combat_sequence["index"], 3)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
+    def test_sequence_does_not_advance_on_other_paragraphs(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {20: "Nains.", 91: "Cartes."}
+        w.go_to(20)
+        w.go_to(91)
+        w.enemy_endurance.setValue(0)
+        w._advance_scripted_sequence()
+        self.assertEqual(w.book_combat_sequence["index"], 0)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
