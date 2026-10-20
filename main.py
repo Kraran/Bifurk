@@ -1115,7 +1115,10 @@ class MainWindow(QMainWindow):
         return {"character": copy.deepcopy(self.character),
                 "current_paragraph": self.current_paragraph,
                 "visited_paragraphs": list(self.visited_paragraphs),
-                "transitions": copy.deepcopy(self.transitions)}
+                "transitions": copy.deepcopy(self.transitions),
+                "enemy_skill": self.enemy_skill.value(),
+                "enemy_endurance": self.enemy_endurance.value(),
+                "enemy_name": self.enemy_name.text()}
 
     def _record(self, label, before):
         if self._restoring or before == self._snapshot():
@@ -1143,6 +1146,12 @@ class MainWindow(QMainWindow):
             self.visited_paragraphs = list(state["visited_paragraphs"])
             self.transitions = copy.deepcopy(state.get("transitions", []))
             self._refresh_character()
+            if "enemy_skill" in state:
+                self.enemy_skill.setValue(state["enemy_skill"])
+            if "enemy_endurance" in state:
+                self.enemy_endurance.setValue(state["enemy_endurance"])
+            if "enemy_name" in state:
+                self.enemy_name.setText(state["enemy_name"])
             target = state["current_paragraph"]
             if target in self.paragraphs:
                 self.go_to(target)
