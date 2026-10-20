@@ -2068,6 +2068,106 @@ class Reference(unittest.TestCase):
         w.undo_action()
         self.assertEqual(w.current_paragraph, 218)
 
+    def test_verified_routes_181_to_210(self):
+        from book_events import DATA_PATH, available_routes
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        expected = {
+            181: [355, 265], 183: [266, 237], 184: [322, 34],
+            185: [162], 187: [171, 308], 190: [167, 359],
+            191: [308, 392, 46], 193: [93, 338],
+            194: [142, 105], 196: [280], 197: [48, 295],
+            200: [387], 203: [38, 66], 205: [254, 380],
+            207: [83, 154], 208: [397, 363], 210: [225, 357]
+        }
+        for paragraph, targets in expected.items():
+            with self.subTest(paragraph=paragraph):
+                routes = available_routes({}, data["paragraphs"][str(paragraph)])
+                self.assertEqual([r["target"] for r in routes], targets)
+                self.assertEqual(len(targets), len(set(targets)))
+
+    def test_three_outcomes_of_skeleton_bluff_195(self):
+        from book_events import DATA_PATH, resolve_roll
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        roll = data["paragraphs"]["195"]["roll"]
+        for die in range(1, 7):
+            with self.subTest(die=die):
+                branch = resolve_roll(roll, die, {"chance": 6})
+                expected = 140 if die <= 2 else 164 if die <= 4 else 9
+                self.assertEqual(branch["target"], expected)
+                self.assertEqual(branch.get("effects", []),
+                    [{"kind": "stat", "key": "chance", "amount": 2}]
+                    if die >= 5 else [])
+
+    def test_skeleton_bluff_195_adds_luck_once_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {195: "Bluff des Squelettes.", 140: "Combat.",
+                        164: "Méfiance.", 9: "Hangar."}
+        w.character["chance"] = 5
+        w.go_to(195)
+        with patch.object(w, "_roll", return_value=([5], 5)):
+            w.resolve_book_roll(195)
+        self.assertEqual(w.current_paragraph, 9)
+        self.assertEqual(w.character["chance"], 7)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 195)
+        self.assertEqual(w.character["chance"], 5)
+        self.assertNotIn(195, w.completed_book_events)
+
+    def test_rat_werewolf_188_fight_and_flee(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {188: "Rat-garou.", 209: "Pont.", 342: "Victoire."}
+        w.go_to(188)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Rat-garou", 8, 5))
+        with patch.object(QMessageBox, "question", return_value=QMessageBox.No):
+            w.escape_scripted_combat(188)
+        self.assertEqual(w.current_paragraph, 209)
+        self.assertEqual(w.character["endurance"], 18)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 188)
+        self.assertEqual(w.character["endurance"], 20)
+
+    def test_rat_werewolf_188_victory_and_blocked_link(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {188: "Rat-garou. Victoire §342.", 342: "Victoire.",
+                        209: "Pont."}
+        w.go_to(188)
+        with patch.object(QMessageBox, "information") as warning:
+            w.follow_link(QUrl("paragraph:342"))
+            warning.assert_called_once()
+        w.enemy_endurance.setValue(2)
+        with patch.object(w, "_roll", side_effect=[
+                ([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 342)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 188)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
+    def test_rewards_181_183_196_automatic_once(self):
+        from book_events import DATA_PATH, apply_entry
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        char = {"habilete": 6, "endurance": 10, "gold": 1,
+                "initial": {"habilete": 8, "endurance": 14}}
+        done = set()
+        self.assertTrue(apply_entry(char, done, 181, data))
+        self.assertEqual(char["habilete"], 5)
+        self.assertTrue(apply_entry(char, done, 183, data))
+        self.assertEqual((char["habilete"], char["endurance"]), (6, 14))
+        self.assertTrue(apply_entry(char, done, 196, data))
+        self.assertEqual(char["gold"], 6)
+        for paragraph in (181, 183, 196):
+            self.assertFalse(apply_entry(char, done, paragraph, data))
+        self.assertEqual(char["gold"], 6)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
