@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 124,
+  "reviewed_count": 126,
   "review_pending": [
     1,
     4,
@@ -41,7 +41,6 @@
     112,
     116,
     118,
-    119,
     125,
     126,
     130,
@@ -49,7 +48,6 @@
     138,
     139,
     140,
-    143,
     144,
     146,
     148,
@@ -1738,6 +1736,18 @@
         }
       ]
     },
+    "119": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Diversion contre l'Ogre : jeter un objet de l'équipement (rayé de la liste), ou 1 pièce d'or si l'inventaire est vide. Puis §269.",
+      "diversion_discard": true,
+      "routes": [
+        {
+          "target": 269,
+          "label": "Revenir à la bifurcation après la diversion"
+        }
+      ]
+    },
     "120": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -2003,6 +2013,24 @@
           }
         ],
         "victory_target": 396
+      }
+    },
+    "143": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Ver marin géant H7/E7 ; victoire §44. Fuite vers §399 seulement après trois assauts ; la provision commencée pour le repas est perdue.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Ver marin géant",
+            "skill": 7,
+            "stamina": 7
+          }
+        ],
+        "victory_target": 44,
+        "escape_target": 399,
+        "escape_after_assaults": 3,
+        "escape_provisions_lost": 1
       }
     },
     "145": {
