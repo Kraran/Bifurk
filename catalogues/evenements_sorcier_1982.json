@@ -3,58 +3,39 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 69,
+  "reviewed_count": 88,
   "review_pending": [
     1,
     4,
     5,
     6,
     7,
-    9,
     10,
     12,
     13,
     14,
     17,
-    21,
     22,
-    23,
     24,
     26,
     29,
-    30,
-    37,
-    42,
-    43,
     44,
     45,
-    46,
-    48,
-    52,
-    54,
     59,
     60,
-    62,
-    63,
     64,
     65,
-    66,
-    67,
     68,
     69,
     70,
     72,
     73,
     76,
-    78,
-    79,
     80,
     81,
-    85,
     87,
     88,
     89,
-    90,
     92,
     93,
     94,
@@ -405,6 +386,21 @@
         "escape_after_assaults": 0
       }
     },
+    "9": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §34, §322. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Examiner les outils du Squelette",
+          "target": 34
+        },
+        {
+          "label": "Fouiller les tiroirs des établis",
+          "target": 322
+        }
+      ]
+    },
     "11": {
       "status": "verifie",
       "mode": "automatique",
@@ -538,6 +534,36 @@
         "note": "Quatre Nains un par un."
       }
     },
+    "21": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §339, §293. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Forcer la serrure du coffre avec l'épée",
+          "target": 339
+        },
+        {
+          "label": "Laisser le coffre et sortir",
+          "target": 293
+        }
+      ]
+    },
+    "23": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §326, §229. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Ouvrir la porte et entrer",
+          "target": 326
+        },
+        {
+          "label": "Retourner à la bifurcation",
+          "target": 229
+        }
+      ]
+    },
     "25": {
       "status": "verifie",
       "mode": "automatique",
@@ -612,6 +638,21 @@
         }
       ],
       "note": "Après le Géant : Chance +2, Habileté +2 et bourse de huit pièces d'or."
+    },
+    "30": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §67, §267. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Tirer sur la corde",
+          "target": 67
+        },
+        {
+          "label": "Ne pas y toucher et revenir au croisement",
+          "target": 267
+        }
+      ]
     },
     "31": {
       "status": "verifie",
@@ -729,6 +770,25 @@
         }
       ]
     },
+    "37": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §366, §11, §277. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Continuer au nord",
+          "target": 366
+        },
+        {
+          "label": "Partir à l'ouest",
+          "target": 11
+        },
+        {
+          "label": "Partir au sud",
+          "target": 277
+        }
+      ]
+    },
     "38": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -786,6 +846,51 @@
         "first_hit_target": 310
       }
     },
+    "42": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §257, §113. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Prendre le passage ouest",
+          "target": 257
+        },
+        {
+          "label": "Prendre le passage est",
+          "target": 113
+        }
+      ]
+    },
+    "43": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §354, §52. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Aller au nord",
+          "target": 354
+        },
+        {
+          "label": "Aller au sud",
+          "target": 52
+        }
+      ]
+    },
+    "46": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §4, §206. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Suivre le tournant vers le sud",
+          "target": 4
+        },
+        {
+          "label": "Franchir la porte à l'est",
+          "target": 206
+        }
+      ]
+    },
     "47": {
       "status": "verifie",
       "mode": "des",
@@ -804,6 +909,21 @@
           }
         ]
       }
+    },
+    "48": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §391, §60. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Partir à l'est vers le tournant nord",
+          "target": 391
+        },
+        {
+          "label": "Partir à l'ouest",
+          "target": 60
+        }
+      ]
     },
     "49": {
       "status": "verifie",
@@ -846,6 +966,33 @@
       ],
       "note": "Après usage de la potion d'invisibilité, Chance +2."
     },
+    "52": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §391, §362, §354, §234, §291. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Aller au sud",
+          "target": 391
+        },
+        {
+          "label": "Chercher des passages secrets vers le sud",
+          "target": 362
+        },
+        {
+          "label": "Aller au nord",
+          "target": 354
+        },
+        {
+          "label": "Chercher des passages secrets vers le nord",
+          "target": 234
+        },
+        {
+          "label": "Partir à l'est",
+          "target": 291
+        }
+      ]
+    },
     "53": {
       "status": "verifie",
       "mode": "des",
@@ -871,6 +1018,21 @@
           }
         ]
       }
+    },
+    "54": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §308, §179. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Repartir vers le sud",
+          "target": 308
+        },
+        {
+          "label": "Franchir la porte au nord",
+          "target": 179
+        }
+      ]
     },
     "55": {
       "status": "verifie",
@@ -965,6 +1127,66 @@
         "escape_after_assaults": 2
       }
     },
+    "62": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §6, §89. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Essayer d'ouvrir la porte blindée",
+          "target": 6
+        },
+        {
+          "label": "Revenir à l'ouverture étroite",
+          "target": 89
+        }
+      ]
+    },
+    "63": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §281, §10. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Poursuivre malgré le passage étroit",
+          "target": 281
+        },
+        {
+          "label": "Faire demi-tour",
+          "target": 10
+        }
+      ]
+    },
+    "66": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §104, §99. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Aller à la porte creusée dans le roc",
+          "target": 104
+        },
+        {
+          "label": "Suivre la rivière vers l'est",
+          "target": 99
+        }
+      ]
+    },
+    "67": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §267, §177. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Revenir au croisement",
+          "target": 267
+        },
+        {
+          "label": "Emprunter le passage secret",
+          "target": 177
+        }
+      ]
+    },
     "71": {
       "status": "verifie",
       "mode": "des",
@@ -1053,6 +1275,36 @@
         }
       ]
     },
+    "78": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §159, §237. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Franchir la porte aux bruits de cuisine",
+          "target": 159
+        },
+        {
+          "label": "Rebrousser chemin",
+          "target": 237
+        }
+      ]
+    },
+    "79": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §137, §267. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Chercher un passage secret au cul-de-sac",
+          "target": 137
+        },
+        {
+          "label": "Revenir au croisement",
+          "target": 267
+        }
+      ]
+    },
     "82": {
       "status": "verifie",
       "mode": "des_optionnel",
@@ -1130,6 +1382,29 @@
         }
       ]
     },
+    "85": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraires explicitement indiqués dans le PDF : §106, §373, §318, §59. Aucun bonus ou objet n'est accordé à l'entrée.",
+      "routes": [
+        {
+          "label": "Aller au nord",
+          "target": 106
+        },
+        {
+          "label": "Aller au sud",
+          "target": 373
+        },
+        {
+          "label": "Aller à l'est",
+          "target": 318
+        },
+        {
+          "label": "Aller à l'ouest",
+          "target": 59
+        }
+      ]
+    },
     "86": {
       "status": "verifie",
       "mode": "combat_special",
@@ -1149,6 +1424,18 @@
         "diversion_extra_assaults": 1,
         "note": "Deux assauts obligatoires, ensuite choix : poursuivre ou un assaut supplémentaire puis §350."
       }
+    },
+    "90": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Niche de repos : repas standard facultatif, puis départ au nord vers §253.",
+      "routes": [
+        {
+          "label": "Continuer vers le nord après la halte",
+          "target": 253
+        }
+      ],
+      "optional_meal": true
     },
     "91": {
       "status": "verifie",
