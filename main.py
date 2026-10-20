@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -732,10 +732,10 @@ class MainWindow(QMainWindow):
             self.event_layout.addWidget(notice)
             if scripted["mode"] == "automatique":
                 self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
-            for option in scripted.get("options", []):
+            for option in available_options(self.character, scripted,
+                                            self.completed_optional_events,
+                                            self.current_paragraph):
                 button = QPushButton(option["label"])
-                marker = f"{self.current_paragraph}:{option['id']}"
-                button.setEnabled(marker not in self.completed_optional_events)
                 button.clicked.connect(lambda checked=False, n=self.current_paragraph, oid=option["id"]: self.apply_optional_book_event(n, oid))
                 self.event_layout.addWidget(button)
             if scripted["mode"] in ("des", "des_optionnel") and "roll" in scripted:
