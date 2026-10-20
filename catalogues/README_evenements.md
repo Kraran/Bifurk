@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 121 paragraphes vérifiés ponctuellement ; 279 à étudier et valider individuellement.
-- 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 93 paragraphes conditionnels, jets de dés ou combats particuliers. 14 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 209, 243, 389.
+- 124 paragraphes vérifiés ponctuellement ; 276 à étudier et valider individuellement.
+- 29 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
+- 95 paragraphes conditionnels, jets de dés ou combats particuliers. 14 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -181,3 +181,15 @@ Quatorze passages supplémentaires sont catalogués : **117, 120, 121, 123, 124,
 - **§142** : Sorcier **Habileté 11 / Endurance 18**, sans fuite. Victoire → §396. Le renvoi n'est pas cliquable avant la défaite de l'adversaire.
 
 Cinq tests supplémentaires couvrent les destinations, les six faces du dé, la Chance et l'annulation, le paiement et le combat final. Les paragraphes §§119, 125, 130, 131, 135, 139, 140 et 143 comportent des interactions plus complexes et restent volontairement à examiner plus profondément.
+
+### Repas partagé §131, trésor après l'Être §135 et salle §122
+
+Le PDF français de 1982 confirme trois nouvelles entrées :
+
+- **§122** : face aux quatre êtres gris-verts, essayer de leur parler → §268, les attaquer → §282, s'enfuir par la porte sud → §13. Aucun effet préalable n'est inventé.
+- **§131** : chez les personnages amicaux, le repas est **facultatif** et **partagé**. Il coûte 1 Provision mais ne restitue que **2 Endurance** (au lieu des 4 ordinaires), jusqu'au plafond initial. Une commande distincte enregistre cette restauration et permet d'annuler le repas ; partir sans manger conduit au §291.
+- **§135** : après la victoire sur l'Être, le héros reçoit **automatiquement +2 Chance** une seule fois. Ramasser les **18 pièces d'or** est facultatif et ne se produit que sur commande, une fois ; le repas normal est également facultatif. La sortie mène au §360.
+
+Cinq tests supplémentaires couvrent la liste des issues du §122, le partage du repas et ses plafonds, la disponibilité des provisions, la récompense facultative et l'annulation de plusieurs actions. Les anciens identifiants d'options du catalogue ne changent pas.
+
+Les passages §§119, 125, 130, 139, 140 et 143 demandent des contraintes plus complexes (objet jeté, boucle de Chance, mises, clés et combats simultanés) et restent dans la file de revue ; ne pas les simuler par une simple route sans effets.
