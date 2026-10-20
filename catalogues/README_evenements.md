@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 69 paragraphes vérifiés ponctuellement ; 331 à étudier et valider individuellement.
+- 88 paragraphes vérifiés ponctuellement ; 312 à étudier et valider individuellement.
 - 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 41 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
+- 60 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -146,3 +146,13 @@ Les tests vérifient l'absence de provisions, les limites des caractéristiques,
 - **§77** : abri sûr avec repas **facultatif** ; le bouton de repas réutilise la règle existante (+4 Endurance plafonnée, -1 Provision), uniquement si des provisions restent. L'entrée au §77 ne consomme rien ; on peut directement partir à l'est vers §345 ou à l'ouest vers §18. L'utilisation du repas est annulable.
 
 Quatre tests supplémentaires couvrent les choix exacts, le repas volontaire et non disponible sans provisions, puis la préparation de l'Ogre et l'annulation. Les options déjà cataloguées conservent leurs identifiants historiques.
+
+### Revue des embranchements et repos au §90
+
+19 paragraphes supplémentaires ont été examinés à partir du PDF de l'édition française de 1982 : **9, 21, 23, 30, 37, 42, 43, 46, 48, 52, 54, 62, 63, 66, 67, 78, 79, 85 et 90**. Les itinéraires sont inscrits explicitement dans `routes` plutôt que déduits d'une expression régulière potentiellement incomplète. Ces paragraphes ne créent aucun objet, ne modifient aucune statistique et n'impliquent aucune dépense implicite à l'arrivée (à l'exception du repas facultatif au §90).
+
+- **§52** : cinq possibilités distinctes — aller au sud §391, chercher vers le sud §362, aller au nord §354, chercher vers le nord §234, partir à l'est §291. Aucun chemin n'est omis.
+- **§85** : quatre directions — nord §106, sud §373, est §318, ouest §59.
+- **§90** : possibilité de consommer un repas ordinaire en faisant halte, sans obligation ; départ vers §253 quel que soit le choix. Le bouton de repas s'actualise quand la provision restante tombe à zéro, sans réinitialiser l'action. Annuler restaure le repas et l'état du bouton.
+
+Cinq nouveaux tests contrôlent tous ces renvois, l'absence de destinations en double, le nombre de boutons dans l'interface, le repos volontaire et le mécanisme d'annulation. Le catalogue ne contient pas le texte protégé du livre.
