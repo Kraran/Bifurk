@@ -855,6 +855,78 @@ class Reference(unittest.TestCase):
         self.assertIn("Épée", w.character["inventory"])
         self.assertNotIn(SHIELD_NAME, w.character["inventory"])
 
+    def test_piranhas_stamina_matches_book_six_outcomes(self):
+        from book_events import piranha_stamina
+        self.assertEqual(piranha_stamina(True), 1)
+        self.assertEqual(piranha_stamina(False, 1), 5)
+        self.assertEqual(piranha_stamina(False, 2), 5)
+        for roll in (3, 4, 5, 6):
+            self.assertEqual(piranha_stamina(False, roll), 1)
+        with self.assertRaises(ValueError):
+            piranha_stamina(False)
+        with self.assertRaises(ValueError):
+            piranha_stamina(False, 7)
+
+    def test_piranhas_wounded_crocodile_needs_no_extra_roll(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {86: "Crocodile.", 350: "Piranhas.", 7: "Rive."}
+        w.go_to(86)
+        w.crocodile_combat["assaults"] = 2
+        w.crocodile_combat["wounded"] = True
+        w.choose_crocodile_strategy("diversion")
+        with patch.object(w, "_roll", side_effect=[([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 350)
+        self.assertTrue(w.piranha_source_wounded)
+        self.assertEqual(w.piranha_combat["stamina"], 1)
+        self.assertEqual(w.enemy_endurance.value(), 1)
+        with patch.object(w, "_roll", side_effect=[([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 7)
+        self.assertIn(350, w.completed_book_events)
+        self.assertEqual(w.character["chance"], 9)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 350)
+        self.assertEqual(w.enemy_endurance.value(), 1)
+        self.assertEqual(w.character["chance"], 8)
+
+    def test_piranhas_healthy_crocodile_roll_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {350: "Piranhas.", 7: "Rive."}
+        w.piranha_source_wounded = False
+        w.go_to(350)
+        self.assertEqual(w.piranha_combat["status"], "roll_pending")
+        with patch.object(w, "_roll", return_value=([2], 2)):
+            w.roll_piranha_target()
+        self.assertEqual((w.enemy_skill.value(), w.enemy_endurance.value()), (5, 5))
+        self.assertEqual(w.piranha_combat["status"], "fighting")
+        w.undo_action()
+        self.assertEqual(w.piranha_combat["status"], "roll_pending")
+        with patch.object(w, "_roll", return_value=([5], 5)):
+            w.roll_piranha_target()
+        self.assertEqual(w.enemy_endurance.value(), 1)
+
+    def test_piranhas_cannot_skip_victory_via_text_link(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {350: "Piranhas. Rendez-vous au 7.", 7: "Rive."}
+        w.piranha_source_wounded = True
+        w.go_to(350)
+        with patch.object(QMessageBox, "information") as alert:
+            w.follow_link(QUrl("paragraph:7"))
+            alert.assert_called_once()
+        self.assertEqual(w.current_paragraph, 350)
+        w.undo_action()
+        self.assertEqual(w.piranha_source_wounded, None)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
