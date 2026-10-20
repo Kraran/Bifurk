@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -696,6 +696,11 @@ class MainWindow(QMainWindow):
     def _render_choices_and_events(self, text):
         self._clear_dynamic_layout(self.choice_layout)
         choices = self._paragraph_choices(text)
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if entry and "routes" in entry:
+            # Ne présenter que les chemins permis par les objets et ressources actuels.
+            choices = [{"target": route["target"], "label": route["label"]}
+                       for route in available_routes(self.character, entry)]
         if not choices:
             self.choice_layout.addWidget(QLabel("Aucune destination explicite détectée dans ce paragraphe."))
         else:
