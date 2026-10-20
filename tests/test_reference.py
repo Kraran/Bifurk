@@ -30,6 +30,59 @@ class Reference(unittest.TestCase):
         self.window.deleteLater()
         self.app.processEvents()
 
+    def test_book_event_catalogue_coverage_and_safety(self):
+        from book_events import DATA_PATH, verified_entry, load_book_events
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        reviewed = {int(n) for n in data["paragraphs"]}
+        pending = set(data["review_pending"])
+        self.assertEqual(reviewed | pending, set(range(1, 401)))
+        self.assertFalse(reviewed & pending)
+        self.assertEqual(data["reviewed_count"], len(reviewed))
+        self.assertIsNone(verified_entry(None, 11))
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "different.pdf"
+            path.write_bytes(b"not the specified edition")
+            self.assertIsNone(load_book_events(path))
+
+    def test_verified_events_once_and_undo(self):
+        from book_events import apply_entry
+        w = self.window
+        w.book_event_catalogue = {"paragraphs": {
+            "49": {"status": "verifie", "mode": "automatique",
+                   "note": "Perte d'Endurance", "effects": [
+                       {"kind": "stat", "key": "endurance", "amount": -2}]},
+            "53": {"status": "verifie", "mode": "des",
+                   "note": "Test conditionnel"},
+        }}
+        w.paragraphs = {49: "La pièce.", 53: "La porte."}
+        w.go_to(49)
+        self.assertEqual(w.character["endurance"], 18)
+        self.assertEqual(w.completed_book_events, {49})
+        w.go_to(49)
+        self.assertEqual(w.character["endurance"], 18)
+        w.go_to(53)
+        self.assertEqual(w.character["endurance"], 18)
+        w.undo_action()
+        self.assertEqual(w.character["endurance"], 18)
+        w.undo_action()
+        self.assertEqual(w.character["endurance"], 20)
+        self.assertEqual(w.completed_book_events, set())
+        w.redo_action()
+        self.assertEqual(w.character["endurance"], 18)
+        self.assertEqual(w.completed_book_events, {49})
+
+    def test_book_event_stat_caps_and_items(self):
+        from book_events import apply_entry
+        cat = {"paragraphs": {"75": {"status": "verifie", "mode": "automatique",
+               "effects": [{"kind": "stat", "key": "chance", "amount": 3},
+                           {"kind": "item", "name": "Clé 111"}]}}}
+        character = {"chance": 7, "initial": {"chance": 8}, "inventory": []}
+        completed = set()
+        self.assertTrue(apply_entry(character, completed, 75, cat))
+        self.assertEqual(character["chance"], 8)
+        self.assertEqual(character["inventory"], ["Clé 111"])
+        self.assertFalse(apply_entry(character, completed, 75, cat))
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
