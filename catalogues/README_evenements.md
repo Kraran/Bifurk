@@ -5,8 +5,8 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 47 paragraphes vérifiés ponctuellement ; 353 à étudier et valider individuellement.
-- 24 paragraphes avec effets obligatoires automatisés : 11, 25, 28, 40, 49, 51, 75, 109, 110, 145, 147, 153, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 388 et 390.
+- 48 paragraphes vérifiés ponctuellement ; 352 à étudier et valider individuellement.
+- 25 paragraphes avec effets obligatoires automatisés : 11, 25, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 388 et 390.
 - 23 autres paragraphes classés comme conditionnels, jets de dés ou combats particuliers. Onze épreuves sont désormais exécutables : 2, 18, 47, 53, 55, 74, 82 (facultatif), 83, 91, 243 et 389. Au §91, un test de Chance est suivi, uniquement en cas de réussite, d'un second lancer de deux dés déterminant les pièces d'or gagnées. Les autres restent documentés sans application automatique.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
@@ -48,6 +48,17 @@ Cet audit concerne **les destinations seulement**. Il ne change pas le nombre de
 - **§344** : acquisition de l'épée trouvée dans la rivière ; les deux suites §56 et §153 restent disponibles. Le livre lui attribue **+1 Habileté lorsqu'elle est utilisée au combat**, ce qui n'est pas encore automatique, faute de suivi fiable de l'arme maniée.
 - **§153** : perte automatique d'un point d'Endurance et abandon de l'épée trouvée dans la rivière si elle est dans le sac ; l'ancienne arme et les autres objets ne sont pas retirés. Le cas est réversible par annulation.
 - Quatre nouveaux tests assurent le verrouillage, la non-répétition des malédictions, l'acquisition et la destruction de l'épée, et les deux destinations du §344.
+
+
+### Arme effectivement maniée — §§27, 56, 153 et 344
+
+Le champ `equipped_weapon` distingue les armes dans le sac de celle effectivement utilisée. Un sélecteur dans la sacoche permet de changer d'arme ; le changement est annulable. `combat_skill(character)` calcule la force d'attaque effective :
+
+- Épée ordinaire : Habileté courante, sans bonus.
+- Épée trouvée dans la rivière (§344) : **+1 uniquement sur la force d'attaque** lorsque cette épée est équipée. Le score d'Habileté indiqué sur la fiche ne change pas. Au §56, l'épée d'origine est jetée et celle de la rivière devient l'arme équipée ; au §153, l'épée de la rivière est abandonnée.
+- Épée magique (§27) : son bonus de +2 sur Habileté actuelle et maximale n'est actif **que lorsqu'elle est équipée**. Changer d'arme retire ces deux points des valeurs, puis les remet lorsque l'épée est rééquipée ; aucun cumul supplémentaire n'est permis. Le gain de Chance du §27 reste indépendant de ce choix.
+
+Ces changements affectent également les combats particuliers qui utilisent `combat_round` et l'état sauvegardé. Quatre tests supplémentaires couvrent la comparaison des forces d'attaque, le changement d'arme, le §56 et l'annulation. Le port d'une arme ne prétend pas résoudre les autres règles de combat qui ne sont pas encore cataloguées.
 
 ## Suite
 
