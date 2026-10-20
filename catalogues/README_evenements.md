@@ -69,6 +69,18 @@ Lorsqu'un monstre blesse le héros pendant un combat où le bouclier est utilis�
 
 Le §155 fait passer les **paragraphes individuellement revus à 49/400** et **65 méthodes de test** couvrent désormais les mécanismes documentés, dont quatre nouvelles sur le bouclier. Les combats avec des règles ne passant pas par `combat_round` restent à examiner.
 
+
+### Piranhas (§350) : dépendance réelle avec le Crocodile (§86)
+
+À chaque blessure infligée au Crocodile, l'état du §86 retient `wounded=True`. Ce fait est transmis au §350 **uniquement lors de la diversion** choisie après les deux premiers assauts et l'assaut supplémentaire. Les états sont persistés dans la sauvegarde et dans annuler/rétablir.
+
+- Crocodile blessé : les Piranhas s'attaquent surtout au reptile, donc le héros combat **Piranhas H5/E1**, sans jet supplémentaire.
+- Crocodile indemne : **1d6** obligatoire. Résultat 1 ou 2 : **H5/E5** ; 3 à 6 : **H5/E1**. Le bouton de jet est affiché au §350, et le combat n'est préparé qu'après son résultat.
+- Si les Piranhas sont vaincus et le héros survit : **Chance +1**, puis §7. Le repas permis une fois sur la rive est **facultatif** et n'est pas déclenché automatiquement.
+- Le lien direct vers §7 est bloqué tant que ce combat n'est pas gagné. Le détecteur général de rencontres ne propose pas de préparation qui écraserait les caractéristiques issues du dé.
+
+Une ouverture directe et isolée du §350 sans arriver du combat du §86 ne donne pas assez de contexte pour automatiser les Piranhas : il faut alors rejouer la chaîne §86 → §350. Les tests ciblent les six issues du dé, les deux profils, le gain de Chance, les liens et l'annulation.
+
 ## Suite
 
 Examiner chaque paragraphe restant, notamment les combats en série, les tests de Chance, les inventaires conditionnels, les objets consommables, les pertes et gains de maximum de caractéristiques et les issues de combat. Écrire un scénario de test par événement vérifié avant de l'activer. Ne pas déclarer la base exhaustive avant que les 400 paragraphes soient qualifiés.
