@@ -1769,6 +1769,94 @@ class Reference(unittest.TestCase):
         w.undo_action()
         self.assertEqual(w.character["chance"], 4)
 
+    def test_ogre_diversion_119_discards_one_item_or_gold(self):
+        from book_events import throw_diversion_item
+        hero = {"inventory": ["Fromage", "Épée"], "gold": 2,
+                "locked_items": []}
+        self.assertFalse(throw_diversion_item(hero, "Absent"))
+        self.assertTrue(throw_diversion_item(hero, "Fromage"))
+        self.assertEqual(hero["inventory"], ["Épée"])
+        self.assertEqual(hero["gold"], 2)
+        self.assertTrue(throw_diversion_item(hero, "Épée"))
+        self.assertEqual(hero["inventory"], [])
+        self.assertTrue(throw_diversion_item(hero))
+        self.assertEqual(hero["gold"], 1)
+        self.assertFalse(throw_diversion_item({"inventory": [], "gold": 0}))
+
+    def test_ogre_diversion_119_does_not_discard_locked_gear(self):
+        from book_events import throw_diversion_item
+        hero = {"inventory": ["Casque maudit"], "locked_items": ["Casque maudit"],
+                "gold": 3}
+        self.assertFalse(throw_diversion_item(hero, "Casque maudit"))
+        self.assertFalse(throw_diversion_item(hero))
+        self.assertEqual(hero["gold"], 3)
+
+    def test_ogre_diversion_119_ui_unlocks_route_and_undo(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {119: "Faire diversion puis §269.", 269: "Bifurcation."}
+        w.character["inventory"] = []
+        w.character["gold"] = 2
+        w.go_to(119)
+        with patch.object(QMessageBox, "information") as warning:
+            w.follow_link(QUrl("paragraph:269"))
+            warning.assert_called_once()
+        w.throw_book_diversion()
+        self.assertEqual(w.character["gold"], 1)
+        self.assertIn(119, w.completed_book_events)
+        w.throw_book_diversion()
+        self.assertEqual(w.character["gold"], 1)
+        w.undo_action()
+        self.assertEqual(w.character["gold"], 2)
+        self.assertNotIn(119, w.completed_book_events)
+        w.throw_book_diversion()
+        w.follow_catalogue_choice(269)
+        self.assertEqual(w.current_paragraph, 269)
+
+    def test_sea_worm_143_victory_routes_to_44(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {143: "Ver marin géant.", 44: "Victoire.", 399: "Rivière."}
+        w.go_to(143)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Ver marin géant", 7, 7))
+        w.enemy_endurance.setValue(2)
+        with patch.object(w, "_roll", side_effect=[([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 44)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 143)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
+    def test_sea_worm_143_escape_requires_three_assaults_and_loses_meal(self):
+        from book_events import DATA_PATH, flee_available
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {143: "Ver marin géant.", 44: "Victoire.", 399: "Rivière."}
+        w.character["provisions"] = 3
+        w.go_to(143)
+        rules = w.book_event_catalogue["paragraphs"]["143"]["combat"]
+        self.assertFalse(flee_available(rules, 2, 7, 20))
+        self.assertTrue(flee_available(rules, 3, 7, 20))
+        with patch.object(QMessageBox, "question") as question:
+            w.escape_scripted_combat(143)
+            question.assert_not_called()
+        self.assertEqual(w.current_paragraph, 143)
+        w.book_combat_assaults[143] = 3
+        with patch.object(QMessageBox, "question", return_value=QMessageBox.No):
+            w.escape_scripted_combat(143)
+        self.assertEqual(w.current_paragraph, 399)
+        self.assertEqual(w.character["provisions"], 2)
+        self.assertEqual(w.character["endurance"], 18)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 143)
+        self.assertEqual(w.character["provisions"], 3)
+        self.assertEqual(w.character["endurance"], 20)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
