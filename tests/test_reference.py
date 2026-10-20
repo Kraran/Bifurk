@@ -1300,6 +1300,82 @@ class Reference(unittest.TestCase):
         w.follow_catalogue_choice(367)
         self.assertEqual(w.current_paragraph, 367)
 
+    def test_two_goblins_19_are_prepared_sequentially_and_undo(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {19: "Deux Lutins.", 317: "Le Fromage."}
+        w.go_to(19)
+        self.assertEqual(w.book_combat_sequence, {"paragraph": 19, "index": 0})
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Lutin 1", 5, 5))
+        w.enemy_endurance.setValue(2)
+        with patch.object(w, "_roll", side_effect=[
+                ([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 19)
+        self.assertEqual(w.book_combat_sequence["index"], 1)
+        self.assertEqual((w.enemy_name.text(), w.enemy_skill.value(),
+                          w.enemy_endurance.value()), ("Lutin 2", 5, 6))
+        w.undo_action()
+        self.assertEqual(w.book_combat_sequence["index"], 0)
+        self.assertEqual(w.enemy_endurance.value(), 2)
+
+    def test_two_goblins_19_victory_unlocks_317_and_undo(self):
+        from book_events import DATA_PATH
+        from PySide6.QtCore import QUrl
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {19: "Deux Lutins. Rendez-vous au 317.",
+                        317: "Le Fromage.", 303: "Couloir."}
+        w.go_to(19)
+        self.assertTrue(w._combat_exit_pending(317))
+        with patch.object(QMessageBox, "information") as alert:
+            w.follow_link(QUrl("paragraph:317"))
+            alert.assert_called_once()
+        self.assertEqual(w.current_paragraph, 19)
+        w.book_combat_sequence["index"] = 1
+        w._set_book_enemy({"name": "Lutin 2", "skill": 5, "stamina": 2})
+        with patch.object(w, "_roll", side_effect=[
+                ([1, 1], 2), ([6, 6], 12)]), \
+                patch.object(QMessageBox, "exec", return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w.current_paragraph, 317)
+        self.assertIn(19, w.prepared_book_encounters)
+        self.assertIsNone(w.book_combat_sequence)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph, 19)
+        self.assertEqual(w.book_combat_sequence["index"], 1)
+        self.assertNotIn(19, w.prepared_book_encounters)
+
+    def test_goblin_cheese_317_optional_and_consumable_at_32(self):
+        from book_events import DATA_PATH, apply_option, available_options
+        data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        character = {"inventory": [], "chance": 4, "initial": {"chance": 9}}
+        completed = set()
+        self.assertEqual(len(available_options(
+            character, data["paragraphs"]["317"], completed, 317)), 1)
+        self.assertTrue(apply_option(character, completed, 317, "fromage", data))
+        self.assertIn("Fromage", character["inventory"])
+        self.assertFalse(apply_option(character, completed, 317, "fromage", data))
+        self.assertTrue(apply_option(character, completed, 32, "jeter_fromage", data))
+        self.assertEqual(character["chance"], 6)
+        self.assertNotIn("Fromage", character["inventory"])
+
+    def test_cheese_317_pickup_undo_and_safe_return_route(self):
+        from book_events import DATA_PATH
+        w = self.window
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        w.paragraphs = {317: "Fromage. Rendez-vous au 303.", 303: "Nord."}
+        w.go_to(317)
+        w.apply_optional_book_event(317, "fromage")
+        self.assertIn("Fromage", w.character["inventory"])
+        w.undo_action()
+        self.assertNotIn("Fromage", w.character["inventory"])
+        w.follow_catalogue_choice(303)
+        self.assertEqual(w.current_paragraph, 303)
+
     def test_navigation_and_html(self):
         self.assertEqual([n for _, _, n in destinations('Rendez-\n vous au 12. Allez au 4.')], [12, 4])
         rendered = render_links('<script> Rendez-vous au 12 et allez au 8.', {12})
