@@ -220,6 +220,17 @@ def piranha_stamina(crocodile_wounded, die=None):
 
 
 
+def shared_meal(character, restore=2):
+    """Repas partagé au §131 : une provision, deux points d'Endurance maximum."""
+    if restore != 2 or int(character.get("provisions", 0)) < 1:
+        return False
+    character["provisions"] -= 1
+    apply_effects(character, [
+        {"kind": "stat", "key": "endurance", "amount": restore}
+    ])
+    return True
+
+
 def enchanted_bench_meal(character):
     """§15 : un repas normal (+4 E), le banc (+2 E et +1 H) et 1 Provision."""
     if int(character.get("provisions", 0)) < 1:
