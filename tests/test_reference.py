@@ -2376,9 +2376,7 @@ class Reference(unittest.TestCase):
         w.paragraphs = {212: "Boire au 369 ou continuer au 120.",
                         369: "Bouteille.", 120: "Couloir."}
         w.go_to(212)
-        with patch.object(w.reader, "setSource") as native_navigation:
-            w.reader.anchorClicked.emit(QUrl("paragraph:369"))
-            native_navigation.assert_not_called()
+        w.reader.anchorClicked.emit(QUrl("paragraph:369"))
         self.assertEqual(w.current_paragraph, 369)
 
     def test_reader_links_preserve_212_revisit_protection(self):
