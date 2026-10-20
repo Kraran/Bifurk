@@ -134,6 +134,37 @@ def combat_skill(character):
     return int(character["habilete"]) + bonus
 
 
+
+SHIELD_NAME = "Bouclier au croissant"
+
+
+def take_moon_shield(character, discarded_item):
+    """Le §155 impose l'abandon d'un objet non maudit avant acquisition."""
+    inventory = character.setdefault("inventory", [])
+    if (SHIELD_NAME in inventory or discarded_item == SHIELD_NAME
+            or discarded_item not in inventory
+            or discarded_item in character.get("locked_items", [])):
+        return False
+    inventory.remove(discarded_item)
+    if character.get("equipped_weapon") == discarded_item:
+        if character.get("magic_sword_bonus_active") and discarded_item == "Épée magique":
+            character["initial"]["habilete"] = max(0, character["initial"]["habilete"] - 2)
+            character["habilete"] = max(0, character["habilete"] - 2)
+            character["magic_sword_bonus_active"] = False
+        character["equipped_weapon"] = None
+    inventory.append(SHIELD_NAME)
+    character["shield_equipped"] = True
+    return True
+
+
+def shield_damage(damage, shield_roll):
+    """Le bouclier §155 réduit une blessure de 1 sur un 6 (2→1, 1→0)."""
+    if not 1 <= shield_roll <= 6:
+        raise ValueError("Le bouclier exige un dé à six faces")
+    return max(0, damage - 1) if shield_roll == 6 else damage
+
+
+
 def resolve_roll(roll, total, character):
     """Résultat déterministe d'un jet défini dans le catalogue."""
     if not 1 <= roll["dice"] <= 2 or not roll["dice"] <= total <= 6 * roll["dice"]:
