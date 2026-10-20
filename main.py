@@ -1283,7 +1283,10 @@ class MainWindow(QMainWindow):
                 self.pdf_path = pdf
                 if expected and expected != self._pdf_hash():
                     raise ValueError("Le PDF a changé depuis la sauvegarde.")
-                self.paragraphs = extract_paragraphs(pdf)
+                paragraphs = extract_paragraphs(pdf)
+                illustration_catalogue = catalogue_for_pdf(pdf)
+                self.paragraphs = paragraphs
+                self.illustration_catalogue = illustration_catalogue
                 self.book_label.setText(Path(pdf).name)
                 if self.paragraphs:
                     self.goto_spin.setMaximum(max(self.paragraphs))

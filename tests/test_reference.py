@@ -162,7 +162,6 @@ class Reference(unittest.TestCase):
         w.undo_action()
         self.assertEqual(w.enemy_endurance.value(), before)
 
-    @unittest.expectedFailure
     def test_known_loading_restores_catalogue(self):
         if not self.pdf:
             self.skipTest('PDF privé absent')
