@@ -722,6 +722,11 @@ class MainWindow(QMainWindow):
         if (self.current_paragraph == 350 and self.piranha_combat
                 and self.piranha_combat.get("status") != "victory"):
             choices = [choice for choice in choices if choice["target"] != 7]
+        if (entry and entry.get("mode") == "des"
+                and self.current_paragraph not in self.completed_book_events
+                and "roll" in entry):
+            roll_targets = {branch.get("target") for branch in entry["roll"]["branches"]}
+            choices = [choice for choice in choices if choice["target"] not in roll_targets]
         if escape_target is not None:
             # La sortie par la fuite est exclusivement proposée avec sa pénalité.
             choices = [c for c in choices if c["target"] != escape_target]
@@ -812,6 +817,11 @@ class MainWindow(QMainWindow):
             note.setWordWrap(True)
             self.event_layout.addWidget(note)
         for label, target in combat['exits']:
+            if (entry and entry.get("mode") == "des"
+                    and self.current_paragraph not in self.completed_book_events
+                    and "roll" in entry
+                    and target in {branch.get("target") for branch in entry["roll"]["branches"]}):
+                continue
             if (self.current_paragraph == 350 and target == 7
                     and self.piranha_combat
                     and self.piranha_combat.get("status") != "victory"):
@@ -1100,6 +1110,14 @@ class MainWindow(QMainWindow):
             return
         target = int(match.group(1))
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if (entry and entry.get("mode") == "des"
+                and self.current_paragraph not in self.completed_book_events
+                and "roll" in entry
+                and target in {branch.get("target") for branch in entry["roll"]["branches"]}):
+            QMessageBox.information(
+                self, "Jet obligatoire",
+                "Lancez d'abord les dés du livre avant de suivre cette destination.")
+            return
         if (self.current_paragraph == 350 and target == 7
                 and self.piranha_combat
                 and self.piranha_combat.get("status") != "victory"):
