@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 126 paragraphes vérifiés ponctuellement ; 274 à étudier et valider individuellement.
+- 133 paragraphes vérifiés ponctuellement ; 267 à étudier et valider individuellement.
 - 29 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 97 paragraphes conditionnels, jets de dés ou combats particuliers. 14 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 209, 243, 389.
+- 104 paragraphes conditionnels, jets de dés ou combats particuliers. 15 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -202,3 +202,20 @@ Les passages §§119, 125, 130, 139, 140 et 143 demandent des contraintes plus c
 Cinq tests supplémentaires contrôlent le sacrifice d'objet et d'or, les objets maudits, le blocage du passage, la victoire contre le Ver marin, les trois assauts de fuite, la perte du repas et l'annulation. Les anciennes options du catalogue conservent leurs identifiants.
 
 **Correctif §119 (retour utilisateur)** : le lancer d'une pièce d'or ne dépend désormais plus de la présence d'objets dans le sac. Le sélecteur propose la pièce d'or dès que la bourse contient au moins 1 PO, en parallèle des objets jetables. Deux tests supplémentaires couvrent le choix avec inventaire rempli, l'absence d'option or à 0 PO et l'annulation.
+
+### Revue §§145 à 156 : Dragon, clé n°99 et épreuve de porte
+
+Sept nouveaux paragraphes ont été vérifiés dans le PDF de 1982 : **146, 148, 149, 150, 152, 154 et 156**. Le §145, déjà vérifié, a reçu sa destination explicite §363, **sans changement de son identifiant historique d'option `cle99`**.
+
+- **§145** : après le Serpent, +1 Chance à l'entrée une seule fois ; récupérer la **Clé de bronze 99** reste facultatif. Puis §363.
+- **§146** : aller au nord §366 ou à l'ouest §11 après une recherche de passage secret infructueuse.
+- **§148** : une créature se relève durant la fouille, suite imposée §230 ; aucun dégât supposé.
+- **§149** : après extinction de la chandelle, ramper vers l'est §181, le nord §265 ou l'ouest §355.
+- **§150** : croisée de trois chemins : nord §222, est §297, sud §133.
+- **§152** : Dragon H10/E12, victoire §371. Combat préparé automatiquement et lien de victoire protégé, sans fuite inventée.
+- **§154** : réveil de la créature, combat obligatoire au §41, qui est déjà catalogué et s'interrompt à la première blessure infligée.
+- **§156** : jet obligatoire de deux dés sous Habileté ; réussite §343, échec §92 sans seconde tentative. Le jet ne diminue pas l'Habileté.
+
+Cinq tests supplémentaires vérifient les routes, la clé, la victoire contre le Dragon et son annulation, les onze totaux de deux dés et le blocage de la porte avant l'épreuve.
+
+Les passages complexes §125 (tests de Chance répétés), §130 (pari), §139 (trois clés) et §140 (plusieurs attaques dans le même assaut) restent en attente d'une modélisation complète.
