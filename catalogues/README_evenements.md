@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 57 paragraphes vérifiés ponctuellement ; 343 à étudier et valider individuellement.
+- 60 paragraphes vérifiés ponctuellement ; 340 à étudier et valider individuellement.
 - 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 25 paragraphes avec règles conditionnelles, dés ou combats particuliers. 12 épreuves de dés cataloguées (dont un lancer facultatif) : 2, 18, 47, 53, 55, 74, 82, 83, 91, 209, 243, 389. Au §91, la réussite du test de Chance lance ensuite deux dés pour les pièces d'or gagnées.
+- 32 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -111,4 +111,12 @@ Les métadonnées de ce catalogue sont propres au PDF de référence ; aucune pa
 - Les liens et choix génériques vers §147/§310 ne peuvent plus contourner les objectifs du combat ; les commandes de navigation manuelle restent libres pour le débogage.
 - Aucun monstre préparé par le catalogue ne peut être remis à son Endurance initiale par un bouton heuristique « Préparer le combat » ; sa progression reste enregistrée et annulable.
 - Quatre nouveaux tests contrôlent la victoire du §33, sa fuite, le premier coup du §41 et la protection de sa destination.
+
+
+### Nouveaux passages : Araignée géante §61, Lutin §71 et Être §310
+
+- **§61** : Araignée géante H7/E8, victoire → §29. La fuite vers §375 n'est proposée qu'après **deux assauts** comptabilisés, égalités comprises, et applique la blessure de fuite avec Chance facultative. L'ennemi ne peut pas être réinitialisé depuis une détection heuristique ; les sorties de combat sont protégées contre le contournement.
+- **§71** : le Lutin endormi impose un **test de Chance à deux dés**. Comparer le total à la Chance *avant* de dépenser un point : réussite → §301, échec → §248. Résultat et dépense sont annulables ensemble.
+- **§310** : suite vérifiée de l'Être du §41 ; le héros constate l'inefficacité de son attaque, peut choisir une autre arme et poursuit au §211. Aucun bonus de caractéristique n'est inventé.
+- Cinq tests ciblent les deux assauts de fuite, les conséquences de victoire, le seuil de Chance, les deux issues de l'épreuve et l'annulation.
 
