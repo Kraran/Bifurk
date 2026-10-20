@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 186,
+  "reviewed_count": 205,
   "review_pending": [
     1,
     4,
@@ -71,27 +71,8 @@
     230,
     234,
     236,
-    237,
-    238,
-    239,
-    240,
-    241,
-    242,
-    244,
-    245,
-    246,
-    248,
-    249,
-    250,
-    251,
-    252,
     253,
-    254,
-    255,
-    256,
-    257,
     258,
-    260,
     261,
     262,
     263,
@@ -2811,7 +2792,7 @@
     "212": {
       "status": "verifie",
       "mode": "conditionnel",
-      "note": "Destinations vérifiées dans le PDF 1982 : §369, §120.",
+      "note": "Le liquide ne peut être essayé qu'une fois. §369 accessible seulement avant toute visite au §369 ; sinon §120.",
       "routes": [
         {
           "target": 369,
@@ -3099,6 +3080,106 @@
         }
       ]
     },
+    "237": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §285.",
+      "routes": [
+        {
+          "target": 285,
+          "label": "Repartir au nord"
+        }
+      ]
+    },
+    "238": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §70, §180, §329.",
+      "routes": [
+        {
+          "target": 70,
+          "label": "Aller à l'est"
+        },
+        {
+          "target": 180,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 329,
+          "label": "Aller au nord"
+        }
+      ]
+    },
+    "239": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Renvois explicitement vérifiés dans le PDF : §88, §149.",
+      "routes": [
+        {
+          "target": 88,
+          "label": "Franchir la porte opposée"
+        },
+        {
+          "target": 149,
+          "label": "Examiner les peintures"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 1
+        }
+      ]
+    },
+    "240": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Serpent H5/E2 ; victoire §145.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Serpent",
+            "skill": 5,
+            "stamina": 2
+          }
+        ],
+        "victory_target": 145
+      }
+    },
+    "241": {
+      "status": "verifie",
+      "mode": "automatique",
+      "note": "Renvois explicitement vérifiés dans le PDF : §90.",
+      "routes": [
+        {
+          "target": 90,
+          "label": "Fuir par la porte nord"
+        }
+      ],
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "habilete",
+          "amount": -1
+        }
+      ]
+    },
+    "242": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §379, §139.",
+      "routes": [
+        {
+          "target": 379,
+          "label": "Frapper le coffre avec l'épée"
+        },
+        {
+          "target": 139,
+          "label": "Chercher trois clés dans le sac"
+        }
+      ]
+    },
     "243": {
       "status": "verifie",
       "mode": "des",
@@ -3141,6 +3222,51 @@
         ]
       }
     },
+    "244": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §143, §399.",
+      "routes": [
+        {
+          "target": 143,
+          "label": "S'asseoir et prendre un repas (au §143)"
+        },
+        {
+          "target": 399,
+          "label": "Sauter dans la rivière"
+        }
+      ]
+    },
+    "245": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §198.",
+      "routes": [
+        {
+          "target": 198,
+          "label": "Rejoindre le §198"
+        }
+      ]
+    },
+    "246": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §329, §180, §70.",
+      "routes": [
+        {
+          "target": 329,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 180,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 70,
+          "label": "Revenir vers l'est"
+        }
+      ]
+    },
     "247": {
       "status": "verifie",
       "mode": "automatique",
@@ -3151,7 +3277,158 @@
           "amount": -2
         }
       ],
-      "note": "Échec de l'attaque contre le vieil homme : Endurance -2."
+      "note": "Échec de l'attaque contre le vieil homme : Endurance -2.",
+      "routes": [
+        {
+          "target": 292,
+          "label": "Repartir au nord"
+        }
+      ]
+    },
+    "248": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Farfadet H6/E5 ; victoire §301.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Farfadet",
+            "skill": 6,
+            "stamina": 5
+          }
+        ],
+        "victory_target": 301
+      }
+    },
+    "249": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §141, §165.",
+      "routes": [
+        {
+          "target": 141,
+          "label": "Demander des renseignements"
+        },
+        {
+          "target": 165,
+          "label": "Faire remarquer les lacets défaits"
+        }
+      ]
+    },
+    "250": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §366.",
+      "routes": [
+        {
+          "target": 366,
+          "label": "Retourner au croisement au nord"
+        }
+      ]
+    },
+    "251": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Chauves-souris géantes H6/E6 ; victoire §344.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Chauves-souris géantes",
+            "skill": 6,
+            "stamina": 6
+          }
+        ],
+        "victory_target": 344,
+        "escape_target": 399,
+        "escape_after_assaults": 0
+      }
+    },
+    "252": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §312, §226.",
+      "routes": [
+        {
+          "target": 312,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 226,
+          "label": "Aller au sud"
+        }
+      ]
+    },
+    "254": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §352, §333, §279, §380.",
+      "routes": [
+        {
+          "target": 352,
+          "label": "S'approcher du Vampire"
+        },
+        {
+          "target": 333,
+          "label": "Tirer l'épée"
+        },
+        {
+          "target": 279,
+          "label": "Chercher une autre arme"
+        },
+        {
+          "target": 380,
+          "label": "Fuir par la porte ouest"
+        }
+      ]
+    },
+    "255": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §193, §93.",
+      "routes": [
+        {
+          "target": 193,
+          "label": "Essayer la porte"
+        },
+        {
+          "target": 93,
+          "label": "Revenir à la bifurcation"
+        }
+      ]
+    },
+    "256": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §398, §297, §114.",
+      "routes": [
+        {
+          "target": 398,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 297,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 114,
+          "label": "Aller au sud"
+        }
+      ]
+    },
+    "257": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §168, §293.",
+      "routes": [
+        {
+          "target": 168,
+          "label": "Entrer dans la pièce"
+        },
+        {
+          "target": 293,
+          "label": "Revenir sur ses pas"
+        }
+      ]
     },
     "259": {
       "status": "verifie",
@@ -3168,7 +3445,28 @@
           "amount": 2
         }
       ],
-      "note": "Victoire contre le Crocodile : Habileté +1 et Chance +2 ; poursuivre au §7."
+      "note": "Victoire contre le Crocodile : Habileté +1 et Chance +2 ; poursuivre au §7.",
+      "routes": [
+        {
+          "target": 7,
+          "label": "Poursuivre au §7"
+        }
+      ]
+    },
+    "260": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Renvois explicitement vérifiés dans le PDF : §359, §329.",
+      "routes": [
+        {
+          "target": 359,
+          "label": "Partir au nord"
+        },
+        {
+          "target": 329,
+          "label": "Partir au sud"
+        }
+      ]
     },
     "264": {
       "status": "verifie",
