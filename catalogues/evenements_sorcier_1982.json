@@ -820,8 +820,34 @@
     },
     "91": {
       "status": "verifie",
-      "mode": "conditionnel",
-      "note": "Test de Chance après tricherie : succès exige un second jet 2d6 ajoutant des pièces d'or avant §131, échec provoque le combat §20 ; moteur multi-jet à créer."
+      "mode": "des",
+      "note": "Tricherie aux cartes : test de Chance. Succès : lancer deux autres dés, ajouter leur total en pièces d'or, aller au §131. Échec : §20 (quatre Nains).",
+      "roll": {
+        "dice": 2,
+        "pre_effects": [
+          {
+            "kind": "stat",
+            "key": "chance",
+            "amount": -1
+          }
+        ],
+        "branches": [
+          {
+            "when": "lte_stat",
+            "key": "chance",
+            "target": 131,
+            "followup": {
+              "dice": 2,
+              "kind": "stat",
+              "key": "gold"
+            }
+          },
+          {
+            "when": "otherwise",
+            "target": 20
+          }
+        ]
+      }
     },
     "109": {
       "status": "verifie",
