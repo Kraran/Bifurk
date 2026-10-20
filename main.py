@@ -720,6 +720,10 @@ class MainWindow(QMainWindow, BookActions):
         choices = self._paragraph_choices(text)
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
         escape_target = entry.get("combat", {}).get("escape_target") if entry else None
+        combat = entry.get("combat", {}) if entry else {}
+        if (combat.get("mode") == "fire_breath"
+                and self.character.get("book_facts", {}).get(combat["victory_fact"])):
+            escape_target = None
         if self.current_paragraph == 179 and self.character.get("book_facts", {}).get("minotaur_dead"):
             escape_target = None
         if entry and "routes" in entry:
@@ -1074,7 +1078,7 @@ class MainWindow(QMainWindow, BookActions):
             entry = verified_entry(self.book_event_catalogue, number)
             combat = entry.get("combat", {}) if entry else {}
             opponents = combat.get("enemies", [])
-            if (len(opponents) == 1 and combat.get("mode") in (None, "first_hit")
+            if (len(opponents) == 1 and combat.get("mode") in (None, "first_hit", "fire_breath")
                     and not (number == 179 and self.character.get("book_facts", {}).get("minotaur_dead"))
                     and number not in self.prepared_book_encounters):
                 opponent = opponents[0]
@@ -1497,6 +1501,9 @@ class MainWindow(QMainWindow, BookActions):
             target = combat.get("first_hit_target")
         elif combat.get("mode") in (None, "silver", "ghoul") and self.enemy_endurance.value() <= 0:
             target = combat.get("victory_target")
+        elif combat.get("mode") == "fire_breath" and self.enemy_endurance.value() <= 0:
+            self._finish_fire_dog(combat)
+            return
         else:
             return
         if target is None:
@@ -1551,6 +1558,11 @@ class MainWindow(QMainWindow, BookActions):
         entry = verified_entry(self.book_event_catalogue, number)
         rules = entry.get("combat", {}) if entry else {}
         target = rules.get("escape_target")
+        if (rules.get("mode") == "fire_breath"
+                and self.character.get("book_facts", {}).get(rules["victory_fact"])):
+            if target in self.paragraphs and self.character["endurance"] > 0:
+                self.go_to(target)
+            return
         if number == 179 and self.character.get("book_facts", {}).get("minotaur_dead"):
             if target in self.paragraphs:
                 self.go_to(target)
@@ -1689,11 +1701,13 @@ class MainWindow(QMainWindow, BookActions):
         if self.enemy_endurance.value() <= 0:
             self.rules_log.setText("Le monstre est déjà vaincu.")
             return
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        combat_rules = entry.get("combat", {}) if entry else {}
+        if combat_rules.get("mode") == "fire_breath" and not self._resolve_fire_breath():
+            return
         enemy_rolls, enemy_total = self._roll(2)
         player_rolls, player_total = self._roll(2)
         enemy_attack = self.enemy_skill.value() + enemy_total
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
-        combat_rules = entry.get("combat", {}) if entry else {}
         player_attack = combat_skill(self.character) + player_total + combat_rules.get("attack_bonus", 0)
         if player_attack == enemy_attack:
             self.rules_log.setText(f"Égalité ({player_attack} contre {enemy_attack}) : aucun dégât. Relancez l'assaut.")
@@ -1923,6 +1937,14 @@ class MainWindow(QMainWindow, BookActions):
             if "enemy_name" in state:
                 self.enemy_name.setText(state["enemy_name"])
             target = state["current_paragraph"]
+            entry = verified_entry(self.book_event_catalogue, target)
+            combat = entry.get("combat", {}) if entry else {}
+            if (target == 249 and combat.get("mode") == "fire_breath"
+                    and target not in self.prepared_book_encounters
+                    and not self.character.get("book_facts", {}).get(combat["victory_fact"])):
+                # Ancienne sauvegarde bloquée au §249 avant que le chien soit géré.
+                self._set_book_enemy(combat["enemies"][0])
+                self.prepared_book_encounters.add(target)
             if target in self.paragraphs:
                 self.go_to(target)
             else:

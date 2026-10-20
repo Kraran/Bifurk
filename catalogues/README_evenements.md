@@ -371,3 +371,17 @@ Les anciennes sauvegardes dans lesquelles les deux clés ont déjà été fusion
 Les tests de `tests/test_final_events.py` contrôlent également les renvois du PDF sur les 50 paragraphes du lot, les onze résultats de l’épreuve du gaz, les morts, les objets détruits, le coût de la porte, les sauvegardes et l’absence de double butin. Les limites générales (politique de répétition conservatrice, saut manuel avancé et absence de renvoi explicite après le combat §289) restent documentées ; le défaut connu de cadrage de couverture reste hors de ce lot.
 
 Validation du dernier lot avec le PDF présent : **251 tests exécutés, 250 réussis, 1 échec attendu** pour le cadrage connu de la couverture ; aucun test ignoré. Le fichier `tests/test_final_events.py` ajoute 31 tests.
+
+### Correctif issu d’une partie réelle : chien cracheur de feu (§249)
+
+La partie de validation s’est arrêtée au §249 : l’ancienne entrée contenait les dialogues des §§141/165, alors que le PDF impose le Chien H7/E6. Cette entrée est remplacée par un combat vérifié.
+
+- Le chien est préparé automatiquement une seule fois ; les mauvais dialogues disparaissent.
+- Avant chaque assaut, y compris une égalité ou l’assaut qui tue le chien, le souffle est résolu : **1d6, blessure supplémentaire de 1 Endurance sur 1 ou 2**. Le joueur peut choisir à la place un **test de Chance** : comparer au score avant de dépenser 1 Chance, puis subir 1 dégât uniquement en cas d’échec. La protection physique du bouclier ne réduit pas le souffle.
+- Une flamme mortelle arrête l’assaut avant les attaques ordinaires. Le souffle, le combat et leurs conséquences constituent une seule action annulable.
+- Pendant le combat, fuir vers §66 coûte la pénalité normale ; §304 est inaccessible. Après victoire, **Chance +1 plafonnée une seule fois**, puis choix entre §66 **sans nouvelle pénalité** et §304. Il n’y a pas de navigation automatique qui supprimerait ce choix.
+- Les sauvegardes d’un combat commencé conservent les PV du chien. Une ancienne sauvegarde bloquée au §249, sans rencontre préparée, initialise le chien sans toucher aux caractéristiques du héros.
+
+Validation : **266 tests exécutés avec le PDF, 265 réussis et 1 échec attendu** sur le cadrage connu de couverture. Quinze tests nouveaux couvrent les six faces du souffle, la Chance, les dégâts cumulés, la mort, les sorties, les récompenses, Annuler/Rétablir et les sauvegardes. L’ancien test de renvois qui entérinait les mauvais dialogues est remplacé par ces contrôles et la comparaison avec le PDF.
+
+La sauvegarde de la partie réelle auparavant bloquée a également été reprise avec les dés normaux : chien vaincu en quatre assauts, sortie au §66 avec 9 Endurance, sans altération des caractéristiques ni répétition d’un jet. Il s’agit d’un test de reprise, pas d’une nouvelle partie gagnée.
