@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 126,
+  "reviewed_count": 133,
   "review_pending": [
     1,
     4,
@@ -49,14 +49,7 @@
     139,
     140,
     144,
-    146,
-    148,
-    149,
-    150,
     151,
-    152,
-    154,
-    156,
     157,
     158,
     159,
@@ -2055,6 +2048,27 @@
             }
           ]
         }
+      ],
+      "routes": [
+        {
+          "target": 363,
+          "label": "Quitter la pièce après le Serpent"
+        }
+      ]
+    },
+    "146": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Aucun passage secret ; nord §366 ou ouest §11.",
+      "routes": [
+        {
+          "target": 366,
+          "label": "Revenir au croisement et poursuivre au nord"
+        },
+        {
+          "target": 11,
+          "label": "Revenir au croisement et partir à l'ouest"
+        }
       ]
     },
     "147": {
@@ -2074,6 +2088,70 @@
       ],
       "note": "La boîte contient une pièce d'or conservée ; Chance +2."
     },
+    "148": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Le corps fouillé se relève et attaque : suite imposée §230.",
+      "routes": [
+        {
+          "target": 230,
+          "label": "Faire face à la créature réveillée"
+        }
+      ]
+    },
+    "149": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "La chandelle s'éteint devant la peinture vivante ; trois directions de reptation.",
+      "routes": [
+        {
+          "target": 181,
+          "label": "Ramper vers le mur est"
+        },
+        {
+          "target": 265,
+          "label": "Ramper vers le mur nord"
+        },
+        {
+          "target": 355,
+          "label": "Ramper vers le mur ouest"
+        }
+      ]
+    },
+    "150": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Croisée de trois chemins : nord §222, est §297, sud §133.",
+      "routes": [
+        {
+          "target": 222,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 297,
+          "label": "Aller à l'est"
+        },
+        {
+          "target": 133,
+          "label": "Aller au sud"
+        }
+      ]
+    },
+    "152": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Dragon Habileté 10 / Endurance 12. Victoire §371 ; aucune fuite mentionnée.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Dragon",
+            "skill": 10,
+            "stamina": 12
+          }
+        ],
+        "victory_target": 371
+      }
+    },
     "153": {
       "status": "verifie",
       "mode": "automatique",
@@ -2090,11 +2168,41 @@
       ],
       "note": "L'épée ramassée à la rivière blesse le héros (-1 Endurance), devient inutilisable et est jetée. Son abandon ne retire pas l'épée d'origine."
     },
+    "154": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "La créature se réveille ; affrontement imposé au §41.",
+      "routes": [
+        {
+          "target": 41,
+          "label": "Affronter la créature réveillée"
+        }
+      ]
+    },
     "155": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Bouclier au croissant facultatif : nécessite d'abandonner un objet ; utilisé en combat, un lancer de 6 réduit de 1 point la blessure reçue (2→1, 1→0).",
       "shield_pickup": true
+    },
+    "156": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "Enfoncer la porte : 2 dés, réussite si total inférieur ou égal à Habileté → §343 ; échec → §92, sans deuxième essai.",
+      "roll": {
+        "dice": 2,
+        "branches": [
+          {
+            "when": "lte_stat",
+            "key": "habilete",
+            "target": 343
+          },
+          {
+            "when": "otherwise",
+            "target": 92
+          }
+        ]
+      }
     },
     "170": {
       "status": "verifie",
