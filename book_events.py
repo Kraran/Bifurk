@@ -42,6 +42,16 @@ def apply_effects(character, effects):
             target = max(0, initial - int(effect["below_initial"]))
             # Restauration sans diminution si le personnage est déjà en meilleure forme.
             character[key] = max(int(character.get(key, 0)), target)
+        elif effect["kind"] == "initial_stat":
+            key = effect["key"]
+            delta = int(effect["amount"])
+            current_max = int(character.setdefault("initial", {}).get(key, character.get(key, 0)))
+            character["initial"][key] = max(0, current_max + delta)
+        elif effect["kind"] == "remove_item":
+            inventory = character.setdefault("inventory", [])
+            if effect["name"] not in inventory:
+                raise ValueError("Objet requis absent : " + effect["name"])
+            inventory.remove(effect["name"])
         elif effect["kind"] == "item":
             inventory = character.setdefault("inventory", [])
             if effect["name"] not in inventory:
@@ -68,25 +78,36 @@ def resolve_roll(roll, total, character):
     raise ValueError("Aucune issue définie pour ce jet")
 
 
+def condition_met(character, condition):
+    """Condition vérifiée sur les données réelles de l'aventurier."""
+    if condition is None:
+        return True
+    kind = condition["kind"]
+    if kind in ("has_item", "missing_item"):
+        inventory = {str(item).casefold() for item in character.get("inventory", [])}
+        present = condition["name"].casefold() in inventory
+        return present if kind == "has_item" else not present
+    if kind == "min_stat":
+        return int(character.get(condition["key"], 0)) >= int(condition["value"])
+    raise ValueError("Condition inconnue : " + str(kind))
+
+
+def available_options(character, entry, completed_options, paragraph):
+    """N'affiche que les actions réellement réalisables et encore disponibles."""
+    if not entry:
+        return []
+    return [o for o in entry.get("options", [])
+            if f"{paragraph}:{o['id']}" not in completed_options
+            and condition_met(character, o.get("when"))]
+
+
 def available_routes(character, entry):
     """Retourne les itinéraires légitimes pour l'état actuel du personnage."""
     if not entry:
         return []
     available = []
-    inventory = {str(x).casefold() for x in character.get("inventory", [])}
     for route in entry.get("routes", []):
-        condition = route.get("when")
-        if condition is None:
-            allowed = True
-        elif condition["kind"] == "has_item":
-            allowed = condition["name"].casefold() in inventory
-        elif condition["kind"] == "missing_item":
-            allowed = condition["name"].casefold() not in inventory
-        elif condition["kind"] == "min_stat":
-            allowed = int(character.get(condition["key"], 0)) >= int(condition["value"])
-        else:
-            raise ValueError("Condition de route inconnue : " + str(condition["kind"]))
-        if allowed:
+        if condition_met(character, route.get("when")):
             available.append(route)
     return available
 
@@ -118,8 +139,16 @@ def apply_option(character, completed_options, paragraph, option_id, catalogue):
         return False
     option = next((o for o in entry.get("options", []) if o["id"] == option_id), None)
     marker = f"{paragraph}:{option_id}"
-    if option is None or marker in completed_options:
+    if (option is None or marker in completed_options
+            or not condition_met(character, option.get("when"))):
         return False
+    # Validation préalable pour ne pas appliquer une fraction d'un choix.
+    inventory = list(character.get("inventory", []))
+    for effect in option["effects"]:
+        if effect["kind"] == "remove_item":
+            if effect["name"] not in inventory:
+                return False
+            inventory.remove(effect["name"])
     apply_effects(character, option["effects"])
     completed_options.add(marker)
     return True
