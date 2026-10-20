@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 62 paragraphes vérifiés ponctuellement ; 338 à étudier et valider individuellement.
+- 64 paragraphes vérifiés ponctuellement ; 336 à étudier et valider individuellement.
 - 28 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 145, 147, 153, 170, 185, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 34 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
+- 36 paragraphes conditionnels, jets de dés ou combats particuliers. 13 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 209, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -128,3 +128,11 @@ Les métadonnées de ce catalogue sont propres au PDF de référence ; aucune pa
 - **§15** : pour manger au banc enchanté, le joueur lance l'action dédiée une seule fois. Elle consomme **1 Provision**, rend jusqu'à **6 Endurance** (+4 du repas et +2 du banc) et jusqu'à **1 Habileté**, sans dépasser les totaux initiaux. Le passage vers §367 est bloqué tant que cette action n'a pas été résolue. La progression, les ressources et les statistiques sont annulables ensemble.
 
 Les tests vérifient l'absence de provisions, les limites des caractéristiques, le caractère facultatif du butin et la non-répétition des effets. **La base s'applique exclusivement au PDF dont l'empreinte est enregistrée**, sans reprise de son texte.
+
+### Deux Lutins successifs §19 et Fromage facultatif §317
+
+- **§19** : deux Lutins attaquent **l'un après l'autre** : premier H5/E5, puis second H5/E6. Le mécanisme de `combat.mode=sequence`, initialement réservé au §20 (quatre Nains), fonctionne désormais sur tout paragraphe du catalogue possédant une liste d'adversaires. Le second Lutin n'est préparé qu'après la défaite du premier ; les dégâts et l'ordre des combats se restaurent par annulation.
+- **Victoire au §19** : passage au §317 uniquement après la défaite des deux Lutins. Les liens ou boutons du PDF ne permettent pas d'ignorer un combat séquentiel en cours. La fin de la série est enregistrée dans les rencontres préparées pour ne pas redémarrer le combat en revisitant l'ancien passage.
+- **§317** : le morceau de **Fromage** est facultatif, acquis au plus une fois, avant de continuer au §303. Le nom de l'objet est exactement celui attendu par le §32 ; le jeter aux rats retire le Fromage du sac et donne le bonus de Chance correspondant.
+- Quatre nouveaux tests couvrent la progression de la série, la victoire, le blocage du renvoi, le Fromage et l'annulation. La suite compte **96 méthodes de test** sur cette branche.
+
