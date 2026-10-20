@@ -3,7 +3,7 @@ from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
-from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina
+from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -738,7 +738,10 @@ class MainWindow(QMainWindow):
                 button = QPushButton(f"{choice['label']}  →  §{target}")
                 button.setToolTip(f"Ouvrir le paragraphe {target}")
                 button.setEnabled(target in self.paragraphs)
-                button.clicked.connect(lambda checked=False, n=target: self.go_to(n))
+                if entry and "routes" in entry:
+                    button.clicked.connect(lambda checked=False, n=target: self.follow_catalogue_choice(n))
+                else:
+                    button.clicked.connect(lambda checked=False, n=target: self.go_to(n))
                 self.choice_layout.addWidget(button)
                 if target not in self.paragraphs:
                     button.setToolTip(f"Destination {target} non détectée dans le PDF importé")
@@ -751,6 +754,14 @@ class MainWindow(QMainWindow):
             self.event_layout.addWidget(notice)
             if scripted["mode"] == "automatique":
                 self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
+            if scripted.get("trade_choices") and not any(
+                    k.startswith(f"{self.current_paragraph}:trade:")
+                    for k in self.completed_optional_events):
+                for choice in scripted["trade_choices"]:
+                    btn = QPushButton(f"Échanger un objet contre : {choice['name']}")
+                    btn.clicked.connect(
+                        lambda checked=False, item_id=choice["id"]: self.take_book_trade(item_id))
+                    self.event_layout.addWidget(btn)
             if scripted.get("shield_pickup") and SHIELD_NAME not in self.character.get("inventory", []):
                 btn = QPushButton("Prendre le bouclier (abandonner un objet)")
                 btn.clicked.connect(lambda checked=False: self.take_book_shield())
@@ -1103,6 +1114,43 @@ class MainWindow(QMainWindow):
             suffix = f" ({index}/{len(entries)})" if len(entries) > 1 else ""
             self._show_illustration(entry, f"Illustration — paragraphe {self.current_paragraph}{suffix}")
 
+    def follow_catalogue_choice(self, target):
+        """Toutes les issues vérifiées passent par le même contrôle de ressources."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        if (not entry or target not in self.paragraphs
+                or not follow_catalogue_route(self.character, entry, target)):
+            QMessageBox.information(
+                self, "Chemin inaccessible", "Les conditions de ce passage ne sont pas remplies.")
+            return
+        self._refresh_character()
+        self.go_to(target)
+
+    def take_book_trade(self, item_id):
+        """§34 : échanger un seul objet contre un seul outil du Squelette."""
+        if self.current_paragraph != 34:
+            return
+        entry = verified_entry(self.book_event_catalogue, 34)
+        choice = next((c for c in entry.get("trade_choices", [])
+                       if c["id"] == item_id), None) if entry else None
+        marker = f"34:trade:{item_id}"
+        if (choice is None or marker in self.completed_optional_events
+                or any(k.startswith("34:trade:") for k in self.completed_optional_events)):
+            return
+        candidates = [name for name in self.character.get("inventory", [])
+                      if name not in self.character.get("locked_items", [])
+                      and name != choice["name"]]
+        if not candidates:
+            QMessageBox.information(self, "Échange impossible", "Aucun équipement à abandonner.")
+            return
+        discarded, accepted = QInputDialog.getItem(
+            self, "Échange d'équipement", "Objet à abandonner :", candidates, 0, False)
+        if accepted and trade_inventory_item(self.character, choice["name"], discarded):
+            self.completed_optional_events.add(marker)
+            self._refresh_character()
+            self._render_choices_and_events(self.paragraphs[34])
+            self.rules_log.setText(
+                f"Objet abandonné : {discarded}. Nouvel outil : {choice['name']}.")
+
     def follow_link(self, url):
         value = url.toString()
         match = re.search(r"paragraph(?::|%3A)(\d+)", value, re.I)
@@ -1128,11 +1176,8 @@ class MainWindow(QMainWindow):
             self.escape_scripted_combat(self.current_paragraph)
             return
         if entry and "routes" in entry:
-            allowed = {route["target"] for route in available_routes(self.character, entry)}
-            if target not in allowed:
-                QMessageBox.information(self, "Chemin inaccessible",
-                    "Les conditions de ce passage ne sont pas remplies.")
-                return
+            self.follow_catalogue_choice(target)
+            return
         self.go_to(target)
 
     def _refresh_character(self):
@@ -1839,7 +1884,9 @@ for _name, _label in {
     "remove_item": "Retirer un objet", "change_potion": "Changer de potion",
     "change_weapon": "Changer d'arme",
     "change_shield_use": "Utiliser le bouclier",
-    "take_book_shield": "Prendre le bouclier"
+    "take_book_shield": "Prendre le bouclier",
+    "take_book_trade": "Échanger un équipement du livre",
+    "follow_catalogue_choice": "Suivre un itinéraire vérifié"
 }.items():
     setattr(MainWindow, _name, _track_action(getattr(MainWindow, _name), _label))
 
