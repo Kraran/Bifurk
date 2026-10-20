@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 88,
+  "reviewed_count": 107,
   "review_pending": [
     1,
     4,
@@ -36,28 +36,9 @@
     87,
     88,
     89,
-    92,
-    93,
-    94,
-    95,
-    96,
-    97,
-    98,
-    99,
-    100,
-    101,
-    102,
-    103,
-    104,
     105,
     106,
-    107,
-    108,
-    111,
     112,
-    113,
-    114,
-    115,
     116,
     117,
     118,
@@ -1468,6 +1449,207 @@
         ]
       }
     },
+    "92": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §71. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Retourner vers le croisement et avancer jusqu'au §71",
+          "target": 71
+        }
+      ]
+    },
+    "93": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §8. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Prendre le passage nord vers le §8",
+          "target": 8
+        }
+      ]
+    },
+    "94": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §260, §329. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Rechercher un passage secret dans le couloir",
+          "target": 260
+        },
+        {
+          "label": "Continuer jusqu'au croisement",
+          "target": 329
+        }
+      ]
+    },
+    "95": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §205. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Se précipiter vers la porte au nord",
+          "target": 205
+        }
+      ]
+    },
+    "96": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §374. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Se cacher des quatre Squelettes",
+          "target": 374
+        }
+      ]
+    },
+    "97": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §334, §247, §292. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Engager la conversation avec le vieil homme",
+          "target": 334
+        },
+        {
+          "label": "Tirer l'épée et attaquer",
+          "target": 247
+        },
+        {
+          "label": "Partir vers le nord sans discuter",
+          "target": 292
+        }
+      ]
+    },
+    "98": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §358. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Observer la transformation puis poursuivre",
+          "target": 358
+        }
+      ]
+    },
+    "99": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §383. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Examiner la porte qui bloque le passage est",
+          "target": 383
+        }
+      ]
+    },
+    "100": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §346, §91. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Jouer honnêtement avec les compagnons",
+          "target": 346
+        },
+        {
+          "label": "Tenter de tricher au jeu",
+          "target": 91
+        }
+      ]
+    },
+    "101": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §327. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Poursuivre après le Vampire",
+          "target": 327
+        }
+      ]
+    },
+    "102": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §303, §19, §68. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Refermer la porte et continuer le couloir",
+          "target": 303
+        },
+        {
+          "label": "Affronter les deux créatures",
+          "target": 19
+        },
+        {
+          "label": "Feindre d'attaquer le Nain",
+          "target": 68
+        }
+      ]
+    },
+    "103": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §252, §359. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Tirer le levier découvert derrière la pierre",
+          "target": 252
+        },
+        {
+          "label": "Laisser le levier et revenir au croisement",
+          "target": 359
+        }
+      ]
+    },
+    "104": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §49. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Essayer d'ouvrir la porte du passage nord",
+          "target": 49
+        }
+      ]
+    },
+    "107": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §148, §197. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Revenir fouiller les corps à partir du troisième",
+          "target": 148
+        },
+        {
+          "label": "Continuer dans le couloir",
+          "target": 197
+        }
+      ]
+    },
+    "108": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Main surgie du sol, Habileté 6 et Endurance 4. Victoire vers §185.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Main",
+            "skill": 6,
+            "stamina": 4
+          }
+        ],
+        "victory_target": 185
+      }
+    },
     "109": {
       "status": "verifie",
       "mode": "automatique",
@@ -1501,6 +1683,62 @@
         }
       ],
       "note": "Huit pièces d'or puis deux supplémentaires trouvées dans la botte."
+    },
+    "111": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §249. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Poursuivre après le refus du vieil homme",
+          "target": 249
+        }
+      ]
+    },
+    "113": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §285, §78. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Prendre le passage nord",
+          "target": 285
+        },
+        {
+          "label": "Prendre le passage est",
+          "target": 78
+        }
+      ]
+    },
+    "114": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §359. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Rejoindre le croisement",
+          "target": 359
+        }
+      ]
+    },
+    "115": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Itinéraire(s) vérifié(s) dans le PDF original : §95, §313, §330. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
+      "routes": [
+        {
+          "label": "Examiner les armes au sol",
+          "target": 95
+        },
+        {
+          "label": "S'approcher du corps dans le coin nord-est",
+          "target": 313
+        },
+        {
+          "label": "Examiner les tonneaux",
+          "target": 330
+        }
+      ]
     },
     "145": {
       "status": "verifie",
