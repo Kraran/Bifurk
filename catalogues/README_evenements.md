@@ -5,9 +5,9 @@ Cette base ne contient pas le texte du livre. Elle associe les numéros de parag
 ## État de la revue
 
 - 400 paragraphes numérotés retrouvés dans le PDF.
-- 167 paragraphes vérifiés ponctuellement ; 233 à étudier et valider individuellement.
-- 32 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
-- 135 paragraphes conditionnels, jets de dés ou combats particuliers. 17 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 195, 209, 243, 389.
+- 186 paragraphes vérifiés ponctuellement ; 214 à étudier et valider individuellement.
+- 33 paragraphes à effets d'entrée automatiques : 11, 25, 27, 28, 40, 49, 51, 56, 75, 109, 110, 135, 145, 147, 153, 170, 181, 183, 185, 196, 202, 203, 216, 247, 259, 264, 342, 343, 344, 368, 376, 388, 390.
+- 153 paragraphes conditionnels, jets de dés ou combats particuliers. 18 épreuves de dés cataloguées : 2, 18, 47, 53, 55, 71, 74, 82, 83, 91, 123, 156, 166, 195, 209, 213, 243, 389.
 - Le champ `review_pending` est **une file de revue**, pas une liste de paragraphes sans action.
 - Les indications de détection par mots-clés ne sont jamais considérées comme une preuve d'action.
 
@@ -240,3 +240,15 @@ Six nouveaux tests couvrent les routes, les six faces du dé §166, la préparat
 - **Autres embranchements** : §§187, 190, 191, 193, 194, 197, 200, 205, 207, 208 et 210. Les renvois §§203 et 185 ont été complétés sans modifier leurs récompenses déjà enregistrées.
 
 Six tests supplémentaires couvrent les routes, les six faces du jet §195, la Chance et Undo, le Rat-garou (fuite et victoire), les sorties bloquées ainsi que les plafonds des récompenses automatiques. Les paragraphes §§182, 198, 199, 201 et 206 restent à examiner en profondeur, car ils demandent des mécaniques plus complexes.
+
+### Fontaine §216, porte verrouillée §213 et passages §§212–235
+
+Dix-neuf paragraphes supplémentaires ont été examinés et catalogués : **212, 213, 214, 215, 216, 217, 219, 220, 222, 223, 224, 225, 226, 228, 229, 231, 232, 233 et 235**.
+
+- **§213** : jet **obligatoire de deux dés** sous l'Habileté ; réussite → §36. Échec → **Endurance -1**, puis §314. Le joueur ne peut pas sélectionner un résultat sans résoudre le jet ; la perte et la navigation peuvent être annulées.
+- **§216** : eau régénérante, **+4 Endurance**, **Habileté et Chance restaurées exactement à leur valeur initiale**, une seule fois. Un repas normal supplémentaire reste **facultatif** (1 Provision pour +4 Endurance plafonnée), puis sortie §384. Nouvel effet `restore_initial` avec validation de la caractéristique et des maxima.
+- **§214** : trois chemins (nord-ouest §271, porte nord §104, rivière est §99). **§225** : nord §77 ou ouest §63. **§223** : porte à forcer §53 ou passage §300. D'autres destinations simples sont cataloguées explicitement sans effet inventé.
+- **Attention §212** : boire le liquide est possible uniquement si le personnage n'a pas déjà essayé. Le catalogue conserve les deux renvois §369/§120 mais ne suit pas encore ce choix passé pour masquer le premier ; cette restriction doit être implémentée avant de considérer l'action totalement automatisée.
+- **Non traités** : §211 (arme d'argent et fuite avec blessure), §221 (choix du premier équipement inscrit), §227 (pièce vide à la revisite), §230 (Goule et paralysie après quatre blessures). Ces règles exigent une mémoire d'état ou un traitement de combat spécifique.
+
+Cinq nouveaux tests couvrent les itinéraires, les onze totaux possibles au §213, l'échec et Undo, la restauration exacte de la fontaine, le repas facultatif et Undo. 
