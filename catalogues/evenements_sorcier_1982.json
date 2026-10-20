@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 55,
+  "reviewed_count": 57,
   "review_pending": [
     1,
     4,
@@ -25,11 +25,9 @@
     26,
     29,
     30,
-    33,
     35,
     36,
     37,
-    41,
     42,
     43,
     44,
@@ -642,6 +640,23 @@
         }
       ]
     },
+    "33": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Farfadet H6/E4. Fuite avec pénalité vers §320, victoire puis boîte et récompense au §147.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Farfadet",
+            "skill": 6,
+            "stamina": 4
+          }
+        ],
+        "victory_target": 147,
+        "escape_target": 320,
+        "escape_after_assaults": 0
+      }
+    },
     "34": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -697,6 +712,22 @@
         }
       ],
       "note": "Supplice sonore ; mot HABILETÉ coupé dans le PDF."
+    },
+    "41": {
+      "status": "verifie",
+      "mode": "combat_special",
+      "note": "Être H9/E6. À la première blessure infligée par le héros, interrompre l'affrontement et rejoindre §310 : l'arme ordinaire n'a pas l'effet attendu.",
+      "combat": {
+        "enemies": [
+          {
+            "name": "Être",
+            "skill": 9,
+            "stamina": 6
+          }
+        ],
+        "mode": "first_hit",
+        "first_hit_target": 310
+      }
     },
     "47": {
       "status": "verifie",
