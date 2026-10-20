@@ -3,7 +3,7 @@
   "book": "Le Sorcier de la Montagne de Feu — édition PDF fournie",
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
   "total_paragraphs": 400,
-  "reviewed_count": 16,
+  "reviewed_count": 29,
   "review_pending": [
     1,
     3,
@@ -25,11 +25,9 @@
     23,
     24,
     26,
-    28,
     29,
     30,
     31,
-    32,
     33,
     34,
     35,
@@ -43,7 +41,6 @@
     46,
     48,
     50,
-    51,
     52,
     54,
     56,
@@ -136,13 +133,11 @@
     144,
     145,
     146,
-    147,
     148,
     149,
     150,
     151,
     152,
-    153,
     154,
     155,
     156,
@@ -190,8 +185,6 @@
     199,
     200,
     201,
-    202,
-    203,
     204,
     205,
     206,
@@ -231,11 +224,9 @@
     240,
     241,
     242,
-    243,
     244,
     245,
     246,
-    247,
     248,
     249,
     250,
@@ -252,7 +243,6 @@
     261,
     262,
     263,
-    264,
     265,
     266,
     267,
@@ -331,7 +321,6 @@
     340,
     341,
     342,
-    343,
     344,
     345,
     346,
@@ -356,7 +345,6 @@
     365,
     366,
     367,
-    368,
     369,
     370,
     371,
@@ -376,7 +364,6 @@
     385,
     386,
     387,
-    388,
     389,
     390,
     391,
@@ -445,6 +432,16 @@
       "mode": "conditionnel",
       "note": "Échange facultatif d'épée magique, bonus sur maximum d'Habileté."
     },
+    "28": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Chance +2, Habileté +2 ; bourse de 8 pièces d'or à intégrer dans une monnaie structurée."
+    },
+    "32": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Le Fromage est utilisé contre les rats, puis Chance +2 ; consommation d'objet à gérer."
+    },
     "38": {
       "status": "verifie",
       "mode": "conditionnel",
@@ -484,6 +481,11 @@
       ],
       "note": "Assommé avant de poursuivre au §122."
     },
+    "51": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Potion consommée pour échapper au Troll ; Chance +2."
+    },
     "53": {
       "status": "verifie",
       "mode": "des",
@@ -514,6 +516,16 @@
       ],
       "note": "Butin et récompense après le combat ; le repas reste facultatif."
     },
+    "147": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Une pièce d'or récupérée et Chance +2 ; comptabilité d'or à créer."
+    },
+    "153": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Endurance -1 et épée enchantée abandonnée ; inventaire à mettre à jour."
+    },
     "185": {
       "status": "verifie",
       "mode": "automatique",
@@ -525,6 +537,93 @@
         }
       ],
       "note": "Sortie de la salle dallée."
+    },
+    "202": {
+      "status": "verifie",
+      "mode": "conditionnel",
+      "note": "Casque maudit indéposable et Habileté -1 ; statut d'équipement persistant."
+    },
+    "203": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "chance",
+          "amount": 1
+        }
+      ],
+      "note": "Victoire contre le Loup-Garou : Chance +1 ; clés et repas facultatifs."
+    },
+    "243": {
+      "status": "verifie",
+      "mode": "des",
+      "note": "1d6 pair : Habileté -1, Endurance -2 ; impair : Habileté -3, Endurance -1, puis §128."
+    },
+    "247": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "endurance",
+          "amount": -2
+        }
+      ],
+      "note": "Échec de l'attaque contre le vieil homme : Endurance -2."
+    },
+    "264": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "habilete",
+          "amount": -1
+        }
+      ],
+      "note": "Tentative d'enfoncer la porte : Habileté -1 ; issue selon la clé possédée."
+    },
+    "343": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "endurance",
+          "amount": -1
+        }
+      ],
+      "note": "Chute dans la fosse : Endurance -1."
+    },
+    "368": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "endurance",
+          "amount": -3
+        }
+      ],
+      "note": "Attaque magique de Zagor : Endurance -3."
+    },
+    "388": {
+      "status": "verifie",
+      "mode": "automatique",
+      "effects": [
+        {
+          "kind": "stat",
+          "key": "endurance",
+          "amount": -1
+        },
+        {
+          "kind": "stat",
+          "key": "habilete",
+          "amount": -1
+        }
+      ],
+      "note": "L'épée blesse et la peur affaiblit : Endurance -1, Habileté -1."
     }
   }
 }
