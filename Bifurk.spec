@@ -38,6 +38,11 @@ if sys.platform == 'win32':
     )
 
 datas = [(str(ROOT / 'assets'), 'assets'), (str(ROOT / 'catalogues'), 'catalogues')]
+# PyMuPDF récent charge automatiquement son analyseur de mise en page lors du
+# premier import. Les modules Python seuls ne suffisent pas : conserver également
+# configurations YAML et modèles ONNX, aux chemins relatifs attendus par le paquet.
+# Les en-têtes et archives de développement MuPDF ne servent pas à l'exécution.
+datas += collect_data_files('pymupdf', excludes=['mupdf-devel/**'])
 # Inclure les traductions françaises même si le hook Qt change sa sélection.
 datas += collect_data_files('PySide6', includes=['Qt/translations/qtbase_fr.qm',
                                                'Qt/translations/qt_fr.qm',

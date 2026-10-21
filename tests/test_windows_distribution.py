@@ -5,12 +5,14 @@ séparation des ressources / données, l'exclusion du livre privé et l'archive
 effectivement téléversée ; aucun test ne crée de release distante.
 """
 import json
+import importlib.util
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+from types import SimpleNamespace
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -128,6 +130,33 @@ print(json.dumps([str(main.APP_DIR), str(main.DATA_DIR), str(main.ASSET_DIR)]))
         self.assertEqual(app, self.root)
         self.assertEqual(data, self.root / 'donnees')
         self.assertEqual(assets, ROOT / 'assets')
+
+    @unittest.skipUnless(importlib.util.find_spec('PyInstaller'), 'PyInstaller requis : environnement de compilation')
+    def test_spec_collects_installed_pymupdf_layout_models_and_configuration(self):
+        """Exécuter la sélection réelle du spec sans lancer le compilateur.
+
+La liste attendue vient du paquet installé : ne pas figer le nom d'un modèle
+qui peut changer entre versions. Les tests de jeu seuls ne détectent pas une
+configuration ou un modèle absent du binaire.
+"""
+        package_root = Path(importlib.util.find_spec('pymupdf').origin).parent
+        expected = {p.resolve() for p in (package_root / 'layout').rglob('*')
+                    if p.suffix in ('.yaml', '.onnx')}
+        if not expected:
+            self.skipTest('Cette version PyMuPDF ne fournit pas de modèles de mise en page')
+        collected = []
+
+        def analysis(*args, **kwargs):
+            collected.extend(Path(source).resolve() for source, destination in kwargs['datas'])
+            return SimpleNamespace(pure=[], scripts=[], binaries=[], datas=[])
+
+        namespace = {'SPECPATH': str(ROOT), 'Analysis': analysis,
+                     'PYZ': lambda *args, **kwargs: None,
+                     'EXE': lambda *args, **kwargs: None,
+                     'COLLECT': lambda *args, **kwargs: None}
+        spec = ROOT / 'Bifurk.spec'
+        exec(compile(spec.read_text(encoding='utf-8'), str(spec), 'exec'), namespace)
+        self.assertFalse(expected - set(collected), f'Ressources PyMuPDF manquantes : {expected - set(collected)}')
 
 
 if __name__ == '__main__':
