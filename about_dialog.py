@@ -3,7 +3,7 @@ from datetime import date
 
 from PySide6.QtCore import Qt, QUrl, QRectF, QSize
 from PySide6.QtGui import QDesktopServices, QPixmap, QPainter, QColor, QLinearGradient, QPainterPath
-from PySide6.QtWidgets import (QDialog, QFrame, QVBoxLayout, QHBoxLayout,
+from PySide6.QtWidgets import (QAbstractButton, QDialog, QFrame, QVBoxLayout, QHBoxLayout,
                                QGridLayout, QLabel, QPushButton, QSizePolicy)
 
 from app_info import APP_VERSION, APP_RELEASE_DATE, AUTHOR, AUTHOR_URL, REPOSITORY_URL
@@ -18,20 +18,27 @@ class BrandButton(QPushButton):
         return self.sizeHint()
 
 
-class AuthorPortrait(QPushButton):
+class AuthorPortrait(QAbstractButton):
     def __init__(self, path, background, parent=None):
         super().__init__(parent)
         self.setObjectName('aboutPortrait')
-        self.setAutoDefault(False)
+        self.setFocusPolicy(Qt.StrongFocus)
         self.setCursor(Qt.PointingHandCursor)
         self.setToolTip('Ouvrir le profil GitHub de Kraran')
         self.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(AUTHOR_URL)))
         self.pixmap = QPixmap(str(path))
         self.background = QColor(background)
-        self.setFixedWidth(218)
+        self.setFixedWidth(280)
         self.setMinimumHeight(380)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         self.setAccessibleName('Portrait de Kraran — ouvrir son profil GitHub')
+
+    def image_rect(self):
+        if self.pixmap.isNull():
+            return QRectF()
+        size = self.pixmap.size().scaled(self.size(), Qt.KeepAspectRatio)
+        return QRectF((self.width() - size.width()) / 2,
+                      (self.height() - size.height()) / 2, size.width(), size.height())
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -40,16 +47,17 @@ class AuthorPortrait(QPushButton):
         path = QPainterPath()
         path.addRoundedRect(rect, 10, 10)
         painter.setClipPath(path)
+        painter.fillRect(rect, self.background)
         if not self.pixmap.isNull():
-            scaled = self.pixmap.scaled(self.size(), Qt.KeepAspectRatioByExpanding,
+            image_rect = self.image_rect()
+            scaled = self.pixmap.scaled(image_rect.size().toSize(), Qt.KeepAspectRatio,
                                         Qt.SmoothTransformation)
-            painter.drawPixmap((self.width() - scaled.width()) // 2,
-                               (self.height() - scaled.height()) // 2, scaled)
+            painter.drawPixmap(image_rect.topLeft().toPoint(), scaled)
         gradient = QLinearGradient(rect.left(), 0, rect.right(), 0)
         transparent = QColor(self.background)
         transparent.setAlpha(0)
         gradient.setColorAt(0, transparent)
-        gradient.setColorAt(.65, transparent)
+        gradient.setColorAt(.95, transparent)
         gradient.setColorAt(1, self.background)
         painter.fillRect(rect, gradient)
         if self.hasFocus():
@@ -62,8 +70,8 @@ class AboutDialog(QDialog):
         super().__init__(parent)
         self.setObjectName('aboutDialog')
         self.setWindowTitle('À propos de Bifurk')
-        self.resize(760, 550)
-        self.setMinimumWidth(700)
+        self.resize(820, 550)
+        self.setMinimumWidth(760)
         root = QVBoxLayout(self)
         root.setContentsMargins(12, 12, 12, 12)
         root.setSpacing(0)
