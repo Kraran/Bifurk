@@ -70,6 +70,7 @@ class GrimoireInterfaceTests(unittest.TestCase):
         page = w.findChild(QScrollArea, "pageScroll")
         self.assertEqual(w.width(), 930)
         self.assertEqual(page.horizontalScrollBar().maximum(), 0)
+        self.assertLessEqual(w.scene_art.geometry().right(), page.geometry().left() + 1)
         self.assertGreaterEqual(w.reader.height(), 230)
         self.assertTrue(w.choice_group.isVisible())
         w.adventure_tabs.setCurrentIndex(1)
@@ -83,6 +84,15 @@ class GrimoireInterfaceTests(unittest.TestCase):
         self.assertEqual([w.inventory_list.item(i).text() for i in range(3)], names)
         self.assertTrue(all(not w.inventory_list.item(i).icon().isNull() for i in range(3)))
         self.assertEqual(w.character["inventory"], names)
+
+    def test_inventory_rows_remain_compact_with_many_objects(self):
+        w = self.window
+        w.character["inventory"] = [f"Clé {number}" for number in range(12)]
+        w._refresh_character()
+        self.app.processEvents()
+        first = w.inventory_list.visualItemRect(w.inventory_list.item(0))
+        self.assertLessEqual(first.height(), 44)
+        self.assertGreaterEqual(w.inventory_list.viewport().height(), first.height() * 3)
 
 
 if __name__ == "__main__":

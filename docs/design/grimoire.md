@@ -1,7 +1,9 @@
 # Le Grimoire
 
-Première intégration de la direction choisie : bordeaux, or patiné et page ivoire,
+Disposition panoramique de la direction choisie : bordeaux, or patiné et page ivoire,
 avec une bibliothèque fantastique illustrée plutôt qu’un fond de formulaire.
+L’illustration occupe une colonne redimensionnable à gauche du récit ; la fiche
+d’aventurier et l’inventaire compact sont à droite.
 
 ![Lecture et choix](grimoire-interface.png)
 
@@ -14,9 +16,10 @@ Ces captures utilisent un court récit de démonstration original, sans extrait 
 - Importer le PDF avec **Ouvrir un grimoire**.
 - Créer le personnage depuis **Combat & soins**, ou charger une sauvegarde.
 - Choisir une destination sur les cartes sous le récit ; les longs libellés reviennent à la ligne.
-- Le bouton **Illustration** masque le bandeau pour libérer de la place. Les images cataloguées
+- Le bouton **Image** masque le bandeau pour libérer de la place. Les images cataloguées
   du livre remplacent le décor et restent intégralement cadrées ; le bouton d’agrandissement
   ouvre toujours la vue détaillée. La bibliothèque est un décor générique, pas une scène du livre.
+- La sacoche utilise des lignes compactes. **Gérer les objets…** déplie l’ajout et le retrait ; les noms des objets restent visibles.
 - La fiche affiche valeurs et jauges numériques. Les onglets **Sacoche**, **Combat & soins**
   et **Dés** regroupent les commandes. La navigation manuelle par numéro se trouve dans **Dés**.
 - Les panneaux peuvent défiler séparément dans les petites fenêtres ; le plein écran reste accessible par F11.
@@ -27,7 +30,7 @@ Dans PowerShell, depuis le dossier du projet :
 
 ```powershell
 git fetch origin
-git switch feat/interface-grimoire
+git switch feat/grimoire-panoramique
 git pull --ff-only
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py

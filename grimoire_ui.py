@@ -4,6 +4,33 @@ from PySide6.QtGui import QColor, QPainter, QPainterPath, QLinearGradient, QPixm
 from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle
 
 
+class IlluminatedPage(QWidget):
+    """A book page with painted corner flourishes, independent of native controls."""
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        p.fillRect(self.rect(), QColor("#ead9b8"))
+        p.setPen(QPen(QColor("#ad8950"), 1.2))
+        p.drawRect(self.rect().adjusted(4, 4, -5, -5))
+        p.drawRect(self.rect().adjusted(8, 8, -9, -9))
+        for x, y, rotation in ((12, 12, 0), (self.width()-12, 12, 90),
+                                (self.width()-12, self.height()-12, 180),
+                                (12, self.height()-12, 270)):
+            p.save()
+            p.translate(x, y)
+            p.rotate(rotation)
+            flourish = QPainterPath()
+            flourish.moveTo(0, 43)
+            flourish.cubicTo(0, 10, 30, 29, 22, 10)
+            flourish.cubicTo(12, -5, 10, 31, 43, 0)
+            p.drawPath(flourish)
+            p.setBrush(QColor("#79313b"))
+            p.drawEllipse(QRectF(5, 5, 5, 5))
+            p.restore()
+
+
 class ChoiceCard(QPushButton):
     """Wrap long destinations while keeping native button focus and keyboard behaviour."""
 
@@ -82,12 +109,12 @@ class GrimoireScene(QWidget):
         self.atmosphere = QPixmap(str(image_path))
         self.picture = self.atmosphere
         self.is_book_art = False
-        self.setMinimumHeight(110)
-        self.setMaximumHeight(160)
+        self.setMinimumSize(160, 280)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setAccessibleName("Bibliothèque du grimoire — décor d’ambiance")
 
     def sizeHint(self):
-        return QSize(760, 135)
+        return QSize(300, 640)
 
     def set_book_art(self, pixmap=None):
         self.is_book_art = pixmap is not None and not pixmap.isNull()
@@ -117,7 +144,7 @@ class GrimoireScene(QWidget):
             painter.setPen(QColor("#f5db9e"))
             painter.drawText(box.adjusted(18, 0, -18, -12),
                              Qt.AlignBottom | Qt.AlignLeft,
-                             "✦  LES CHRONIQUES DE VOTRE AVENTURE")
+                             "✦  BIFURK")
         painter.setClipping(False)
         painter.setPen(QColor("#bb9455"))
         painter.drawRoundedRect(box, 8, 8)
@@ -172,4 +199,26 @@ QListWidget#inventoryCards::item { background: #eeddbc; color: #432d20; border: 
 QListWidget#inventoryCards::item:selected { background: #76343c; color: #fff0cd; border-color: #e7bf78; }
 QPushButton#combatButton { background: #7c303b; color: #fff0cd; padding: 15px; border: 2px solid #bd9154; }
 QPushButton#combatButton:hover { background: #9a414d; }
+"""
+
+# The margins belong to the frame, not to the text: titles cannot touch controls.
+GRIMOIRE_STYLE += """
+QGroupBox { margin-top: 22px; padding: 22px 10px 10px; }
+QGroupBox::title { top: 3px; left: 14px; padding: 2px 8px; }
+QWidget#readerPanel QGroupBox { margin-top: 22px; padding: 22px 10px 10px; }
+QLabel#inventoryHeading { color: #f1d49a; padding: 6px 0 10px; font-weight: bold; }
+QFrame#inventoryPanel { background: #30221a; border: none; }
+QListWidget#inventoryCards { padding: 0; background: #30221a; }
+QListWidget#inventoryCards::item { margin: 1px 0; padding: 4px 6px; border: 1px solid #8d6d44; }
+QWidget#readerPanel { border: 4px double #a68149; border-radius: 2px; }
+QTextBrowser#reader { border: none; background: #f5e8ce; padding: 12px 16px; }
+QWidget#readerPanel QPushButton#choiceCard { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
+    stop:0 #f9edce, stop:1 #dfc08c); border: 3px double #9d743c; border-left: 5px solid #823842; }
+QWidget#readerPanel QPushButton#choiceCard:hover { background: #fff1c8; border-color: #6f2933; }
+QSpinBox#heroValue { font-size: 24px; background: #55252c; border: 3px double #c6a064; }
+QSpinBox#heroValue::up-button, QSpinBox#heroValue::down-button { width: 0; height: 0; border: none; }
+QWidget#sidePanel QSpinBox { background: #422a23; color: #f9e2b2; border: 1px solid #a88652; }
+QWidget#sidePanel QSpinBox QLineEdit { background: transparent; color: #f9e2b2; border: none; }
+QWidget#sidePanel QComboBox { background: #422a23; color: #f9e2b2; padding: 7px; }
+QTabBar::tab { padding: 12px 10px; }
 """
