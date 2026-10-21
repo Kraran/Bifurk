@@ -64,6 +64,7 @@ class BookActions:
         def button(label, action, payload=None, enabled=True):
             """Créer une commande locale en capturant action et payload pour éviter la capture tardive."""
             b = QPushButton(label)
+            b.setProperty('combatAction', action in ('pair_target', 'opening_luck', 'silver_arrow', 'wandering'))
             b.setEnabled(enabled and self.character['endurance'] > 0)
             b.clicked.connect(lambda checked=False, a=action, p=payload:
                               self.perform_book_action(a, p))
@@ -119,12 +120,11 @@ class BookActions:
 
     def _resolve_fire_breath(self):
         """§249 : une esquive par assaut, indépendante des coups ordinaires."""
-        use_luck = QMessageBox.question(
-            self, 'Souffle de feu du chien',
+        use_luck = self._ask_combat_question(
+            'Souffle de feu du chien',
             'Tenter votre Chance pour esquiver la flamme ?\n'
             'Sans Chance : 1d6, blessure de 1 Endurance sur 1 ou 2.\n'
-            'Avec Chance : 2d6, blessure de 1 Endurance uniquement en cas d’échec.',
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            'Avec Chance : 2d6, blessure de 1 Endurance uniquement en cas d’échec.')
         if use_luck == QMessageBox.Yes:
             rolls, total = self._roll(2)
             hit = total > self.character['chance']
@@ -138,7 +138,7 @@ class BookActions:
         self.character['endurance'] = max(0, self.character['endurance'] - damage)
         self._refresh_character()
         note = f'Souffle : {detail}, {damage} dégât.'
-        self.combat_journal.insertItem(0, note)
+        self._log_combat_detail(note)
         if self.character['endurance'] <= 0:
             self._log_assault([], [], 0, 0, 'Souffle mortel avant les attaques')
             self.rules_log.setText(note + ' Votre Endurance est à zéro.')
@@ -538,13 +538,12 @@ class BookActions:
             defender = state.get('defender')
             if defender and self.character['endurance'] > 0:
                 # Deuxième attaque : le héros ne peut que parer ce Squelette.
-                _, enemy_roll = self._roll(2, context='Combat — Deuxième Squelette')
+                _, enemy_roll = self._roll(2, context='Combat — Deuxième Squelette', opponent=True)
                 _, hero_roll = self._roll(2, context='Combat — Votre parade')
                 if defender['skill'] + enemy_roll > combat_skill(self.character) + hero_roll:
                     damage = 2
-                    answer = QMessageBox.question(self, 'Deuxième Squelette',
-                        'Tenter votre Chance pour réduire cette blessure ?',
-                        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                    answer = self._ask_combat_question('Deuxième Squelette',
+                        'Tenter votre Chance pour réduire cette blessure ?')
                     if answer == QMessageBox.Yes:
                         _, total = self._roll(2)
                         damage = 1 if total <= self.character['chance'] else 3
@@ -553,6 +552,10 @@ class BookActions:
                         _, die = self._roll(1)
                         damage = shield_damage(damage, die)
                     self.character['endurance'] = max(0, self.character['endurance']-damage)
+                    self._log_combat_detail(f"{defender['name']} : attaque {defender['skill'] + enemy_roll} ; "
+                        f"votre parade {combat_skill(self.character) + hero_roll}. Héros -{damage} Endurance.")
+                else:
+                    self._log_combat_detail(f"{defender['name']} : deuxième attaque parée.")
             if self.enemy_endurance.value() <= 0 and self.character['endurance'] > 0:
                 pair = state.get('pair', -1) + 1
                 if pair >= len(entry['combat']['pairs']):

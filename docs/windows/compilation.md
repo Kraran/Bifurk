@@ -66,6 +66,9 @@ Vérifier :
 4. Sons de page et de dés, préécoute et **un véritable assaut de combat**.
    Les jets 1d6 / 2d6 doivent montrer le plateau animé, les faces et leur total ;
    tester aussi **Passer l'animation**, puis **Continuer**.
+   Pendant le combat, vérifier les deux plateaux intégrés : dés rouges automatiques,
+   dés blancs déclenchés par le joueur, Chance dans la même fenêtre, puis victoire
+   ou défaite et mise à jour des caractéristiques.
 5. Sauvegarde, fermeture, relance et chargement depuis un emplacement.
 6. Déplacement du dossier complet après fermeture : les données restent portables.
 

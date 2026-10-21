@@ -2,7 +2,7 @@
 
 ![Plateau des dés du grimoire](des-animes.png)
 
-Chaque jet réglementaire de **1d6 ou 2d6** ouvre une fenêtre sur un plateau de
+Hors combat, chaque jet réglementaire de **1d6 ou 2d6** ouvre une fenêtre sur un plateau de
 velours aux couleurs du thème courant : dés ivoire en perspective, rotations,
 rebonds, ombres et son du lancer. Le résultat est tiré une seule fois par le
 moteur ; l'animation se termine sur les faces effectivement utilisées.
@@ -18,10 +18,11 @@ moteur ; l'animation se termine sur les faces effectivement utilisées.
 - Le titre précise le contexte : création d'une caractéristique, Chance,
   attaque de l'adversaire, attaque du héros ou protection particulière.
 
-Un assaut ordinaire présente d'abord les deux dés de l'adversaire, puis les
-deux dés du héros. Les tests de Chance et jets de protection éventuels ouvrent
-leur propre lancer. Les rencontres particulières utilisent le même point de
-tirage et bénéficient également du plateau. Il n'existe pas de bouton de relance
+Dans la [fenêtre de combat](combat-popup.md), les plateaux sont intégrés : les
+deux dés rouges de l'adversaire partent automatiquement, puis le joueur lance
+ses dés blancs. Les tests de Chance et jets de protection éventuels utilisent
+également le plateau intégré. Les rencontres particulières utilisent le même
+point de tirage. Il n'existe pas de bouton de relance
 dans cette fenêtre : les relances de création restent limitées par les règles.
 
 Les variantes libres **3d6 et 1d20** de l'outil Dés conservent leur affichage

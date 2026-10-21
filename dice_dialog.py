@@ -66,13 +66,18 @@ class DiceCanvas(QWidget):
     finished = Signal()
     DURATION_MS = 1250
 
-    def __init__(self, rolls, theme=None, parent=None):
+    def __init__(self, rolls, theme=None, parent=None, *, color=None, pip_color=None, caption=True):
         """Recevoir une copie immuable des faces pour un ou deux D6."""
         super().__init__(parent)
         if len(rolls) not in (1, 2) or any(type(n) is not int or not 1 <= n <= 6 for n in rolls):
             raise ValueError('Un lancer animé utilise un ou deux dés à six faces.')
         self.rolls = tuple(rolls)
         self.theme = theme or default_theme()
+        # Le combat réutilise exactement la même géométrie : seuls les dés
+        # adverses changent de matière, sans toucher aux valeurs reçues.
+        self.color = color or self.theme.color('page')
+        self.pip_color = pip_color or self.theme.color('ink')
+        self.caption = caption
         self.progress = 0.0
         self._finished = False
         self.clock = QElapsedTimer()
@@ -132,7 +137,7 @@ class DiceCanvas(QWidget):
             corners = [project(on_face(normal, u, v, x, y))
                        for x, y in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
             brightness = .70 + max(0, depth) * .25
-            base = QColor(self.theme.color('page'))
+            base = QColor(self.color)
             base.setRedF(min(1, base.redF() * brightness))
             base.setGreenF(min(1, base.greenF() * brightness))
             base.setBlueF(min(1, base.blueF() * brightness))
@@ -155,7 +160,7 @@ class DiceCanvas(QWidget):
                 pip = [project(on_face(normal, u, v,
                         px + .125 * math.cos(a * math.tau / 16),
                         py + .125 * math.sin(a * math.tau / 16))) for a in range(16)]
-                painter.setBrush(QColor(self.theme.color('ink')))
+                painter.setBrush(QColor(self.pip_color))
                 painter.drawPolygon(QPolygonF(pip))
 
     def paintEvent(self, event):
@@ -189,8 +194,9 @@ class DiceCanvas(QWidget):
             self._draw_die(painter, value, index, QPointF(x, y), size)
         painter.setPen(QColor(self.theme.color('gold')))
         painter.setFont(QFont(self.font().family(), 10))
-        painter.drawText(rect.adjusted(16, 0, -16, -14), Qt.AlignBottom | Qt.AlignHCenter,
-                         '✦  LE DESTIN EST ENTRE VOS MAINS  ✦')
+        if self.caption:
+            painter.drawText(rect.adjusted(16, 0, -16, -14), Qt.AlignBottom | Qt.AlignHCenter,
+                             '✦  LE DESTIN EST ENTRE VOS MAINS  ✦')
 
 
 class DiceDialog(QDialog):

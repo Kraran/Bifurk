@@ -130,8 +130,13 @@ class SoundFeedbackTests(unittest.TestCase):
                 next(b for b in w.findChildren(QPushButton)
                      if b.text() == 'Lancer').click()
                 self.assertEqual(w.sounds.effects['dice'].play_count, 1)
-                with patch.object(QMessageBox, 'exec', return_value=QMessageBox.No):
+                # Le bouton ouvre désormais le combat complet ; ce test audio
+                # isole son lancement, puis exerce un assaut du moteur sans attente.
+                with patch('main.CombatDialog.exec', return_value=QDialog.Rejected) as opened:
                     w.findChild(QPushButton, 'combatButton').click()
+                opened.assert_called_once()
+                with patch.object(QMessageBox, 'exec', return_value=QMessageBox.No):
+                    w.combat_round()
                 self.assertEqual(w.sounds.effects['swords'].play_count, 1)
             finally:
                 w.close()
