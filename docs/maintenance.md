@@ -22,6 +22,7 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 | `themes.py` | Manifestes et substitution du QSS | `available_themes`, `Theme` |
 | `about_dialog.py`, `app_info.py` | Identité, version, portrait et liens | `AboutDialog` |
 | `scripts/prepare_sounds.py` | Reconstruction des WAV depuis les archives créditées | `prepare` |
+| `Bifurk.spec`, `scripts/package_release.py` | Exécutable Windows, ZIP et brouillon de release | `package`, `draft` |
 | `tools/audit_pdf.py`, `tools/audit_windows.py` | Audits locaux et captures privées | `run`, `scenario` |
 
 Le contrôleur hérite de `BookActions`. Ce mixin suppose les services et attributs
@@ -111,7 +112,9 @@ implémenter le calcul réutilisable dans `book_events`, l'interaction dans
 
 ## Fichiers et sauvegardes
 
-Les chemins partent du script, ou de l'exécutable empaqueté :
+Les chemins de données partent du script, ou de l'exécutable empaqueté. Les
+ressources en lecture seule partent de `RESOURCE_DIR` (dossier du code, donc
+`_internal` dans la distribution PyInstaller) :
 
 - `donnees/grimoires/` : copies importées, nommées avec une empreinte du contenu ;
 - `donnees/sauvegardes/emplacement-1.json` à `emplacement-5.json` : sauvegardes manuelles ;
@@ -229,3 +232,5 @@ les instructions exécutables doivent rester identiques.
 
 La version et la date publiques sont centralisées dans `app_info.py`. Une
 modification documentaire seule ne nécessite pas une nouvelle version du jeu.
+Pour produire l'exécutable et son archive, suivre le
+[parcours de compilation Windows](windows/compilation.md).

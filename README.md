@@ -22,6 +22,26 @@ pip install -r requirements.txt
 python main.py
 ```
 
+## Compiler et distribuer sous Windows
+
+Double-cliquez sur **`BUILD_EXE.bat`** depuis une copie du dépôt, avec Python
+Windows 64 bits installé (3.13 recommandé). Le script prépare son environnement
+`.venv-build`, installe les dépendances et produit :
+
+- `dist/Bifurk/Bifurk.exe`, avec l'icône existante et sans console ;
+- `dist/Bifurk-v1.1.0-windows-x64.zip`, contenant le programme et ses dépendances ;
+- l'empreinte `.zip.sha256` correspondante.
+
+Extrayez le ZIP dans un autre dossier pour le tester. Il faut distribuer **tout
+le ZIP**, pas l'exécutable seul ; Python n'est pas nécessaire chez le joueur.
+Après validation, `PUBLISH_RELEASE.bat` peut joindre l'archive à une **release
+GitHub brouillon** (GitHub CLI requis). La publication publique reste manuelle.
+
+Voir [Compiler, tester et publier sous Windows](docs/windows/compilation.md)
+pour le parcours complet, les mises à jour et les composants distribués.
+
+## Dossiers portables
+
 Bifurk crée à côté de `main.py` (ou de l'exécutable Windows empaqueté) :
 
 ```
@@ -40,7 +60,7 @@ Bifurk/
 - Le démarrage propose Nouvelle partie ou le chargement d’un des cinq emplacements. Chaque emplacement affiche l’aventurier, la date et ses trois caractéristiques ; son remplacement ou sa suppression demande confirmation.
 - Les sauvegardes sont dans `donnees/sauvegardes/`. Seul le format actuel est accepté. Les références PDF restent relatives au dossier Bifurk et pointent vers les grimoires importés.
 - Les répertoires de données sont créés au démarrage. Bifurk doit donc être installé dans un dossier **accessible en écriture**, par exemple une clé USB ou un dossier personnel, et non dans `Program Files` protégé.
-- Les dépendances Python restent nécessaires en mode source. Pour une distribution portable Windows autonome sans installation de Python, un empaquetage en exécutable sera nécessaire.
+- Les dépendances Python restent nécessaires en mode source. La distribution compilée les inclut dans `_internal` et fonctionne sans installation de Python.
 
 ## Limites
 

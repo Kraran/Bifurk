@@ -1,0 +1,29 @@
+BIFURK - Chroniques d'aventure
+============================
+
+Installation portable Windows 10/11, 64 bits
+------------------------------------------
+1. Extrayez TOUT le ZIP dans un dossier personnel accessible en ecriture.
+2. Lancez Bifurk.exe dans le dossier Bifurk extrait.
+3. Choisissez Nouvelle partie et importez votre exemplaire PDF du livre.
+
+Python n'est pas necessaire sur le PC du joueur.
+Conservez le dossier _internal a cote de Bifurk.exe : il contient les
+bibliotheques Qt, les themes, les polices, les sons et les catalogues.
+Lancer l'executable directement a l'interieur du ZIP ne suffit pas.
+
+Le dossier donnees est cree au premier lancement, a cote de Bifurk.exe.
+Il contient vos grimoires importes, sauvegardes et preferences.
+Pour mettre a jour : fermez Bifurk, sauvegardez ce dossier, extrayez la
+nouvelle version ailleurs puis recopiez votre dossier donnees a cote du nouvel exe.
+Seul le format actuel des sauvegardes est pris en charge.
+
+Aucun livre PDF, aucune sauvegarde personnelle n'est fourni dans cette archive.
+Les images du livre et les pages de regles viennent de votre propre PDF.
+Un executable non signe peut declencher un avertissement Windows SmartScreen.
+Verifiez la provenance de l'archive et son empreinte SHA-256 avant execution.
+
+Projet et sources : https://github.com/Kraran/Bifurk
+Auteur : Franck Fornasari (Kraran)
+Composants tiers et credits : COMPOSANTS-TIERS.md et _internal/assets.
+Version et revision source : COMPILATION.json.
