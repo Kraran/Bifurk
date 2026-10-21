@@ -132,6 +132,9 @@ class GrimoireInterfaceTests(unittest.TestCase):
             self.assertEqual(w.scene_entry, book_cover)
             self.assertIn("Le Sorcier de la Montagne de Feu", w.reader.toPlainText())
             w.go_to(2)
+            self.assertIsNone(w.current_paragraph)
+            w.choice_layout.itemAt(2).widget().click()
+            w.go_to(2)
             self.assertEqual(w.scene_entry, book_cover)
 
     def test_image_zoom_pan_and_click_reset(self):

@@ -41,10 +41,17 @@ ni historique de partie. Aucun script Python de thème n’est exécuté.
 
 ## Aventuriers et chroniques
 
-La page d’ouverture demande le nom de l’aventurier avant le paragraphe 1.
-Commencer tire ses caractéristiques et prépare son équipement de départ.
+La page d’ouverture tire automatiquement un aventurier selon les règles :
+Habileté **1d6 + 6**, Endurance **2d6 + 12**, Chance **1d6 + 6**. Le résultat
+apparaît dans le récit et sur la fiche. Le joueur inscrit son nom et peut valider
+ce tirage, ou utiliser **Reroll** au maximum deux fois (trois tirages au total).
+Le deuxième reroll est validé automatiquement et commence l’aventure si le nom
+est renseigné ; sinon, le tirage est verrouillé jusqu’à la saisie du nom et au départ.
+Valider ne lance aucun nouveau dé. Changer de thème, de taille de texte ou annuler
+le départ ne rend pas de relances. L’équipement initial est préparé pour le nouveau
+personnage ; il n’y a plus de bouton de création pendant la partie.
 Lorsque son Endurance tombe à zéro, une page de fin propose de recommencer
-(nom prérempli, nouveau personnage, progression remise à zéro) ou de charger
+(nom prérempli, nouveau tirage et deux relances disponibles, progression remise à zéro) ou de charger
 une chronique. Le chargement d’un personnage mort retrouve cette page.
 
 **Sauvegarder** et **Charger** présentent les mêmes cinq emplacements manuels,
@@ -93,7 +100,7 @@ périphérique de sortie. Il est limité à deux fichiers de 128 Ko.
 
 ```powershell
 git fetch origin
-git switch feat/accueil-emplacements
+git switch feat/creation-aventurier
 git pull --ff-only
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py

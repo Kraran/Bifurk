@@ -50,6 +50,79 @@ class AdventureLifecycleTests(unittest.TestCase):
         self.assertEqual(self.w.character['name'], 'Éléanor')
         self.assertEqual(self.w._save_data()['save_name'], 'Éléanor')
 
+    def test_automatic_creation_uses_book_dice_and_validation_keeps_roll(self):
+        with patch('main.random.randint', side_effect=[1, 2, 3, 4]) as dice:
+            self.w._show_book_title()
+            self.assertEqual(dice.call_count, 4)
+            stats = {'habilete': 7, 'endurance': 17, 'chance': 10}
+            self.assertEqual(self.w.character['initial'], stats)
+            self.assertIn('Endurance 17', self.w.reader.toPlainText())
+            self.w.go_to(2)
+            self.assertIsNone(self.w.current_paragraph)
+            self.w.choice_layout.itemAt(1).widget().setText('Éléanor')
+            self.w.choice_layout.itemAt(2).widget().click()
+            self.assertEqual(dice.call_count, 4)
+        self.assertEqual(self.w.character['initial'], stats)
+        self.assertEqual({k: self.w.character[k] for k in stats}, stats)
+        self.assertEqual(self.w.character['inventory'], ['Épée', 'Armure de cuir', 'Lanterne'])
+        self.assertEqual((self.w.character['provisions'], self.w.character['gold']), (10, 1))
+        self.assertFalse(any('Créer un aventurier' in b.text()
+                             for b in self.w.findChildren(QPushButton)))
+
+    def test_two_rerolls_maximum_and_last_roll_starts_automatically(self):
+        w = self.w
+        with patch('main.random.randint', side_effect=[1]*4 + [3]*4 + [6]*4) as dice:
+            w._show_book_title()
+            w.choice_layout.itemAt(1).widget().setText('Éléanor')
+            w.choice_layout.itemAt(3).widget().click()
+            self.assertIsNone(w.current_paragraph)
+            self.assertEqual(w._creation_rerolls, 1)
+            self.assertEqual(w.character['initial'], {'habilete': 9, 'endurance': 18, 'chance': 9})
+            w.choice_layout.itemAt(3).widget().click()
+            self.assertEqual(w.current_paragraph, 1)
+            self.assertEqual(w.character['initial'], {'habilete': 12, 'endurance': 24, 'chance': 12})
+            w._reroll_adventurer()
+            self.assertEqual(dice.call_count, 12)
+
+    def test_last_reroll_without_name_is_locked_until_name_is_entered(self):
+        w = self.w
+        with patch('main.random.randint', return_value=1) as dice:
+            w._show_book_title()
+            w.choice_layout.itemAt(3).widget().click()
+            w.choice_layout.itemAt(3).widget().click()
+            self.assertIsNone(w.current_paragraph)
+            self.assertFalse(w.choice_layout.itemAt(3).widget().isEnabled())
+            self.assertFalse(w.choice_layout.itemAt(2).widget().isEnabled())
+            w._reroll_adventurer()
+            w.choice_layout.itemAt(1).widget().setText('Éléanor')
+            w.choice_layout.itemAt(2).widget().click()
+            self.assertEqual(w.current_paragraph, 1)
+            self.assertEqual(w.character['initial'], {'habilete': 7, 'endurance': 14, 'chance': 7})
+            self.assertEqual(dice.call_count, 12)
+
+    def test_refresh_and_undo_never_grant_extra_rerolls(self):
+        w = self.w
+        with patch('main.random.randint', return_value=4) as dice:
+            w._show_book_title()
+            w.choice_layout.itemAt(1).widget().setText('Éléanor')
+            w.choice_layout.itemAt(3).widget().click()
+            w.apply_theme(w.theme.id)
+            w.change_reader_font_size(2)
+            self.assertEqual(w._creation_rerolls, 1)
+            self.assertEqual(w.choice_layout.itemAt(1).widget().text(), 'Éléanor')
+            self.assertEqual(dice.call_count, 8)
+            w.choice_layout.itemAt(2).widget().click()
+            accepted = w.character['initial'].copy()
+            w.undo_action()
+            self.assertIsNone(w.current_paragraph)
+            self.assertFalse(w.choice_layout.itemAt(3).widget().isEnabled())
+            w._reroll_adventurer()
+            self.assertEqual(w.character['initial'], accepted)
+            self.assertEqual(dice.call_count, 8)
+            w.redo_action()
+            self.assertEqual(w.current_paragraph, 1)
+            self.assertEqual(dice.call_count, 8)
+
     def test_death_restart_resets_all_progress_and_equipment(self):
         self.start()
         w = self.w

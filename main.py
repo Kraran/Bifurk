@@ -220,6 +220,9 @@ class MainWindow(QMainWindow, BookActions):
             "initial": {"habilete": 8, "endurance": 20, "chance": 8}
         }
         self._initial_character = copy.deepcopy(self.character)
+        self._adventurer_draft = None
+        self._creation_rerolls = 0
+        self._creation_name = ''
         self.undo_stack = []
         self.redo_stack = []
         self.action_history = []
@@ -699,11 +702,6 @@ class MainWindow(QMainWindow, BookActions):
 
         rules_group = QGroupBox("⚔  ÉPREUVES & COMBATS")
         rules_layout = QVBoxLayout(rules_group)
-        create_btn = QPushButton("✦  Créer un aventurier")
-        create_btn.clicked.connect(self.create_character)
-        create_btn.setToolTip("Nouveau tirage : Habileté 1d6+6, Endurance 2d6+12, Chance 1d6+6")
-        rules_layout.addWidget(create_btn)
-
         luck_row = QVBoxLayout()
         luck_btn = QPushButton("Tenter sa Chance (2d6)")
         luck_btn.clicked.connect(self.test_luck)
@@ -731,7 +729,7 @@ class MainWindow(QMainWindow, BookActions):
         combat_btn.setObjectName("combatButton")
         combat_btn.clicked.connect(self.combat_round)
         rules_layout.addWidget(combat_btn)
-        self.rules_log = QLabel("Règles : créez un personnage, puis testez la Chance ou un combat.")
+        self.rules_log = QLabel("Tentez votre Chance ou lancez un assaut lorsque le récit le demande.")
         self.rules_log.setWordWrap(True)
         self.rules_log.setObjectName("muted")
         rules_layout.addWidget(self.rules_log)
@@ -816,38 +814,47 @@ class MainWindow(QMainWindow, BookActions):
         self.choice_group.hide()
         self.event_group.hide()
         self.condition_group.hide()
-        self.reader.setHtml("<h1>Ouvrez le grimoire.</h1><p>Une porte oubliée. Un trésor légendaire. Et vos décisions pour seule boussole.</p><p>Choisissez votre livre avec <b>Ouvrir un grimoire</b>, puis créez votre aventurier dans <b>Combat &amp; soins</b>.</p><p>Explorez, lancez les dés et écrivez votre propre histoire.</p>")
+        self.reader.setHtml("<h1>Ouvrez le grimoire.</h1><p>Une porte oubliée. Un trésor légendaire. Et vos décisions pour seule boussole.</p><p>Choisissez votre livre avec <b>Ouvrir un grimoire</b>, puis découvrez votre nouvel aventurier sur la page d’introduction.</p><p>Explorez, lancez les dés et écrivez votre propre histoire.</p>")
 
     def _show_book_title(self):
-        import html
+        if self._adventurer_draft is None:
+            self._prepare_adventurer()
         self.paragraph_number.hide()
         self.current_paragraph = None
-        title = ((self.illustration_catalogue or {}).get("title")
-                 or Path(self.pdf_path).stem)
         self.paragraph_title.setText("✦  Votre aventure commence ici  ✦")
-        self.reader.setHtml(
-            f'<div style="text-align:center; color:{self.theme.color("accent")}; font-family:\'{self.reading_font_family}\';">'
-            f'<p style="font-size:16pt;">✦ LIVRE D’AVENTURE ✦</p>'
-            f'<h1 style="font-size:38pt;">{html.escape(title)}</h1>'
-            '<p style="font-size:18pt;">Ouvrez le livre. Choisissez votre destin.</p></div>')
+        self._render_creation_preview()
         self._clear_dynamic_layout(self.choice_layout)
         first = 1 if 1 in self.paragraphs else min(self.paragraphs)
         label = QLabel('Sous quel nom entrerez-vous dans la légende ?')
         self.choice_layout.addWidget(label)
-        name = QLineEdit(self.character.get('name', ''))
+        name = QLineEdit(self._creation_name)
         name.setObjectName('adventurerName')
         name.setPlaceholderText('Nom de votre aventurier')
         name.setMaxLength(60)
         name.setAccessibleName('Nom de l’aventurier')
         self.choice_layout.addWidget(name)
-        start = ChoiceCard(f"Inscrire mon nom et commencer  →  §{first}")
+        verb = 'Commencer avec cet aventurier' if self._creation_rerolls == 2 else 'Valider cet aventurier et commencer'
+        start = ChoiceCard(f'{verb}  →  §{first}')
         start.setObjectName("choiceCard")
         start.setEnabled(bool(name.text().strip()))
-        name.textChanged.connect(lambda text: start.setEnabled(bool(text.strip())))
+        def change_name(text):
+            self._creation_name = text
+            self.character['name'] = text.strip()
+            self.hero_title.setText('L’AVENTURIER\n' + (text.strip() or 'Votre futur héros'))
+            start.setEnabled(bool(text.strip()))
+        name.textChanged.connect(change_name)
         start.clicked.connect(lambda checked=False: self._begin_adventure(name.text()))
         name.returnPressed.connect(start.click)
         self.choice_group.setTitle("⚜  L’AVENTURE VOUS ATTEND")
         self.choice_layout.addWidget(start)
+        remaining = 2 - self._creation_rerolls
+        reroll_text = ('2 relances restantes' if remaining == 2 else
+                       '1 relance restante' if remaining == 1 else 'aucune relance restante')
+        reroll = ChoiceCard(f'🎲  Reroll — {reroll_text}')
+        reroll.setObjectName('rerollAdventurer')
+        reroll.setEnabled(self._creation_rerolls < 2)
+        reroll.clicked.connect(self._reroll_adventurer)
+        self.choice_layout.addWidget(reroll)
         self.choice_group.show()
         self.event_group.hide()
         self.condition_group.hide()
@@ -857,12 +864,63 @@ class MainWindow(QMainWindow, BookActions):
         self.goto_spin.setEnabled(False)
         self.goto_button.setEnabled(False)
 
+    def _prepare_adventurer(self):
+        self._creation_name = self.character.get('name', '')
+        self._creation_rerolls = 0
+        self._adventurer_draft = self._roll_adventurer()
+        self.character = copy.deepcopy(self._initial_character)
+        self._apply_adventurer_draft()
+
+    def _apply_adventurer_draft(self):
+        self.character['initial'] = copy.deepcopy(self._adventurer_draft)
+        self.character.update(self._adventurer_draft)
+        if self._creation_name.strip():
+            self.character['name'] = self._creation_name.strip()
+        self._refresh_character()
+
+    def _render_creation_preview(self):
+        import html
+        title = ((self.illustration_catalogue or {}).get('title') or Path(self.pdf_path).stem)
+        stats = self._adventurer_draft
+        remaining = 2 - self._creation_rerolls
+        instruction = (f'Vous pouvez garder ce tirage ou le relancer encore {remaining} fois.'
+                       if remaining else 'Dernier tirage validé automatiquement. Inscrivez votre nom pour partir.')
+        self.reader.setHtml(
+            f'<div style="text-align:center; color:{self.theme.color("accent")}; font-family:\'{self.reading_font_family}\';">'
+            '<p style="font-size:16pt">✦ LIVRE D’AVENTURE ✦</p>'
+            f'<h1 style="font-size:38pt">{html.escape(title)}</h1>'
+            '<h2>✦ Votre nouvel aventurier ✦</h2>'
+            f'<p style="font-size:22pt"><b>Habileté {stats["habilete"]} &nbsp; · &nbsp; '
+            f'Endurance {stats["endurance"]} &nbsp; · &nbsp; Chance {stats["chance"]}</b></p>'
+            '<p>Habileté : 1d6 + 6 · Endurance : 2d6 + 12 · Chance : 1d6 + 6</p>'
+            f'<p>{instruction}</p><p>Le deuxième reroll est définitif.</p></div>')
+
+    def _reroll_adventurer(self):
+        if self.current_paragraph is not None or self._adventurer_draft is None or self._creation_rerolls >= 2:
+            return
+        self._creation_rerolls += 1
+        self._adventurer_draft = self._roll_adventurer()
+        self._apply_adventurer_draft()
+        if self._creation_rerolls == 2 and self._creation_name.strip():
+            self._begin_adventure(self._creation_name)
+        else:
+            self._show_book_title()
+
+    def _restart_adventure(self):
+        self._adventurer_draft = None
+        self._show_book_title()
+
     def _begin_adventure(self, name):
         name = name.strip()[:60]
-        if not name or not self.paragraphs:
+        if not name or not self.paragraphs or self._adventurer_draft is None or self.current_paragraph is not None:
             return
         self.character = copy.deepcopy(self._initial_character)
         self.character['name'] = name
+        self.character['initial'] = copy.deepcopy(self._adventurer_draft)
+        self.character.update(self._adventurer_draft)
+        self.character['equipped_weapon'] = 'Épée'
+        self.character['magic_sword_bonus_active'] = False
+        self._adventurer_draft = None
         self.completed_book_events.clear()
         self.completed_optional_events.clear()
         self.prepared_book_encounters.clear()
@@ -877,7 +935,7 @@ class MainWindow(QMainWindow, BookActions):
         self.stats_group.setEnabled(True)
         self.goto_spin.setEnabled(True)
         self.goto_button.setEnabled(True)
-        self.create_character()
+        self._refresh_character()
         self.enemy_name.setText('Monstre')
         self.enemy_skill.setValue(7)
         self.enemy_endurance.setValue(6)
@@ -908,7 +966,7 @@ class MainWindow(QMainWindow, BookActions):
         self.choice_group.setTitle('⚜  UNE NOUVELLE CHRONIQUE')
         restart = ChoiceCard('✦  Recommencer l’aventure')
         restart.setObjectName('restartAdventure')
-        restart.clicked.connect(lambda: self._show_book_title())
+        restart.clicked.connect(self._restart_adventure)
         self.choice_layout.addWidget(restart)
         load = ChoiceCard('Ouvrir une chronique sauvegardée')
         load.clicked.connect(lambda: self.load_game())
@@ -961,6 +1019,7 @@ class MainWindow(QMainWindow, BookActions):
         self.visited_paragraphs = []
         self.undo_stack.clear(); self.redo_stack.clear()
         self._update_history_controls()
+        self._adventurer_draft = None
         self._show_book_title()
         self._remember_book()
         self._autosave()
@@ -1412,6 +1471,8 @@ class MainWindow(QMainWindow, BookActions):
             self._render_choices_and_events(self.paragraphs[number])
 
     def go_to(self, number):
+        if self._adventurer_draft is not None and not self._restoring:
+            return  # The map and manual navigation cannot skip character validation.
         if (self.character['endurance'] <= 0 and not self._restoring
                 and getattr(self, '_action_depth', 0) <= 1):
             self._show_death_page()
@@ -1779,19 +1840,11 @@ class MainWindow(QMainWindow, BookActions):
         rolls = [random.randint(1, sides) for _ in range(count)]
         return rolls, sum(rolls)
 
-    def create_character(self):
+    def _roll_adventurer(self):
         _, skill_roll = self._roll(1)
         _, endurance_roll = self._roll(2)
         _, luck_roll = self._roll(1)
-        self.character["initial"] = {"habilete": skill_roll + 6, "endurance": endurance_roll + 12, "chance": luck_roll + 6}
-        for key, value in self.character["initial"].items():
-            self.character[key] = value
-        self.character["provisions"] = 10
-        self.character["gold"] = 1
-        self.character["equipped_weapon"] = "Épée"
-        self.character["magic_sword_bonus_active"] = False
-        self._refresh_character()
-        self.rules_log.setText(f"Personnage créé : Habileté {skill_roll+6}, Endurance {endurance_roll+12}, Chance {luck_roll+6}.")
+        return {'habilete': skill_roll + 6, 'endurance': endurance_roll + 12, 'chance': luck_roll + 6}
 
     def change_potion(self, value):
         self.character["potion"] = value
@@ -2288,7 +2341,7 @@ class MainWindow(QMainWindow, BookActions):
     def _record(self, label, before):
         if self._restoring or before == self._snapshot():
             return
-        if label not in ("Créer un personnage", "Changer de potion"):
+        if label != 'Changer de potion':
             self._play_state_sounds(before)
         self.undo_stack.append((label, before))
         self.undo_stack = self.undo_stack[-100:]
@@ -2368,6 +2421,11 @@ class MainWindow(QMainWindow, BookActions):
             if "enemy_name" in state:
                 self.enemy_name.setText(state["enemy_name"])
             target = state["current_paragraph"]
+            self._adventurer_draft = None
+            if target is None and self.character.get('name'):
+                self._adventurer_draft = copy.deepcopy(self.character['initial'])
+                self._creation_name = self.character['name']
+                self._creation_rerolls = 2  # An accepted character cannot be rerolled through Undo.
             if target in self.paragraphs:
                 self.go_to(target)
             else:
@@ -2573,7 +2631,7 @@ for _name, _label in {
     "choose_crocodile_strategy": "Choisir une stratégie contre le Crocodile",
     "roll_piranha_target": "Déterminer la cible des Piranhas",
     "apply_optional_book_event": "Choisir une récompense du livre",
-    "create_character": "Créer un personnage", "test_luck": "Tenter sa Chance",
+    "test_luck": "Tenter sa Chance",
     "eat_meal": "Prendre un repas", "eat_shared_meal": "Partager un repas",
     "drink_potion": "Boire une potion",
     "combat_round": "Assaut de combat", "add_item": "Ajouter un objet",
