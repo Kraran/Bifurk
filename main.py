@@ -1,7 +1,7 @@
 import sys, re, json, random, copy, os, tempfile, hashlib, shutil
 from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
-from navigation import destinations, render_links
+from navigation import destinations, render_links, choice_caption
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
 from book_actions import BookActions
 from rules_viewer import RulesDialog
@@ -495,6 +495,8 @@ class MainWindow(QMainWindow, BookActions):
         self.art_toggle.toggled.connect(self._toggle_scene_art)
         self.paragraph_title = QLabel("Bienvenue")
         self.paragraph_title.setObjectName("sectionTitle")
+        self.paragraph_title.setWordWrap(True)
+        self.paragraph_title.setAlignment(Qt.AlignCenter)
         title_row = QHBoxLayout()
         title_row.addStretch()
         title_row.addWidget(self.paragraph_title)
@@ -996,7 +998,7 @@ class MainWindow(QMainWindow, BookActions):
             clause = prefix[boundary + 1:].strip(" \t,;:-()")
             clause = re.sub(r"(?i)\b(ou|et|puis)\s*$", "", clause).strip()
             if not clause:
-                clause = f"Continuer vers le paragraphe {target}"
+                clause = 'Poursuivre le chemin'
             if len(clause) > 105:
                 clause = clause[-105:].strip()
             # Avoid duplicate destinations in a single paragraph.
@@ -1063,7 +1065,7 @@ class MainWindow(QMainWindow, BookActions):
         else:
             for choice in choices:
                 target = choice["target"]
-                button = ChoiceCard(f"{choice['label']}  →  §{target}")
+                button = ChoiceCard(choice_caption(choice['label'], target))
                 button.setObjectName("choiceCard")
                 button.setMinimumHeight(44)
                 button.setAccessibleName(f"{choice['label']}, paragraphe {target}")
@@ -1080,9 +1082,14 @@ class MainWindow(QMainWindow, BookActions):
         self._clear_dynamic_layout(self.event_layout)
         scripted = verified_entry(self.book_event_catalogue, self.current_paragraph)
         if scripted:
-            notice = QLabel("✦ Événement du livre vérifié : " + scripted["note"])
-            notice.setWordWrap(True)
-            self.event_layout.addWidget(notice)
+            plain_passage = (
+                scripted['mode'] == 'conditionnel'
+                and set(scripted) <= {'status', 'mode', 'note', 'routes', 'title'}
+                and all(set(route) <= {'target', 'label'} for route in scripted.get('routes', [])))
+            if not plain_passage:
+                notice = QLabel("✦ Événement du livre vérifié : " + scripted["note"])
+                notice.setWordWrap(True)
+                self.event_layout.addWidget(notice)
             self._book_buttons(scripted)
             if scripted["mode"] == "automatique":
                 self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
@@ -1304,7 +1311,9 @@ class MainWindow(QMainWindow, BookActions):
         for number in self.visited_paragraphs:
             targets = [c['target'] for c in self._paragraph_choices(self.paragraphs.get(number, ''))]
             target_text = ', '.join(('✓ ' if n in self.visited_paragraphs else '○ ') + str(n) for n in targets) or 'aucune sortie détectée'
-            rows.append(f'<p><b><a style="color: {self.theme.color("link")}; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">§ {number}</a></b> → {html.escape(target_text)}{self._map_monsters_html(number)}</p>')
+            title = self._paragraph_name(number)
+            heading = f'§ {number}' + (f' — {html.escape(title)}' if title else '')
+            rows.append(f'<p><b><a style="color: {self.theme.color("link")}; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">{heading}</a></b> → {html.escape(target_text)}{self._map_monsters_html(number)}</p>')
         # Même bleu nuit, soulignement et contraste que les liens du livre.
         view.document().setDefaultStyleSheet("a:link { color: " + self.theme.color("link") + "; text-decoration: underline; font-weight: bold; }")
         view.setHtml('<h2>Parcours découvert</h2>' + ''.join(rows))
@@ -1319,6 +1328,10 @@ class MainWindow(QMainWindow, BookActions):
         close.rejected.connect(dialog.reject)
         layout.addWidget(close)
         dialog.exec()
+
+    def _paragraph_name(self, number):
+        entry = verified_entry(self.book_event_catalogue, number)
+        return entry.get('title', '') if entry else ''
 
     def prepare_encounter(self, monster):
         answer = QMessageBox.question(self, "Préparer une rencontre",
@@ -1491,7 +1504,8 @@ class MainWindow(QMainWindow, BookActions):
         if number not in self.visited_paragraphs:
             self.visited_paragraphs.append(number)
         self.goto_spin.setValue(number)
-        self.paragraph_title.setText(f"Paragraphe {number}")
+        title = self._paragraph_name(number)
+        self.paragraph_title.setText(f'{title}  ·  §{number}' if title else f'Paragraphe {number}')
         text = self.paragraphs[number]
         # Utiliser le même détecteur pour les boutons ET les liens dans le texte.
         self._render_paragraph_text(text)

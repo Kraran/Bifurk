@@ -18,6 +18,18 @@ def destinations(text):
     """Retourne (début, fin, numéro) pour chaque renvoi explicite."""
     return [(m.start(), m.end(), int(m.group('target'))) for m in DESTINATION_RE.finditer(text)]
 
+
+def choice_caption(label, target):
+    """Keep the action separate from the single destination reference."""
+    label = ' '.join(label.split()).strip()
+    if re.fullmatch(r'(?i)(?:continuer|aller|poursuivre)(?:\s+vers|\s+au)?\s*'
+                    r'(?:le\s+)?(?:paragraphe\s*|§\s*)?\d+', label):
+        label = 'Poursuivre le chemin'
+    else:
+        label = re.sub(r'\s*(?:[→—–-]\s*)?(?:§\s*|paragraphe\s+)\d+\s*$', '',
+                       label, flags=re.I).strip()
+    return f'{label or "Poursuivre le chemin"}  →  §{target}'
+
 def render_links(text, available):
     """Échappe le texte avant de créer des liens uniquement vers les sections existantes."""
     pieces = []

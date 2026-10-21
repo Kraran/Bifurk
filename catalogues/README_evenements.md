@@ -1,6 +1,26 @@
 # Base d'événements — édition 1982
 
-Cette base ne contient pas le texte du livre. Elle associe les numéros de paragraphes à des **métadonnées de règles** lues dans le PDF fourni. Son SHA-256 garantit qu'elle ne s'applique pas par erreur à une autre édition.
+Cette base ne contient pas le texte du livre. Elle associe les numéros de paragraphes à des **métadonnées de règles et de présentation** lues dans le PDF fourni. Son SHA-256 garantit qu'elle ne s'applique pas par erreur à une autre édition.
+
+## Noms des scènes et libellés de navigation
+
+Les 400 entrées ont un champ `title` : lieu, portion de couloir ou scène en cours.
+Plusieurs paragraphes peuvent décrire le même lieu ; les issues des combinaisons
+de clés partagent ainsi le nom « Les serrures du coffre ». Les noms sont des
+métadonnées éditoriales, pas des extraits du récit. Les 213 itinéraires qui
+portaient encore un libellé générique ont été renommés à partir du choix offert
+dans leur paragraphe de départ. Par exemple, au §1 : « Prendre le passage ouest »
+et « Prendre le passage est », plutôt que le nom du garde ou de la pièce à venir.
+
+Les boutons montrent une action et une seule référence de destination. Les
+noms des scènes apparaissent dans le titre du passage en cours et sur les
+entrées déjà visitées de la carte. Ils ne servent pas à dévoiler les destinations
+encore inexplorées. Les portes fermées et les culs-de-sac gardent un nom neutre
+tant que leur contenu ou leur mécanisme n’est pas révélé dans le passage.
+
+Cette revue de présentation ne change ni les destinations, ni les coûts,
+conditions, effets, combats ou jets de dés. Les autres éditions conservent le
+repérage par numéro et les libellés détectés dans leur texte.
 
 ## État de la revue
 

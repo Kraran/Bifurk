@@ -13,13 +13,14 @@
       "routes": [
         {
           "target": 71,
-          "label": "Continuer vers §71"
+          "label": "Prendre le passage ouest"
         },
         {
           "target": 278,
-          "label": "Continuer vers §278"
+          "label": "Prendre le passage est"
         }
-      ]
+      ],
+      "title": "L’entrée de la montagne"
     },
     "2": {
       "status": "verifie",
@@ -45,7 +46,8 @@
             "target": 16
           }
         ]
-      }
+      },
+      "title": "À l’abri du regard de l’Ogre"
     },
     "3": {
       "status": "verifie",
@@ -69,7 +71,8 @@
           "target": 127,
           "label": "Menacer le passeur"
         }
-      ]
+      ],
+      "title": "L’embarcadère du passeur"
     },
     "4": {
       "status": "verifie",
@@ -78,13 +81,14 @@
       "routes": [
         {
           "target": 46,
-          "label": "Continuer vers §46"
+          "label": "Suivre le couloir vers le nord"
         },
         {
           "target": 332,
-          "label": "Continuer vers §332"
+          "label": "Suivre le couloir vers le sud"
         }
-      ]
+      ],
+      "title": "Le couloir aux deux coudes"
     },
     "5": {
       "status": "verifie",
@@ -93,13 +97,14 @@
       "routes": [
         {
           "target": 97,
-          "label": "Continuer vers §97"
+          "label": "Frapper à la porte et entrer"
         },
         {
           "target": 292,
-          "label": "Continuer vers §292"
+          "label": "Continuer vers le nord"
         }
-      ]
+      ],
+      "title": "La porte aux fredonnements"
     },
     "6": {
       "status": "verifie",
@@ -108,9 +113,10 @@
       "routes": [
         {
           "target": 89,
-          "label": "Continuer vers §89"
+          "label": "Revenir à l’ouverture étroite"
         }
-      ]
+      ],
+      "title": "Devant la porte blindée"
     },
     "7": {
       "status": "verifie",
@@ -119,9 +125,10 @@
       "routes": [
         {
           "target": 214,
-          "label": "Continuer vers §214"
+          "label": "Explorer la berge nord"
         }
-      ]
+      ],
+      "title": "La berge nord"
     },
     "8": {
       "status": "verifie",
@@ -138,7 +145,8 @@
         "victory_target": 273,
         "escape_target": 189,
         "escape_after_assaults": 0
-      }
+      },
+      "title": "La chambre du Barbare"
     },
     "9": {
       "status": "verifie",
@@ -153,7 +161,8 @@
           "label": "Fouiller les tiroirs des établis",
           "target": 322
         }
-      ]
+      ],
+      "title": "Les établis du hangar"
     },
     "10": {
       "status": "verifie",
@@ -162,9 +171,10 @@
       "routes": [
         {
           "target": 77,
-          "label": "Continuer vers §77"
+          "label": "Reprendre le chemin du nord"
         }
-      ]
+      ],
+      "title": "Retour à la bifurcation"
     },
     "11": {
       "status": "verifie",
@@ -181,7 +191,8 @@
           "amount": 1
         }
       ],
-      "note": "Repos auprès des outils animés ; plafonds de départ."
+      "note": "Repos auprès des outils animés ; plafonds de départ.",
+      "title": "L’escalier inachevé"
     },
     "12": {
       "status": "verifie",
@@ -191,7 +202,7 @@
       "routes": [
         {
           "target": 161,
-          "label": "Continuer vers §161",
+          "label": "Faire face aux pas qui approchent",
           "when": {
             "kind": "not",
             "condition": {
@@ -202,7 +213,7 @@
         },
         {
           "target": 256,
-          "label": "Continuer vers §256",
+          "label": "Retourner à la bifurcation",
           "when": {
             "kind": "fact",
             "key": "alarm12_done"
@@ -210,13 +221,14 @@
         },
         {
           "target": 364,
-          "label": "Continuer vers §364",
+          "label": "Pousser la poignée",
           "when": {
             "kind": "fact",
             "key": "alarm12_done"
           }
         }
-      ]
+      ],
+      "title": "La poignée d’alarme"
     },
     "13": {
       "status": "verifie",
@@ -225,9 +237,10 @@
       "routes": [
         {
           "target": 282,
-          "label": "Continuer vers §282"
+          "label": "Faire face aux assaillants"
         }
-      ]
+      ],
+      "title": "La porte hors d’atteinte"
     },
     "14": {
       "status": "verifie",
@@ -237,9 +250,10 @@
       "routes": [
         {
           "target": 161,
-          "label": "Continuer vers §161"
+          "label": "Affronter la créature qui approche"
         }
-      ]
+      ],
+      "title": "Des pas dans le couloir"
     },
     "15": {
       "status": "verifie",
@@ -251,7 +265,8 @@
           "target": 367,
           "label": "Quitter le banc et poursuivre"
         }
-      ]
+      ],
+      "title": "Le banc de repos"
     },
     "16": {
       "status": "verifie",
@@ -268,14 +283,16 @@
         "victory_target": 50,
         "escape_target": 269,
         "escape_after_assaults": 2
-      }
+      },
+      "title": "Face à l’Ogre"
     },
     "17": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Chance avec épieu : réussite tue le Vampire ; échec le blesse de 3, puis fuite §380 ou suite §144.",
       "special": "stake_luck",
-      "routes": []
+      "routes": [],
+      "title": "L’épieu face au Vampire"
     },
     "18": {
       "status": "verifie",
@@ -308,7 +325,8 @@
             ]
           }
         ]
-      }
+      },
+      "title": "Le sol qui se dérobe"
     },
     "19": {
       "status": "verifie",
@@ -329,7 +347,8 @@
           }
         ],
         "victory_target": 317
-      }
+      },
+      "title": "La salle des tortionnaires"
     },
     "20": {
       "status": "verifie",
@@ -362,7 +381,8 @@
         "escape_target": 291,
         "mode": "sequence",
         "note": "Quatre Nains un par un."
-      }
+      },
+      "title": "Les haches des Nains"
     },
     "21": {
       "status": "verifie",
@@ -377,7 +397,8 @@
           "label": "Laisser le coffre et sortir",
           "target": 293
         }
-      ]
+      ],
+      "title": "Le coffre de chêne"
     },
     "22": {
       "status": "verifie",
@@ -386,9 +407,10 @@
       "routes": [
         {
           "target": 4,
-          "label": "Continuer vers §4"
+          "label": "Explorer le passage inconnu"
         }
-      ]
+      ],
+      "title": "Le réduit au gaz"
     },
     "23": {
       "status": "verifie",
@@ -403,7 +425,8 @@
           "label": "Retourner à la bifurcation",
           "target": 229
         }
-      ]
+      ],
+      "title": "La porte au bout du couloir"
     },
     "24": {
       "status": "verifie",
@@ -420,7 +443,8 @@
         "victory_target": 135,
         "mode": "silver",
         "escape_target": 360
-      }
+      },
+      "title": "Le combat contre l’Être"
     },
     "25": {
       "status": "verifie",
@@ -432,7 +456,8 @@
           "amount": -1
         }
       ],
-      "note": "Influence du portrait de Zagor."
+      "note": "Influence du portrait de Zagor.",
+      "title": "La galerie des portraits"
     },
     "26": {
       "status": "verifie",
@@ -441,9 +466,10 @@
       "routes": [
         {
           "target": 371,
-          "label": "Continuer vers §371"
+          "label": "Poursuivre au-delà de la caverne"
         }
-      ]
+      ],
+      "title": "La formule face au Dragon"
     },
     "27": {
       "status": "verifie",
@@ -488,9 +514,10 @@
       "routes": [
         {
           "target": 319,
-          "label": "Continuer vers §319"
+          "label": "Reprendre l’exploration"
         }
-      ]
+      ],
+      "title": "L’épée recueillie"
     },
     "28": {
       "status": "verifie",
@@ -512,7 +539,8 @@
           "amount": 8
         }
       ],
-      "note": "Après le Géant : Chance +2, Habileté +2 et bourse de huit pièces d'or."
+      "note": "Après le Géant : Chance +2, Habileté +2 et bourse de huit pièces d'or.",
+      "title": "La caverne du Géant"
     },
     "29": {
       "status": "verifie",
@@ -521,9 +549,10 @@
       "routes": [
         {
           "target": 375,
-          "label": "Continuer vers §375"
+          "label": "Revenir au croisement"
         }
-      ]
+      ],
+      "title": "La caverne aux bottes"
     },
     "30": {
       "status": "verifie",
@@ -538,7 +567,8 @@
           "label": "Ne pas y toucher et revenir au croisement",
           "target": 267
         }
-      ]
+      ],
+      "title": "La corde dans le rocher"
     },
     "31": {
       "status": "verifie",
@@ -560,7 +590,8 @@
             }
           ]
         }
-      ]
+      ],
+      "title": "Devant le portrait du Sorcier"
     },
     "32": {
       "status": "verifie",
@@ -586,7 +617,8 @@
             }
           ]
         }
-      ]
+      ],
+      "title": "La salle des Rats"
     },
     "33": {
       "status": "verifie",
@@ -603,7 +635,8 @@
         "victory_target": 147,
         "escape_target": 320,
         "escape_after_assaults": 0
-      }
+      },
+      "title": "Le réveil du Farfadet"
     },
     "34": {
       "status": "verifie",
@@ -624,7 +657,8 @@
           "target": 96,
           "label": "Poursuivre vers le bruit, au nord"
         }
-      ]
+      ],
+      "title": "Les outils du hangar"
     },
     "35": {
       "status": "verifie",
@@ -639,7 +673,8 @@
           "target": 361,
           "label": "Retenir son souffle et saisir la clé"
         }
-      ]
+      ],
+      "title": "La pièce au gaz"
     },
     "36": {
       "status": "verifie",
@@ -654,7 +689,8 @@
           "target": 353,
           "label": "Dégainer et l'attaquer"
         }
-      ]
+      ],
+      "title": "Le réduit du vieil homme"
     },
     "37": {
       "status": "verifie",
@@ -673,7 +709,8 @@
           "label": "Partir au sud",
           "target": 277
         }
-      ]
+      ],
+      "title": "Le carrefour des passages"
     },
     "38": {
       "status": "verifie",
@@ -697,7 +734,8 @@
           "target": 66,
           "label": "Repartir par la porte sud"
         }
-      ]
+      ],
+      "title": "Le garde-manger"
     },
     "39": {
       "status": "verifie",
@@ -715,7 +753,8 @@
         "attack_bonus": 2,
         "hit_damage": 3,
         "defense_roll": true
-      }
+      },
+      "title": "Le duel invisible"
     },
     "40": {
       "status": "verifie",
@@ -727,7 +766,8 @@
           "amount": -1
         }
       ],
-      "note": "Supplice sonore ; mot HABILETÉ coupé dans le PDF."
+      "note": "Supplice sonore ; mot HABILETÉ coupé dans le PDF.",
+      "title": "La pièce aux cris perçants"
     },
     "41": {
       "status": "verifie",
@@ -743,7 +783,8 @@
         ],
         "mode": "first_hit",
         "first_hit_target": 310
-      }
+      },
+      "title": "Face à l’Être"
     },
     "42": {
       "status": "verifie",
@@ -758,7 +799,8 @@
           "label": "Prendre le passage est",
           "target": 113
         }
-      ]
+      ],
+      "title": "La jonction est-ouest"
     },
     "43": {
       "status": "verifie",
@@ -773,7 +815,8 @@
           "label": "Aller au sud",
           "target": 52
         }
-      ]
+      ],
+      "title": "Le passage nord-sud"
     },
     "44": {
       "status": "verifie",
@@ -787,9 +830,10 @@
       "routes": [
         {
           "target": 399,
-          "label": "Continuer vers §399"
+          "label": "S’engager dans le courant"
         }
-      ]
+      ],
+      "title": "Le repos au bord de l’eau"
     },
     "45": {
       "status": "verifie",
@@ -798,9 +842,10 @@
       "routes": [
         {
           "target": 90,
-          "label": "Continuer vers §90"
+          "label": "Quitter la salle des portraits"
         }
-      ]
+      ],
+      "title": "Devant le portrait railleur"
     },
     "46": {
       "status": "verifie",
@@ -815,7 +860,8 @@
           "label": "Franchir la porte à l'est",
           "target": 206
         }
-      ]
+      ],
+      "title": "Le coude à la porte est"
     },
     "47": {
       "status": "verifie",
@@ -834,7 +880,8 @@
             "target": 298
           }
         ]
-      }
+      },
+      "title": "Au milieu du pont"
     },
     "48": {
       "status": "verifie",
@@ -849,7 +896,8 @@
           "label": "Partir à l'ouest",
           "target": 60
         }
-      ]
+      ],
+      "title": "Le corridor au tournant nord"
     },
     "49": {
       "status": "verifie",
@@ -861,7 +909,8 @@
           "amount": -2
         }
       ],
-      "note": "Assommé avant de poursuivre au §122."
+      "note": "Assommé avant de poursuivre au §122.",
+      "title": "Le seuil dans l’obscurité"
     },
     "50": {
       "status": "verifie",
@@ -878,7 +927,8 @@
             }
           ]
         }
-      ]
+      ],
+      "title": "La fouille de l’Ogre"
     },
     "51": {
       "status": "verifie",
@@ -894,9 +944,10 @@
       "routes": [
         {
           "target": 287,
-          "label": "Continuer vers §287"
+          "label": "Continuer vers le nord"
         }
-      ]
+      ],
+      "title": "Devant la chambre du Troll"
     },
     "52": {
       "status": "verifie",
@@ -923,7 +974,8 @@
           "label": "Partir à l'est",
           "target": 291
         }
-      ]
+      ],
+      "title": "Le carrefour en T"
     },
     "53": {
       "status": "verifie",
@@ -949,7 +1001,8 @@
             ]
           }
         ]
-      }
+      },
+      "title": "La porte récalcitrante"
     },
     "54": {
       "status": "verifie",
@@ -964,7 +1017,8 @@
           "label": "Franchir la porte au nord",
           "target": 179
         }
-      ]
+      ],
+      "title": "La porte du passage nord"
     },
     "55": {
       "status": "verifie",
@@ -986,7 +1040,8 @@
             "target": 166
           }
         ]
-      }
+      },
+      "title": "La traversée en radeau"
     },
     "56": {
       "status": "verifie",
@@ -1001,7 +1056,8 @@
           "name": "Épée trouvée dans la rivière"
         }
       ],
-      "note": "L'ancienne épée est jetée dans la rivière et le héros conserve la nouvelle arme (+1 Habileté uniquement quand elle est utilisée en combat)."
+      "note": "L'ancienne épée est jetée dans la rivière et le héros conserve la nouvelle arme (+1 Habileté uniquement quand elle est utilisée en combat).",
+      "title": "Dans le courant"
     },
     "57": {
       "status": "verifie",
@@ -1020,7 +1076,8 @@
           "target": 119,
           "label": "Faire diversion en jetant un objet"
         }
-      ]
+      ],
+      "title": "La cachette de la caverne"
     },
     "58": {
       "status": "verifie",
@@ -1040,7 +1097,8 @@
           "target": 367,
           "label": "Continuer sans repas"
         }
-      ]
+      ],
+      "title": "Le banc du voyageur"
     },
     "59": {
       "status": "verifie",
@@ -1049,9 +1107,10 @@
       "routes": [
         {
           "target": 150,
-          "label": "Continuer vers §150"
+          "label": "Rejoindre les trois chemins"
         }
-      ]
+      ],
+      "title": "Le tournant en épingle"
     },
     "60": {
       "status": "verifie",
@@ -1060,9 +1119,10 @@
       "routes": [
         {
           "target": 48,
-          "label": "Continuer vers §48"
+          "label": "Revenir dans le couloir"
         }
-      ]
+      ],
+      "title": "La herse fermée"
     },
     "61": {
       "status": "verifie",
@@ -1079,7 +1139,8 @@
         "victory_target": 29,
         "escape_target": 375,
         "escape_after_assaults": 2
-      }
+      },
+      "title": "L’Araignée dans la caverne"
     },
     "62": {
       "status": "verifie",
@@ -1094,7 +1155,8 @@
           "label": "Revenir à l'ouverture étroite",
           "target": 89
         }
-      ]
+      ],
+      "title": "Le passage vers la porte blindée"
     },
     "63": {
       "status": "verifie",
@@ -1109,7 +1171,8 @@
           "label": "Faire demi-tour",
           "target": 10
         }
-      ]
+      ],
+      "title": "Le corridor qui se resserre"
     },
     "64": {
       "status": "verifie",
@@ -1120,7 +1183,8 @@
         }
       ],
       "routes": [],
-      "note": "Mort ou paralysie face à la Goule : aventure terminée."
+      "note": "Mort ou paralysie face à la Goule : aventure terminée.",
+      "title": "L’antre de la Goule"
     },
     "65": {
       "status": "verifie",
@@ -1133,9 +1197,10 @@
       "routes": [
         {
           "target": 372,
-          "label": "Continuer vers §372"
+          "label": "Poursuivre le combat"
         }
-      ]
+      ],
+      "title": "Le Chef et son serviteur"
     },
     "66": {
       "status": "verifie",
@@ -1150,7 +1215,8 @@
           "label": "Suivre la rivière vers l'est",
           "target": 99
         }
-      ]
+      ],
+      "title": "Le retour à la rivière"
     },
     "67": {
       "status": "verifie",
@@ -1165,7 +1231,8 @@
           "label": "Emprunter le passage secret",
           "target": 177
         }
-      ]
+      ],
+      "title": "La porte derrière la corde"
     },
     "68": {
       "status": "verifie",
@@ -1174,9 +1241,10 @@
       "routes": [
         {
           "target": 303,
-          "label": "Continuer vers §303"
+          "label": "Quitter la salle vers le nord"
         }
-      ]
+      ],
+      "title": "La sortie de la salle de torture"
     },
     "69": {
       "status": "verifie",
@@ -1185,9 +1253,10 @@
       "routes": [
         {
           "target": 244,
-          "label": "Continuer vers §244"
+          "label": "Suivre la flèche vers le nord"
         }
-      ]
+      ],
+      "title": "Le couloir à la flèche"
     },
     "70": {
       "status": "verifie",
@@ -1196,9 +1265,10 @@
       "routes": [
         {
           "target": 267,
-          "label": "Continuer vers §267"
+          "label": "Rejoindre le croisement"
         }
-      ]
+      ],
+      "title": "Le couloir pavé"
     },
     "71": {
       "status": "verifie",
@@ -1224,14 +1294,16 @@
             "target": 248
           }
         ]
-      }
+      },
+      "title": "La guérite du garde"
     },
     "72": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Choisir l’armure à conserver, abandonner l’autre, puis §319.",
       "special": "armor_choice",
-      "routes": []
+      "routes": [],
+      "title": "Le choix de l’armure"
     },
     "73": {
       "status": "verifie",
@@ -1240,9 +1312,10 @@
       "routes": [
         {
           "target": 218,
-          "label": "Continuer vers §218"
+          "label": "Rejoindre la rivière"
         }
-      ]
+      ],
+      "title": "Le passage sablonneux"
     },
     "74": {
       "status": "verifie",
@@ -1268,7 +1341,8 @@
             "target": 118
           }
         ]
-      }
+      },
+      "title": "Le regard qui vous retient"
     },
     "75": {
       "status": "verifie",
@@ -1288,7 +1362,8 @@
           "amount": 3
         }
       ],
-      "note": "Butin et récompense après le combat ; le repas reste facultatif."
+      "note": "Butin et récompense après le combat ; le repas reste facultatif.",
+      "title": "La statue du Cyclope"
     },
     "76": {
       "status": "verifie",
@@ -1297,9 +1372,10 @@
       "routes": [
         {
           "target": 244,
-          "label": "Continuer vers §244"
+          "label": "Suivre la flèche vers le nord"
         }
-      ]
+      ],
+      "title": "La bifurcation à la flèche"
     },
     "77": {
       "status": "verifie",
@@ -1315,7 +1391,8 @@
           "target": 18,
           "label": "Aller vers l'ouest"
         }
-      ]
+      ],
+      "title": "Le croisement à l’abri rocheux"
     },
     "78": {
       "status": "verifie",
@@ -1330,7 +1407,8 @@
           "label": "Rebrousser chemin",
           "target": 237
         }
-      ]
+      ],
+      "title": "La porte aux bruits de cuisine"
     },
     "79": {
       "status": "verifie",
@@ -1345,7 +1423,8 @@
           "label": "Revenir au croisement",
           "target": 267
         }
-      ]
+      ],
+      "title": "Le cul-de-sac rocheux"
     },
     "80": {
       "status": "verifie",
@@ -1354,21 +1433,22 @@
       "routes": [
         {
           "target": 129,
-          "label": "Continuer vers §129"
+          "label": "Revenir à la rivière"
         },
         {
           "target": 123,
-          "label": "Continuer vers §123"
+          "label": "Proposer d’acheter un bateau"
         },
         {
           "target": 195,
-          "label": "Continuer vers §195"
+          "label": "Se faire passer pour leur nouveau patron"
         },
         {
           "target": 140,
-          "label": "Continuer vers §140"
+          "label": "Tirer l’épée et combattre"
         }
-      ]
+      ],
+      "title": "Le hangar à bateaux"
     },
     "81": {
       "status": "verifie",
@@ -1377,9 +1457,10 @@
       "routes": [
         {
           "target": 205,
-          "label": "Continuer vers §205"
+          "label": "Examiner la porte nord"
         }
-      ]
+      ],
+      "title": "Vers la porte nord"
     },
     "82": {
       "status": "verifie",
@@ -1411,7 +1492,8 @@
             "target": 33
           }
         ]
-      }
+      },
+      "title": "La paillasse du veilleur"
     },
     "83": {
       "status": "verifie",
@@ -1437,7 +1519,8 @@
             "target": 154
           }
         ]
-      }
+      },
+      "title": "La fuite vers la porte nord"
     },
     "84": {
       "status": "verifie",
@@ -1456,7 +1539,8 @@
           "target": 377,
           "label": "Attaquer l'homme"
         }
-      ]
+      ],
+      "title": "Le salon du vieil homme"
     },
     "85": {
       "status": "verifie",
@@ -1479,7 +1563,8 @@
           "label": "Aller à l'ouest",
           "target": 59
         }
-      ]
+      ],
+      "title": "Le carrefour des quatre voies"
     },
     "86": {
       "status": "verifie",
@@ -1499,7 +1584,8 @@
         "diversion_target": 350,
         "diversion_extra_assaults": 1,
         "note": "Deux assauts obligatoires, ensuite choix : poursuivre ou un assaut supplémentaire puis §350."
-      }
+      },
+      "title": "Dans les eaux du Crocodile"
     },
     "87": {
       "status": "verifie",
@@ -1508,9 +1594,10 @@
       "routes": [
         {
           "target": 262,
-          "label": "Continuer vers §262"
+          "label": "Prendre le chemin du nord"
         }
-      ]
+      ],
+      "title": "Retour au chemin du nord"
     },
     "88": {
       "status": "verifie",
@@ -1519,13 +1606,14 @@
       "routes": [
         {
           "target": 216,
-          "label": "Continuer vers §216"
+          "label": "Boire à la fontaine"
         },
         {
           "target": 384,
-          "label": "Continuer vers §384"
+          "label": "Sortir par la porte nord"
         }
-      ]
+      ],
+      "title": "La fontaine au poisson"
     },
     "89": {
       "status": "verifie",
@@ -1534,9 +1622,10 @@
       "routes": [
         {
           "target": 286,
-          "label": "Continuer vers §286"
+          "label": "Descendre l’escalier"
         }
-      ]
+      ],
+      "title": "L’escalier dérobé"
     },
     "90": {
       "status": "verifie",
@@ -1544,11 +1633,12 @@
       "note": "Niche de repos : repas standard facultatif, puis départ au nord vers §253.",
       "routes": [
         {
-          "label": "Continuer vers le nord après la halte",
+          "label": "Continuer le long du passage nord",
           "target": 253
         }
       ],
-      "optional_meal": true
+      "optional_meal": true,
+      "title": "La niche du passage nord"
     },
     "91": {
       "status": "verifie",
@@ -1579,7 +1669,8 @@
             "target": 20
           }
         ]
-      }
+      },
+      "title": "La partie de cartes"
     },
     "92": {
       "status": "verifie",
@@ -1587,10 +1678,11 @@
       "note": "Itinéraire(s) vérifié(s) dans le PDF original : §71. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
       "routes": [
         {
-          "label": "Retourner vers le croisement et avancer jusqu'au §71",
+          "label": "Traverser le croisement",
           "target": 71
         }
-      ]
+      ],
+      "title": "Le croisement près de l’entrée"
     },
     "93": {
       "status": "verifie",
@@ -1598,10 +1690,11 @@
       "note": "Itinéraire(s) vérifié(s) dans le PDF original : §8. Aucun gain ou dégât supplémentaire supposé à l'entrée.",
       "routes": [
         {
-          "label": "Prendre le passage nord vers le §8",
+          "label": "Prendre le chemin du nord",
           "target": 8
         }
-      ]
+      ],
+      "title": "La branche nord de la bifurcation"
     },
     "94": {
       "status": "verifie",
@@ -1616,7 +1709,8 @@
           "label": "Continuer jusqu'au croisement",
           "target": 329
         }
-      ]
+      ],
+      "title": "Le passage aux trois chemins"
     },
     "95": {
       "status": "verifie",
@@ -1627,7 +1721,8 @@
           "label": "Se précipiter vers la porte au nord",
           "target": 205
         }
-      ]
+      ],
+      "title": "Les armes abandonnées"
     },
     "96": {
       "status": "verifie",
@@ -1638,7 +1733,8 @@
           "label": "Se cacher des quatre Squelettes",
           "target": 374
         }
-      ]
+      ],
+      "title": "Le couloir des Squelettes"
     },
     "97": {
       "status": "verifie",
@@ -1657,7 +1753,8 @@
           "label": "Partir vers le nord sans discuter",
           "target": 292
         }
-      ]
+      ],
+      "title": "Le rocking-chair du vieil homme"
     },
     "98": {
       "status": "verifie",
@@ -1668,7 +1765,8 @@
           "label": "Observer la transformation puis poursuivre",
           "target": 358
         }
-      ]
+      ],
+      "title": "L’accueil du vieil homme"
     },
     "99": {
       "status": "verifie",
@@ -1679,7 +1777,8 @@
           "label": "Examiner la porte qui bloque le passage est",
           "target": 383
         }
-      ]
+      ],
+      "title": "La porte au bord de l’eau"
     },
     "100": {
       "status": "verifie",
@@ -1694,7 +1793,8 @@
           "label": "Tenter de tricher au jeu",
           "target": 91
         }
-      ]
+      ],
+      "title": "La table de jeu des Nains"
     },
     "101": {
       "status": "verifie",
@@ -1705,7 +1805,8 @@
           "label": "Poursuivre après le Vampire",
           "target": 327
         }
-      ]
+      ],
+      "title": "L’épieu et le Vampire"
     },
     "102": {
       "status": "verifie",
@@ -1724,7 +1825,8 @@
           "label": "Feindre d'attaquer le Nain",
           "target": 68
         }
-      ]
+      ],
+      "title": "La salle de torture"
     },
     "103": {
       "status": "verifie",
@@ -1739,7 +1841,8 @@
           "label": "Laisser le levier et revenir au croisement",
           "target": 359
         }
-      ]
+      ],
+      "title": "Le levier dissimulé"
     },
     "104": {
       "status": "verifie",
@@ -1750,7 +1853,8 @@
           "label": "Essayer d'ouvrir la porte du passage nord",
           "target": 49
         }
-      ]
+      ],
+      "title": "Le passage de la paroi rocheuse"
     },
     "105": {
       "status": "verifie",
@@ -1827,7 +1931,8 @@
             ]
           }
         }
-      ]
+      ],
+      "title": "Le choix d’une arme"
     },
     "106": {
       "status": "verifie",
@@ -1837,13 +1942,14 @@
       "routes": [
         {
           "target": 152,
-          "label": "Continuer vers §152"
+          "label": "Affronter le Dragon à l’épée"
         },
         {
           "target": 126,
-          "label": "Continuer vers §126"
+          "label": "Chercher un moyen de repousser le Dragon"
         }
-      ]
+      ],
+      "title": "La grande caverne enfumée"
     },
     "107": {
       "status": "verifie",
@@ -1858,7 +1964,8 @@
           "label": "Continuer dans le couloir",
           "target": 197
         }
-      ]
+      ],
+      "title": "L’escalier au-dessus des corps"
     },
     "108": {
       "status": "verifie",
@@ -1873,7 +1980,8 @@
           }
         ],
         "victory_target": 185
-      }
+      },
+      "title": "Les dalles en forme de mains"
     },
     "109": {
       "status": "verifie",
@@ -1895,7 +2003,8 @@
           "amount": 4
         }
       ],
-      "note": "Eau sainte : restaurer Endurance au minimum (départ -2), Habileté au minimum (départ -1), et Chance +4 ; sans diminuer une valeur déjà supérieure."
+      "note": "Eau sainte : restaurer Endurance au minimum (départ -2), Habileté au minimum (départ -1), et Chance +4 ; sans diminuer une valeur déjà supérieure.",
+      "title": "Le liquide de la bouteille"
     },
     "110": {
       "status": "verifie",
@@ -1911,9 +2020,10 @@
       "routes": [
         {
           "target": 319,
-          "label": "Continuer vers §319"
+          "label": "Reprendre l’exploration"
         }
-      ]
+      ],
+      "title": "Les pièces dans la botte"
     },
     "111": {
       "status": "verifie",
@@ -1924,7 +2034,8 @@
           "label": "Poursuivre après le refus du vieil homme",
           "target": 249
         }
-      ]
+      ],
+      "title": "Face au vieil homme en colère"
     },
     "112": {
       "status": "verifie",
@@ -1933,13 +2044,14 @@
       "routes": [
         {
           "target": 142,
-          "label": "Continuer vers §142"
+          "label": "Affronter le Sorcier à l’épée"
         },
         {
           "target": 105,
-          "label": "Continuer vers §105"
+          "label": "Chercher un objet dans le sac"
         }
-      ]
+      ],
+      "title": "Le choix face à l’adversaire"
     },
     "113": {
       "status": "verifie",
@@ -1954,7 +2066,8 @@
           "label": "Prendre le passage est",
           "target": 78
         }
-      ]
+      ],
+      "title": "La bifurcation du chemin est"
     },
     "114": {
       "status": "verifie",
@@ -1965,7 +2078,8 @@
           "label": "Rejoindre le croisement",
           "target": 359
         }
-      ]
+      ],
+      "title": "Les détours vers le carrefour"
     },
     "115": {
       "status": "verifie",
@@ -1984,7 +2098,8 @@
           "label": "Examiner les tonneaux",
           "target": 330
         }
-      ]
+      ],
+      "title": "La salle aux corps étendus"
     },
     "116": {
       "status": "verifie",
@@ -2007,7 +2122,8 @@
         "victory_target": 378,
         "escape_target": 42,
         "attack_bonus": 1
-      }
+      },
+      "title": "Les deux Farfadets ivres"
     },
     "117": {
       "status": "verifie",
@@ -2022,7 +2138,8 @@
           "label": "Partir à l'ouest",
           "target": 308
         }
-      ]
+      ],
+      "title": "Le corridor est-ouest"
     },
     "118": {
       "status": "verifie",
@@ -2033,7 +2150,8 @@
           "kind": "death"
         }
       ],
-      "routes": []
+      "routes": [],
+      "title": "Le cercueil du Vampire"
     },
     "119": {
       "status": "verifie",
@@ -2045,7 +2163,8 @@
           "target": 269,
           "label": "Revenir à la bifurcation après la diversion"
         }
-      ]
+      ],
+      "title": "La diversion dans la caverne"
     },
     "120": {
       "status": "verifie",
@@ -2056,7 +2175,8 @@
           "label": "Monter l'escalier jusqu'au couloir",
           "target": 197
         }
-      ]
+      ],
+      "title": "L’escalier montant"
     },
     "121": {
       "status": "verifie",
@@ -2071,7 +2191,8 @@
           "label": "Revenir au croisement",
           "target": 359
         }
-      ]
+      ],
+      "title": "Le couloir sans issue"
     },
     "122": {
       "status": "verifie",
@@ -2090,7 +2211,8 @@
           "label": "S'enfuir par la porte sud",
           "target": 13
         }
-      ]
+      ],
+      "title": "La chambre des silhouettes"
     },
     "123": {
       "status": "verifie",
@@ -2121,7 +2243,8 @@
             "target": 140
           }
         ]
-      }
+      },
+      "title": "Les négociations du hangar"
     },
     "124": {
       "status": "verifie",
@@ -2136,14 +2259,16 @@
           "label": "Aller à l'est",
           "target": 76
         }
-      ]
+      ],
+      "title": "La bifurcation du large couloir"
     },
     "125": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Corde : tests de Chance répétés, -1 Chance à chaque jet, -1 Endurance à chaque échec ; réussite → §73.",
       "special": "rope",
-      "routes": []
+      "routes": [],
+      "title": "La corde entre vos mains"
     },
     "126": {
       "status": "verifie",
@@ -2152,7 +2277,7 @@
       "routes": [
         {
           "target": 26,
-          "label": "Continuer vers §26",
+          "label": "Prononcer la formule de Di Maggio",
           "when": {
             "kind": "fact",
             "key": "dragon_formula"
@@ -2160,7 +2285,7 @@
         },
         {
           "target": 152,
-          "label": "Continuer vers §152",
+          "label": "Affronter le Dragon à l’épée",
           "when": {
             "kind": "not",
             "condition": {
@@ -2169,7 +2294,8 @@
             }
           }
         }
-      ]
+      ],
+      "title": "Le souvenir de Di Maggio"
     },
     "127": {
       "status": "verifie",
@@ -2193,7 +2319,8 @@
           "label": "Attaquer le passeur",
           "target": 188
         }
-      ]
+      ],
+      "title": "La colère du passeur"
     },
     "128": {
       "status": "verifie",
@@ -2208,7 +2335,8 @@
           "label": "Poursuivre vers l'est",
           "target": 58
         }
-      ]
+      ],
+      "title": "Au-delà de la herse"
     },
     "129": {
       "status": "verifie",
@@ -2219,7 +2347,8 @@
           "label": "Essayer la porte aménagée dans le roc",
           "target": 104
         }
-      ]
+      ],
+      "title": "Retour à la paroi rocheuse"
     },
     "130": {
       "status": "verifie",
@@ -2229,9 +2358,10 @@
       "routes": [
         {
           "target": 280,
-          "label": "Continuer vers §280"
+          "label": "Quitter la table et revenir à la bifurcation"
         }
-      ]
+      ],
+      "title": "Les dés du vieil homme"
     },
     "131": {
       "status": "verifie",
@@ -2243,7 +2373,8 @@
           "label": "Quitter les amis et poursuivre",
           "target": 291
         }
-      ]
+      ],
+      "title": "Les confidences des Nains"
     },
     "132": {
       "status": "verifie",
@@ -2268,9 +2399,10 @@
       "routes": [
         {
           "target": 319,
-          "label": "Continuer vers §319"
+          "label": "Reprendre l’exploration"
         }
-      ]
+      ],
+      "title": "Le bouclier de bois"
     },
     "133": {
       "status": "verifie",
@@ -2281,7 +2413,8 @@
           "label": "Poursuivre après la chute de la pierre",
           "target": 52
         }
-      ]
+      ],
+      "title": "Le cul-de-sac nord-sud"
     },
     "134": {
       "status": "verifie",
@@ -2300,7 +2433,8 @@
           "label": "Revenir à la bifurcation",
           "target": 87
         }
-      ]
+      ],
+      "title": "La salle aux deux casques"
     },
     "135": {
       "status": "verifie",
@@ -2332,7 +2466,8 @@
           "label": "Quitter la pièce par la porte nord",
           "target": 360
         }
-      ]
+      ],
+      "title": "Le bureau de l’Être"
     },
     "136": {
       "status": "verifie",
@@ -2343,7 +2478,8 @@
           "label": "Revenir à la bifurcation après les gaz",
           "target": 229
         }
-      ]
+      ],
+      "title": "La sortie de la pièce au gaz"
     },
     "137": {
       "status": "verifie",
@@ -2354,7 +2490,8 @@
           "label": "Poursuivre après la perte de connaissance",
           "target": 354
         }
-      ]
+      ],
+      "title": "Le déclic du cul-de-sac"
     },
     "138": {
       "status": "verifie",
@@ -2363,20 +2500,22 @@
       "routes": [
         {
           "target": 163,
-          "label": "Continuer vers §163"
+          "label": "Affronter le Géant"
         },
         {
           "target": 351,
-          "label": "Continuer vers §351"
+          "label": "Revenir à la bifurcation"
         }
-      ]
+      ],
+      "title": "La caverne aux deux chaises"
     },
     "139": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Choisir trois clés numérotées réellement distinctes ; additionner leurs numéros. Deux clés différentes peuvent porter le même numéro, notamment les deux 111 des §§75 et 258.",
       "special": "keys",
-      "routes": []
+      "routes": [],
+      "title": "Le coffre aux trois serrures"
     },
     "140": {
       "status": "verifie",
@@ -2420,7 +2559,8 @@
         ],
         "victory_target": 395
       },
-      "routes": []
+      "routes": [],
+      "title": "Les Squelettes du hangar"
     },
     "141": {
       "status": "verifie",
@@ -2435,7 +2575,8 @@
           "label": "Essayer de l'amadouer",
           "target": 111
         }
-      ]
+      ],
+      "title": "La colère du vieil homme"
     },
     "142": {
       "status": "verifie",
@@ -2450,7 +2591,8 @@
           }
         ],
         "victory_target": 396
-      }
+      },
+      "title": "Le duel contre le Sorcier"
     },
     "143": {
       "status": "verifie",
@@ -2468,7 +2610,8 @@
         "escape_target": 399,
         "escape_after_assaults": 3,
         "escape_provisions_lost": 1
-      }
+      },
+      "title": "Le sable de la berge"
     },
     "144": {
       "status": "verifie",
@@ -2496,7 +2639,8 @@
             "amount": -1
           }
         ]
-      }
+      },
+      "title": "Le regard du Vampire"
     },
     "145": {
       "status": "verifie",
@@ -2526,7 +2670,8 @@
           "target": 363,
           "label": "Quitter la pièce après le Serpent"
         }
-      ]
+      ],
+      "title": "La boîte du Serpent"
     },
     "146": {
       "status": "verifie",
@@ -2541,7 +2686,8 @@
           "target": 11,
           "label": "Revenir au croisement et partir à l'ouest"
         }
-      ]
+      ],
+      "title": "Retour au carrefour nord-ouest"
     },
     "147": {
       "status": "verifie",
@@ -2558,7 +2704,8 @@
           "amount": 2
         }
       ],
-      "note": "La boîte contient une pièce d'or conservée ; Chance +2."
+      "note": "La boîte contient une pièce d'or conservée ; Chance +2.",
+      "title": "La petite boîte du veilleur"
     },
     "148": {
       "status": "verifie",
@@ -2569,7 +2716,8 @@
           "target": 230,
           "label": "Faire face à la créature réveillée"
         }
-      ]
+      ],
+      "title": "Le corps aux paupières mobiles"
     },
     "149": {
       "status": "verifie",
@@ -2588,7 +2736,8 @@
           "target": 355,
           "label": "Ramper vers le mur ouest"
         }
-      ]
+      ],
+      "title": "La chandelle qui s’éteint"
     },
     "150": {
       "status": "verifie",
@@ -2607,7 +2756,8 @@
           "target": 133,
           "label": "Aller au sud"
         }
-      ]
+      ],
+      "title": "Le carrefour des trois chemins"
     },
     "151": {
       "status": "verifie",
@@ -2627,13 +2777,14 @@
         },
         {
           "target": 86,
-          "label": "Continuer vers §86"
+          "label": "Nager vers le reptile"
         },
         {
           "target": 158,
-          "label": "Continuer vers §158"
+          "label": "Faire un détour vers les remous"
         }
-      ]
+      ],
+      "title": "Les yeux à la surface"
     },
     "152": {
       "status": "verifie",
@@ -2648,7 +2799,8 @@
           }
         ],
         "victory_target": 371
-      }
+      },
+      "title": "Le combat contre le Dragon"
     },
     "153": {
       "status": "verifie",
@@ -2664,7 +2816,8 @@
           "name": "Épée trouvée dans la rivière"
         }
       ],
-      "note": "L'épée ramassée à la rivière blesse le héros (-1 Endurance), devient inutilisable et est jetée. Son abandon ne retire pas l'épée d'origine."
+      "note": "L'épée ramassée à la rivière blesse le héros (-1 Endurance), devient inutilisable et est jetée. Son abandon ne retire pas l'épée d'origine.",
+      "title": "Les deux épées"
     },
     "154": {
       "status": "verifie",
@@ -2675,13 +2828,15 @@
           "target": 41,
           "label": "Affronter la créature réveillée"
         }
-      ]
+      ],
+      "title": "Le réveil de la créature"
     },
     "155": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Bouclier au croissant facultatif : nécessite d'abandonner un objet ; utilisé en combat, un lancer de 6 réduit de 1 point la blessure reçue (2→1, 1→0).",
-      "shield_pickup": true
+      "shield_pickup": true,
+      "title": "La petite armurerie"
     },
     "156": {
       "status": "verifie",
@@ -2700,7 +2855,8 @@
             "target": 92
           }
         ]
-      }
+      },
+      "title": "La porte mise à l’épreuve"
     },
     "157": {
       "status": "verifie",
@@ -2715,7 +2871,8 @@
           "label": "Ne pas franchir la porte",
           "target": 329
         }
-      ]
+      ],
+      "title": "Le passage derrière la porte"
     },
     "158": {
       "status": "verifie",
@@ -2730,7 +2887,8 @@
           }
         ],
         "victory_target": 218
-      }
+      },
+      "title": "Les remous de la rivière"
     },
     "159": {
       "status": "verifie",
@@ -2762,9 +2920,10 @@
       "routes": [
         {
           "target": 365,
-          "label": "Continuer vers §365"
+          "label": "Faire face aux Farfadets"
         }
-      ]
+      ],
+      "title": "La salle à manger des Farfadets"
     },
     "160": {
       "status": "verifie",
@@ -2775,7 +2934,8 @@
           "label": "Rejoindre la croisée des chemins",
           "target": 267
         }
-      ]
+      ],
+      "title": "Les détours du couloir sud"
     },
     "161": {
       "status": "verifie",
@@ -2817,7 +2977,8 @@
           }
         ]
       },
-      "routes": []
+      "routes": [],
+      "title": "Une rencontre dans le couloir"
     },
     "162": {
       "status": "verifie",
@@ -2832,7 +2993,8 @@
           "label": "Prendre le passage ouest",
           "target": 69
         }
-      ]
+      ],
+      "title": "La bifurcation nord-ouest"
     },
     "163": {
       "status": "verifie",
@@ -2850,7 +3012,8 @@
         "victory_target": 28,
         "escape_target": 351,
         "escape_after_assaults": 3
-      }
+      },
+      "title": "Le Géant au marteau"
     },
     "164": {
       "status": "verifie",
@@ -2865,7 +3028,8 @@
           "label": "Attaquer les Squelettes",
           "target": 236
         }
-      ]
+      ],
+      "title": "L’attente dans le hangar"
     },
     "165": {
       "status": "verifie",
@@ -2874,17 +3038,18 @@
       "routes": [
         {
           "target": 141,
-          "label": "Continuer vers §141"
+          "label": "Expliquer l’objet de votre quête"
         },
         {
           "target": 66,
-          "label": "Continuer vers §66"
+          "label": "Remercier le gardien et sortir au sud"
         },
         {
           "target": 249,
-          "label": "Continuer vers §249"
+          "label": "S’emparer des clés"
         }
-      ]
+      ],
+      "title": "Les confidences du gardien"
     },
     "166": {
       "status": "verifie",
@@ -2903,7 +3068,8 @@
             "target": 158
           }
         ]
-      }
+      },
+      "title": "Le retour à la nage"
     },
     "167": {
       "status": "verifie",
@@ -2918,7 +3084,8 @@
           "label": "Refermer la porte et revenir au croisement",
           "target": 359
         }
-      ]
+      ],
+      "title": "La porte du cul-de-sac"
     },
     "168": {
       "status": "verifie",
@@ -2937,7 +3104,8 @@
           "label": "Quitter la pièce",
           "target": 293
         }
-      ]
+      ],
+      "title": "La salle du Chef des Farfadets"
     },
     "169": {
       "status": "verifie",
@@ -2948,7 +3116,8 @@
           "label": "Ouvrir le coffre après avoir placé les clés",
           "target": 400
         }
-      ]
+      ],
+      "title": "Le coffre enfin déverrouillé"
     },
     "170": {
       "status": "verifie",
@@ -2963,9 +3132,10 @@
       "routes": [
         {
           "target": 319,
-          "label": "Continuer vers §319"
+          "label": "Reprendre l’exploration"
         }
-      ]
+      ],
+      "title": "Le crucifix d’argent"
     },
     "171": {
       "status": "verifie",
@@ -2980,7 +3150,8 @@
           "label": "Retourner au sud",
           "target": 187
         }
-      ]
+      ],
+      "title": "L’impasse du passage nord"
     },
     "172": {
       "status": "verifie",
@@ -2989,17 +3160,18 @@
       "routes": [
         {
           "target": 249,
-          "label": "Continuer vers §249"
+          "label": "Attaquer le chien"
         },
         {
           "target": 141,
-          "label": "Continuer vers §141"
+          "label": "Demander des renseignements sur le trésor"
         },
         {
           "target": 165,
-          "label": "Continuer vers §165"
+          "label": "Signaler ses lacets défaits"
         }
-      ]
+      ],
+      "title": "Le banc du gardien"
     },
     "173": {
       "status": "verifie",
@@ -3017,7 +3189,8 @@
         "mode": "silver",
         "escape_target": 360
       },
-      "special": "silver_arrow"
+      "special": "silver_arrow",
+      "title": "L’arme d’argent face à l’Être"
     },
     "174": {
       "status": "verifie",
@@ -3028,7 +3201,8 @@
           "label": "Poursuivre",
           "target": 198
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "175": {
       "status": "verifie",
@@ -3043,7 +3217,8 @@
           "label": "Poursuivre vers le croisement",
           "target": 267
         }
-      ]
+      ],
+      "title": "Le passage de la porte secrète"
     },
     "176": {
       "status": "verifie",
@@ -3058,7 +3233,8 @@
           "label": "Revenir à la bifurcation",
           "target": 375
         }
-      ]
+      ],
+      "title": "L’entrée de la grotte naturelle"
     },
     "177": {
       "status": "verifie",
@@ -3077,7 +3253,8 @@
           "label": "Franchir la porte secrète à l'ouest",
           "target": 175
         }
-      ]
+      ],
+      "title": "Le corridor à la porte ouest"
     },
     "178": {
       "status": "verifie",
@@ -3088,7 +3265,8 @@
           "label": "Franchir la porte nord",
           "target": 162
         }
-      ]
+      ],
+      "title": "La traversée de la salle dallée"
     },
     "179": {
       "status": "verifie",
@@ -3110,7 +3288,7 @@
       "routes": [
         {
           "target": 258,
-          "label": "Continuer vers §258",
+          "label": "Examiner la salle après le combat",
           "when": {
             "kind": "not",
             "condition": {
@@ -3121,13 +3299,14 @@
         },
         {
           "target": 54,
-          "label": "Continuer vers §54",
+          "label": "Quitter la salle déjà explorée",
           "when": {
             "kind": "fact",
             "key": "minotaur_dead"
           }
         }
-      ]
+      ],
+      "title": "La salle du Minotaure"
     },
     "180": {
       "status": "verifie",
@@ -3146,7 +3325,8 @@
           "label": "Examiner le cul-de-sac",
           "target": 22
         }
-      ]
+      ],
+      "title": "Le détour sans issue"
     },
     "181": {
       "status": "verifie",
@@ -3168,7 +3348,8 @@
           "label": "Chercher le mur nord"
         }
       ],
-      "note": "Douleur supplémentaire : Habileté -1 ; choisir le mur ouest §355 ou nord §265."
+      "note": "Douleur supplémentaire : Habileté -1 ; choisir le mur ouest §355 ou nord §265.",
+      "title": "Le mur est de la salle aux cris"
     },
     "182": {
       "status": "verifie",
@@ -3182,7 +3363,8 @@
           "amount": -2
         }
       ],
-      "routes": []
+      "routes": [],
+      "title": "Une nouvelle combinaison de clés"
     },
     "183": {
       "status": "verifie",
@@ -3209,7 +3391,8 @@
           "label": "Laisser la mallette et sortir"
         }
       ],
-      "note": "Après les Farfadets : Habileté +1 et Endurance +5 (plafonnées) ; mallette §266 ou sortie §237."
+      "note": "Après les Farfadets : Habileté +1 et Endurance +5 (plafonnées) ; mallette §266 ou sortie §237.",
+      "title": "La fouille de la salle à manger"
     },
     "184": {
       "status": "verifie",
@@ -3224,7 +3407,8 @@
           "label": "Examiner les outils"
         }
       ],
-      "note": "Hangar à Bateaux libre : examiner les tiroirs §322 ou les outils §34."
+      "note": "Hangar à Bateaux libre : examiner les tiroirs §322 ou les outils §34.",
+      "title": "Le hangar désert"
     },
     "185": {
       "status": "verifie",
@@ -3242,7 +3426,8 @@
           "target": 162,
           "label": "Traverser la salle et poursuivre"
         }
-      ]
+      ],
+      "title": "Les dalles en forme d’étoiles"
     },
     "186": {
       "status": "verifie",
@@ -3251,9 +3436,10 @@
       "routes": [
         {
           "target": 198,
-          "label": "Continuer vers §198"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "187": {
       "status": "verifie",
@@ -3268,7 +3454,8 @@
           "label": "Partir vers l'est"
         }
       ],
-      "note": "Tournant du couloir : nord §171 ou est §308."
+      "note": "Tournant du couloir : nord §171 ou est §308.",
+      "title": "Le coude de l’impasse nord"
     },
     "188": {
       "status": "verifie",
@@ -3285,7 +3472,8 @@
         "escape_target": 209,
         "escape_after_assaults": 0
       },
-      "note": "Rat-garou H8/E5 ; victoire §342, fuite immédiate par le pont §209 avec pénalité de fuite."
+      "note": "Rat-garou H8/E5 ; victoire §342, fuite immédiate par le pont §209 avec pénalité de fuite.",
+      "title": "Le passeur métamorphosé"
     },
     "189": {
       "status": "verifie",
@@ -3294,13 +3482,14 @@
       "routes": [
         {
           "target": 90,
-          "label": "Continuer vers §90"
+          "label": "Traverser la salle et sortir au nord"
         },
         {
           "target": 25,
-          "label": "Continuer vers §25"
+          "label": "Examiner les tableaux"
         }
-      ]
+      ],
+      "title": "La salle de marbre aux tableaux"
     },
     "190": {
       "status": "verifie",
@@ -3315,7 +3504,8 @@
           "label": "Revenir au croisement"
         }
       ],
-      "note": "Impasse au nord §167 ou retour §359."
+      "note": "Impasse au nord §167 ou retour §359.",
+      "title": "L’étroite impasse au nord"
     },
     "191": {
       "status": "verifie",
@@ -3334,7 +3524,8 @@
           "label": "Sortir par la porte ouest"
         }
       ],
-      "note": "Trois itinéraires après les conseils du Sorcier du labyrinthe."
+      "note": "Trois itinéraires après les conseils du Sorcier du labyrinthe.",
+      "title": "Les conseils du maître du labyrinthe"
     },
     "192": {
       "status": "verifie",
@@ -3343,9 +3534,10 @@
       "routes": [
         {
           "target": 169,
-          "label": "Continuer vers §169"
+          "label": "Tourner les clés dans les serrures"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "193": {
       "status": "verifie",
@@ -3360,7 +3552,8 @@
           "label": "Essayer de dessertir l'œil précieux du Cyclope"
         }
       ],
-      "note": "Statue de Cyclope : laisser le joyau §93 ou tenter de le retirer §338."
+      "note": "Statue de Cyclope : laisser le joyau §93 ou tenter de le retirer §338.",
+      "title": "La salle aux mosaïques"
     },
     "194": {
       "status": "verifie",
@@ -3375,7 +3568,8 @@
           "label": "Chercher un autre moyen dans le sac"
         }
       ],
-      "note": "La flèche échoue : affronter le Sorcier §142 ou examiner le sac §105."
+      "note": "La flèche échoue : affronter le Sorcier §142 ou examiner le sac §105.",
+      "title": "La flèche arrêtée"
     },
     "195": {
       "status": "verifie",
@@ -3406,7 +3600,8 @@
           }
         ]
       },
-      "note": "Mensonge aux Squelettes : 1–2 → §140 ; 3–4 → §164 ; 5–6 → §9 avec Chance +2."
+      "note": "Mensonge aux Squelettes : 1–2 → §140 ; 3–4 → §164 ; 5–6 → §9 avec Chance +2.",
+      "title": "Le mensonge au hangar"
     },
     "196": {
       "status": "verifie",
@@ -3424,7 +3619,8 @@
           "label": "Revenir vers la bifurcation au sud"
         }
       ],
-      "note": "Fouille du bureau : cinq pièces d'or trouvées automatiquement, puis §280."
+      "note": "Fouille du bureau : cinq pièces d'or trouvées automatiquement, puis §280.",
+      "title": "La bibliothèque silencieuse"
     },
     "197": {
       "status": "verifie",
@@ -3439,14 +3635,16 @@
           "label": "Chercher un passage secret dans le mur"
         }
       ],
-      "note": "Herse abaissée : continuer §48 ou chercher un passage secret §295."
+      "note": "Herse abaissée : continuer §48 ou chercher un passage secret §295.",
+      "title": "En haut de l’escalier"
     },
     "198": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Mauvaise combinaison : test de Chance, -2 Endurance si réussite, mort si échec ; puis nouvelles clés.",
       "special": "key_trap",
-      "routes": []
+      "routes": [],
+      "title": "Les clés dans les serrures"
     },
     "199": {
       "status": "verifie",
@@ -3467,7 +3665,8 @@
           }
         ],
         "victory_target": 283
-      }
+      },
+      "title": "La caverne aux armes de pierre"
     },
     "200": {
       "status": "verifie",
@@ -3475,10 +3674,11 @@
       "routes": [
         {
           "target": 387,
-          "label": "Poursuivre au §387"
+          "label": "Essayer la combinaison de clés"
         }
       ],
-      "note": "Renvoi explicite vers §387."
+      "note": "Renvoi explicite vers §387.",
+      "title": "Les serrures du coffre"
     },
     "201": {
       "status": "verifie",
@@ -3522,9 +3722,10 @@
       "routes": [
         {
           "target": 293,
-          "label": "Continuer vers §293"
+          "label": "Quitter la salle des Farfadets"
         }
-      ]
+      ],
+      "title": "Le contenu du coffre des Farfadets"
     },
     "202": {
       "status": "verifie",
@@ -3540,7 +3741,8 @@
           "name": "Casque ensorcelé"
         }
       ],
-      "note": "Casque maudit : Habileté -1, casque impossible à retirer. Le casque est verrouillé dans le sac et dans les sauvegardes."
+      "note": "Casque maudit : Habileté -1, casque impossible à retirer. Le casque est verrouillé dans le sac et dans les sauvegardes.",
+      "title": "Le casque de bronze"
     },
     "203": {
       "status": "verifie",
@@ -3574,7 +3776,8 @@
           "target": 66,
           "label": "Aller au sud"
         }
-      ]
+      ],
+      "title": "La chambre du Loup-Garou"
     },
     "204": {
       "status": "verifie",
@@ -3598,7 +3801,8 @@
           "target": 377,
           "label": "Attaquer le vieil homme"
         }
-      ]
+      ],
+      "title": "L’invitation à jouer aux dés"
     },
     "205": {
       "status": "verifie",
@@ -3613,7 +3817,8 @@
           "label": "Quitter la crypte par la porte ouest"
         }
       ],
-      "note": "Dans la crypte : fouiller §254 ou quitter §380."
+      "note": "Dans la crypte : fouiller §254 ou quitter §380.",
+      "title": "La crypte aux cercueils"
     },
     "206": {
       "status": "verifie",
@@ -3622,7 +3827,7 @@
       "routes": [
         {
           "target": 341,
-          "label": "Continuer vers §341",
+          "label": "Rencontrer le maître des lieux",
           "when": {
             "kind": "visit_count",
             "paragraph": 206,
@@ -3631,14 +3836,15 @@
         },
         {
           "target": 284,
-          "label": "Continuer vers §284",
+          "label": "Retrouver le maître des lieux",
           "when": {
             "kind": "visit_count",
             "paragraph": 206,
             "min": 2
           }
         }
-      ]
+      ],
+      "title": "La bibliothèque souterraine"
     },
     "207": {
       "status": "verifie",
@@ -3653,7 +3859,8 @@
           "label": "S'approcher discrètement du bureau"
         }
       ],
-      "note": "Éviter la créature : porte nord §83 ou bureau §154."
+      "note": "Éviter la créature : porte nord §83 ou bureau §154.",
+      "title": "La chambre au bureau de bois brut"
     },
     "208": {
       "status": "verifie",
@@ -3668,7 +3875,8 @@
           "label": "Continuer dans le passage"
         }
       ],
-      "note": "Porte ou continuation, §397 ou §363."
+      "note": "Porte ou continuation, §397 ou §363.",
+      "title": "La porte du passage ouest"
     },
     "209": {
       "status": "verifie",
@@ -3687,7 +3895,8 @@
             "target": 47
           }
         ]
-      }
+      },
+      "title": "Les planches du pont"
     },
     "210": {
       "status": "verifie",
@@ -3695,14 +3904,15 @@
       "routes": [
         {
           "target": 225,
-          "label": "Continuer vers l'ouest"
+          "label": "Continuer vers l’ouest"
         },
         {
           "target": 357,
           "label": "Prendre la direction du nord"
         }
       ],
-      "note": "À la bifurcation : ouest §225 ou nord §357."
+      "note": "À la bifurcation : ouest §225 ou nord §357.",
+      "title": "La bifurcation de l’ouest"
     },
     "211": {
       "status": "verifie",
@@ -3746,7 +3956,8 @@
             ]
           }
         }
-      ]
+      ],
+      "title": "L’épée face à l’Être"
     },
     "212": {
       "status": "verifie",
@@ -3768,7 +3979,8 @@
           "target": 120,
           "label": "Poursuivre au nord"
         }
-      ]
+      ],
+      "title": "Le parchemin abîmé"
     },
     "213": {
       "status": "verifie",
@@ -3794,7 +4006,8 @@
             ]
           }
         ]
-      }
+      },
+      "title": "La porte verrouillée"
     },
     "214": {
       "status": "verifie",
@@ -3813,7 +4026,8 @@
           "target": 99,
           "label": "Suivre la rivière vers l'est"
         }
-      ]
+      ],
+      "title": "La paroi de la berge nord"
     },
     "215": {
       "status": "verifie",
@@ -3828,7 +4042,8 @@
           "target": 105,
           "label": "Chercher un autre objet dans le sac"
         }
-      ]
+      ],
+      "title": "Le bâton brisé"
     },
     "216": {
       "status": "verifie",
@@ -3855,7 +4070,8 @@
           "target": 384,
           "label": "Sortir par la porte nord"
         }
-      ]
+      ],
+      "title": "La fontaine au poisson"
     },
     "217": {
       "status": "verifie",
@@ -3866,7 +4082,8 @@
           "target": 118,
           "label": "Subir l'hypnose du Vampire"
         }
-      ]
+      ],
+      "title": "L’épieu manqué"
     },
     "218": {
       "status": "verifie",
@@ -3889,7 +4106,8 @@
           "target": 316,
           "label": "Traverser à la nage"
         }
-      ]
+      ],
+      "title": "La berge sud"
     },
     "219": {
       "status": "verifie",
@@ -3898,9 +4116,10 @@
       "routes": [
         {
           "target": 182,
-          "label": "Poursuivre au §182"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "220": {
       "status": "verifie",
@@ -3911,14 +4130,16 @@
           "target": 171,
           "label": "Se réveiller au cul-de-sac"
         }
-      ]
+      ],
+      "title": "Devant le bureau aux parchemins"
     },
     "221": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Identifier les deux trouvailles dans leur ordre de choix ; le premier équipement initial ne compte pas.",
       "special": "identify_loot",
-      "routes": []
+      "routes": [],
+      "title": "Les objets du voyageur"
     },
     "222": {
       "status": "verifie",
@@ -3927,9 +4148,10 @@
       "routes": [
         {
           "target": 85,
-          "label": "Continuer vers la croisée des chemins"
+          "label": "Rejoindre le carrefour"
         }
-      ]
+      ],
+      "title": "Le long détour vers l’est"
     },
     "223": {
       "status": "verifie",
@@ -3944,7 +4166,8 @@
           "target": 300,
           "label": "Continuer dans le couloir"
         }
-      ]
+      ],
+      "title": "La porte solidement fermée"
     },
     "224": {
       "status": "verifie",
@@ -3955,7 +4178,8 @@
           "target": 118,
           "label": "Avancer sous le pouvoir du Vampire"
         }
-      ]
+      ],
+      "title": "Sous l’emprise du regard"
     },
     "225": {
       "status": "verifie",
@@ -3970,7 +4194,8 @@
           "target": 63,
           "label": "Tourner vers l'ouest"
         }
-      ]
+      ],
+      "title": "La fourche du passage nord"
     },
     "226": {
       "status": "verifie",
@@ -3981,7 +4206,8 @@
           "target": 267,
           "label": "Continuer jusqu'au croisement"
         }
-      ]
+      ],
+      "title": "Le retour au croisement sud"
     },
     "227": {
       "status": "verifie",
@@ -3990,7 +4216,7 @@
       "routes": [
         {
           "target": 131,
-          "label": "Continuer vers §131",
+          "label": "Demander des renseignements aux Nains",
           "when": {
             "kind": "visit_count",
             "paragraph": 227,
@@ -3999,7 +4225,7 @@
         },
         {
           "target": 100,
-          "label": "Continuer vers §100",
+          "label": "Se joindre à la partie de cartes",
           "when": {
             "kind": "visit_count",
             "paragraph": 227,
@@ -4008,7 +4234,7 @@
         },
         {
           "target": 20,
-          "label": "Continuer vers §20",
+          "label": "Attaquer le chef des Nains",
           "when": {
             "kind": "visit_count",
             "paragraph": 227,
@@ -4017,9 +4243,10 @@
         },
         {
           "target": 291,
-          "label": "Continuer vers §291"
+          "label": "Quitter la salle des Nains"
         }
-      ]
+      ],
+      "title": "La salle des joueurs de cartes"
     },
     "228": {
       "status": "verifie",
@@ -4030,7 +4257,8 @@
           "target": 85,
           "label": "Retourner au croisement"
         }
-      ]
+      ],
+      "title": "La recherche dans le couloir"
     },
     "229": {
       "status": "verifie",
@@ -4041,7 +4269,8 @@
           "target": 69,
           "label": "Prendre le passage de droite"
         }
-      ]
+      ],
+      "title": "Le chemin de droite"
     },
     "230": {
       "status": "verifie",
@@ -4059,7 +4288,8 @@
         "mode": "ghoul",
         "wound_limit": 4,
         "defeat_target": 64
-      }
+      },
+      "title": "Le combat contre la Goule"
     },
     "231": {
       "status": "verifie",
@@ -4068,9 +4298,10 @@
       "routes": [
         {
           "target": 182,
-          "label": "Poursuivre au §182"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "232": {
       "status": "verifie",
@@ -4081,7 +4312,8 @@
           "target": 375,
           "label": "Revenir au croisement"
         }
-      ]
+      ],
+      "title": "La sortie de la caverne aux bottes"
     },
     "233": {
       "status": "verifie",
@@ -4090,9 +4322,10 @@
       "routes": [
         {
           "target": 198,
-          "label": "Poursuivre au §198"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "234": {
       "status": "verifie",
@@ -4102,9 +4335,10 @@
       "routes": [
         {
           "target": 161,
-          "label": "Continuer vers §161"
+          "label": "Faire face à la créature qui approche"
         }
-      ]
+      ],
+      "title": "Des pas après la fouille"
     },
     "235": {
       "status": "verifie",
@@ -4119,7 +4353,8 @@
           "target": 5,
           "label": "Continuer au nord"
         }
-      ]
+      ],
+      "title": "La bifurcation du passage ouest"
     },
     "236": {
       "status": "verifie",
@@ -4145,7 +4380,8 @@
           }
         ],
         "victory_target": 395
-      }
+      },
+      "title": "Le combat dans le hangar"
     },
     "237": {
       "status": "verifie",
@@ -4156,7 +4392,8 @@
           "target": 285,
           "label": "Repartir au nord"
         }
-      ]
+      ],
+      "title": "Le retour au passage nord"
     },
     "238": {
       "status": "verifie",
@@ -4175,7 +4412,8 @@
           "target": 329,
           "label": "Aller au nord"
         }
-      ]
+      ],
+      "title": "La jonction des trois chemins"
     },
     "239": {
       "status": "verifie",
@@ -4197,7 +4435,8 @@
           "key": "chance",
           "amount": 1
         }
-      ]
+      ],
+      "title": "La chandelle dans la salle peinte"
     },
     "240": {
       "status": "verifie",
@@ -4212,7 +4451,8 @@
           }
         ],
         "victory_target": 145
-      }
+      },
+      "title": "La boîte au Serpent"
     },
     "241": {
       "status": "verifie",
@@ -4230,7 +4470,8 @@
           "key": "habilete",
           "amount": -1
         }
-      ]
+      ],
+      "title": "L’épieu devant le portrait"
     },
     "242": {
       "status": "verifie",
@@ -4248,7 +4489,8 @@
           "target": 139,
           "label": "Chercher trois clés dans le sac"
         }
-      ]
+      ],
+      "title": "La salle du grand coffre"
     },
     "243": {
       "status": "verifie",
@@ -4290,7 +4532,8 @@
             ]
           }
         ]
-      }
+      },
+      "title": "Le levier de gauche"
     },
     "244": {
       "status": "verifie",
@@ -4299,13 +4542,14 @@
       "routes": [
         {
           "target": 143,
-          "label": "S'asseoir et prendre un repas (au §143)"
+          "label": "Se reposer et prendre un repas sur la berge"
         },
         {
           "target": 399,
           "label": "Sauter dans la rivière"
         }
-      ]
+      ],
+      "title": "La berge sans passage"
     },
     "245": {
       "status": "verifie",
@@ -4314,9 +4558,10 @@
       "routes": [
         {
           "target": 198,
-          "label": "Rejoindre le §198"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "246": {
       "status": "verifie",
@@ -4335,7 +4580,8 @@
           "target": 70,
           "label": "Revenir vers l'est"
         }
-      ]
+      ],
+      "title": "Les détours du passage pavé"
     },
     "247": {
       "status": "verifie",
@@ -4353,7 +4599,8 @@
           "target": 292,
           "label": "Repartir au nord"
         }
-      ]
+      ],
+      "title": "Le seuil du vieil homme"
     },
     "248": {
       "status": "verifie",
@@ -4368,7 +4615,8 @@
           }
         ],
         "victory_target": 301
-      }
+      },
+      "title": "Le garde et sa sonnette"
     },
     "249": {
       "status": "verifie",
@@ -4410,7 +4658,8 @@
             "key": "dog249_defeated"
           }
         }
-      ]
+      ],
+      "title": "Le chien au souffle de feu"
     },
     "250": {
       "status": "verifie",
@@ -4421,7 +4670,8 @@
           "target": 366,
           "label": "Retourner au croisement au nord"
         }
-      ]
+      ],
+      "title": "La courte impasse"
     },
     "251": {
       "status": "verifie",
@@ -4438,7 +4688,8 @@
         "victory_target": 344,
         "escape_target": 399,
         "escape_after_assaults": 0
-      }
+      },
+      "title": "La rive aux battements d’ailes"
     },
     "252": {
       "status": "verifie",
@@ -4453,7 +4704,8 @@
           "target": 226,
           "label": "Aller au sud"
         }
-      ]
+      ],
+      "title": "La paroi tournante"
     },
     "253": {
       "status": "verifie",
@@ -4462,17 +4714,18 @@
       "routes": [
         {
           "target": 328,
-          "label": "Continuer vers §328"
+          "label": "Examiner les morceaux de bois"
         },
         {
           "target": 125,
-          "label": "Continuer vers §125"
+          "label": "Examiner la corde"
         },
         {
           "target": 73,
-          "label": "Continuer vers §73"
+          "label": "Franchir la porte nord"
         }
-      ]
+      ],
+      "title": "La salle aux cercueils"
     },
     "254": {
       "status": "verifie",
@@ -4495,7 +4748,8 @@
           "target": 380,
           "label": "Fuir par la porte ouest"
         }
-      ]
+      ],
+      "title": "Le cercueil qui s’ouvre"
     },
     "255": {
       "status": "verifie",
@@ -4510,7 +4764,8 @@
           "target": 93,
           "label": "Revenir à la bifurcation"
         }
-      ]
+      ],
+      "title": "La massive porte de bois"
     },
     "256": {
       "status": "verifie",
@@ -4529,7 +4784,8 @@
           "target": 114,
           "label": "Aller au sud"
         }
-      ]
+      ],
+      "title": "Le carrefour de l’impasse nord"
     },
     "257": {
       "status": "verifie",
@@ -4544,7 +4800,8 @@
           "target": 293,
           "label": "Revenir sur ses pas"
         }
-      ]
+      ],
+      "title": "La porte aux éclats de voix"
     },
     "258": {
       "status": "verifie",
@@ -4584,9 +4841,10 @@
       "routes": [
         {
           "target": 54,
-          "label": "Continuer vers §54"
+          "label": "Quitter la salle du Minotaure"
         }
-      ]
+      ],
+      "title": "Le bol de la salle du Minotaure"
     },
     "259": {
       "status": "verifie",
@@ -4607,9 +4865,10 @@
       "routes": [
         {
           "target": 7,
-          "label": "Poursuivre au §7"
+          "label": "Rejoindre la berge nord"
         }
-      ]
+      ],
+      "title": "La sortie de l’eau au nord"
     },
     "260": {
       "status": "verifie",
@@ -4624,7 +4883,8 @@
           "target": 329,
           "label": "Partir au sud"
         }
-      ]
+      ],
+      "title": "Le couloir entre deux carrefours"
     },
     "261": {
       "status": "verifie",
@@ -4635,7 +4895,8 @@
           "target": 345,
           "label": "Continuer à l'est"
         }
-      ]
+      ],
+      "title": "Le retour au chemin de l’est"
     },
     "262": {
       "status": "verifie",
@@ -4650,7 +4911,8 @@
           "target": 251,
           "label": "Poursuivre à l'ouest"
         }
-      ]
+      ],
+      "title": "La bifurcation est-ouest du nord"
     },
     "263": {
       "status": "verifie",
@@ -4666,9 +4928,10 @@
       "routes": [
         {
           "target": 314,
-          "label": "Continuer vers §314"
+          "label": "Quitter le réduit du prisonnier"
         }
-      ]
+      ],
+      "title": "Les confidences du prisonnier"
     },
     "264": {
       "status": "verifie",
@@ -4698,7 +4961,8 @@
             "name": "Clé du Hangar à Bateaux"
           }
         }
-      ]
+      ],
+      "title": "Le seuil du hangar"
     },
     "265": {
       "status": "verifie",
@@ -4709,7 +4973,8 @@
           "target": 88,
           "label": "Ouvrir la porte trouvée à tâtons"
         }
-      ]
+      ],
+      "title": "La porte du mur nord"
     },
     "266": {
       "status": "verifie",
@@ -4738,9 +5003,10 @@
       "routes": [
         {
           "target": 237,
-          "label": "Continuer vers §237"
+          "label": "Quitter la salle à manger"
         }
-      ]
+      ],
+      "title": "La mallette de cuir"
     },
     "267": {
       "status": "verifie",
@@ -4763,7 +5029,8 @@
           "target": 349,
           "label": "Aller à l'est"
         }
-      ]
+      ],
+      "title": "Le carrefour du passage pavé"
     },
     "268": {
       "status": "verifie",
@@ -4778,7 +5045,8 @@
           "target": 282,
           "label": "Affronter les Zombies"
         }
-      ]
+      ],
+      "title": "Face aux silhouettes muettes"
     },
     "269": {
       "status": "verifie",
@@ -4789,7 +5057,8 @@
           "target": 225,
           "label": "Reprendre la direction de l'ouest"
         }
-      ]
+      ],
+      "title": "Le retour au chemin de l’ouest"
     },
     "270": {
       "status": "verifie",
@@ -4808,7 +5077,8 @@
           "target": 375,
           "label": "Quitter la caverne"
         }
-      ]
+      ],
+      "title": "La grotte aux stalactites"
     },
     "271": {
       "status": "verifie",
@@ -4823,7 +5093,8 @@
           "target": 214,
           "label": "Retourner à la rivière"
         }
-      ]
+      ],
+      "title": "La porte du passage nord-ouest"
     },
     "272": {
       "status": "verifie",
@@ -4834,7 +5105,8 @@
           "target": 7,
           "label": "Débarquer sur la berge nord"
         }
-      ]
+      ],
+      "title": "La traversée avec le passeur"
     },
     "273": {
       "status": "verifie",
@@ -4851,7 +5123,8 @@
             }
           ]
         }
-      ]
+      ],
+      "title": "La fouille de la chambre du Barbare"
     },
     "274": {
       "status": "verifie",
@@ -4870,7 +5143,8 @@
           "target": 98,
           "label": "Entrer discrètement à quatre pattes"
         }
-      ]
+      ],
+      "title": "La porte entrouverte"
     },
     "275": {
       "status": "verifie",
@@ -4904,7 +5178,8 @@
             "amount": -1
           }
         ]
-      }
+      },
+      "title": "Le deuxième corps"
     },
     "276": {
       "status": "verifie",
@@ -4913,9 +5188,10 @@
       "routes": [
         {
           "target": 182,
-          "label": "Rejoindre le §182"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "277": {
       "status": "verifie",
@@ -4934,7 +5210,8 @@
           "target": 11,
           "label": "Revenir au croisement et tourner à l'ouest"
         }
-      ]
+      ],
+      "title": "Le court passage sud"
     },
     "278": {
       "status": "verifie",
@@ -4949,7 +5226,8 @@
           "target": 92,
           "label": "Revenir au croisement"
         }
-      ]
+      ],
+      "title": "La porte du passage est"
     },
     "279": {
       "status": "verifie",
@@ -5028,7 +5306,8 @@
             }
           }
         }
-      ]
+      ],
+      "title": "Face au Vampire"
     },
     "280": {
       "status": "verifie",
@@ -5039,7 +5318,8 @@
           "target": 311,
           "label": "Suivre le passage qui tourne au nord"
         }
-      ]
+      ],
+      "title": "Le passage qui tourne au nord"
     },
     "281": {
       "status": "verifie",
@@ -5050,7 +5330,8 @@
           "target": 10,
           "label": "Rebrousser chemin jusqu'à la bifurcation"
         }
-      ]
+      ],
+      "title": "Au bout du corridor rétréci"
     },
     "282": {
       "status": "verifie",
@@ -5090,7 +5371,8 @@
             }
           ]
         }
-      }
+      },
+      "title": "Le combat contre les Zombies"
     },
     "283": {
       "status": "verifie",
@@ -5101,7 +5383,8 @@
           "target": 251,
           "label": "Prendre le passage ouest"
         }
-      ]
+      ],
+      "title": "La voie ouest des cavernes"
     },
     "284": {
       "status": "verifie",
@@ -5116,7 +5399,8 @@
           "target": 392,
           "label": "Sortir par la porte sud"
         }
-      ]
+      ],
+      "title": "Le maître du labyrinthe dérangé"
     },
     "285": {
       "status": "verifie",
@@ -5131,7 +5415,8 @@
           "target": 314,
           "label": "Continuer dans le couloir"
         }
-      ]
+      ],
+      "title": "La porte aux appels à l’aide"
     },
     "286": {
       "status": "verifie",
@@ -5140,21 +5425,22 @@
       "routes": [
         {
           "target": 294,
-          "label": "Continuer vers §294"
+          "label": "Fouiller le premier corps"
         },
         {
           "target": 275,
-          "label": "Continuer vers §275"
+          "label": "Fouiller le deuxième corps"
         },
         {
           "target": 148,
-          "label": "Continuer vers §148"
+          "label": "Fouiller le troisième corps"
         },
         {
           "target": 107,
-          "label": "Continuer vers §107"
+          "label": "Traverser la salle sur la pointe des pieds"
         }
-      ]
+      ],
+      "title": "La salle aux trois corps"
     },
     "287": {
       "status": "verifie",
@@ -5177,7 +5463,8 @@
             "name": "Fromage"
           }
         }
-      ]
+      ],
+      "title": "La pièce aux ossements"
     },
     "288": {
       "status": "verifie",
@@ -5186,9 +5473,10 @@
       "routes": [
         {
           "target": 182,
-          "label": "Rejoindre le §182"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "289": {
       "status": "verifie",
@@ -5203,7 +5491,8 @@
           }
         ],
         "victory_target": null
-      }
+      },
+      "title": "La table aux cartes"
     },
     "290": {
       "status": "verifie",
@@ -5212,9 +5501,10 @@
       "routes": [
         {
           "target": 198,
-          "label": "Rejoindre le §198"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "291": {
       "status": "verifie",
@@ -5233,7 +5523,8 @@
           "target": 227,
           "label": "Essayer la porte au nord"
         }
-      ]
+      ],
+      "title": "Le corridor à la haute porte"
     },
     "292": {
       "status": "verifie",
@@ -5242,7 +5533,7 @@
       "routes": [
         {
           "target": 239,
-          "label": "Continuer vers §239",
+          "label": "Sortir la chandelle bleue",
           "when": {
             "kind": "has_item",
             "name": "Chandelle bleue"
@@ -5250,13 +5541,14 @@
         },
         {
           "target": 40,
-          "label": "Continuer vers §40",
+          "label": "Chercher une issue dans l’obscurité",
           "when": {
             "kind": "missing_item",
             "name": "Chandelle bleue"
           }
         }
-      ]
+      ],
+      "title": "La pièce aux peintures murales"
     },
     "293": {
       "status": "verifie",
@@ -5267,7 +5559,8 @@
           "target": 113,
           "label": "Prendre le passage est"
         }
-      ]
+      ],
+      "title": "Le retour à la branche est"
     },
     "294": {
       "status": "verifie",
@@ -5293,15 +5586,15 @@
       "routes": [
         {
           "target": 275,
-          "label": "Continuer vers §275"
+          "label": "Fouiller le deuxième corps"
         },
         {
           "target": 148,
-          "label": "Continuer vers §148"
+          "label": "Fouiller le troisième corps"
         },
         {
           "target": 107,
-          "label": "Continuer vers §107"
+          "label": "Traverser la salle vers le nord"
         }
       ],
       "when": {
@@ -5310,7 +5603,8 @@
           "kind": "fact",
           "key": "first_body_searched"
         }
-      }
+      },
+      "title": "La fouille du premier corps"
     },
     "295": {
       "status": "verifie",
@@ -5320,9 +5614,10 @@
       "routes": [
         {
           "target": 161,
-          "label": "Continuer vers §161"
+          "label": "Faire face aux pas qui approchent"
         }
-      ]
+      ],
+      "title": "Le bruit dans le passage"
     },
     "296": {
       "status": "verifie",
@@ -5338,9 +5633,10 @@
       "routes": [
         {
           "target": 42,
-          "label": "Continuer vers §42"
+          "label": "Quitter la pièce après la lecture"
         }
-      ]
+      ],
+      "title": "Le livre à la reliure de cuir"
     },
     "297": {
       "status": "verifie",
@@ -5355,7 +5651,8 @@
           "target": 256,
           "label": "Partir vers l'est"
         }
-      ]
+      ],
+      "title": "Entre les deux jonctions en T"
     },
     "298": {
       "status": "verifie",
@@ -5374,7 +5671,8 @@
             "target": 7
           }
         ]
-      }
+      },
+      "title": "Les planches glissantes du pont"
     },
     "299": {
       "status": "verifie",
@@ -5389,7 +5687,8 @@
           "target": 359,
           "label": "Poursuivre au nord"
         }
-      ]
+      ],
+      "title": "Le long passage vers le nord"
     },
     "300": {
       "status": "verifie",
@@ -5404,7 +5703,8 @@
           "target": 303,
           "label": "Continuer le couloir"
         }
-      ]
+      ],
+      "title": "La porte métallique aux hurlements"
     },
     "301": {
       "status": "verifie",
@@ -5419,7 +5719,8 @@
           "target": 208,
           "label": "Continuer au nord"
         }
-      ]
+      ],
+      "title": "La porte aux ronflements"
     },
     "302": {
       "status": "verifie",
@@ -5428,9 +5729,10 @@
       "routes": [
         {
           "target": 198,
-          "label": "Poursuivre au §198"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "303": {
       "status": "verifie",
@@ -5445,7 +5747,8 @@
           "target": 243,
           "label": "Tirer le levier de gauche"
         }
-      ]
+      ],
+      "title": "La herse aux deux leviers"
     },
     "304": {
       "status": "verifie",
@@ -5462,14 +5765,16 @@
         "victory_target": 203,
         "escape_target": 66,
         "escape_after_assaults": 0
-      }
+      },
+      "title": "Le gardien métamorphosé"
     },
     "305": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Trois tests successifs de Chance ; chaque jet dépense 1 Chance. Premier échec → §108, trois réussites → §162.",
       "special": "three_luck",
-      "routes": []
+      "routes": [],
+      "title": "La traversée entre les dalles"
     },
     "306": {
       "status": "verifie",
@@ -5479,9 +5784,10 @@
       "routes": [
         {
           "target": 161,
-          "label": "Continuer vers §161"
+          "label": "Affronter la créature du couloir"
         }
-      ]
+      ],
+      "title": "Une silhouette dans le couloir"
     },
     "307": {
       "status": "verifie",
@@ -5496,7 +5802,8 @@
           "target": 87,
           "label": "Revenir à la bifurcation"
         }
-      ]
+      ],
+      "title": "La porte de fer"
     },
     "308": {
       "status": "verifie",
@@ -5519,7 +5826,8 @@
           "target": 354,
           "label": "Aller à l'est"
         }
-      ]
+      ],
+      "title": "Le carrefour de la porte nord"
     },
     "309": {
       "status": "verifie",
@@ -5545,7 +5853,8 @@
           }
         ],
         "victory_target": 124
-      }
+      },
+      "title": "Le combat contre les Rats"
     },
     "310": {
       "status": "verifie",
@@ -5556,7 +5865,8 @@
           "target": 211,
           "label": "Poursuivre après avoir constaté l'invulnérabilité de l'Être"
         }
-      ]
+      ],
+      "title": "La première frappe contre l’Être"
     },
     "311": {
       "status": "verifie",
@@ -5565,17 +5875,18 @@
       "routes": [
         {
           "target": 305,
-          "label": "Continuer vers §305"
+          "label": "Traverser sans choisir les dalles"
         },
         {
           "target": 178,
-          "label": "Continuer vers §178"
+          "label": "Marcher sur les dalles en étoile"
         },
         {
           "target": 108,
-          "label": "Continuer vers §108"
+          "label": "Marcher sur les dalles en forme de main"
         }
-      ]
+      ],
+      "title": "La salle aux dalles sculptées"
     },
     "312": {
       "status": "verifie",
@@ -5586,7 +5897,8 @@
           "target": 308,
           "label": "Rejoindre le croisement"
         }
-      ]
+      ],
+      "title": "Le long corridor sinueux"
     },
     "313": {
       "status": "verifie",
@@ -5651,9 +5963,10 @@
       "routes": [
         {
           "target": 221,
-          "label": "Continuer vers §221"
+          "label": "Examiner les objets recueillis"
         }
-      ]
+      ],
+      "title": "Le voyageur à la cuirasse"
     },
     "314": {
       "status": "verifie",
@@ -5668,7 +5981,8 @@
           "target": 300,
           "label": "Poursuivre dans le couloir"
         }
-      ]
+      ],
+      "title": "La porte silencieuse du mur est"
     },
     "315": {
       "status": "verifie",
@@ -5683,7 +5997,8 @@
           "target": 291,
           "label": "Revenir dans le couloir"
         }
-      ]
+      ],
+      "title": "Le cul-de-sac du corridor est"
     },
     "316": {
       "status": "verifie",
@@ -5702,7 +6017,8 @@
             "target": 218
           }
         ]
-      }
+      },
+      "title": "La traversée à la nage"
     },
     "317": {
       "status": "verifie",
@@ -5725,7 +6041,8 @@
           "target": 303,
           "label": "Quitter la pièce vers le nord"
         }
-      ]
+      ],
+      "title": "La fouille des tortionnaires"
     },
     "318": {
       "status": "verifie",
@@ -5740,14 +6057,16 @@
           "target": 228,
           "label": "Chercher un passage secret"
         }
-      ]
+      ],
+      "title": "L’impasse à l’est du carrefour"
     },
     "319": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Identifier le second objet choisi, puis reprendre au §81.",
       "special": "identify_next",
-      "routes": []
+      "routes": [],
+      "title": "L’examen des objets recueillis"
     },
     "320": {
       "status": "verifie",
@@ -5758,7 +6077,8 @@
           "target": 363,
           "label": "Poursuivre dans le couloir nord"
         }
-      ]
+      ],
+      "title": "Le couloir après le veilleur"
     },
     "321": {
       "status": "verifie",
@@ -5767,9 +6087,10 @@
       "routes": [
         {
           "target": 169,
-          "label": "Continuer vers §169"
+          "label": "Tourner les clés dans les serrures"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "322": {
       "status": "verifie",
@@ -5784,9 +6105,10 @@
       "routes": [
         {
           "target": 96,
-          "label": "Continuer vers §96"
+          "label": "Examiner la porte nord du hangar"
         }
-      ]
+      ],
+      "title": "Les tiroirs du hangar"
     },
     "323": {
       "status": "verifie",
@@ -5795,13 +6117,14 @@
       "routes": [
         {
           "target": 8,
-          "label": "Continuer vers §8"
+          "label": "Prendre le passage nord"
         },
         {
           "target": 255,
-          "label": "Continuer vers §255"
+          "label": "Prendre le passage est"
         }
-      ]
+      ],
+      "title": "La bifurcation nord-est"
     },
     "324": {
       "status": "verifie",
@@ -5810,9 +6133,10 @@
       "routes": [
         {
           "target": 358,
-          "label": "Continuer vers §358"
+          "label": "Faire face au vieil homme"
         }
-      ]
+      ],
+      "title": "Le vieil homme insaisissable"
     },
     "325": {
       "status": "verifie",
@@ -5832,9 +6156,10 @@
       "routes": [
         {
           "target": 87,
-          "label": "Continuer vers §87"
+          "label": "Retourner à la bifurcation"
         }
-      ]
+      ],
+      "title": "Le casque de fer"
     },
     "326": {
       "status": "verifie",
@@ -5843,13 +6168,14 @@
       "routes": [
         {
           "target": 35,
-          "label": "Continuer vers §35"
+          "label": "Aller chercher la clé d’or"
         },
         {
           "target": 229,
-          "label": "Continuer vers §229"
+          "label": "Laisser la clé et revenir à la bifurcation"
         }
-      ]
+      ],
+      "title": "La pièce à la clé d’or"
     },
     "327": {
       "status": "verifie",
@@ -5883,9 +6209,10 @@
       "routes": [
         {
           "target": 380,
-          "label": "Continuer vers §380"
+          "label": "Sortir de la crypte par l’ouest"
         }
-      ]
+      ],
+      "title": "La fouille de la crypte"
     },
     "328": {
       "status": "verifie",
@@ -5900,13 +6227,14 @@
       "routes": [
         {
           "target": 73,
-          "label": "Continuer vers §73"
+          "label": "Franchir la porte nord"
         },
         {
           "target": 125,
-          "label": "Continuer vers §125"
+          "label": "Examiner la corde"
         }
-      ]
+      ],
+      "title": "Les morceaux de bois en Y"
     },
     "329": {
       "status": "verifie",
@@ -5915,21 +6243,22 @@
       "routes": [
         {
           "target": 157,
-          "label": "Continuer vers §157"
+          "label": "Ouvrir la porte du mur ouest"
         },
         {
           "target": 392,
-          "label": "Continuer vers §392"
+          "label": "Rejoindre la porte au nord"
         },
         {
           "target": 299,
-          "label": "Continuer vers §299"
+          "label": "Prendre le passage est"
         },
         {
           "target": 238,
-          "label": "Continuer vers §238"
+          "label": "Rejoindre le croisement au sud"
         }
-      ]
+      ],
+      "title": "Le passage aux portes ouest et nord"
     },
     "330": {
       "status": "verifie",
@@ -5950,9 +6279,10 @@
       "routes": [
         {
           "target": 81,
-          "label": "Continuer vers §81"
+          "label": "Poursuivre vers la porte nord"
         }
-      ]
+      ],
+      "title": "Les tonneaux de la salle"
     },
     "331": {
       "status": "verifie",
@@ -5967,7 +6297,8 @@
           }
         ],
         "victory_target": 287
-      }
+      },
+      "title": "Le combat contre le Troll"
     },
     "332": {
       "status": "verifie",
@@ -5976,13 +6307,14 @@
       "routes": [
         {
           "target": 329,
-          "label": "Continuer vers §329"
+          "label": "Franchir la porte est"
         },
         {
           "target": 4,
-          "label": "Continuer vers §4"
+          "label": "Suivre le passage ouest vers le nord"
         }
-      ]
+      ],
+      "title": "Le couloir devant la porte est"
     },
     "333": {
       "status": "verifie",
@@ -6001,7 +6333,8 @@
         "escape_after_assaults": 6,
         "escape_luck_interval": 6,
         "hypnosis_target": 224
-      }
+      },
+      "title": "L’épée contre le Vampire"
     },
     "334": {
       "status": "verifie",
@@ -6032,9 +6365,10 @@
       "routes": [
         {
           "target": 292,
-          "label": "Continuer vers §292"
+          "label": "Quitter la boutique et poursuivre au nord"
         }
-      ]
+      ],
+      "title": "La boutique du vieil homme"
     },
     "335": {
       "status": "verifie",
@@ -6043,9 +6377,10 @@
       "routes": [
         {
           "target": 182,
-          "label": "Continuer vers §182"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "336": {
       "status": "verifie",
@@ -6054,17 +6389,18 @@
       "routes": [
         {
           "target": 66,
-          "label": "Continuer vers §66"
+          "label": "Sortir discrètement par la porte sud"
         },
         {
           "target": 172,
-          "label": "Continuer vers §172"
+          "label": "Frapper et toussoter pour réveiller le gardien"
         },
         {
           "target": 249,
-          "label": "Continuer vers §249"
+          "label": "Attaquer le chien à l’épée"
         }
-      ]
+      ],
+      "title": "La pièce meublée de vieux bateaux"
     },
     "337": {
       "status": "verifie",
@@ -6073,9 +6409,10 @@
       "routes": [
         {
           "target": 267,
-          "label": "Continuer vers §267"
+          "label": "Explorer le croisement inconnu"
         }
-      ]
+      ],
+      "title": "Le déclic de l’impasse"
     },
     "338": {
       "status": "verifie",
@@ -6091,7 +6428,8 @@
         ],
         "victory_target": 75,
         "escape_target": 93
-      }
+      },
+      "title": "Le Cyclope de fer"
     },
     "339": {
       "status": "verifie",
@@ -6112,7 +6450,8 @@
             "multiplier": -1
           }
         ]
-      }
+      },
+      "title": "Le coffre de chêne ouvert"
     },
     "340": {
       "status": "verifie",
@@ -6179,7 +6518,8 @@
             }
           ]
         }
-      ]
+      ],
+      "title": "Le sac devant le portrait"
     },
     "341": {
       "status": "verifie",
@@ -6188,21 +6528,22 @@
       "routes": [
         {
           "target": 46,
-          "label": "Continuer vers §46"
+          "label": "S’excuser et sortir par la porte ouest"
         },
         {
           "target": 392,
-          "label": "Continuer vers §392"
+          "label": "S’excuser et sortir par la porte sud"
         },
         {
           "target": 220,
-          "label": "Continuer vers §220"
+          "label": "Parler aimablement au maître des lieux"
         },
         {
           "target": 191,
-          "label": "Continuer vers §191"
+          "label": "Exiger des réponses"
         }
-      ]
+      ],
+      "title": "Le bureau aux parchemins"
     },
     "342": {
       "status": "verifie",
@@ -6223,9 +6564,10 @@
       "routes": [
         {
           "target": 7,
-          "label": "Continuer vers §7"
+          "label": "Accoster sur la berge nord"
         }
-      ]
+      ],
+      "title": "La barque du passeur"
     },
     "343": {
       "status": "verifie",
@@ -6241,9 +6583,10 @@
       "routes": [
         {
           "target": 92,
-          "label": "Continuer vers §92"
+          "label": "Revenir au croisement de l’entrée"
         }
-      ]
+      ],
+      "title": "La fosse derrière la porte"
     },
     "344": {
       "status": "verifie",
@@ -6264,7 +6607,8 @@
           "target": 153,
           "label": "Conserver les deux épées"
         }
-      ]
+      ],
+      "title": "L’épée au fond de l’eau"
     },
     "345": {
       "status": "verifie",
@@ -6273,20 +6617,22 @@
       "routes": [
         {
           "target": 381,
-          "label": "Continuer vers §381"
+          "label": "Continuer tout droit"
         },
         {
           "target": 311,
-          "label": "Continuer vers §311"
+          "label": "Prendre le passage de côté"
         }
-      ]
+      ],
+      "title": "La bifurcation après le coude"
     },
     "346": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Cartes : choisir 2d6 (pair perd, impair gagne) ou la Chance puis 2d6 si réussite ; gain → Chance +2. Une partie puis §131.",
       "special": "cards",
-      "routes": []
+      "routes": [],
+      "title": "Les enjeux de la partie de cartes"
     },
     "347": {
       "status": "verifie",
@@ -6295,9 +6641,10 @@
       "routes": [
         {
           "target": 182,
-          "label": "Continuer vers §182"
+          "label": "Essayer la combinaison de clés"
         }
-      ]
+      ],
+      "title": "Les serrures du coffre"
     },
     "348": {
       "status": "verifie",
@@ -6306,7 +6653,7 @@
       "routes": [
         {
           "target": 331,
-          "label": "Continuer vers §331"
+          "label": "Affronter le Troll à l’épée"
         },
         {
           "target": 51,
@@ -6322,7 +6669,8 @@
             "name": "Potion d'Invisibilité"
           }
         }
-      ]
+      ],
+      "title": "Au fond de la fosse"
     },
     "349": {
       "status": "verifie",
@@ -6331,13 +6679,14 @@
       "routes": [
         {
           "target": 267,
-          "label": "Continuer vers §267"
+          "label": "Retourner au croisement"
         },
         {
           "target": 30,
-          "label": "Continuer vers §30"
+          "label": "Examiner le cul-de-sac"
         }
-      ]
+      ],
+      "title": "Le cul-de-sac à l’est"
     },
     "350": {
       "status": "verifie",
@@ -6365,7 +6714,8 @@
             "amount": 1
           }
         ]
-      }
+      },
+      "title": "Les poissons autour du Crocodile"
     },
     "351": {
       "status": "verifie",
@@ -6374,9 +6724,10 @@
       "routes": [
         {
           "target": 76,
-          "label": "Continuer vers §76"
+          "label": "Prendre la branche est"
         }
-      ]
+      ],
+      "title": "Le retour à la bifurcation est"
     },
     "352": {
       "status": "verifie",
@@ -6392,13 +6743,14 @@
       "routes": [
         {
           "target": 74,
-          "label": "Continuer vers §74"
+          "label": "Tirer l’épée et affronter son regard"
         },
         {
           "target": 279,
-          "label": "Continuer vers §279"
+          "label": "Chercher une autre arme dans le sac"
         }
-      ]
+      ],
+      "title": "Le regard de la créature"
     },
     "353": {
       "status": "verifie",
@@ -6407,9 +6759,10 @@
       "routes": [
         {
           "target": 314,
-          "label": "Continuer vers §314"
+          "label": "Quitter le réduit du prisonnier"
         }
-      ]
+      ],
+      "title": "Le réduit du prisonnier"
     },
     "354": {
       "status": "verifie",
@@ -6418,21 +6771,22 @@
       "routes": [
         {
           "target": 308,
-          "label": "Continuer vers §308"
+          "label": "Suivre le passage vers l’ouest"
         },
         {
           "target": 52,
-          "label": "Continuer vers §52"
+          "label": "Suivre le passage vers le sud"
         },
         {
           "target": 14,
-          "label": "Continuer vers §14"
+          "label": "Chercher un passage secret vers l’ouest"
         },
         {
           "target": 234,
-          "label": "Continuer vers §234"
+          "label": "Chercher un passage secret vers le sud"
         }
-      ]
+      ],
+      "title": "Le coude du labyrinthe"
     },
     "355": {
       "status": "verifie",
@@ -6448,13 +6802,14 @@
       "routes": [
         {
           "target": 181,
-          "label": "Continuer vers §181"
+          "label": "Chercher une issue dans le mur est"
         },
         {
           "target": 265,
-          "label": "Continuer vers §265"
+          "label": "Chercher une issue dans le mur nord"
         }
-      ]
+      ],
+      "title": "Le mur ouest de la salle aux cris"
     },
     "356": {
       "status": "verifie",
@@ -6463,9 +6818,10 @@
       "routes": [
         {
           "target": 358,
-          "label": "Continuer vers §358"
+          "label": "Faire face au vieil homme transformé"
         }
-      ]
+      ],
+      "title": "Le salut au vieil homme"
     },
     "357": {
       "status": "verifie",
@@ -6474,13 +6830,14 @@
       "routes": [
         {
           "target": 269,
-          "label": "Continuer vers §269"
+          "label": "Revenir à la bifurcation"
         },
         {
           "target": 57,
-          "label": "Continuer vers §57"
+          "label": "Entrer dans la caverne"
         }
-      ]
+      ],
+      "title": "L’entrée de la caverne du nord"
     },
     "358": {
       "status": "verifie",
@@ -6489,17 +6846,18 @@
       "routes": [
         {
           "target": 142,
-          "label": "Continuer vers §142"
+          "label": "Avancer sur le Sorcier, l’épée à la main"
         },
         {
           "target": 105,
-          "label": "Continuer vers §105"
+          "label": "Chercher une arme dans le sac"
         },
         {
           "target": 389,
-          "label": "Continuer vers §389"
+          "label": "Examiner la pièce à la recherche d’une aide"
         }
-      ]
+      ],
+      "title": "La confrontation dans la chambre"
     },
     "359": {
       "status": "verifie",
@@ -6508,21 +6866,22 @@
       "routes": [
         {
           "target": 190,
-          "label": "Continuer vers §190"
+          "label": "Prendre le passage nord"
         },
         {
           "target": 94,
-          "label": "Continuer vers §94"
+          "label": "Prendre le passage sud"
         },
         {
           "target": 121,
-          "label": "Continuer vers §121"
+          "label": "Prendre le passage est"
         },
         {
           "target": 385,
-          "label": "Continuer vers §385"
+          "label": "Prendre le passage ouest"
         }
-      ]
+      ],
+      "title": "Le carrefour des longs détours"
     },
     "360": {
       "status": "verifie",
@@ -6531,9 +6890,10 @@
       "routes": [
         {
           "target": 89,
-          "label": "Continuer vers §89"
+          "label": "Franchir l’ouverture du mur nord"
         }
-      ]
+      ],
+      "title": "L’ouverture du mur nord"
     },
     "361": {
       "status": "verifie",
@@ -6571,7 +6931,8 @@
             ]
           }
         ]
-      }
+      },
+      "title": "La clé dans la pièce au gaz"
     },
     "362": {
       "status": "verifie",
@@ -6580,9 +6941,10 @@
       "routes": [
         {
           "target": 177,
-          "label": "Continuer vers §177"
+          "label": "Franchir la porte secrète"
         }
-      ]
+      ],
+      "title": "La porte secrète du mur ouest"
     },
     "363": {
       "status": "verifie",
@@ -6591,13 +6953,14 @@
       "routes": [
         {
           "target": 370,
-          "label": "Continuer vers §370"
+          "label": "Ouvrir la porte aux chants"
         },
         {
           "target": 42,
-          "label": "Continuer vers §42"
+          "label": "Continuer le long du passage"
         }
-      ]
+      ],
+      "title": "La porte aux chants discordants"
     },
     "364": {
       "status": "verifie",
@@ -6606,13 +6969,14 @@
       "routes": [
         {
           "target": 256,
-          "label": "Continuer vers §256"
+          "label": "Revenir à la bifurcation"
         },
         {
           "target": 373,
-          "label": "Continuer vers §373"
+          "label": "Franchir la porte de pierre"
         }
-      ]
+      ],
+      "title": "La porte de pierre coulissante"
     },
     "365": {
       "status": "verifie",
@@ -6649,7 +7013,8 @@
         ],
         "victory_target": 183,
         "escape_target": 237
-      }
+      },
+      "title": "Le combat dans la salle à manger"
     },
     "366": {
       "status": "verifie",
@@ -6658,13 +7023,14 @@
       "routes": [
         {
           "target": 89,
-          "label": "Continuer vers §89"
+          "label": "Franchir l’ouverture étroite au nord"
         },
         {
           "target": 62,
-          "label": "Continuer vers §62"
+          "label": "Continuer vers l’est"
         }
-      ]
+      ],
+      "title": "Le passage à l’ouverture étroite"
     },
     "367": {
       "status": "verifie",
@@ -6673,13 +7039,14 @@
       "routes": [
         {
           "target": 235,
-          "label": "Continuer vers §235"
+          "label": "Prendre le passage ouest"
         },
         {
           "target": 323,
-          "label": "Continuer vers §323"
+          "label": "Prendre le passage est"
         }
-      ]
+      ],
+      "title": "La bifurcation est-ouest"
     },
     "368": {
       "status": "verifie",
@@ -6695,13 +7062,14 @@
       "routes": [
         {
           "target": 142,
-          "label": "Continuer vers §142"
+          "label": "Tirer l’épée et attaquer le Sorcier"
         },
         {
           "target": 105,
-          "label": "Continuer vers §105"
+          "label": "Chercher une autre arme dans le sac"
         }
-      ]
+      ],
+      "title": "Le Fromage face au Sorcier"
     },
     "369": {
       "status": "verifie",
@@ -6710,7 +7078,7 @@
       "routes": [
         {
           "target": 109,
-          "label": "Continuer vers §109"
+          "label": "Découvrir l’effet de la boisson"
         }
       ],
       "entry_effects": [
@@ -6723,7 +7091,8 @@
           "key": "holy_water_consumed",
           "value": true
         }
-      ]
+      ],
+      "title": "La gorgée de la bouteille"
     },
     "370": {
       "status": "verifie",
@@ -6732,13 +7101,14 @@
       "routes": [
         {
           "target": 116,
-          "label": "Continuer vers §116"
+          "label": "Tirer l’épée et attaquer les buveurs"
         },
         {
           "target": 42,
-          "label": "Continuer vers §42"
+          "label": "Refermer la porte et quitter les lieux"
         }
-      ]
+      ],
+      "title": "La chambre des buveurs"
     },
     "371": {
       "status": "verifie",
@@ -6755,9 +7125,10 @@
       "routes": [
         {
           "target": 274,
-          "label": "Continuer vers §274"
+          "label": "Suivre le passage vers l’ouest"
         }
-      ]
+      ],
+      "title": "Le passage au-delà du Dragon"
     },
     "372": {
       "status": "verifie",
@@ -6778,7 +7149,8 @@
           }
         ],
         "victory_target": 21
-      }
+      },
+      "title": "Le Chef des Farfadets et son serviteur"
     },
     "373": {
       "status": "verifie",
@@ -6787,9 +7159,10 @@
       "routes": [
         {
           "target": 85,
-          "label": "Continuer vers §85"
+          "label": "Remonter le passage vers le nord"
         }
-      ]
+      ],
+      "title": "L’impasse au sud du carrefour"
     },
     "374": {
       "status": "verifie",
@@ -6806,9 +7179,10 @@
       "routes": [
         {
           "target": 207,
-          "label": "Continuer vers §207"
+          "label": "Ouvrir la porte au nord du passage"
         }
-      ]
+      ],
+      "title": "La cachette du couloir"
     },
     "375": {
       "status": "verifie",
@@ -6817,9 +7191,10 @@
       "routes": [
         {
           "target": 5,
-          "label": "Continuer vers §5"
+          "label": "Continuer vers le nord"
         }
-      ]
+      ],
+      "title": "Le retour au passage nord"
     },
     "376": {
       "status": "verifie",
@@ -6848,10 +7223,11 @@
       "routes": [
         {
           "target": 291,
-          "label": "Continuer vers §291"
+          "label": "Quitter la salle des Nains"
         }
       ],
-      "optional_meal": true
+      "optional_meal": true,
+      "title": "La table des Nains"
     },
     "377": {
       "status": "verifie",
@@ -6866,7 +7242,8 @@
           }
         ],
         "victory_target": 196
-      }
+      },
+      "title": "Le Diablotin de la bibliothèque"
     },
     "378": {
       "status": "verifie",
@@ -6875,20 +7252,22 @@
       "routes": [
         {
           "target": 296,
-          "label": "Continuer vers §296"
+          "label": "Ouvrir la boîte de Di Maggio"
         },
         {
           "target": 42,
-          "label": "Continuer vers §42"
+          "label": "Laisser la boîte et quitter la pièce"
         }
-      ]
+      ],
+      "title": "La boîte sous la table"
     },
     "379": {
       "status": "verifie",
       "mode": "conditionnel",
       "note": "Frapper le coffre : Chance ; réussite détruit l’épée utilisée puis §139 ; échec mortel.",
       "special": "chest_luck",
-      "routes": []
+      "routes": [],
+      "title": "L’épée contre le grand coffre"
     },
     "380": {
       "status": "verifie",
@@ -6897,9 +7276,10 @@
       "routes": [
         {
           "target": 37,
-          "label": "Continuer vers §37"
+          "label": "Rejoindre le croisement à l’ouest"
         }
-      ]
+      ],
+      "title": "Le passage à l’ouest de la crypte"
     },
     "381": {
       "status": "verifie",
@@ -6908,13 +7288,14 @@
       "routes": [
         {
           "target": 84,
-          "label": "Continuer vers §84"
+          "label": "Ouvrir la porte aux inscriptions"
         },
         {
           "target": 280,
-          "label": "Continuer vers §280"
+          "label": "Revenir à la bifurcation"
         }
-      ]
+      ],
+      "title": "La porte aux inscriptions"
     },
     "382": {
       "status": "verifie",
@@ -6923,9 +7304,10 @@
       "routes": [
         {
           "target": 396,
-          "label": "Continuer vers §396"
+          "label": "Poursuivre après l’affrontement"
         }
-      ]
+      ],
+      "title": "L’éclat de l’Œil du Cyclope"
     },
     "383": {
       "status": "verifie",
@@ -6948,7 +7330,8 @@
           "target": 129,
           "label": "Revenir à la rivière"
         }
-      ]
+      ],
+      "title": "La porte du hangar à bateaux"
     },
     "384": {
       "status": "verifie",
@@ -6957,13 +7340,14 @@
       "routes": [
         {
           "target": 262,
-          "label": "Continuer vers §262"
+          "label": "Prendre la branche nord"
         },
         {
           "target": 307,
-          "label": "Continuer vers §307"
+          "label": "Poursuivre vers l’est"
         }
-      ]
+      ],
+      "title": "Le tournant après la fontaine"
     },
     "385": {
       "status": "verifie",
@@ -6972,17 +7356,18 @@
       "routes": [
         {
           "target": 114,
-          "label": "Continuer vers §114"
+          "label": "Prendre le passage sud"
         },
         {
           "target": 297,
-          "label": "Continuer vers §297"
+          "label": "Prendre le passage ouest"
         },
         {
           "target": 398,
-          "label": "Continuer vers §398"
+          "label": "Explorer le cul-de-sac au nord"
         }
-      ]
+      ],
+      "title": "La bifurcation de l’impasse nord"
     },
     "386": {
       "status": "verifie",
@@ -6991,13 +7376,14 @@
       "routes": [
         {
           "target": 55,
-          "label": "Continuer vers §55"
+          "label": "Tenir bon et mener le radeau vers le nord"
         },
         {
           "target": 166,
-          "label": "Continuer vers §166"
+          "label": "Sauter à l’eau et regagner la rive sud"
         }
-      ]
+      ],
+      "title": "Le radeau au milieu du courant"
     },
     "387": {
       "status": "verifie",
@@ -7008,7 +7394,8 @@
           "kind": "death"
         }
       ],
-      "routes": []
+      "routes": [],
+      "title": "Les serrures du coffre"
     },
     "388": {
       "status": "verifie",
@@ -7029,9 +7416,10 @@
       "routes": [
         {
           "target": 90,
-          "label": "Continuer vers §90"
+          "label": "Ramasser l’épée et quitter la salle"
         }
-      ]
+      ],
+      "title": "L’épée devant le portrait"
     },
     "389": {
       "status": "verifie",
@@ -7057,7 +7445,8 @@
             "target": 112
           }
         ]
-      }
+      },
+      "title": "Un regard autour de la chambre"
     },
     "390": {
       "status": "verifie",
@@ -7115,7 +7504,8 @@
           "label": "Fouiller le deuxième cadavre"
         }
       ],
-      "optional_meal": true
+      "optional_meal": true,
+      "title": "La salle après la Goule"
     },
     "391": {
       "status": "verifie",
@@ -7124,17 +7514,18 @@
       "routes": [
         {
           "target": 52,
-          "label": "Continuer vers §52"
+          "label": "Suivre le couloir vers le nord"
         },
         {
           "target": 362,
-          "label": "Continuer vers §362"
+          "label": "Chercher un passage secret vers le nord"
         },
         {
           "target": 48,
-          "label": "Continuer vers §48"
+          "label": "Suivre la courbe au sud vers l’ouest"
         }
-      ]
+      ],
+      "title": "Le coude sud du labyrinthe"
     },
     "392": {
       "status": "verifie",
@@ -7143,13 +7534,14 @@
       "routes": [
         {
           "target": 206,
-          "label": "Continuer vers §206"
+          "label": "Franchir la haute porte au nord"
         },
         {
           "target": 329,
-          "label": "Continuer vers §329"
+          "label": "Prendre le couloir sud"
         }
-      ]
+      ],
+      "title": "Le corridor de la haute porte"
     },
     "393": {
       "status": "verifie",
@@ -7211,7 +7603,8 @@
             }
           }
         }
-      ]
+      ],
+      "title": "La fouille du deuxième corps"
     },
     "394": {
       "status": "verifie",
@@ -7227,7 +7620,8 @@
         ],
         "attack_bonus": -2,
         "victory_target": 232
-      }
+      },
+      "title": "Les bottes de cuir rouge"
     },
     "395": {
       "status": "verifie",
@@ -7236,13 +7630,14 @@
       "routes": [
         {
           "target": 322,
-          "label": "Continuer vers §322"
+          "label": "Fouiller les tiroirs des établis"
         },
         {
           "target": 34,
-          "label": "Continuer vers §34"
+          "label": "Examiner les outils du hangar"
         }
-      ]
+      ],
+      "title": "L’exploration du hangar"
     },
     "396": {
       "status": "verifie",
@@ -7275,7 +7670,8 @@
             }
           }
         }
-      ]
+      ],
+      "title": "La porte aux deux serrures"
     },
     "397": {
       "status": "verifie",
@@ -7284,13 +7680,14 @@
       "routes": [
         {
           "target": 240,
-          "label": "Continuer vers §240"
+          "label": "Ouvrir la petite boîte"
         },
         {
           "target": 363,
-          "label": "Continuer vers §363"
+          "label": "Quitter la pièce"
         }
-      ]
+      ],
+      "title": "La pièce à la petite boîte"
     },
     "398": {
       "status": "verifie",
@@ -7299,13 +7696,14 @@
       "routes": [
         {
           "target": 12,
-          "label": "Continuer vers §12"
+          "label": "Tirer la poignée"
         },
         {
           "target": 364,
-          "label": "Continuer vers §364"
+          "label": "Pousser la poignée"
         }
-      ]
+      ],
+      "title": "Le bouton de l’impasse"
     },
     "399": {
       "status": "verifie",
@@ -7314,9 +7712,10 @@
       "routes": [
         {
           "target": 218,
-          "label": "Continuer vers §218"
+          "label": "Gagner la berge sud"
         }
-      ]
+      ],
+      "title": "Au fil de la rivière"
     },
     "400": {
       "status": "verifie",
@@ -7330,7 +7729,8 @@
         }
       ],
       "ending": "victory",
-      "routes": []
+      "routes": [],
+      "title": "Le trésor et le grimoire"
     }
   }
 }
