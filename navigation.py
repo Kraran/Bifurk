@@ -1,4 +1,9 @@
-"""Repérage prudent des destinations de paragraphes dans les PDF français."""
+"""Renvois explicites des PDF français et production sûre de liens HTML.
+
+Les positions retournées par destinations concernent le texte d'entrée inchangé.
+Un nombre isolé n'est pas une destination. render_links échappe le texte narratif
+avant de produire des ancres paragraph:N ; le contrôleur vérifie ensuite les règles
+et droits de passage, ce module ne décide pas si une route est franchissable."""
 import re
 import html
 

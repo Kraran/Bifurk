@@ -69,3 +69,10 @@ Pour tester visuellement après les tests :
 ```
 
 Le catalogue couvre les 400 paragraphes de l’édition vérifiée. La logique du dernier lot et les scénarios de validation sont détaillés dans [la documentation des événements](catalogues/README_evenements.md).
+
+## Comprendre et maintenir le code
+
+Le [guide de maintenance](docs/maintenance.md) présente les modules, le cycle d'une
+partie, les règles du catalogue, les sauvegardes, le rendu Qt et le flux audio.
+Les modules et fonctions du code applicatif sont documentés en français ; les
+suites de tests et outils précisent également leur rôle et leurs contraintes.

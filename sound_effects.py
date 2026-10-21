@@ -1,4 +1,10 @@
-"""Preloaded local effects; independent of the game's random stream."""
+"""Banque des sons locaux, réglages de lecture et diagnostics audio.
+
+Les effets et l'ambiance ont des interrupteurs indépendants. Une demande peut
+attendre la disponibilité de son fichier ; couper le son supprime les demandes
+concernées pour éviter un déclenchement tardif. Le backend PCM est désactivé avec
+les plateformes Qt offscreen/minimal ; les tests injectent leurs propres doublures.
+Le journal est borné et son indisponibilité ne doit jamais empêcher de jouer."""
 from PySide6.QtCore import QObject, QUrl
 import logging
 from logging.handlers import RotatingFileHandler
@@ -11,8 +17,10 @@ EFFECT_LABELS = {
 
 
 class SoundBank(QObject):
+    """Service Qt central de préchargement et lecture, indépendant de l’état de partie."""
     def __init__(self, folder, enabled=True, parent=None, ambient_enabled=False,
                  diagnostic_path=None):
+        """Préparer le journal borné, les réglages et les effets ; démarrer l’ambiance si demandée."""
         super().__init__(parent)
         self.logger = logging.getLogger(f'bifurk.audio.{id(self)}')
         self.logger.setLevel(logging.INFO)
@@ -38,15 +46,18 @@ class SoundBank(QObject):
             self.set_ambient_enabled(True)
 
     def _close_log(self):
+        """Détacher et fermer les handlers à la destruction pour libérer le fichier Windows."""
         for handler in list(self.logger.handlers):
             self.logger.removeHandler(handler)
             handler.close()
 
     def _playing_changed(self, name):
+        """Tracer le changement d’activité de l’effet pour le diagnostic local."""
         effect = self.effects[name]
         self.logger.info('playing %s=%s', name, effect.isPlaying())
 
     def _backend(self):
+        """Choisir le backend PCM hors tests sans écran ; retourner None s’il est indisponible."""
         from PySide6.QtGui import QGuiApplication
         if QGuiApplication.platformName() in ('offscreen', 'minimal'):
             return None
@@ -57,6 +68,10 @@ class SoundBank(QObject):
             return None
 
     def preload(self):
+        """Créer chaque effet au plus une fois et connecter ses signaux avant de charger le WAV.
+
+        Les paramètres par défaut des lambdas figent le nom de chaque effet : éviter
+        la capture tardive de la variable de boucle."""
         backend = self._backend()
         if backend is None:
             return
@@ -75,9 +90,11 @@ class SoundBank(QObject):
             effect.setSource(QUrl.fromLocalFile(str(path)))
 
     def _allowed(self, name):
+        """Vérifier le réglage propre à l’ambiance ou celui des effets ponctuels."""
         return self.ambient_enabled if name == 'ambient' else self.enabled
 
     def _ready(self, name):
+        """Rejouer une demande en attente seulement si le fichier est prêt et toujours autorisé."""
         backend = self._backend()
         effect = self.effects.get(name)
         if backend is None or effect is None:
@@ -91,6 +108,7 @@ class SoundBank(QObject):
             self.pending.discard(name)
 
     def set_enabled(self, enabled):
+        """Activer les effets ou arrêter leurs voix et demandes en attente sans couper l’ambiance."""
         self.enabled = bool(enabled)
         self.logger.info('effects enabled=%s', self.enabled)
         if not self.enabled:
@@ -102,6 +120,7 @@ class SoundBank(QObject):
             self.preload()
 
     def set_ambient_enabled(self, enabled):
+        """Démarrer ou interrompre la boucle d’ambiance indépendamment des effets."""
         self.ambient_enabled = bool(enabled)
         if enabled:
             self.play('ambient')
@@ -111,6 +130,10 @@ class SoundBank(QObject):
                 self.effects['ambient'].stop()
 
     def play(self, name):
+        """Déclencher un effet prêt ou mémoriser sa demande pendant le chargement.
+
+        Un asset absent ou en erreur est seulement journalisé ; aucun jet aléatoire
+        ni décision de jeu ne dépend du succès de la lecture."""
         self.logger.info('request %s allowed=%s', name, self._allowed(name))
         if not self._allowed(name):
             return

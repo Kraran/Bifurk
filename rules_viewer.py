@@ -1,4 +1,8 @@
-"""Read the rule pages directly from the user's PDF; no book content is shipped."""
+"""Consultation des pages PDF 3 à 14 du livre importé, sans contenu embarqué.
+
+La numérotation affichée est celle des pages physiques du PDF, pas des paragraphes.
+Le rendu réutilise le zoom et le déplacement d'une illustration. Les pixels sont
+copiés dans QImage avant fermeture du document PyMuPDF pour garder leur validité."""
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel
@@ -6,7 +10,9 @@ from grimoire_ui import IllustrationDialog, GrimoireScene
 
 
 class RulesDialog(IllustrationDialog):
+    """Lecteur indépendant des pages de règles, avec navigation physique et image zoomable."""
     def __init__(self, pdf_path, parent=None):
+        """Borner les règles aux pages 3–14 disponibles et connecter précédent / suivant / sélection."""
         super().__init__(parent)
         import pymupdf as fitz
         self.pdf_path = str(pdf_path)
@@ -36,6 +42,9 @@ class RulesDialog(IllustrationDialog):
         self.render_page(0)
 
     def render_page(self, index):
+        """Rendre l’index de liste (base zéro) vers la page physique index+3.
+
+        Copier les pixels avant fermeture du document et borner les boutons de navigation."""
         import pymupdf as fitz
         if index < 0:
             return

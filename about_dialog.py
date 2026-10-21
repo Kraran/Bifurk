@@ -1,4 +1,9 @@
-"""The Grimoire's About window, inspired by Gamelist Media Editor."""
+"""Identité de l'application, portrait et liens de la fenêtre À propos.
+
+Ce module ne touche pas à la partie. BrandButton inclut ses labels dans sa taille
+minimale. Le portrait utilise QAbstractButton pour garder activation clavier et
+clic sans subir les tailles imposées par le QSS global aux QPushButton.
+Son image est ajustée sans déformation ; le crédit de l'asset est dans assets."""
 from datetime import date
 
 from PySide6.QtCore import Qt, QUrl, QRectF, QSize
@@ -12,14 +17,18 @@ from app_info import APP_VERSION, APP_RELEASE_DATE, AUTHOR, AUTHOR_URL, REPOSITO
 class BrandButton(QPushButton):
     """A button whose size includes its icon/title/subtitle labels."""
     def sizeHint(self):
+        """Inclure la taille du layout enfant ; le texte natif vide ne fournit pas la bonne largeur."""
         return self.layout().sizeHint() + QSize(12, 10) if self.layout() else super().sizeHint()
 
     def minimumSizeHint(self):
+        """Conserver l’en-tête cliquable entier même quand le panneau se resserre."""
         return self.sizeHint()
 
 
 class AuthorPortrait(QAbstractButton):
+    """Portrait au rapport conservé, cliquable vers le profil GitHub, sans cadre de focus dessiné."""
     def __init__(self, path, background, parent=None):
+        """Charger le portrait et son fond ; garder l’activation native de QAbstractButton."""
         super().__init__(parent)
         self.setObjectName('aboutPortrait')
         self.setFocusPolicy(Qt.StrongFocus)
@@ -34,6 +43,7 @@ class AuthorPortrait(QAbstractButton):
         self.setAccessibleName('Portrait de Kraran — ouvrir son profil GitHub')
 
     def image_rect(self):
+        """Calculer un rectangle centré au rapport original de l’image, sans écrasement ni recadrage."""
         if self.pixmap.isNull():
             return QRectF()
         size = self.pixmap.size().scaled(self.size(), Qt.KeepAspectRatio)
@@ -41,6 +51,7 @@ class AuthorPortrait(QAbstractButton):
                       (self.height() - size.height()) / 2, size.width(), size.height())
 
     def paintEvent(self, event):
+        """Dessiner le portrait et son fondu sans le cadre de focus fourni par un bouton standard."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         rect = QRectF(self.rect())
@@ -63,7 +74,9 @@ class AuthorPortrait(QAbstractButton):
 
 
 class AboutDialog(QDialog):
+    """Présentation modale de Bifurk, reprenant l’identité centralisée de app_info."""
     def __init__(self, assets, theme, parent=None):
+        """Assembler portrait cliquable, métadonnées et liens ; la fermeture native remplace le X interne."""
         super().__init__(parent)
         self.setObjectName('aboutDialog')
         self.setWindowTitle('À propos de Bifurk')

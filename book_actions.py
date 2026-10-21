@@ -1,8 +1,10 @@
-"""Interactions vérifiées du livre ; aucun texte narratif n'est embarqué.
+"""Interactions particulières de l'édition vérifiée, sans texte narratif embarqué.
 
-L'état est conservé dans character.book_state : sauvegarde et Undo utilisent
-ainsi la même copie atomique que les caractéristiques et l'inventaire.
-"""
+BookActions est un mixin de MainWindow : il utilise son personnage, ses widgets,
+_roll, go_to et les marqueurs de progression. Il ne possède pas de constructeur.
+Les données persistantes spécifiques à un paragraphe sont dans character.book_state
+avec des clés chaînes, compatibles JSON. Ne pas conserver une décision de jeu
+uniquement dans un widget : sauvegarde et annulation doivent la restaurer aussi."""
 import copy
 import re
 
@@ -13,12 +15,18 @@ from book_events import (apply_effects, condition_met,
 
 
 class BookActions:
+    """Mélange de contrôleur pour les règles particulières, utilisant les services de MainWindow."""
     def _book_state(self, number, create=False):
+        """Lire l’état local d’un paragraphe ; create=True crée les dictionnaires persistants.
+
+        Les clés sont des chaînes pour survivre au passage JSON ; sans create, une lecture
+        d’un état absent ne doit pas modifier le personnage."""
         if create:
             return self.character.setdefault('book_state', {}).setdefault(str(number), {})
         return self.character.get('book_state', {}).get(str(number), {})
 
     def _book_blocked(self, target):
+        """Refuser les sorties résolues exclusivement par une action spéciale ou un combat en cours."""
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
         if not entry:
             return False
@@ -48,11 +56,13 @@ class BookActions:
         return False
 
     def _book_buttons(self, entry):
+        """Créer les commandes spéciales autorisées par le catalogue et leur progression locale."""
         number = self.current_paragraph
         special = entry.get('special')
         state = self._book_state(number)
 
         def button(label, action, payload=None, enabled=True):
+            """Créer une commande locale en capturant action et payload pour éviter la capture tardive."""
             b = QPushButton(label)
             b.setEnabled(enabled and self.character['endurance'] > 0)
             b.clicked.connect(lambda checked=False, a=action, p=payload:
@@ -102,6 +112,7 @@ class BookActions:
             button('Reprendre le passage après le monstre errant', 'wandering_exit')
 
     def _book_refresh(self):
+        """Rafraîchir héros et actions après mutation, sans refaire une entrée dans le paragraphe."""
         self._refresh_character()
         if self.current_paragraph in self.paragraphs:
             self._render_choices_and_events(self.paragraphs[self.current_paragraph])
@@ -144,6 +155,10 @@ class BookActions:
         self._book_refresh()
 
     def _enter_complex_book(self, number, previous):
+        """Appliquer les effets uniques / de visite et préparer les états particuliers.
+
+        Distinguer une nouvelle visite d’un simple rafraîchissement ; conserver la bonne
+        source de retour des monstres errants et la continuité des adversaires multi-paragraphes."""
         entry = verified_entry(self.book_event_catalogue, number)
         if not entry:
             return
@@ -188,6 +203,10 @@ class BookActions:
         self._refresh_character()
 
     def perform_book_action(self, action, payload=None):
+        """Dispatcher les identifiants d’actions du catalogue vers leur résolution.
+
+        Appelé par les boutons ; l’enveloppe de MainWindow assure historique et autosave.
+        Les payloads désignent un choix ou adversaire, jamais du code à exécuter."""
         number = self.current_paragraph
         entry = verified_entry(self.book_event_catalogue, number)
         if not entry or self.character['endurance'] <= 0:
@@ -272,6 +291,7 @@ class BookActions:
         self._book_refresh()
 
     def _resolve_complex_luck(self, action, entry):
+        """Résoudre le test de Chance propre à l’action et mémoriser son issue et sa destination."""
         number = self.current_paragraph
         state = self._book_state(number)
         target = {'rope':73, 'three_luck':162, 'stake_luck':327, 'silver_arrow':135, 'chest_luck':139}.get(action)
@@ -347,6 +367,7 @@ class BookActions:
         self.rules_log.setText(f'Épreuve §{number} : {total}, Chance -1 ; ' + ('réussite.' if lucky else 'échec.'))
 
     def _play_book_game(self, action):
+        """Résoudre cartes ou pari avec mise contrôlée et jets fournis par le contrôleur."""
         number = self.current_paragraph
         if action == 'wager':
             maximum = min(20, int(self.character.get('gold', 0)))
@@ -385,6 +406,7 @@ class BookActions:
         self.rules_log.setText(f'Jeu du §{number} : {delta:+} pièces d’or (perte limitée à la bourse).')
 
     def _try_book_keys(self):
+        """Demander trois clés possédées, calculer leur combinaison et suivre l’issue autorisée."""
         keys = {}
         for name in self.character.get('inventory', []):
             if re.match(r'(?i)^cl[ée]\b', name):
@@ -417,6 +439,7 @@ class BookActions:
         self.go_to(target)
 
     def _identify_book_loot(self, next_item):
+        """Faire progresser l’identification des trouvailles sans dépasser le butin autorisé."""
         state = self._book_state(313)
         selected = state.get('loot', [])
         index = self._book_state(319).get('index', 0) if next_item else 0
@@ -436,6 +459,7 @@ class BookActions:
         self.go_to(target)
 
     def _vampire_escape(self, rules):
+        """Résoudre la sortie particulière du Vampire selon les règles cataloguées."""
         number = self.current_paragraph
         assaults = self.book_combat_assaults.get(number, 0)
         state = self._book_state(number)
@@ -459,6 +483,7 @@ class BookActions:
         self._book_refresh()
 
     def _complex_round_blocked(self):
+        """Traiter les préconditions spéciales d’assaut et indiquer si l’assaut ordinaire est bloqué."""
         number = self.current_paragraph
         entry = verified_entry(self.book_event_catalogue, number)
         if not entry:
@@ -481,6 +506,7 @@ class BookActions:
         return False
 
     def _book_wound(self, damage):
+        """Mettre à jour les conséquences particulières d’une blessure effectivement reçue."""
         number = self.current_paragraph
         entry = verified_entry(self.book_event_catalogue, number)
         mode = entry.get('combat', {}).get('mode') if entry else None
@@ -502,6 +528,7 @@ class BookActions:
                 apply_effects(self.character, [{'kind':'stat','key':'habilete','amount':-1}])
 
     def _finish_complex_round(self, number):
+        """Terminer la logique spécifique au paragraphe après l’assaut suivi par le contrôleur."""
         entry = verified_entry(self.book_event_catalogue, number)
         if not entry or self.current_paragraph != number:
             return

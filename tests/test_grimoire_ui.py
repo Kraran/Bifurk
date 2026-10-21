@@ -1,4 +1,10 @@
-"""Behaviour of the illustrated reader, without a private PDF."""
+"""Géométrie des vues, zoom, clics et régularité de la mise en page Qt.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import unittest
 from unittest.mock import patch
 
@@ -12,11 +18,14 @@ from grimoire_ui import IllustrationDialog
 
 
 class GrimoireInterfaceTests(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls):
+        """Partager les ressources coûteuses de la suite, notamment l’application Qt unique."""
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        """Préparer un état indépendant pour éviter la contamination entre scénarios."""
         self.window = MainWindow()
         self.window.paragraphs = {
             1: "Une porte se dresse devant vous. Pour entrer, rendez-vous au 2.",
@@ -26,6 +35,7 @@ class GrimoireInterfaceTests(unittest.TestCase):
         self.app.processEvents()
 
     def tearDown(self):
+        """Libérer les ressources du scénario avant le test suivant."""
         self.window.close()
         self.window.deleteLater()
         self.app.processEvents()

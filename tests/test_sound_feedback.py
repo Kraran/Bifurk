@@ -1,3 +1,10 @@
+"""Déclenchement et priorité des sons, sans périphérique audio réel.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import json
 import array
 import math
@@ -20,17 +27,21 @@ from sound_effects import SoundBank, EFFECT_LABELS
 
 
 class Signal:
+    """Doublure minimale d’un signal Qt ; conserve les callbacks à invoquer dans le test."""
     def __init__(self): self.callbacks = []
     def connect(self, callback): self.callbacks.append(callback)
     def emit(self):
+        """Invoquer les callbacks connectés pour simuler la notification du backend."""
         for callback in self.callbacks: callback()
 
 
 class Loop(Enum):
+    """Énumération factice reproduisant la valeur Infinite des backends Qt récents."""
     Infinite = -2
 
 
 class FakeEffect:
+    """Backend audio instrumenté : compte les lectures et arrêts sans émettre de son."""
     Ready, Loading, Error, Infinite = 2, 1, 3, Loop.Infinite
     def __init__(self, parent):
         self.statusChanged = Signal()
@@ -39,6 +50,7 @@ class FakeEffect:
         self.play_count = self.stop_count = 0
     def setVolume(self, value): self.volume = value
     def setLoopCount(self, count):
+        """Exiger un entier comme le binding Qt afin de détecter la régression Enum / int."""
         if not isinstance(count, int):
             raise TypeError('loopCount must be an integer')
         self.loops = count
@@ -50,6 +62,7 @@ class FakeEffect:
 
 
 class SoundFeedbackTests(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls): cls.app = QApplication.instance() or QApplication([])
 
@@ -168,10 +181,12 @@ print('native preload OK')
             self.assertGreater(rms, 1000)  # Reject a long silent/faint lead-in.
 
     def setUp(self):
+        """Préparer un état indépendant pour éviter la contamination entre scénarios."""
         self.w = MainWindow()
         self.w.paragraphs = {1:'Salle.', 2:'Suite.'}
 
     def tearDown(self):
+        """Libérer les ressources du scénario avant le test suivant."""
         self.w.close(); self.w.deleteLater(); self.app.processEvents()
 
     def test_combat_is_audible_before_result_dialog(self):

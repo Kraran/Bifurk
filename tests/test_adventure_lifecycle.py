@@ -1,3 +1,10 @@
+"""Création du héros, relances, mort, reprise et cinq emplacements.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import json
 import tempfile
 import unittest
@@ -11,11 +18,14 @@ from save_slots import SaveSlotsDialog
 
 
 class AdventureLifecycleTests(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls):
+        """Partager les ressources coûteuses de la suite, notamment l’application Qt unique."""
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        """Préparer un état indépendant pour éviter la contamination entre scénarios."""
         self.folder = tempfile.TemporaryDirectory()
         self.addCleanup(self.folder.cleanup)
         self.root = Path(self.folder.name)
@@ -28,11 +38,13 @@ class AdventureLifecycleTests(unittest.TestCase):
         self.w.pdf_path = str(self.root / 'livre.pdf')
 
     def tearDown(self):
+        """Libérer les ressources du scénario avant le test suivant."""
         self.w.close()
         self.w.deleteLater()
         self.app.processEvents()
 
     def start(self, name='Éléanor'):
+        """Valider un aventurier nommé dans le livre de test pour préparer un scénario en jeu."""
         self.w._show_book_title()
         self.w.choice_layout.itemAt(1).widget().setText(name)
         self.w.choice_layout.itemAt(2).widget().click()
