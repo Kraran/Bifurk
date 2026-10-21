@@ -6,7 +6,9 @@ Après le premier import, Bifurk mémorise le grimoire **copié dans `donnees/gr
 Au démarrage, la fenêtre des chroniques propose **Nouvelle partie** et les cinq
 emplacements à charger. Ce même bouton **Nouvelle partie** reste disponible dans
 le menu **Charger** pendant le jeu, pour recommencer avec un nouveau tirage et
-deux relances, sans supprimer les emplacements. Au démarrage, il ouvre l’introduction du dernier grimoire
+deux relances, sans supprimer les emplacements. Une confirmation est demandée
+depuis Charger ; refuser conserve la partie et laisse le menu ouvert.
+Au démarrage, il ouvre directement l’introduction du dernier grimoire
 importé ; s’il manque, le sélecteur permet d’en importer un. Le PDF d’origine peut
 être déplacé ou supprimé après import. La progression n’est pas reprise automatiquement.
 
@@ -102,7 +104,7 @@ périphérique de sortie. Il est limité à deux fichiers de 128 Ko.
 
 ```powershell
 git fetch origin
-git switch fix/portrait-nouvelle-partie
+git switch fix/confirmation-nouvelle-partie
 git pull --ff-only
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py

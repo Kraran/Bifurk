@@ -60,9 +60,6 @@ class AuthorPortrait(QAbstractButton):
         gradient.setColorAt(.95, transparent)
         gradient.setColorAt(1, self.background)
         painter.fillRect(rect, gradient)
-        if self.hasFocus():
-            painter.setPen(self.palette().buttonText().color())
-            painter.drawRoundedRect(rect.adjusted(2, 2, -2, -2), 8, 8)
 
 
 class AboutDialog(QDialog):

@@ -33,6 +33,7 @@ class SaveSlotsDialog(QDialog):
         super().__init__(parent)
         self.selected_path = None
         self.new_game_requested = False
+        self.confirm_new_game = not startup
         self.folder, self.saving = folder, saving
         self.setWindowTitle('Commencer une aventure' if startup else
                             'Sauvegarder l’aventure' if saving else 'Charger une aventure')
@@ -59,6 +60,13 @@ class SaveSlotsDialog(QDialog):
         layout.addWidget(close)
 
     def start_new_game(self):
+        if self.confirm_new_game and QMessageBox.question(
+                self, 'Commencer une nouvelle partie',
+                'Recommencer une nouvelle aventure ?\n'
+                'La progression non sauvegardée sera abandonnée. '
+                'Vos emplacements sauvegardés seront conservés.',
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
+            return
         self.new_game_requested = True
         self.accept()
 
