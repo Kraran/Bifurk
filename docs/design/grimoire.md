@@ -16,6 +16,7 @@ Ces captures utilisent un court récit de démonstration original, sans extrait 
 - Importer le PDF avec **Ouvrir un grimoire**.
 - Créer le personnage depuis **Combat & soins**, ou charger une sauvegarde.
 - Choisir une destination sur les cartes sous le récit ; les longs libellés reviennent à la ligne.
+- À l’ouverture d’un livre catalogué, sa couverture apparaît à gauche, sans fenêtre supplémentaire. Ensuite, les illustrations des paragraphes prennent le relais ; la couverture sert de fond en leur absence. Un double-clic sur l’image ouvre son agrandissement.
 - Le bouton **Image** masque le bandeau pour libérer de la place. Les images cataloguées
   du livre remplacent le décor et restent intégralement cadrées ; le bouton d’agrandissement
   ouvre toujours la vue détaillée. La bibliothèque est un décor générique, pas une scène du livre.
@@ -30,7 +31,7 @@ Dans PowerShell, depuis le dossier du projet :
 
 ```powershell
 git fetch origin
-git switch feat/grimoire-panoramique
+git switch fix/grimoire-illustrations
 git pull --ff-only
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py

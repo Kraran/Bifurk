@@ -3,6 +3,8 @@ import unittest
 from unittest.mock import patch
 
 from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea
 
 from main import MainWindow
@@ -93,6 +95,33 @@ class GrimoireInterfaceTests(unittest.TestCase):
         first = w.inventory_list.visualItemRect(w.inventory_list.item(0))
         self.assertLessEqual(first.height(), 44)
         self.assertGreaterEqual(w.inventory_list.viewport().height(), first.height() * 3)
+
+    def test_opening_shows_cover_and_double_click_opens_displayed_image(self):
+        w = self.window
+        book_cover = {"id": "cover", "type": "couverture"}
+        chapter_art = {"id": "chapter", "type": "illustration", "statut": "verifie", "paragraphes": [1]}
+        catalogue = {"illustrations": [book_cover, chapter_art]}
+        image = QPixmap(100, 150)
+        image.fill()
+        with patch.object(w, "_themed_file_dialog", return_value="/tmp/ui-book.pdf"), \
+                patch("main.extract_paragraphs", return_value=w.paragraphs), \
+                patch("main.import_book", return_value="/tmp/ui-book.pdf"), \
+                patch("main.catalogue_for_pdf", return_value=catalogue), \
+                patch("main.load_book_events", return_value=None), \
+                patch.object(w, "_illustration_pixmap", return_value=image), \
+                patch.object(w, "_show_illustration") as popup:
+            w.open_pdf()
+            popup.assert_not_called()
+            self.assertEqual(w.scene_entry, book_cover)
+            QTest.mouseDClick(w.scene_art, Qt.LeftButton)
+            popup.assert_called_once_with(book_cover, "Couverture du grimoire")
+            popup.reset_mock()
+            w.go_to(1)
+            self.assertEqual(w.scene_entry, chapter_art)
+            QTest.mouseDClick(w.scene_art, Qt.LeftButton)
+            popup.assert_called_once_with(chapter_art, "Illustration — paragraphe 1")
+            w.go_to(2)
+            self.assertEqual(w.scene_entry, book_cover)
 
 
 if __name__ == "__main__":

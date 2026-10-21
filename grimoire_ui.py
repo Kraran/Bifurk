@@ -1,5 +1,5 @@
 """Illustrated, resizable surfaces for the Grimoire desktop theme."""
-from PySide6.QtCore import Qt, QRectF, QSize
+from PySide6.QtCore import Qt, QRectF, QSize, Signal
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen
 from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle
 
@@ -11,10 +11,13 @@ class IlluminatedPage(QWidget):
         super().paintEvent(event)
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
-        p.fillRect(self.rect(), QColor("#ead9b8"))
+        page = QPainterPath()
+        page.addRoundedRect(QRectF(self.rect()), 12, 12)
+        p.setClipPath(page)
+        p.fillPath(page, QColor("#ead9b8"))
         p.setPen(QPen(QColor("#ad8950"), 1.2))
-        p.drawRect(self.rect().adjusted(4, 4, -5, -5))
-        p.drawRect(self.rect().adjusted(8, 8, -9, -9))
+        p.drawRoundedRect(self.rect().adjusted(4, 4, -5, -5), 10, 10)
+        p.drawRoundedRect(self.rect().adjusted(8, 8, -9, -9), 8, 8)
         for x, y, rotation in ((12, 12, 0), (self.width()-12, 12, 90),
                                 (self.width()-12, self.height()-12, 180),
                                 (12, self.height()-12, 270)):
@@ -104,6 +107,8 @@ def inventory_icon(name):
 class GrimoireScene(QWidget):
     """Paint an atmospheric banner, or fit a book illustration without cropping it."""
 
+    activated = Signal()
+
     def __init__(self, image_path, parent=None):
         super().__init__(parent)
         self.atmosphere = QPixmap(str(image_path))
@@ -121,7 +126,16 @@ class GrimoireScene(QWidget):
         self.picture = pixmap if self.is_book_art else self.atmosphere
         self.setAccessibleName("Illustration du paragraphe" if self.is_book_art
                                else "Bibliothèque du grimoire — décor d’ambiance")
+        self.setCursor(Qt.PointingHandCursor if self.is_book_art else Qt.ArrowCursor)
+        self.setToolTip("Double-cliquez pour agrandir l’illustration" if self.is_book_art else "")
         self.update()
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() == Qt.LeftButton and self.is_book_art:
+            self.activated.emit()
+            event.accept()
+        else:
+            super().mouseDoubleClickEvent(event)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -221,4 +235,11 @@ QWidget#sidePanel QSpinBox { background: #422a23; color: #f9e2b2; border: 1px so
 QWidget#sidePanel QSpinBox QLineEdit { background: transparent; color: #f9e2b2; border: none; }
 QWidget#sidePanel QComboBox { background: #422a23; color: #f9e2b2; padding: 7px; }
 QTabBar::tab { padding: 12px 10px; }
+QWidget#readerPanel { border-radius: 12px; }
+QTextBrowser#reader { border-radius: 10px; }
+QWidget#readerPanel QPushButton#choiceCard { border-radius: 8px; }
+QFrame#inventoryPanel, QListWidget#inventoryCards { border-radius: 8px; }
+QWidget#sidePanel QSpinBox, QWidget#sidePanel QComboBox { border-radius: 7px; }
+QTabWidget#adventureTabs::pane { border-radius: 8px; }
+QTabBar::tab { border-top-left-radius: 8px; border-top-right-radius: 8px; }
 """
