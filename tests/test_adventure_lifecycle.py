@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from PySide6.QtWidgets import QApplication, QLineEdit, QPushButton, QMessageBox
+from PySide6.QtWidgets import QApplication, QComboBox, QLineEdit, QPushButton, QMessageBox
 
 import main
 from save_slots import SaveSlotsDialog
@@ -48,6 +48,59 @@ class AdventureLifecycleTests(unittest.TestCase):
         self.w._show_book_title()
         self.w.choice_layout.itemAt(1).widget().setText(name)
         self.w.choice_layout.itemAt(2).widget().click()
+
+    def test_starting_potion_survives_reroll_and_cannot_be_refilled(self):
+        """Le choix accompagne le héros, puis la fiole devient immuable pendant la partie."""
+        w = self.w
+        w._show_book_title()
+        w.findChild(QComboBox, 'startingPotion').setCurrentText("Potion d'Adresse")
+        w._reroll_adventurer()
+        w._begin_adventure('Éléanor')
+        self.assertEqual(w.character['potion'], "Potion d'Adresse")
+        self.assertEqual(w.character['potion_doses'], 2)
+        self.assertFalse(w.potion_combo.isEnabled())
+        for remaining in (1, 0):
+            w.character['habilete'] = 1
+            w.drink_potion()
+            self.assertEqual(w.character['habilete'], w.character['initial']['habilete'])
+            self.assertEqual(w.character['potion_doses'], remaining)
+        w.change_potion('Potion de Vigueur')
+        w.character['habilete'] = 1
+        w.drink_potion()
+        self.assertEqual(w.character['potion'], "Potion d'Adresse")
+        self.assertEqual(w.character['potion_doses'], 0)
+        self.assertEqual(w.character['habilete'], 1)
+        saved = w._snapshot()
+        w._restore(saved)
+        self.assertEqual(w.character['potion_doses'], 0)
+
+    def test_fortune_two_doses_raise_initial_luck_each_time(self):
+        """Chaque mesure ajoute un point au plafond puis remplit la Chance jusqu'à ce plafond."""
+        self.start()
+        w = self.w
+        w.character.update(potion='Potion de Bonne Fortune', potion_doses=2, chance=1)
+        initial = w.character['initial']['chance']
+        for dose in (1, 2):
+            w.drink_potion()
+            self.assertEqual(w.character['initial']['chance'], initial + dose)
+            self.assertEqual(w.character['chance'], initial + dose)
+            self.assertEqual(w.character['potion_doses'], 2 - dose)
+        w.drink_potion()
+        self.assertEqual(w.character['initial']['chance'], initial + 2)
+
+    def test_vigor_dose_is_not_wasted_at_full_health_or_after_death(self):
+        self.start()
+        w = self.w
+        w.drink_potion()
+        self.assertEqual(w.character['potion_doses'], 2)
+        w.character['endurance'] = 1
+        w.drink_potion()
+        self.assertEqual(w.character['endurance'], w.character['initial']['endurance'])
+        self.assertEqual(w.character['potion_doses'], 1)
+        w.character['endurance'] = 0
+        w.drink_potion()
+        self.assertEqual(w.character['potion_doses'], 1)
+        self.assertEqual(w.character['endurance'], 0)
 
     def test_intro_requires_nonblank_name_before_first_paragraph(self):
         self.w._show_book_title()
