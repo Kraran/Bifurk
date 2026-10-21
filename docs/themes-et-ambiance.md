@@ -41,24 +41,41 @@ ni historique de partie. Aucun script Python de thème n’est exécuté.
 
 ## Sons
 
-Les trois WAV PCM mono sont originaux, générés par `scripts/generate_sounds.py`
-avec la bibliothèque standard. Ce script utilise son propre générateur de hasard,
-indépendant de celui du jeu. Les sons sont joués par `QSoundEffect` (QtMultimedia,
-inclus dans PySide6). Aucun téléchargement ni service audio externe n’est utilisé.
+Les WAV PCM mono proviennent maintenant de packs **CC0**, principalement Kenney
+(RPG Audio, Casino Audio, Impact Sounds et Music Jingles), complétés par des
+ressources OpenGameArt CC0. Sources, auteurs, licences et fichiers précis :
+[crédits audio](../assets/sounds/CREDITS.md). Les anciens effets synthétiques sont remplacés.
+
+Les effets sont préchargés au démarrage. Le bruit de page démarre avant le rendu
+du nouveau paragraphe, avec suppression de l’amorce faible de l’enregistrement.
+Le choc métallique du combat démarre avant la boîte de résultat de l’assaut.
+Objet, pièces, serrure, potion, blessure, victoire et mort ont chacun un effet.
+Une seule indication de résultat est jouée par action pour limiter les superpositions.
+Ni annulation ni chargement ne rejouent ces effets.
+
+Dans **Ambiance**, une liste et le bouton **Écouter** permettent de tester chaque
+son individuellement. L’**ambiance de fond : caverne** a sa propre commande,
+indépendante des effets, et reste désactivée par défaut. La boucle joue à faible volume.
+
+`scripts/prepare_sounds.py` convertit les archives créditées avec FFmpeg, uniquement
+pour préparer les assets. FFmpeg n’est pas requis pour jouer. `QSoundEffect`
+(QtMultimedia, inclus dans PySide6) assure la lecture locale, sans service externe
+et sans toucher au générateur de hasard du jeu.
 
 ## Tester sous Windows
 
 ```powershell
 git fetch origin
-git switch feat/reprise-sons-themes
+git switch feat/sons-libres-reactifs
 git pull --ff-only
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py
 ```
 
 Importer un livre, commencer, changer de paragraphe, fermer puis relancer Bifurk :
-le livre et la progression doivent être repris. Écouter une page, un lancer et un
-assaut, puis couper les sons dans Ambiance. Relancer pour vérifier la mémorisation.
+le livre et la progression doivent être repris. Dans Ambiance, tester les effets avec **Écouter**, puis une page et un combat réel.
+Vérifier le choc avant la boîte de résultat et la réaction immédiate de la page.
+Activer puis couper la caverne séparément des effets. Relancer pour vérifier la mémorisation.
 
 ```powershell
 $env:QT_QPA_PLATFORM = "offscreen"

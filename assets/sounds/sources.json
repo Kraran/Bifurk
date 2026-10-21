@@ -1,0 +1,117 @@
+{
+  "license": "CC0-1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "packs": {
+    "rpg": {
+      "author": "Kenney",
+      "page": "https://kenney.nl/assets/rpg-audio",
+      "archive": "rpg.zip",
+      "download": "https://kenney.nl/media/pages/assets/rpg-audio/8e99002d76-1677590336/kenney_rpg-audio.zip",
+      "sha256": "6dbeaf8544da958d8f2adcb4a4a4b76c1ade34a05f8ab9edccd327da7375f38b"
+    },
+    "casino": {
+      "author": "Kenney",
+      "page": "https://kenney.nl/assets/casino-audio",
+      "archive": "casino.zip",
+      "download": "https://kenney.nl/media/pages/assets/casino-audio/2472606a04-1721639069/kenney_casino-audio.zip",
+      "sha256": "f36250766ac5bc378c13708ddf12a23a8e54a3251f8d482c7536e51b5dbafa18"
+    },
+    "impact": {
+      "author": "Kenney",
+      "page": "https://kenney.nl/assets/impact-sounds",
+      "archive": "impact.zip",
+      "download": "https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip",
+      "sha256": "029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8"
+    },
+    "jingles": {
+      "author": "Kenney",
+      "page": "https://kenney.nl/assets/music-jingles",
+      "archive": "jingles.zip",
+      "download": "https://kenney.nl/media/pages/assets/music-jingles/f37e530b9e-1677590399/kenney_music-jingles.zip",
+      "sha256": "b729ba57959bd58793d2c5cafa348aaf2655d354f3da35ec4729e03ec77197b8"
+    },
+    "oga-rpg": {
+      "author": "artisticdude",
+      "page": "https://opengameart.org/content/rpg-sound-pack",
+      "archive": "oga-rpg.zip",
+      "download": "https://opengameart.org/sites/default/files/rpg_sound_pack.zip",
+      "sha256": "f80754a9c04854e30c9da89d0186540ad097309d98b41387b6e83029e2601421"
+    },
+    "ambient": {
+      "author": "JaggedStone",
+      "page": "https://opengameart.org/content/loopable-dungeon-ambience",
+      "archive": "ambient.ogg",
+      "download": "https://opengameart.org/sites/default/files/dungeon_ambient_1_0.ogg",
+      "sha256": "df491823e4877371c34dbda4e9321cd83a4a14fa7573cee0ebca1ae423b70e6e"
+    }
+  },
+  "effects": {
+    "page": {
+      "pack": "rpg",
+      "files": [
+        "Audio/bookFlip1.ogg"
+      ]
+    },
+    "dice": {
+      "pack": "casino",
+      "files": [
+        "Audio/dice-throw-2.ogg"
+      ]
+    },
+    "swords": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/inventory/metal-ringing.wav"
+      ]
+    },
+    "item": {
+      "pack": "rpg",
+      "files": [
+        "Audio/handleSmallLeather.ogg"
+      ]
+    },
+    "coins": {
+      "pack": "rpg",
+      "files": [
+        "Audio/handleCoins2.ogg"
+      ]
+    },
+    "key": {
+      "pack": "rpg",
+      "files": [
+        "Audio/metalLatch.ogg"
+      ]
+    },
+    "potion": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/inventory/bottle.wav",
+        "RPG Sound Pack/inventory/bubble.wav"
+      ]
+    },
+    "hit": {
+      "pack": "impact",
+      "files": [
+        "Audio/impactPunch_medium_000.ogg"
+      ]
+    },
+    "victory": {
+      "pack": "jingles",
+      "files": [
+        "Audio/Pizzicato jingles/jingles_PIZZI00.ogg"
+      ]
+    },
+    "death": {
+      "pack": "jingles",
+      "files": [
+        "Audio/Pizzicato jingles/jingles_PIZZI16.ogg"
+      ]
+    },
+    "ambient": {
+      "pack": "ambient",
+      "files": [
+        "ambient.ogg"
+      ]
+    }
+  }
+}
