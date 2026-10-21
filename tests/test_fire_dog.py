@@ -1,4 +1,10 @@
-"""Régression de la partie réelle bloquée au §249."""
+"""Souffle du chien de feu au §249 et ordre des phases d’assaut.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import copy
 import json
 from pathlib import Path
@@ -17,12 +23,15 @@ from PySide6.QtWidgets import QApplication, QMessageBox, QPushButton
 
 
 class FireDog(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls):
+        """Partager les ressources coûteuses de la suite, notamment l’application Qt unique."""
         cls.app = QApplication.instance() or QApplication([])
         cls.catalogue = json.loads(DATA_PATH.read_text(encoding='utf-8'))
 
     def setUp(self):
+        """Préparer un état indépendant pour éviter la contamination entre scénarios."""
         self.w = bifurk.MainWindow()
         self.w.book_event_catalogue = copy.deepcopy(self.catalogue)
         self.w.paragraphs = {249:'Chien de test.',66:'Sortie sud.',304:'Vieil homme.'}
@@ -33,16 +42,19 @@ class FireDog(unittest.TestCase):
         self.w.go_to(249)
 
     def tearDown(self):
+        """Libérer les ressources du scénario avant le test suivant."""
         self.w.close()
         self.w.deleteLater()
         self.app.processEvents()
 
     def tie(self, flame):
         # Héros H8+6 = 14 ; Chien H7+7 = 14.
+        """Imposer une égalité d’attaque et le dé de flamme fourni pour isoler le souffle."""
         with patch.object(self.w,'_roll',side_effect=[([flame],flame),([3,4],7),([3,3],6)]):
             self.w.combat_round()
 
     def win(self, flame=6):
+        """Imposer une attaque gagnante et le dé de flamme fourni pour vérifier les phases."""
         with patch.object(self.w,'_roll',side_effect=[([flame],flame),([1,1],2),([6,6],12)]):
             self.w.combat_round()
 

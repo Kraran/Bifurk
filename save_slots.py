@@ -1,4 +1,10 @@
-"""Five portable save slots, with metadata read from the saves themselves."""
+"""Dialogue des cinq sauvegardes manuelles et lecture de leur format actuel.
+
+Chaque ligne lit ses métadonnées dans le JSON de l'emplacement, sans ouvrir le
+PDF. Le dialogue retourne un chemin ou une demande de nouvelle partie ; le
+contrôleur assure ensuite la restauration ou l'écriture atomique. Les fichiers
+anciens/incomplets ne sont pas migrés. Un emplacement illisible reste supprimable.
+L'autosave technique n'est pas un sixième emplacement de ce menu."""
 import json
 from datetime import datetime
 from PySide6.QtCore import Qt
@@ -8,7 +14,11 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QWidget, QLabe
 
 
 def read_save(path):
-    """Read the current format; incomplete saves are not migrated."""
+    """Lire et contrôler les champs obligatoires du format actuel.
+
+    Lever les erreurs JSON, disque ou ValueError pour laisser le menu marquer le
+    slot illisible. Ce contrôle ne résout pas le PDF : MainWindow vérifie ensuite
+    le chemin et son empreinte. Aucune migration de sauvegarde ancienne."""
     data = json.loads(path.read_text(encoding='utf-8'))
     required = {'saved_at', 'save_name', 'pdf_path', 'pdf_sha256', 'character',
                 'encounter_history', 'completed_book_events', 'completed_optional_events',
@@ -29,7 +39,9 @@ def read_save(path):
 
 
 class SaveSlotsDialog(QDialog):
+    """Menu modal renvoyant selected_path ou new_game_requested après acceptation."""
     def __init__(self, folder, saving, parent=None, *, startup=False):
+        """Créer cinq lignes ; saving autorise les cases libres, startup supprime la confirmation de reprise."""
         super().__init__(parent)
         self.selected_path = None
         self.new_game_requested = False
@@ -60,6 +72,10 @@ class SaveSlotsDialog(QDialog):
         layout.addWidget(close)
 
     def start_new_game(self):
+        """Confirmer l’abandon de la progression courante hors démarrage, puis accepter le menu.
+
+        Un refus laisse le dialogue ouvert et le drapeau inchangé ; les fichiers de
+        sauvegarde existants ne sont jamais supprimés par une nouvelle partie."""
         if self.confirm_new_game and QMessageBox.question(
                 self, 'Commencer une nouvelle partie',
                 'Recommencer une nouvelle aventure ?\n'
@@ -71,6 +87,10 @@ class SaveSlotsDialog(QDialog):
         self.accept()
 
     def refresh_slots(self):
+        """Recréer les lignes à partir des fichiers, y compris les emplacements illisibles.
+
+        Détacher les anciennes lignes avant deleteLater pour éviter des widgets encore
+        repérables pendant la boucle Qt. Capturer les chemins dans les lambdas de boutons."""
         while self.slots.count():
             widget = self.slots.takeAt(0).widget()
             widget.hide()
@@ -113,6 +133,7 @@ class SaveSlotsDialog(QDialog):
             self.slots.addWidget(row)
 
     def delete_save(self, path):
+        """Demander confirmation, supprimer le fichier choisi puis rafraîchir sans fermer le menu."""
         if QMessageBox.question(self, 'Supprimer la chronique',
                 'Supprimer définitivement la sauvegarde de cet emplacement ?',
                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
@@ -124,6 +145,7 @@ class SaveSlotsDialog(QDialog):
         self.refresh_slots()
 
     def choose(self, path, confirm):
+        """Confirmer l’écrasement si nécessaire puis retourner le chemin de l’emplacement."""
         if confirm and QMessageBox.question(
                 self, 'Remplacer la chronique',
                 'Remplacer la sauvegarde de cet emplacement ?',

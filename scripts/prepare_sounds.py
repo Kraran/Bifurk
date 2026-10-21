@@ -1,8 +1,10 @@
-"""Convert the credited CC0 packs to low-latency PCM (requires FFmpeg).
+"""Préparation reproductible des assets CC0 ; FFmpeg requis seulement pour cet outil.
 
-Usage: python scripts/prepare_sounds.py /path/to/downloaded/packs
-Archive filenames and download URLs are listed in assets/sounds/sources.json.
-"""
+Usage : python scripts/prepare_sounds.py /chemin/vers/les/archives
+Les archives sont téléchargées séparément, puis vérifiées avec les SHA-256 de
+assets/sounds/sources.json. Extraction temporaire, conversion mono PCM 16 bits,
+normalisation et retrait de l'amorce faible précèdent l'écriture des WAV livrés.
+Lancer cet outil modifie assets/sounds ; conserver licences et crédits des sources."""
 import array
 import json
 import math
@@ -19,6 +21,10 @@ OUT = ROOT / 'assets/sounds'
 
 
 def normalize(path, trim_attack=False):
+    """Normaliser le pic à 27500 et, si demandé, retirer l’amorce faible détectée par RMS.
+
+    Préserver les paramètres WAV ; gérer explicitement le boutisme des entiers
+    16 bits. Le retrait conserve 10 ms d’attaque pour ne pas tronquer le son de page."""
     with wave.open(str(path), 'rb') as f:
         params = f.getparams()
         samples = array.array('h', f.readframes(f.getnframes()))
@@ -39,6 +45,10 @@ def normalize(path, trim_attack=False):
 
 
 def prepare(folder):
+    """Vérifier les archives créditées puis reconstruire chaque WAV du manifeste avec FFmpeg.
+
+    Les intermédiaires sont temporaires. L’ambiance reste à 22,05 kHz ; les effets
+    sont à 44,1 kHz, avec concaténation ou changement de hauteur si spécifié ici."""
     manifest = json.loads((OUT/'sources.json').read_text())
     for pack in manifest['packs'].values():
         if hashlib.sha256((folder/pack['archive']).read_bytes()).hexdigest() != pack['sha256']:

@@ -1,3 +1,10 @@
+"""Préférences, dernier livre et indépendance des réglages d’ambiance.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import copy
 import json
 import random
@@ -15,11 +22,14 @@ from sound_effects import SoundBank
 
 
 class SessionAmbienceTests(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls):
+        """Partager les ressources coûteuses de la suite, notamment l’application Qt unique."""
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        """Préparer un état indépendant pour éviter la contamination entre scénarios."""
         self.folder = tempfile.TemporaryDirectory()
         self.addCleanup(self.folder.cleanup)
         self.root = Path(self.folder.name)
@@ -36,21 +46,25 @@ class SessionAmbienceTests(unittest.TestCase):
         self.windows = []
 
     def window(self, **kwargs):
+        """Construire une fenêtre de test avec les options demandées."""
         window = main.MainWindow(**kwargs)
         self.windows.append(window)
         return window
 
     def tearDown(self):
+        """Libérer les ressources du scénario avant le test suivant."""
         for window in self.windows:
             window.close(); window.deleteLater()
         self.app.processEvents()
 
     def book(self, name='book.pdf'):
+        """Créer le fichier PDF factice destiné aux contrôles de référence portable."""
         path = self.root/name
         path.write_bytes(b'%PDF-test-book')
         return path
 
     def pdf_mocks(self):
+        """Remplacer extraction et catalogues pour isoler la session de la lecture d’un vrai PDF."""
         for name, value in [('extract_paragraphs', {1:'Première salle.',2:'Deuxième salle.'}),
                             ('catalogue_for_pdf', None), ('load_book_events', None)]:
             p = patch.object(main, name, return_value=value)

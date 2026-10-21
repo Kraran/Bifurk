@@ -1,3 +1,10 @@
+"""Titres de lieux et libellés des destinations sans références numériques doubles.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import json
 import unittest
 from unittest.mock import patch
@@ -11,8 +18,10 @@ from navigation import choice_caption
 
 
 class PlaceLabelsTests(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls):
+        """Partager les ressources coûteuses de la suite, notamment l’application Qt unique."""
         cls.app = QApplication.instance() or QApplication([])
         cls.catalogue = json.loads(DATA_PATH.read_text(encoding='utf-8'))
 
@@ -40,6 +49,7 @@ class PlaceLabelsTests(unittest.TestCase):
                     self.assertNotRegex(route['label'], r'(?i)^Continuer vers\s*\d')
 
     def window(self):
+        """Construire une fenêtre et enregistrer son nettoyage à la fin du test."""
         w = MainWindow()
         self.addCleanup(w.deleteLater)
         self.addCleanup(w.close)

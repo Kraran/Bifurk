@@ -1,11 +1,18 @@
-"""Theme manifests and QSS are data, independent of gameplay and saved games."""
+"""Chargement des thèmes déclaratifs JSON / QSS, sans état de partie.
+
+Chaque manifeste résout ses assets depuis son propre répertoire. Le QSS utilise
+string.Template pour les couleurs, chemins et polices. Un thème incomplet est
+écarté de la liste ; le thème livré sert de repli aux fenêtres indépendantes.
+Voir docs/themes-et-ambiance.md avant d'ajouter une couleur ou un asset obligatoire."""
 import json
 from pathlib import Path
 from string import Template
 
 
 class Theme:
+    """Manifeste chargé et chemins d’assets résolus, sans dépendance aux widgets Qt."""
     def __init__(self, manifest):
+        """Charger JSON et QSS depuis le manifeste ; remonter les erreurs au validateur de thèmes."""
         self.root = Path(manifest).parent
         self.data = json.loads(Path(manifest).read_text(encoding='utf-8'))
         self.id = self.data['id']
@@ -15,15 +22,18 @@ class Theme:
         self.css = (self.root / self.data['stylesheet']).read_text(encoding='utf-8')
 
     def color(self, key):
+        """Lire une couleur obligatoire ; une clé absente signale un thème incomplet."""
         return self.colors[key]
 
     def stylesheet(self, reading_font, ui_font):
+        """Substituer chemins POSIX, polices et couleurs dans le QSS sans exécuter de code."""
         return Template(self.css).substitute(
             {**{k: p.as_posix() for k, p in self.assets.items()},
              'reading_font': reading_font, 'ui_font': ui_font, **self.colors})
 
 
 def available_themes(root):
+    """Indexer les manifestes valides par identifiant après contrôle des couleurs, assets et QSS."""
     themes = {}
     for manifest in sorted(Path(root).glob('*/theme.json')):
         try:
@@ -44,4 +54,5 @@ def available_themes(root):
 
 def default_theme():
     # Read only when a view needs a standalone fallback (rules/illustration windows).
+    """Charger paresseusement le thème livré pour les vues créées sans contrôleur."""
     return Theme(Path(__file__).resolve().parent / 'assets/themes/grimoire/theme.json')

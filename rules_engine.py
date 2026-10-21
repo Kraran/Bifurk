@@ -1,21 +1,29 @@
-"""Analyse prudente des rencontres dans les livres-jeux français.
-Les résultats sont des suggestions à valider, jamais des actions automatiques.
-"""
+"""Suggestions heuristiques extraites du texte d'un livre-jeu français.
+
+Ces expressions régulières reconnaissent adversaires, caractéristiques, objets
+et indices de combat. Elles peuvent manquer une formulation ou une condition :
+leurs résultats sont des aides à confirmer, pas les règles vérifiées du catalogue.
+La normalisation des césures PDF ne modifie jamais le fichier source."""
 import re
 import unicodedata
 
 STAT = {"HABILETÉ":"habilete", "HABILITÉ":"habilete", "ENDURANCE":"endurance", "CHANCE":"chance"}
 
 def _clean(text):
+    """Normaliser espaces, césures et apostrophes pour stabiliser les expressions régulières."""
     text = text.replace("\u00ad", "").replace("\xa0", " ")
     text = re.sub(r"(?<=\w)-\s*\n\s*(?=\w)", "", text)
     return text.replace("’", "'")
 
 def _name(value):
+    """Normaliser la casse et les espaces d’un nom détecté pour l’affichage."""
     return re.sub(r"\s+", " ", value).strip(" :-—\n\t").title()
 
 def encounters(text):
-    """Recognize single-line, multiline and column-style HABILETÉ/ENDURANCE blocks."""
+    """Repérer les blocs nom / Habileté / Endurance et éliminer en-têtes ou doublons.
+
+    Les bornes rejettent les chiffres manifestement étrangers à un adversaire ;
+    le résultat reste une suggestion dont le contexte doit être confirmé."""
     text = _clean(text)
     found=[]; seen=set()
     # Nom / HABILETÉ 7 / ENDURANCE 8, including OCR-like column line wraps.
@@ -38,7 +46,7 @@ def encounters(text):
     return found
 
 def combat_hints(text):
-    """Flag likely battles and possible outcome destinations; no invented linkage."""
+    """Repérer indices de combat et renvois proches sans appliquer automatiquement une issue."""
     text=_clean(text)
     cues=[]
     for label,pattern in [
@@ -58,6 +66,7 @@ def combat_hints(text):
     return {'cues':cues,'exits':exits}
 
 def stat_events(text):
+    """Suggérer gains et pertes explicites en excluant les contextes conditionnels détectés."""
     results=[]
     pattern=re.compile(r"(?i)\b(?:vous\s+)?(perdez|gagnez|prenez|récupérez|ôtez|ajoutez)\s+(\d{1,2})\s+(?:points?\s+d[’']?|points?\s+de\s+)(habileté|habilité|endurance|chance)\b")
     for match in pattern.finditer(text):
@@ -69,6 +78,7 @@ def stat_events(text):
     return results
 
 def item_hints(text):
+    """Proposer une liste courte de noms d’objets possibles, sans modifier l’inventaire."""
     matches=[]
     for m in re.finditer(r"(?i)\b(?:vous pouvez (?:prendre|ramasser)|vous trouvez|vous découvrez|vous ramassez)\s+((?:une?|la|le|l[’'])\s+[^.,;\n]{2,65})",text):
         name=m.group(1).strip()

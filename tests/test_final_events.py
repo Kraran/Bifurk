@@ -1,4 +1,10 @@
-"""Fin de la revue 351–400 : règles, protections et reprise des sauvegardes."""
+"""Derniers paragraphes, clés, butins et résolution des événements finaux.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import copy
 import hashlib
 import json
@@ -18,12 +24,15 @@ from PySide6.QtWidgets import QApplication, QMessageBox, QInputDialog
 
 
 class FinalEvents(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls):
+        """Partager les ressources coûteuses de la suite, notamment l’application Qt unique."""
         cls.app = QApplication.instance() or QApplication([])
         cls.catalogue = json.loads(DATA_PATH.read_text(encoding='utf-8'))
 
     def setUp(self):
+        """Préparer un état indépendant pour éviter la contamination entre scénarios."""
         self.w = bifurk.MainWindow()
         self.w.book_event_catalogue = copy.deepcopy(self.catalogue)
         self.w.paragraphs = {n: f'Passage de test {n}.' for n in range(1, 401)}
@@ -34,11 +43,13 @@ class FinalEvents(unittest.TestCase):
             self.addCleanup(mock.stop)
 
     def tearDown(self):
+        """Libérer les ressources du scénario avant le test suivant."""
         self.w.close()
         self.w.deleteLater()
         self.app.processEvents()
 
     def win(self):
+        """Imposer la victoire d’un assaut pour vérifier l’enchaînement des effets finaux."""
         with patch.object(self.w, '_roll', side_effect=[([1, 1], 2), ([6, 6], 12)]):
             self.w.combat_round()
 

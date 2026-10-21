@@ -1,3 +1,10 @@
+"""Carte, rencontres mémorisées et consultation des règles privées.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import json
 import tempfile
 import unittest
@@ -11,11 +18,14 @@ from rules_viewer import RulesDialog
 
 
 class ExplorationRulesTests(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls):
+        """Partager les ressources coûteuses de la suite, notamment l’application Qt unique."""
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        """Préparer un état indépendant pour éviter la contamination entre scénarios."""
         self.w = MainWindow()
         self.w.book_event_catalogue = json.loads(DATA_PATH.read_text())
         self.w.paragraphs = {n: "Paragraphe de test." for n in (116, 378, 42, 240, 145, 249, 66)}
@@ -25,11 +35,13 @@ class ExplorationRulesTests(unittest.TestCase):
             self.addCleanup(p.stop)
 
     def tearDown(self):
+        """Libérer les ressources du scénario avant le test suivant."""
         self.w.close()
         self.w.deleteLater()
         self.app.processEvents()
 
     def win_round(self):
+        """Résoudre un assaut de test favorable pour contrôler les statuts de carte."""
         with patch.object(self.w, "_roll", side_effect=[([1, 1], 2), ([6, 6], 12)]):
             self.w.combat_round()
 

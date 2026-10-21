@@ -1,7 +1,10 @@
-"""Lance le vrai point d'entrée et capture les dialogues Qt sous Windows.
+"""Audit interactif du vrai point d'entrée Qt, destiné à une session Windows locale.
 
-Sorties privées ignorées par Git (peuvent montrer le livre). Aucun PDF copié.
-"""
+Capture les dialogues et leurs libellés dans audit-output, dossier privé ignoré
+par Git qui peut montrer le livre. Un QTimer ferme les dialogues du scénario.
+Le scénario reflète un parcours de référence : l'adapter si les écrans de démarrage
+évoluent. Il ne constitue pas un test unitaire portable ni une preuve exhaustive
+d'absence de modification des données ; les empreintes permettent une comparaison."""
 import hashlib
 import json
 from pathlib import Path
@@ -24,11 +27,13 @@ original_exec = QApplication.exec
 
 
 def digest_files():
+    """Calculer les empreintes des données existantes pour comparer avant et après scénario."""
     return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in (ROOT / 'donnees').rglob('*') if p.is_file()}
 
 
 def capture(widget, name):
+    """Attendre le rendu puis enregistrer la capture du widget dans le dossier privé d’audit."""
     QTest.qWait(200)
     path = OUT / (name + '.png')
     if not widget.grab().save(str(path)):
@@ -37,8 +42,13 @@ def capture(widget, name):
 
 
 def modal(action, name):
+    """Programmer une capture et un rejet du dialogue, puis exécuter l’action modale.
+
+    Le timer agit dans la boucle imbriquée de QDialog.exec ; remonter les erreurs
+    après fermeture pour ne pas laisser l’audit bloqué dans un dialogue."""
     errors = []
     def finish():
+        """Capturer le dialogue actif et ses libellés ; le rejeter même si la capture échoue."""
         dialog = QApplication.activeModalWidget()
         try:
             if not isinstance(dialog, QDialog):
@@ -62,6 +72,7 @@ def modal(action, name):
 
 
 def scenario():
+    """Exécuter le parcours de référence, capturer ses écrans et consigner erreurs et empreintes."""
     app = QApplication.instance()
     before = digest_files()
     try:
@@ -107,6 +118,7 @@ def scenario():
 
 
 def run_loop(self):
+    """Programmer le scénario après affichage puis déléguer à la vraie boucle QApplication."""
     QTimer.singleShot(900, scenario)
     return original_exec()
 

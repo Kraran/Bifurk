@@ -1,4 +1,8 @@
-"""Métadonnées d'audit et planches privées ; aucun texte du livre exporté."""
+"""Audit local du PDF privé et de ses illustrations, avec rapport dans audit-output.
+
+Le script attend un PDF à la racine du dépôt. Les captures peuvent contenir des
+pages du livre : les sorties sont privées et ignorées par Git. Cet audit complète
+les tests unitaires sans remplacer la vérification humaine des cadrages et règles."""
 from collections import Counter
 import hashlib
 import json
@@ -16,6 +20,7 @@ from PySide6.QtWidgets import QApplication
 
 
 def run():
+    """Examiner le PDF et produire rapport et planches de contrôle privées sans modifier le livre."""
     app = QApplication.instance() or QApplication([])
     pdf = next(ROOT.glob('*.pdf'))
     out = ROOT / 'audit-output'

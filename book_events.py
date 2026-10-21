@@ -1,4 +1,11 @@
-"""Actions vérifiées pour une édition précise ; aucun texte du livre n'est embarqué."""
+"""Règles déterministes du catalogue associé au SHA-256 exact du PDF.
+
+Les fonctions prennent des dictionnaires d'état et ne dépendent pas de Qt.
+Les fonctions apply_* et les échanges modifient character en place ; les filtres
+et calculs retournent un résultat sans lancer de dés. L'appelant fournit les jets
+et regroupe les mutations avec l'historique. Un catalogue absent ou une entrée
+non vérifiée ne doit jamais devenir une règle automatique par déduction du texte.
+Voir catalogues/README_evenements.md pour le vocabulaire des données."""
 import hashlib
 import json
 import re
@@ -20,6 +27,7 @@ def load_book_events(pdf_path):
 
 
 def verified_entry(catalogue, paragraph):
+    """Retourner uniquement une entrée marquée verifie, ou None sans catalogue utilisable."""
     if not catalogue:
         return None
     entry = catalogue["paragraphs"].get(str(paragraph))
@@ -27,7 +35,11 @@ def verified_entry(catalogue, paragraph):
 
 
 def apply_effects(character, effects):
-    """Applique des changements de caractéristiques bornés et des objets uniques."""
+    """Appliquer en place la liste ordonnée d’effets déclaratifs.
+
+    Les effets manipulent caractéristiques, objets et faits du héros ; conserver
+    l’ordre, notamment pour les plafonds initiaux et les changements d’équipement.
+    Le catalogue est une donnée vérifiée, pas un langage Python à évaluer."""
     for effect in effects:
         if effect["kind"] == "fact":
             character.setdefault("book_facts", {})[effect["key"]] = effect.get("value", True)
@@ -108,7 +120,9 @@ WEAPON_BONUSES = {
 
 
 def equipped_weapon(character):
-    """Anciennes sauvegardes : choisir l'épée disponible la plus appropriée."""
+    """Retourner l’arme sélectionnée si elle est présente, sinon choisir une épée disponible.
+
+    Ce repli déduit l’équipement de l’inventaire ; il ne migre pas un fichier de sauvegarde."""
     inventory = character.get("inventory", [])
     selected = character.get("equipped_weapon")
     if selected in inventory and selected in WEAPON_BONUSES:
@@ -294,10 +308,15 @@ def enchanted_bench_meal(character):
 
 
 def resolve_roll(roll, total, character):
-    """Résultat déterministe d'un jet défini dans le catalogue."""
+    """Choisir la première branche compatible avec le total fourni, sans modifier le héros.
+
+    Valider le domaine des dés avant comparaison. L’appelant applique ensuite les
+    effets : un test de Chance doit comparer la valeur avant sa dépense."""
     if not 1 <= roll["dice"] <= 2 or not roll["dice"] <= total <= 6 * roll["dice"]:
         raise ValueError("Jet de dés hors limites")
     for branch in roll["branches"]:
+        # L'ordre du JSON est prioritaire : une branche générale « otherwise »
+        # doit rester après les cas particuliers, comme dans une suite de if/elif.
         condition = branch["when"]
         matched = (
             condition == "otherwise"
@@ -314,7 +333,11 @@ def resolve_roll(roll, total, character):
 
 
 def condition_met(character, condition):
-    """Condition vérifiée sur les données réelles de l'aventurier."""
+    """Évaluer sans mutation le vocabulaire des conditions du catalogue.
+
+    None est vrai ; all / any / not composent les tests. Les objets sont comparés
+    sans casse et les visites utilisent des clés chaînes. Un type inconnu lève
+    ValueError pour révéler une erreur de catalogue plutôt que permettre la route."""
     if condition is None:
         return True
     kind = condition["kind"]
@@ -356,7 +379,10 @@ def available_options(character, entry, completed_options, paragraph):
 
 
 def available_routes(character, entry):
-    """Retourne les itinéraires légitimes pour l'état actuel du personnage."""
+    """Filtrer les itinéraires sur leurs conditions sans payer leurs coûts.
+
+    La validation et le paiement effectifs restent dans follow_catalogue_route ;
+    afficher un bouton ne doit pas débiter de ressources."""
     if not entry:
         return []
     available = []
@@ -420,5 +446,8 @@ def apply_entry(character, completed, paragraph, catalogue):
         return False
     if condition_met(character, entry.get("when")):
         apply_effects(character, entry["effects"])
+    # L'entrée automatique est résolue même si sa condition n'était pas remplie.
+    # Ne pas déplacer ce marqueur dans le if : un retour ne doit pas transformer
+    # cet effet d'entrée en récompense réessayable à volonté.
     completed.add(paragraph)
     return True

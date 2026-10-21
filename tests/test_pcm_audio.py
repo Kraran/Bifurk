@@ -1,3 +1,10 @@
+"""Mélange PCM, chevauchement et lecture des assets sans sortie native.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import array
 import logging
 import sys
@@ -12,6 +19,7 @@ from sound_effects import EFFECT_LABELS
 
 
 def decode(data):
+    """Décoder le PCM little endian en entiers signés pour comparer les échantillons attendus."""
     samples = array.array('h', data)
     if sys.byteorder != 'little':
         samples.byteswap()
@@ -19,17 +27,21 @@ def decode(data):
 
 
 class PcmAudioTests(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls):
+        """Partager les ressources coûteuses de la suite, notamment l’application Qt unique."""
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        """Préparer un état indépendant pour éviter la contamination entre scénarios."""
         self.parent = QObject()
         self.parent.logger = logging.getLogger('pcm-test')
         self.parent._pcm_mixer = Mixer(self.parent)
         self.mixer = self.parent._pcm_mixer
 
     def effect(self, samples):
+        """Préparer une voix chargée en mémoire, sans fichier ni sortie audio native."""
         effect = PcmEffect(self.parent)
         effect.samples = array.array('h', samples)
         effect._status = effect.Ready

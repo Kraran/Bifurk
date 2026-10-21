@@ -1,3 +1,10 @@
+"""Identité, portrait, liens et absence de cadre dans la fenêtre À propos.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import unittest
 from unittest.mock import patch, call
 
@@ -11,16 +18,20 @@ from app_info import APP_NAME, APP_VERSION, AUTHOR_URL, REPOSITORY_URL
 
 
 class AboutDialogTests(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls):
+        """Partager les ressources coûteuses de la suite, notamment l’application Qt unique."""
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        """Préparer un état indépendant pour éviter la contamination entre scénarios."""
         self.w = MainWindow()
         self.w.show()
         self.app.processEvents()
 
     def tearDown(self):
+        """Libérer les ressources du scénario avant le test suivant."""
         self.w.close()
         self.w.deleteLater()
         self.app.processEvents()

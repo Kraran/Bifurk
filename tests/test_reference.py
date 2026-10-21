@@ -1,4 +1,10 @@
-"""Tests de référence : aucun PDF ni texte du livre n'est embarqué."""
+"""Extraction, catalogue et scénarios de règles de référence.
+
+Exécution : python -m unittest discover -s tests -v, avec QT_QPA_PLATFORM=offscreen
+pour une session sans écran. Les cas pilotent explicitement les jets et dialogues
+nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
+Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
+son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import json
 from pathlib import Path
 import sys
@@ -16,16 +22,20 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 
 
 class Reference(unittest.TestCase):
+    """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
     def setUpClass(cls):
+        """Partager les ressources coûteuses de la suite, notamment l’application Qt unique."""
         cls.app = QApplication.instance() or QApplication([])
         cls.pdf = next(ROOT.glob('*.pdf'), None)
         cls.paragraphs = bifurk.extract_paragraphs(cls.pdf) if cls.pdf else {}
 
     def setUp(self):
+        """Préparer un état indépendant pour éviter la contamination entre scénarios."""
         self.window = bifurk.MainWindow()
 
     def tearDown(self):
+        """Libérer les ressources du scénario avant le test suivant."""
         self.window.close()
         self.window.deleteLater()
         self.app.processEvents()

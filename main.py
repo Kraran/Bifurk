@@ -1,3 +1,14 @@
+"""Point d'entrée Qt et orchestration de l'aventure Bifurk.
+
+MainWindow relie les vues, l'état sérialisable, le PDF privé et les règles du
+catalogue. Les calculs réutilisables restent dans book_events ; BookActions
+complète le contrôleur pour les rencontres particulières. Une action utilisateur
+peut appeler plusieurs méthodes : _track_action les regroupe dans une seule
+transaction d'historique. _restoring interdit de rejouer les effets à la restauration.
+
+Les chemins portables dérivent du script ou de l'exécutable, jamais du répertoire
+courant du terminal. Voir docs/maintenance.md avant de modifier les sauvegardes,
+la navigation ou le cycle création / partie / mort."""
 import sys, re, json, random, copy, os, tempfile, hashlib, shutil
 from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
@@ -29,11 +40,15 @@ SETTINGS_DIR = DATA_DIR / "parametres"
 
 
 def init_portable_dirs():
+    """Créer les dossiers de données portables avant toute importation ou écriture."""
     for directory in (SAVES_DIR, BOOKS_DIR, SETTINGS_DIR):
         directory.mkdir(parents=True, exist_ok=True)
 
 
 def within_directory(path, directory):
+    """Vérifier l’appartenance après résolution des chemins et liens symboliques.
+
+    relative_to évite les faux préfixes de chemins voisins ; renvoie False hors dossier."""
     try:
         Path(path).resolve().relative_to(Path(directory).resolve())
         return True
@@ -42,7 +57,10 @@ def within_directory(path, directory):
 
 
 def import_book(source):
-    """Copie le grimoire dans le dossier portable sans écrire à la source."""
+    """Importer un PDF par copie temporaire puis remplacement dans grimoires.
+
+    La source reste intacte. Le nom combine son libellé et une empreinte de contenu
+    pour distinguer les éditions ; un livre déjà importé n’est pas recopié."""
     source = Path(source).resolve()
     if not source.is_file() or source.suffix.lower() != '.pdf':
         raise ValueError("Sélectionnez un fichier PDF valide.")
@@ -68,7 +86,10 @@ def import_book(source):
 
 
 def resolve_book_reference(reference):
-    """Resolve the current portable reference inside the imported book folder."""
+    """Résoudre uniquement une référence relative vers un grimoire importé existant.
+
+    Refuser les chemins absolus et les sorties du dossier grimoires ; ne pas chercher
+    un ancien fichier ailleurs ni importer implicitement un livre pendant le chargement."""
     if not isinstance(reference, str) or not reference or Path(reference).is_absolute():
         return None
     candidate = (APP_DIR / reference).resolve()
@@ -77,7 +98,11 @@ def resolve_book_reference(reference):
 
 
 def extract_paragraphs(pdf_path):
-    """Extract numbered paragraphs from a text-based PDF using PyMuPDF."""
+    """Extraire les sections numérotées d’un PDF textuel, sans OCR.
+
+    Le tri PyMuPDF et la suppression des césures facilitent la lecture. Un numéro
+    isolé après « rendez-vous au » reste une destination, pas un nouveau titre.
+    Le dictionnaire retourné associe numéro entier et texte non vide."""
     try:
         import pymupdf
     except ImportError as exc:
@@ -110,6 +135,7 @@ def extract_paragraphs(pdf_path):
 
 
 def franciser_message(dialog):
+    """Traduire les boutons usuels d’une QMessageBox en complément des catalogues Qt."""
     noms = {
         QMessageBox.Yes: "Oui", QMessageBox.No: "Non",
         QMessageBox.Ok: "OK", QMessageBox.Cancel: "Annuler",
@@ -128,7 +154,7 @@ def franciser_message(dialog):
 
 
 def franciser_selecteur(dialog):
-    """Traduction de secours pour les infobulles du sélecteur Qt."""
+    """Appliquer les libellés français de secours au sélecteur Qt non natif."""
     from PySide6.QtWidgets import QToolButton, QAbstractButton
     tooltips = {
         "Back": "Dossier précédent", "Forward": "Dossier suivant",
@@ -156,6 +182,7 @@ def franciser_selecteur(dialog):
 class DialogThemeFilter(QObject):
     """Applique la barre bronze aux fenêtres secondaires Windows dès leur ouverture."""
     def eventFilter(self, obj, event):
+        """Différer les retouches de dialogue jusqu’à son affichage natif, sans consommer l’événement."""
         if event.type() == QEvent.Show and isinstance(obj, QDialog):
             QTimer.singleShot(0, lambda d=obj: set_bronze_titlebar(d) if d.isVisible() else None)
             if isinstance(obj, QMessageBox):
@@ -164,6 +191,7 @@ class DialogThemeFilter(QObject):
 
 
 def set_bronze_titlebar(widget):
+    """Teinter la barre native avec DWM sous Windows ; ignorer les plateformes non prises en charge."""
     if sys.platform != "win32":
         return
     try:
@@ -171,6 +199,8 @@ def set_bronze_titlebar(widget):
         hwnd = int(widget.winId())
         dwm = ctypes.windll.dwmapi
         for attribute, value in ((35, 0x001B2D4B), (36, 0x00BEE1F2)):
+            # Attributs DWM : 35 = fond du titre, 36 = couleur du texte.
+            # Windows attend un COLORREF (0x00BBGGRR), pas une couleur CSS RGB.
             color = ctypes.c_uint32(value)
             dwm.DwmSetWindowAttribute(hwnd, attribute, ctypes.byref(color), ctypes.sizeof(color))
     except Exception:
@@ -178,7 +208,16 @@ def set_bronze_titlebar(widget):
 
 
 class MainWindow(QMainWindow, BookActions):
+    """Contrôleur principal et propriétaire Qt des vues et services de l’aventure.
+
+    État durable : character, progression, rencontres et instantanés d’historique.
+    État temporaire : brouillon de création, widgets, PDF extrait et rendu du thème.
+    BookActions utilise ce même état ; il ne crée pas un second moteur indépendant."""
     def __init__(self, startup=False):
+        """Initialiser état, préférences, services et widgets avant le parcours de démarrage.
+
+        startup=False permet aux tests de construire une fenêtre sans dialogue modal.
+        En production, le menu initial est différé pour laisser Qt afficher la fenêtre."""
         super().__init__()
         self.preferences_path = SETTINGS_DIR / "preferences.json"
         try:
@@ -200,6 +239,9 @@ class MainWindow(QMainWindow, BookActions):
         self.pdf_path = None
         self.illustration_catalogue = None
         self.book_event_catalogue = None
+        # Ces trois ensembles répondent à des questions différentes : effet déjà
+        # reçu, option déjà choisie, adversaire déjà préparé. Les fusionner ferait
+        # réapparaître du butin ou réinitialiserait des combats lors des retours.
         self.completed_book_events = set()
         self.completed_optional_events = set()
         self.prepared_book_encounters = set()
@@ -213,6 +255,8 @@ class MainWindow(QMainWindow, BookActions):
         self.current_paragraph = None
         self.visited_paragraphs = []
         self.transitions = []
+        # Gabarit d'équipement et valeurs d'affichage hors partie. Les valeurs
+        # H/E/C d'une nouvelle aventure sont remplacées par le tirage réglementaire.
         self.character = {
             "habilete": 8, "endurance": 20, "chance": 8,
             "provisions": 10, "gold": 1, "inventory": ["Épée", "Armure de cuir", "Lanterne"],
@@ -221,6 +265,8 @@ class MainWindow(QMainWindow, BookActions):
             "initial": {"habilete": 8, "endurance": 20, "chance": 8}
         }
         self._initial_character = copy.deepcopy(self.character)
+        # Le brouillon appartient à l'introduction ; il ne doit pas être régénéré
+        # quand on change le thème ou la taille des caractères.
         self._adventurer_draft = None
         self._creation_rerolls = 0
         self._creation_name = ''
@@ -242,17 +288,20 @@ class MainWindow(QMainWindow, BookActions):
             QTimer.singleShot(0, self._show_startup_menu)
 
     def _save_preferences(self):
+        """Enregistrer les choix d’interface séparément de l’état des sauvegardes."""
         try:
             self._write_atomic(self.preferences_path, self.preferences)
         except OSError:
             self.rules_log.setText("Les préférences n’ont pas pu être enregistrées.")
 
     def _remember_book(self):
+        """Mémoriser le grimoire importé pour les prochaines nouvelles parties."""
         if self.pdf_path and within_directory(self.pdf_path, BOOKS_DIR):
             self.preferences["last_book"] = str(Path(self.pdf_path).resolve().relative_to(BOOKS_DIR.resolve()))
             self._save_preferences()
 
     def _show_startup_menu(self):
+        """Proposer les cinq emplacements ou une nouvelle aventure ; ne pas charger l’autosave."""
         while True:
             dialog = SaveSlotsDialog(SAVES_DIR, False, self, startup=True)
             accepted = dialog.exec() == QDialog.Accepted
@@ -267,6 +316,9 @@ class MainWindow(QMainWindow, BookActions):
                 return
 
     def _start_new_game(self):
+        """Reprendre le livre chargé, sinon le dernier importé, sinon demander un PDF.
+
+        Cette étape ouvre la création ; les statistiques seront validées avant le §1."""
         if self.pdf_path and self.paragraphs:
             self._restart_adventure()
             return
@@ -278,12 +330,14 @@ class MainWindow(QMainWindow, BookActions):
             self.open_pdf()
 
     def show_ambience(self):
+        """Construire les réglages de thème et sons, avec préécoute des effets disponibles."""
         dialog = QDialog(self)
         dialog.setWindowTitle("Bifurk — Ambiance")
         layout = QVBoxLayout(dialog)
         sound = QCheckBox("Activer les effets sonores")
         sound.setChecked(self.sounds.enabled)
         def set_sound(enabled):
+            """Appliquer et mémoriser l’interrupteur des effets ponctuels."""
             self.sounds.set_enabled(enabled)
             self.preferences["sound_enabled"] = enabled
             self._save_preferences()
@@ -292,6 +346,7 @@ class MainWindow(QMainWindow, BookActions):
         ambient = QCheckBox("Ambiance de fond : caverne")
         ambient.setChecked(self.sounds.ambient_enabled)
         def set_ambient(enabled):
+            """Appliquer et mémoriser l’interrupteur indépendant de l’ambiance."""
             self.sounds.set_ambient_enabled(enabled)
             self.preferences["ambient_enabled"] = enabled
             self._save_preferences()
@@ -321,6 +376,7 @@ class MainWindow(QMainWindow, BookActions):
         dialog.exec()
 
     def apply_theme(self, theme_id):
+        """Appliquer un thème disponible et mémoriser ce choix sans modifier la progression."""
         self.theme = self.themes[theme_id]
         fonts = self.theme.data.get("fonts", {})
         self.reading_font_family = fonts.get("reading", self._default_fonts[0])
@@ -351,11 +407,13 @@ class MainWindow(QMainWindow, BookActions):
         self._update_fullscreen_button()
 
     def _update_fullscreen_button(self):
+        """Synchroniser le libellé du bouton avec l’état plein écran réel de Qt."""
         self._fullscreen = self.isFullScreen()
         if hasattr(self, "fullscreen_btn"):
             self.fullscreen_btn.setText("▣  Quitter plein écran" if self._fullscreen else "⛶  Plein écran")
 
     def keyPressEvent(self, event):
+        """Traiter les raccourcis de fenêtre puis déléguer les autres touches à Qt."""
         if event.key() == Qt.Key_Escape and self.isFullScreen():
             self.showNormal()
             self._update_fullscreen_button()
@@ -364,15 +422,18 @@ class MainWindow(QMainWindow, BookActions):
         super().keyPressEvent(event)
 
     def changeEvent(self, event):
+        """Réagir aux changements d’état de fenêtre pour garder les contrôles cohérents."""
         super().changeEvent(event)
         if event.type() == QEvent.WindowStateChange:
             self._update_fullscreen_button()
 
     def showEvent(self, event):
+        """Appliquer les ajustements natifs une fois la fenêtre effectivement créée."""
         super().showEvent(event)
         self._set_windows_titlebar_color()
 
     def _set_windows_titlebar_color(self):
+        """Appliquer la teinte native au handle Windows de la fenêtre principale."""
         set_bronze_titlebar(self)
 
     def _load_fonts(self):
@@ -393,6 +454,7 @@ class MainWindow(QMainWindow, BookActions):
                             self.ui_font_family = family[0]
 
     def change_reader_font_size(self, delta):
+        """Ajuster la taille de lecture puis redessiner le texte sans rejouer les événements."""
         self.reader_font_size = max(14, min(34, self.reader_font_size + delta))
         if self.current_paragraph is not None and self.character['endurance'] <= 0:
             self._show_death_page()
@@ -408,6 +470,10 @@ class MainWindow(QMainWindow, BookActions):
         self.font_size_label.setText(f"{self.reader_font_size} pt")
 
     def _render_paragraph_text(self, text):
+        """Composer le HTML de lecture avec liens échappés et police courante.
+
+        Ne pas rétablir line-height sur le div : Qt ne l’applique qu’au premier bloc,
+        ce qui crée un espacement anormal après la première ligne (test dédié)."""
         escaped = render_links(text, self.paragraphs).replace("#123f70", self.theme.color("link"))
         # Liens bleu nuit soulignés : contraste élevé sur le parchemin clair.
         content = (f'<div style="font-family: \'{self.reading_font_family}\'; '
@@ -416,6 +482,10 @@ class MainWindow(QMainWindow, BookActions):
         self.reader.setHtml(content)
 
     def _build_ui(self):
+        """Assembler les trois zones : illustration, lecture et panneau d’aventure.
+
+        Conserver les widgets en attributs pour les rafraîchissements ; les connexions
+        Qt appellent les actions du contrôleur, pas des mutations d’état cachées dans la vue."""
         central = QWidget()
         root = QVBoxLayout(central)
         root.setContentsMargins(16, 12, 16, 12)
@@ -791,6 +861,7 @@ class MainWindow(QMainWindow, BookActions):
         self.setCentralWidget(central)
 
     def _add_adventure_tab(self, content, title):
+        """Placer un panneau dans un onglet défilable pour les petites hauteurs d’écran."""
         page = QScrollArea()
         page.setWidgetResizable(True)
         page.setFrameShape(QFrame.NoFrame)
@@ -799,13 +870,16 @@ class MainWindow(QMainWindow, BookActions):
         self.adventure_tabs.addTab(page, title)
 
     def _set_theme(self):
+        """Distribuer le QSS, les polices et les surfaces dessinées aux widgets existants."""
         self.setStyleSheet(self.theme.stylesheet(self.reading_font_family, self.ui_font_family))
 
     def _toggle_scene_art(self, visible):
+        """Afficher ou masquer la zone d’illustration sans changer le paragraphe."""
         self.scene_art.setVisible(visible)
         self.art_toggle.setText("◈  Image" if visible else "◈  Image")
 
     def _update_scene_art(self, prefer_cover=False):
+        """Choisir couverture, illustration courante ou décor de repli selon l’écran affiché."""
         self.scene_art.set_book_art()
         self.scene_entry = None
         if self.illustration_catalogue and self.pdf_path:
@@ -825,10 +899,12 @@ class MainWindow(QMainWindow, BookActions):
                     pass
 
     def _enlarge_scene_art(self):
+        """Ouvrir l’illustration sélectionnée dans une fenêtre indépendante."""
         if self.scene_entry is not None:
             self._show_illustration(self.scene_entry, self.scene_title)
 
     def _show_welcome(self):
+        """Afficher l’accueil sans livre et désactiver les commandes réservées à une partie."""
         self.paragraph_number.hide()
         self.choice_group.hide()
         self.event_group.hide()
@@ -836,6 +912,9 @@ class MainWindow(QMainWindow, BookActions):
         self.reader.setHtml("<h1>Ouvrez le grimoire.</h1><p>Une porte oubliée. Un trésor légendaire. Et vos décisions pour seule boussole.</p><p>Choisissez votre livre avec <b>Ouvrir un grimoire</b>, puis découvrez votre nouvel aventurier sur la page d’introduction.</p><p>Explorez, lancez les dés et écrivez votre propre histoire.</p>")
 
     def _show_book_title(self):
+        """Afficher la couverture, le titre et le formulaire de création avant le §1.
+
+        Un simple rafraîchissement conserve le tirage, le nom et le compteur de relances."""
         if self._adventurer_draft is None:
             self._prepare_adventurer()
         self.paragraph_number.hide()
@@ -857,6 +936,7 @@ class MainWindow(QMainWindow, BookActions):
         start.setObjectName("choiceCard")
         start.setEnabled(bool(name.text().strip()))
         def change_name(text):
+            """Conserver la saisie du nom dans le brouillon entre deux rendus de l’introduction."""
             self._creation_name = text
             self.character['name'] = text.strip()
             self.hero_title.setText('L’AVENTURIER\n' + (text.strip() or 'Votre futur héros'))
@@ -884,6 +964,7 @@ class MainWindow(QMainWindow, BookActions):
         self.goto_button.setEnabled(False)
 
     def _prepare_adventurer(self):
+        """Créer le premier tirage et son équipement de départ ; remettre les relances à zéro."""
         self._creation_name = self.character.get('name', '')
         self._creation_rerolls = 0
         self._adventurer_draft = self._roll_adventurer()
@@ -891,6 +972,7 @@ class MainWindow(QMainWindow, BookActions):
         self._apply_adventurer_draft()
 
     def _apply_adventurer_draft(self):
+        """Recopier le tirage en attente dans les caractéristiques affichées."""
         self.character['initial'] = copy.deepcopy(self._adventurer_draft)
         self.character.update(self._adventurer_draft)
         if self._creation_name.strip():
@@ -898,6 +980,7 @@ class MainWindow(QMainWindow, BookActions):
         self._refresh_character()
 
     def _render_creation_preview(self):
+        """Présenter les caractéristiques tirées sans valider ni consommer un nouveau jet."""
         import html
         title = ((self.illustration_catalogue or {}).get('title') or Path(self.pdf_path).stem)
         stats = self._adventurer_draft
@@ -915,6 +998,10 @@ class MainWindow(QMainWindow, BookActions):
             f'<p>{instruction}</p><p>Le deuxième reroll est définitif.</p></div>')
 
     def _reroll_adventurer(self):
+        """Relancer au plus deux fois après le tirage initial.
+
+        Le dernier tirage est validé automatiquement si le nom est renseigné ; sinon
+        il reste figé jusqu’à la saisie du nom et à la validation."""
         if self.current_paragraph is not None or self._adventurer_draft is None or self._creation_rerolls >= 2:
             return
         self._creation_rerolls += 1
@@ -926,10 +1013,15 @@ class MainWindow(QMainWindow, BookActions):
             self._show_book_title()
 
     def _restart_adventure(self):
+        """Préparer une nouvelle création sur le même livre ; préserver les emplacements manuels."""
         self._adventurer_draft = None
         self._show_book_title()
 
     def _begin_adventure(self, name):
+        """Valider le nom et le tirage exact, réinitialiser la progression puis entrer au §1.
+
+        Ne pas lancer de dés ici : la validation ne doit jamais remplacer le héros affiché.
+        Effacer le brouillon avant go_to pour lever le verrou de création."""
         name = name.strip()[:60]
         if not name or not self.paragraphs or self._adventurer_draft is None or self.current_paragraph is not None:
             return
@@ -969,6 +1061,7 @@ class MainWindow(QMainWindow, BookActions):
         self.go_to(1 if 1 in self.paragraphs else min(self.paragraphs))
 
     def _show_death_page(self):
+        """Afficher la fin d’aventure et proposer recommencer ou charger ; bloquer les actions de jeu."""
         import html
         self.paragraph_number.hide()
         self._refresh_character()
@@ -997,6 +1090,9 @@ class MainWindow(QMainWindow, BookActions):
         self.goto_button.setEnabled(False)
 
     def open_pdf(self, path=None, *, startup=False):
+        """Importer ou ouvrir le PDF, charger ses catalogues puis présenter la création.
+
+        Le livre source n’est pas modifié ; les erreurs de lecture sont présentées en dialogue."""
         if not isinstance(path, (str, Path)):
             path = self._themed_file_dialog(kind="pdf")
         if not path:
@@ -1044,6 +1140,7 @@ class MainWindow(QMainWindow, BookActions):
         self._autosave()
 
     def _clear_dynamic_layout(self, layout):
+        """Retirer et détruire plus tard les widgets des choix avant de reconstruire la liste."""
         while layout.count():
             item = layout.takeAt(0)
             widget = item.widget()
@@ -1090,6 +1187,10 @@ class MainWindow(QMainWindow, BookActions):
         return events
 
     def _render_choices_and_events(self, text):
+        """Reconstruire les commandes selon texte, catalogue vérifié et état réel du héros.
+
+        Un affichage ne doit pas résoudre un jet ou octroyer un butin ; ces mutations
+        passent par les actions connectées et leurs contrôles de disponibilité."""
         self.choice_group.setTitle("⚜  QUELLE SERA VOTRE VOIE ?")
         self._clear_dynamic_layout(self.choice_layout)
         choices = self._paragraph_choices(text)
@@ -1316,11 +1417,13 @@ class MainWindow(QMainWindow, BookActions):
         self.condition_layout.addWidget(QLabel("Vérifiez le texte original : aucun choix n’est bloqué automatiquement."))
 
     def show_about(self):
+        """Ouvrir la fenêtre d’identité avec les assets et couleurs du thème actif."""
         dialog = AboutDialog(ASSET_DIR, self.theme, self)
         dialog.exec()
         dialog.deleteLater()
 
     def show_rules(self):
+        """Ouvrir les pages de règles du PDF courant dans une fenêtre indépendante."""
         if not self.pdf_path:
             QMessageBox.information(self, "Règles", "Ouvrez un livre pour lire ses règles (pages PDF 3 à 14).")
             return
@@ -1341,6 +1444,7 @@ class MainWindow(QMainWindow, BookActions):
         dialog.show()
 
     def _remember_monster(self, name, status="rencontré", number=None):
+        """Enregistrer l’adversaire et son statut sous la clé du paragraphe pour la carte."""
         number = self.current_paragraph if number is None else number
         if self._restoring or number is None:
             return
@@ -1357,11 +1461,13 @@ class MainWindow(QMainWindow, BookActions):
             monster["status"] = status
 
     def _map_monsters_html(self, number):
+        """Échapper les noms et formater les rencontres mémorisées d’un lieu exploré."""
         import html
         monsters = self.encounter_history.get(str(number), [])
         return "".join(f'<br>⚔ {html.escape(m["name"])} — {html.escape(m["status"])}' for m in monsters)
 
     def show_map(self):
+        """Afficher seulement les lieux explorés, leurs transitions et l’issue des rencontres."""
         if not self.paragraphs:
             QMessageBox.information(self, "Carte", "Importez d’abord un PDF.")
             return
@@ -1386,6 +1492,7 @@ class MainWindow(QMainWindow, BookActions):
         view.document().setDefaultStyleSheet("a:link { color: " + self.theme.color("link") + "; text-decoration: underline; font-weight: bold; }")
         view.setHtml('<h2>Parcours découvert</h2>' + ''.join(rows))
         def navigate(url):
+            """Fermer la carte puis suivre le lien du lieu visité via le contrôleur."""
             m = re.search(r'(?:paragraph:|paragraph%3A)(\d+)', url.toString(), re.I)
             if m:
                 self.go_to(int(m.group(1)))
@@ -1398,10 +1505,12 @@ class MainWindow(QMainWindow, BookActions):
         dialog.exec()
 
     def _paragraph_name(self, number):
+        """Lire le titre catalogué d’un lieu, avec repli si le livre n’est pas reconnu."""
         entry = verified_entry(self.book_event_catalogue, number)
         return entry.get('title', '') if entry else ''
 
     def prepare_encounter(self, monster):
+        """Proposer une rencontre détectée et renseigner le combat après confirmation."""
         answer = QMessageBox.question(self, "Préparer une rencontre",
             f"Utiliser les caractéristiques de {monster['name']} ?\n"
             f"Habileté : {monster['skill']} — Endurance : {monster['stamina']}\n"
@@ -1418,6 +1527,7 @@ class MainWindow(QMainWindow, BookActions):
         self.combat_journal.clear()
 
     def confirm_item(self, name):
+        """Demander confirmation avant d’ajouter un objet suggéré par le texte."""
         if QMessageBox.question(self, "Objet détecté",
                 f"Ajouter « {name} » à l’inventaire ?\nVérifiez que vous avez réellement récupéré cet objet.",
                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
@@ -1430,6 +1540,7 @@ class MainWindow(QMainWindow, BookActions):
         self.rules_log.setText(f"Objet ajouté : {name}")
 
     def apply_detected_event(self, event):
+        """Confirmer un effet heuristique avant de modifier les caractéristiques."""
         key = event["key"]
         before = int(self.character.get(key, 0))
         after = max(0, before + int(event["amount"]))
@@ -1447,6 +1558,7 @@ class MainWindow(QMainWindow, BookActions):
         self.rules_log.setText(f"Événement appliqué : {label} {before} → {after}.")
 
     def apply_optional_book_event(self, number, option_id):
+        """Appliquer un choix catalogué encore disponible et rafraîchir les commandes."""
         if number != self.current_paragraph or self.character["endurance"] <= 0:
             return
         if apply_option(self.character, self.completed_optional_events, number,
@@ -1495,6 +1607,12 @@ class MainWindow(QMainWindow, BookActions):
             self._render_choices_and_events(self.paragraphs[number])
 
     def go_to(self, number):
+        """Entrer dans un paragraphe et reconstruire les vues associées.
+
+        Contrôler création, mort et sorties ; enregistrer ensuite la transition, les
+        effets d’entrée et la préparation des combats avant d’afficher texte et commandes.
+        En restauration, afficher l’état fourni sans rejouer effets, visites ni préparation.
+        Les appels imbriqués font partie de l’action extérieure suivie par _track_action."""
         if self._adventurer_draft is not None and not self._restoring:
             return  # The map and manual navigation cannot skip character validation.
         if (self.character['endurance'] <= 0 and not self._restoring
@@ -1593,6 +1711,10 @@ class MainWindow(QMainWindow, BookActions):
             self.adventure_tabs.setCurrentIndex(1)
 
     def _illustration_pixmap(self, entry, scale=2):
+        """Rendre le rectangle catalogué, avec page PDF base 1 et pixels copiés.
+
+        QImage peut référencer la mémoire PyMuPDF : copy est nécessaire avant fermeture
+        du document pour que le QPixmap survive à cette méthode."""
         import pymupdf as fitz
         with fitz.open(self.pdf_path) as doc:
             page = doc[entry["page_pdf"] - 1]
@@ -1602,6 +1724,7 @@ class MainWindow(QMainWindow, BookActions):
             return QPixmap.fromImage(image.copy())
 
     def _show_illustration(self, entry, title):
+        """Créer une vue zoomable indépendante dimensionnée selon la surface utile de l’écran."""
         try:
             pixmap = self._illustration_pixmap(entry)
         except Exception as exc:
@@ -1639,12 +1762,14 @@ class MainWindow(QMainWindow, BookActions):
         dialog.exec()
 
     def show_cover(self):
+        """Afficher le cadrage de couverture s’il existe dans le catalogue associé au PDF."""
         if self.illustration_catalogue:
             entry = cover(self.illustration_catalogue)
             if entry:
                 self._show_illustration(entry, "Couverture — Le Sorcier de la Montagne de Feu")
 
     def show_paragraph_illustration(self):
+        """Ouvrir successivement les illustrations associées au paragraphe courant."""
         if not self.illustration_catalogue:
             return
         entries = images_for_paragraph(self.illustration_catalogue, self.current_paragraph)
@@ -1765,6 +1890,7 @@ class MainWindow(QMainWindow, BookActions):
                 f"Objet abandonné : {discarded}. Objet récupéré : {choice['name']}.")
 
     def follow_link(self, url):
+        """Dispatcher les liens paragraph:N du lecteur vers la navigation contrôlée."""
         value = url.toString()
         match = re.search(r"paragraph(?::|%3A)(\d+)", value, re.I)
         if not match:
@@ -1815,6 +1941,7 @@ class MainWindow(QMainWindow, BookActions):
         self.go_to(target)
 
     def _refresh_character(self):
+        """Synchroniser statistiques, équipement et inventaire sans déclencher de nouvelle action."""
         self.hero_title.setText('L’AVENTURIER\n' +
                                 (self.character.get('name') or 'Votre destin s’écrit ici'))
         for key, spin in self.stat_spins.items():
@@ -1860,21 +1987,27 @@ class MainWindow(QMainWindow, BookActions):
 
 
     def _roll(self, count=1, sides=6):
+        """Jouer le signal de dés et retourner (faces, somme) avec le générateur de jeu.
+
+        Tous les jets de règles passent ici ; les services audio ne consomment pas de hasard."""
         self.sounds.play("dice")
         rolls = [random.randint(1, sides) for _ in range(count)]
         return rolls, sum(rolls)
 
     def _roll_adventurer(self):
+        """Tirer les valeurs initiales selon les règles : H=1d6+6, E=2d6+12, C=1d6+6."""
         _, skill_roll = self._roll(1)
         _, endurance_roll = self._roll(2)
         _, luck_roll = self._roll(1)
         return {'habilete': skill_roll + 6, 'endurance': endurance_roll + 12, 'chance': luck_roll + 6}
 
     def change_potion(self, value):
+        """Modifier le choix de potion et mettre à jour sa présentation."""
         self.character["potion"] = value
         self.character["potion_doses"] = 2 if value != "Aucune" else 0
 
     def test_luck(self):
+        """Comparer 2d6 à la Chance avant de dépenser un point, puis afficher le résultat."""
         rolls, total = self._roll(2)
         lucky = total <= self.character["chance"]
         self.character["chance"] = max(0, self.character["chance"] - 1)
@@ -1883,6 +2016,7 @@ class MainWindow(QMainWindow, BookActions):
         self.rules_log.setText(f"Test de Chance : {rolls[0]} + {rolls[1]} = {total}. Vous êtes {verdict}. Chance -1.")
 
     def eat_meal(self):
+        """Consommer une provision et restaurer l’Endurance dans la limite autorisée."""
         if self.character.get("provisions", 0) <= 0:
             self.rules_log.setText("Vous n'avez plus de provisions.")
             return
@@ -1910,6 +2044,7 @@ class MainWindow(QMainWindow, BookActions):
         self._render_choices_and_events(self.paragraphs[self.current_paragraph])
 
     def drink_potion(self):
+        """Appliquer la potion choisie et consommer une dose selon les règles de la caractéristique."""
         potion = self.character.get("potion", "Aucune")
         doses = self.character.get("potion_doses", 0)
         if potion == "Aucune" or doses <= 0:
@@ -1934,6 +2069,7 @@ class MainWindow(QMainWindow, BookActions):
         self.rules_log.setText(f"Potion utilisée : {label} {old} → {target}. Doses restantes : {doses-1}.")
 
     def _log_assault(self, player_rolls, enemy_rolls, player_attack, enemy_attack, outcome):
+        """Ajouter au journal les dés, forces d’attaque et résultat du dernier assaut."""
         self._book_round_played = True
         if (self.crocodile_combat
                 and self.current_paragraph == self.crocodile_combat["paragraph"]):
@@ -2072,6 +2208,7 @@ class MainWindow(QMainWindow, BookActions):
             + (f", test de Chance {rolls} (Chance -1)." if rolls else "."))
 
     def choose_crocodile_strategy(self, phase):
+        """Enregistrer la phase choisie pour poursuivre le combat limité du Crocodile."""
         state = self.crocodile_combat
         if (not state or self.current_paragraph != 86 or phase not in ("continue", "diversion")
                 or state["phase"] != "initial" or state["assaults"] < 2
@@ -2084,6 +2221,7 @@ class MainWindow(QMainWindow, BookActions):
         self._render_choices_and_events(self.paragraphs[86])
 
     def _prepare_piranhas(self, stamina):
+        """Initialiser le banc de Piranhas avec l’Endurance décidée par l’état du Crocodile."""
         if self.current_paragraph != 350 or 350 in self.prepared_book_encounters:
             return
         self.piranha_combat = {"status": "fighting", "stamina": stamina}
@@ -2104,6 +2242,7 @@ class MainWindow(QMainWindow, BookActions):
             f"§350 : dé {rolls[0]} ; Piranhas H5/E{stamina}.")
 
     def _finish_piranha_round(self):
+        """Contrôler l’issue du combat des Piranhas et ses commandes après un assaut."""
         if (self.current_paragraph != 350 or not self.piranha_combat
                 or self.piranha_combat.get("status") != "fighting"
                 or self.enemy_endurance.value() > 0
@@ -2128,6 +2267,7 @@ class MainWindow(QMainWindow, BookActions):
             self.rules_log.setText(f"Piranhas vaincus : Chance +1. Ouvrez le §{target}.")
 
     def _finish_crocodile_round(self):
+        """Mettre à jour blessures, compteur et phase du combat limité du Crocodile."""
         state = self.crocodile_combat
         if not state or self.current_paragraph != state["paragraph"]:
             return
@@ -2156,6 +2296,11 @@ class MainWindow(QMainWindow, BookActions):
             self.rules_log.setText(f"Combat terminé : ouvrez manuellement le §{target}.")
 
     def combat_round(self):
+        """Résoudre un assaut : particularités du livre, jets, Chance éventuelle et dégâts.
+
+        L’ordre souffle / attaques / défense / blessure est significatif. Les décisions
+        modales appartiennent à la même action ; les sorties particulières sont terminées
+        par le wrapper extérieur pour conserver un seul point d’annulation."""
         self._book_round_played = False
         if self._complex_round_blocked():
             return
@@ -2267,6 +2412,7 @@ class MainWindow(QMainWindow, BookActions):
             self._book_wound(damage)
 
     def change_shield_use(self, active):
+        """Équiper ou ranger le bouclier uniquement s’il est présent dans l’inventaire."""
         if SHIELD_NAME not in self.character.get("inventory", []):
             return
         self.character["shield_equipped"] = bool(active)
@@ -2274,6 +2420,7 @@ class MainWindow(QMainWindow, BookActions):
             "Bouclier équipé." if active else "Bouclier rangé dans le sac.")
 
     def take_book_shield(self):
+        """Proposer l’objet à abandonner et appliquer l’acquisition vérifiée du bouclier au §155."""
         if self.current_paragraph != 155:
             return
         entry = verified_entry(self.book_event_catalogue, 155)
@@ -2302,6 +2449,7 @@ class MainWindow(QMainWindow, BookActions):
                 f"Arme équipée : {name}. Habileté de combat : {combat_skill(self.character)}.")
 
     def add_item(self):
+        """Ajouter le nom saisi à l’inventaire et actualiser la sacoche."""
         item = self.item_input.text().strip()
         if item:
             self.character.setdefault("inventory", []).append(item)
@@ -2309,6 +2457,10 @@ class MainWindow(QMainWindow, BookActions):
             self.item_input.clear()
 
     def remove_item(self):
+        """Retirer l’objet sélectionné sauf malédiction et annuler ses effets d’équipement.
+
+        Le retrait d’une épée magique doit retirer son bonus courant et initial ; un
+        bouclier absent ne doit pas rester équipé dans l’état."""
         row = self.inventory_list.currentRow()
         if row >= 0:
             item = self.character["inventory"][row]
@@ -2335,6 +2487,7 @@ class MainWindow(QMainWindow, BookActions):
             self._refresh_character()
 
     def roll_dice(self):
+        """Effectuer le jet libre demandé et afficher faces et historique visuel."""
         notation = self.dice_combo.currentText()
         count, sides = notation.lower().split("d")
         rolls, total = self._roll(int(count), int(sides))
@@ -2345,6 +2498,10 @@ class MainWindow(QMainWindow, BookActions):
         self.dice_history.insertItem(0, result)
 
     def _snapshot(self):
+        """Copier l’état de jeu sérialisable, y compris l’adversaire affiché et les marqueurs.
+
+        Exclure les objets Qt, le PDF et les préférences. Les listes remplacent les sets
+        pour JSON ; les copies profondes empêchent une action de modifier les anciens états."""
         return {"character": copy.deepcopy(self.character),
                 "encounter_history": copy.deepcopy(self.encounter_history),
                 "completed_book_events": sorted(self.completed_book_events),
@@ -2363,6 +2520,10 @@ class MainWindow(QMainWindow, BookActions):
                 "enemy_name": self.enemy_name.text()}
 
     def _record(self, label, before):
+        """Enregistrer seulement une mutation effective de l’action extérieure.
+
+        Borner Undo à 100 états et le journal à 200 libellés ; invalider Redo, jouer le
+        signal de résultat, afficher la mort si nécessaire puis écrire l’autosave."""
         if self._restoring or before == self._snapshot():
             return
         if label != 'Changer de potion':
@@ -2415,6 +2576,7 @@ class MainWindow(QMainWindow, BookActions):
             self.sounds.play("item")
 
     def _update_history_controls(self):
+        """Mettre à jour les boutons et compteurs à partir des piles Undo / Redo."""
         if not hasattr(self, "undo_btn"):
             return
         self.undo_btn.setEnabled(bool(self.undo_stack))
@@ -2423,6 +2585,10 @@ class MainWindow(QMainWindow, BookActions):
         self.undo_btn.setToolTip(self.undo_stack[-1][0] if self.undo_stack else "")
 
     def _restore(self, state):
+        """Restaurer une copie d’état et les widgets sans effets de navigation supplémentaires.
+
+        _restoring est toujours relâché dans finally. Un héros déjà accepté revenant à
+        l’introduction par Undo ne récupère pas de relances de création."""
         self._restoring = True
         try:
             self.character = copy.deepcopy(state["character"])
@@ -2468,6 +2634,7 @@ class MainWindow(QMainWindow, BookActions):
             self._show_death_page()
 
     def undo_action(self):
+        """Empiler l’état courant dans Redo puis restaurer le dernier état antérieur."""
         if not self.undo_stack:
             return
         label, state = self.undo_stack.pop()
@@ -2478,6 +2645,7 @@ class MainWindow(QMainWindow, BookActions):
         self._autosave()
 
     def redo_action(self):
+        """Empiler l’état courant dans Undo puis réappliquer l’état annulé."""
         if not self.redo_stack:
             return
         label, state = self.redo_stack.pop()
@@ -2488,11 +2656,16 @@ class MainWindow(QMainWindow, BookActions):
         self._autosave()
 
     def set_stat(self, key, value):
+        """Appliquer une édition manuelle de caractéristique et rafraîchir sa représentation."""
         before = self._snapshot()
         self.character[key] = value
         self._record(f"Modifier {key}", before)
 
     def _save_data(self):
+        """Construire le JSON courant : instantané, historique, date, version et identité du PDF.
+
+        Le chemin relatif permet de déplacer Bifurk ; le SHA-256 vérifie le livre au
+        chargement. Ni texte narratif ni widgets ne sont inclus."""
         return {"version": APP_VERSION, "pdf_path": (str(Path(self.pdf_path).relative_to(APP_DIR)) if self.pdf_path and within_directory(self.pdf_path, APP_DIR) else None),
                 "saved_at": datetime.now().astimezone().isoformat(),
                 "save_name": self.character.get('name') or 'Aventurier sans nom',
@@ -2501,6 +2674,7 @@ class MainWindow(QMainWindow, BookActions):
                 "undo_stack": self.undo_stack, "redo_stack": self.redo_stack}
 
     def _pdf_hash(self, path=None):
+        """Calculer le SHA-256 par blocs ; un chemin candidat permet de valider avant chargement."""
         path = path or self.pdf_path
         if not path or not Path(path).is_file():
             return None
@@ -2511,6 +2685,10 @@ class MainWindow(QMainWindow, BookActions):
         return h.hexdigest()
 
     def _write_atomic(self, path, data):
+        """Écrire un JSON temporaire dans le même dossier, fsync puis os.replace.
+
+        L’ancien fichier reste intact si l’écriture échoue avant remplacement ; nettoyer
+        le temporaire dans finally. Le même dossier permet le remplacement atomique."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp = None
@@ -2526,6 +2704,7 @@ class MainWindow(QMainWindow, BookActions):
                 tmp.unlink()
 
     def _autosave(self):
+        """Écrire l’état technique séparé des cinq emplacements ; tolérer une erreur disque."""
         if not self.pdf_path or self._restoring:
             return
         try:
@@ -2561,6 +2740,7 @@ class MainWindow(QMainWindow, BookActions):
         return None
 
     def _themed_save_dialog(self, saving):
+        """Ouvrir le menu des emplacements et retourner le chemin choisi ou lancer une création."""
         dialog = SaveSlotsDialog(SAVES_DIR, saving, self)
         accepted = dialog.exec() == QDialog.Accepted
         path = dialog.selected_path if accepted else None
@@ -2571,6 +2751,7 @@ class MainWindow(QMainWindow, BookActions):
         return path
 
     def save_game(self):
+        """Choisir un emplacement puis écrire atomiquement la partie ou signaler l’erreur."""
         if self.current_paragraph is None:
             QMessageBox.information(self, 'Aventure à commencer',
                                     'Inscrivez le nom de votre aventurier et commencez l’aventure avant de sauvegarder.')
@@ -2586,6 +2767,10 @@ class MainWindow(QMainWindow, BookActions):
             QMessageBox.critical(self, "Erreur", str(exc))
 
     def load_game(self, path=None, *, announce=True):
+        """Valider le format, le chemin portable et l’empreinte du PDF avant restauration.
+
+        Recharger texte et catalogues depuis le livre puis restaurer l’état et les piles
+        d’historique sans rejouer ses effets. announce contrôle l’affichage des erreurs."""
         if not isinstance(path, (str, Path)):
             path = self._themed_save_dialog(saving=False)
         if not path:
@@ -2625,7 +2810,15 @@ class MainWindow(QMainWindow, BookActions):
 
 
 def _track_action(method, label):
+    """Envelopper une méthode pour regrouper ses mutations imbriquées en une action.
+
+    Seul le niveau extérieur capture et enregistre l’état ; _action_depth est remis
+    en place dans finally. La restauration court-circuite cet enregistrement."""
     def wrapped(self, *args, **kwargs):
+        """Capturer l’action extérieure et terminer ses règles de combat avant enregistrement.
+
+        Le finally rétablit la profondeur même en cas d’erreur et enregistre l’état
+        effectivement atteint ; ce mécanisme est un historique, pas un rollback sur exception."""
         if self._restoring:
             return method(self, *args, **kwargs)
         depth = getattr(self, "_action_depth", 0)
@@ -2650,6 +2843,9 @@ def _track_action(method, label):
                 self._record(label, before)
     return wrapped
 
+# Registre des mutations suivies. Ajouter ici une nouvelle commande de jeu
+# publique si elle doit être annulable et autosauvegardée. Ne pas y ajouter les
+# simples rafraîchissements visuels ni Undo/Redo, qui gèrent leurs propres piles.
 for _name, _label in {
     "go_to": "Changer de paragraphe", "apply_detected_event": "Appliquer un événement",
     "perform_book_action": "Résoudre une action du livre",
@@ -2675,6 +2871,10 @@ for _name, _label in {
 
 
 def main():
+    """Créer QApplication, les traductions et la fenêtre puis lancer la boucle Qt.
+
+    Les répertoires portables et l’identité sont préparés avant l’affichage ; garder
+    les traducteurs et le filtre de dialogues vivants pendant toute la session."""
     init_portable_dirs()
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
