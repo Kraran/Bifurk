@@ -31,7 +31,7 @@ Dans PowerShell, depuis le dossier du projet :
 
 ```powershell
 git fetch origin
-git switch feat/carte-monstres-regles
+git switch feat/reprise-sons-themes
 git pull --ff-only
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py
