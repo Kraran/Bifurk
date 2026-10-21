@@ -264,6 +264,7 @@ class BookActions:
             state = self._book_state(number, True)
             pair = entry['combat']['pairs'][state['pair']]
             state['defender'] = copy.deepcopy(pair[1-payload])
+            self._remember_monster(state['defender']['name'])
             state['choose_pair'] = False
             self._set_book_enemy(pair[payload])
         elif action in ('armor_old', 'armor_new'):
