@@ -42,7 +42,8 @@ class SoundBank(QObject):
             self.effects[name] = effect
             effect.setVolume(.10 if name == 'ambient' else .72 if name == 'swords' else .50)
             if name == 'ambient':
-                effect.setLoopCount(backend.Infinite)
+                # Recent PySide6 exposes Loop as an Enum, while the setter takes int.
+                effect.setLoopCount(getattr(backend.Infinite, 'value', backend.Infinite))
             effect.statusChanged.connect(lambda n=name: self._ready(n))
             effect.setSource(QUrl.fromLocalFile(str(path)))
 

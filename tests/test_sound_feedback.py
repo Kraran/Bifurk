@@ -4,6 +4,10 @@ import math
 import random
 import unittest
 import wave
+import os
+import subprocess
+import sys
+from enum import Enum
 from pathlib import Path
 from unittest.mock import patch, call
 
@@ -20,14 +24,21 @@ class Signal:
         for callback in self.callbacks: callback()
 
 
+class Loop(Enum):
+    Infinite = -2
+
+
 class FakeEffect:
-    Ready, Loading, Error, Infinite = 2, 1, 3, -2
+    Ready, Loading, Error, Infinite = 2, 1, 3, Loop.Infinite
     def __init__(self, parent):
         self.statusChanged = Signal()
         self.state = self.Ready
         self.play_count = self.stop_count = 0
     def setVolume(self, value): self.volume = value
-    def setLoopCount(self, count): self.loops = count
+    def setLoopCount(self, count):
+        if not isinstance(count, int):
+            raise TypeError('loopCount must be an integer')
+        self.loops = count
     def setSource(self, url): self.source = url
     def status(self): return self.state
     def play(self): self.play_count += 1
@@ -60,12 +71,34 @@ class SoundFeedbackTests(unittest.TestCase):
         with patch.object(SoundBank, '_backend', return_value=FakeEffect):
             bank = SoundBank(ASSET_DIR/'sounds', ambient_enabled=True)
             ambient = bank.effects['ambient']
-            self.assertEqual(ambient.loops, FakeEffect.Infinite)
+            self.assertEqual(ambient.loops, FakeEffect.Infinite.value)
             self.assertEqual(ambient.play_count, 1)
             bank.set_enabled(False)
             self.assertEqual(ambient.stop_count, 0)
             bank.set_ambient_enabled(False)
             self.assertEqual(ambient.stop_count, 1)
+
+    def test_preload_with_real_qt_multimedia_accepts_infinite_loop(self):
+        # Isolate native audio initialization; Linux CI has no PipeWire configuration.
+        environment = dict(os.environ, QT_QPA_PLATFORM='offscreen')
+        if sys.platform.startswith('linux'):
+            environment['QT_AUDIO_BACKEND'] = 'pulseaudio'
+        script = """
+from pathlib import Path
+from unittest.mock import patch
+from PySide6.QtWidgets import QApplication
+from PySide6.QtMultimedia import QSoundEffect
+from sound_effects import SoundBank
+app = QApplication([])
+with patch.object(SoundBank, '_backend', return_value=QSoundEffect):
+    bank = SoundBank(Path('assets/sounds'))
+    assert bank.effects['ambient'].loopCount() == -2
+print('native preload OK')
+"""
+        result = subprocess.run([sys.executable, '-c', script], cwd=ASSET_DIR.parent,
+                                env=environment, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('native preload OK', result.stdout)
 
     def test_free_sound_manifest_and_page_has_immediate_audible_attack(self):
         manifest = json.loads((ASSET_DIR/'sounds/sources.json').read_text())
