@@ -6,7 +6,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QDialog
 
 from main import MainWindow, ASSET_DIR
-from about_dialog import AboutDialog
+from about_dialog import AboutDialog, AuthorPortrait
 from app_info import APP_NAME, APP_VERSION, AUTHOR_URL, REPOSITORY_URL
 
 
@@ -60,7 +60,15 @@ class AboutDialogTests(unittest.TestCase):
             self.assertEqual(browse.call_args_list, [call(QUrl(AUTHOR_URL)), call(QUrl(REPOSITORY_URL))])
             dialog.show()
             self.assertIsNone(dialog.findChild(QPushButton, 'aboutDismiss'))
-            portrait = dialog.findChild(QPushButton, 'aboutPortrait')
+            portrait = dialog.findChild(AuthorPortrait, 'aboutPortrait')
+            self.app.processEvents()
+            self.assertEqual(portrait.width(), 280)
+            image = portrait.image_rect()
+            self.assertLessEqual(image.width(), portrait.width())
+            self.assertLessEqual(image.height(), portrait.height())
+            self.assertAlmostEqual(image.width() / image.height(),
+                                   portrait.pixmap.width() / portrait.pixmap.height(), delta=.005)
+            self.assertAlmostEqual(image.width(), portrait.width(), delta=1)
             browse.reset_mock()
             QTest.mouseClick(portrait, Qt.LeftButton)
             browse.assert_called_once_with(QUrl(AUTHOR_URL))

@@ -255,3 +255,31 @@ class AdventureLifecycleTests(unittest.TestCase):
         error.assert_called_once()
         self.assertTrue(path.is_file())
         self.assertTrue(dialog.findChild(QPushButton, 'saveSlot1').isEnabled())
+
+    def test_load_menu_can_start_new_adventure_without_deleting_slots(self):
+        self.start()
+        w = self.w
+        path = main.SAVES_DIR/'emplacement-1.json'
+        w._write_atomic(path, w._save_data())
+        saved = path.read_bytes()
+        w.character['inventory'].append('Trésor')
+        w.go_to(2)
+        def choose_new(dialog):
+            button = dialog.findChild(QPushButton, 'newAdventure')
+            self.assertIsNotNone(button)
+            button.click()
+            return dialog.result()
+        with patch.object(SaveSlotsDialog, 'exec', choose_new):
+            w.load_game()
+        self.assertIsNone(w.current_paragraph)
+        self.assertEqual(w._creation_rerolls, 0)
+        self.assertIsNotNone(w._adventurer_draft)
+        self.assertNotIn('Trésor', w.character['inventory'])
+        self.assertEqual(path.read_bytes(), saved)
+        w.choice_layout.itemAt(1).widget().setText('Balthazar')
+        w.choice_layout.itemAt(2).widget().click()
+        self.assertEqual(w.current_paragraph, 1)
+        self.assertEqual(w.character['name'], 'Balthazar')
+        self.assertEqual(w.visited_paragraphs, [1])
+        self.assertEqual(w.encounter_history, {})
+        self.assertEqual(path.read_bytes(), saved)

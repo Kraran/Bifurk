@@ -42,13 +42,13 @@ class SaveSlotsDialog(QDialog):
         heading.setObjectName('saveHeading')
         heading.setAlignment(Qt.AlignCenter)
         layout.addWidget(heading)
-        if startup:
+        if not saving:
             new_game = QPushButton('✦  Nouvelle partie')
             new_game.setObjectName('newAdventure')
             new_game.setMinimumHeight(48)
             new_game.clicked.connect(self.start_new_game)
             layout.addWidget(new_game)
-        layout.addWidget(QLabel('Charger une aventure ou commencer une nouvelle partie.' if startup
+        layout.addWidget(QLabel('Charger une aventure ou commencer une nouvelle partie.' if not saving
                                 else 'Choisissez un emplacement.'))
         self.slots = QVBoxLayout()
         layout.addLayout(self.slots)

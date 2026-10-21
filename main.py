@@ -261,15 +261,21 @@ class MainWindow(QMainWindow, BookActions):
             if not accepted:
                 return
             if new_game:
-                reference = self.preferences.get('last_book')
-                path = (BOOKS_DIR / reference).resolve() if isinstance(reference, str) else None
-                if path and within_directory(path, BOOKS_DIR) and path.is_file():
-                    self.open_pdf(path, startup=True)
-                else:
-                    self.open_pdf()
+                self._start_new_game()
                 return
             if selected and self.load_game(selected):
                 return
+
+    def _start_new_game(self):
+        if self.pdf_path and self.paragraphs:
+            self._restart_adventure()
+            return
+        reference = self.preferences.get('last_book')
+        path = (BOOKS_DIR / reference).resolve() if isinstance(reference, str) else None
+        if path and within_directory(path, BOOKS_DIR) and path.is_file():
+            self.open_pdf(path, startup=True)
+        else:
+            self.open_pdf()
 
     def show_ambience(self):
         dialog = QDialog(self)
@@ -2558,7 +2564,10 @@ class MainWindow(QMainWindow, BookActions):
         dialog = SaveSlotsDialog(SAVES_DIR, saving, self)
         accepted = dialog.exec() == QDialog.Accepted
         path = dialog.selected_path if accepted else None
+        new_game = accepted and dialog.new_game_requested
         dialog.deleteLater()
+        if new_game:
+            self._start_new_game()
         return path
 
     def save_game(self):
