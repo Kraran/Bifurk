@@ -123,8 +123,10 @@ dans les sauvegardes. Une dose sans effet n'est pas consommée.
 
 `FantasyFair.m4a`, fourni par l’utilisateur, accompagne en boucle l’accueil, la
 création du personnage et le choix d’une sauvegarde. À l’entrée dans l’aventure,
-le volume diminue sur dix secondes puis la musique s’arrête. Le réglage
-**Musique d’accueil : FantasyFair** dans Ambiance est indépendant des effets et
-de l’ambiance de caverne. Le M4A original est diffusé en continu par Qt Multimedia
+le volume diminue sur dix secondes puis la musique s’arrête. Le curseur rétro
+**Musique d’accueil** dans Ambiance règle et mémorise le volume indépendamment des effets et
+de l’ambiance de caverne (0 % = muet). Par défaut, 70 % du niveau précédent est utilisé.
+Le M4A audio est diffusé en continu par Qt Multimedia
 et inclus automatiquement dans la distribution Windows avec les autres assets.
-La licence des packs CC0 d’effets sonores ne s’applique pas à ce fichier musical.
+La pochette intégrée a été retirée sans réencoder ni modifier le son, afin de ne pas
+solliciter les décodeurs vidéo. La licence des packs CC0 d’effets sonores ne s’applique pas à ce fichier musical.

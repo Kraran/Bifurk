@@ -31,7 +31,7 @@ from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLib
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
-    QGroupBox, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar, QTabWidget, QSizePolicy, QMenu)
+    QGroupBox, QSlider, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar, QTabWidget, QSizePolicy, QMenu)
 
 # Répertoire portable : à côté de l'exécutable empaqueté ou du script.
 APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
@@ -238,7 +238,8 @@ class MainWindow(QMainWindow, BookActions):
                             ambient_enabled=self.preferences.get("ambient_enabled", False),
                             diagnostic_path=SETTINGS_DIR / "audio.log")
         self.intro_music = IntroMusic(ASSET_DIR / 'sounds' / 'FantasyFair.m4a',
-                                      self.preferences.get('music_enabled', True), self)
+                                      self.preferences.get('music_enabled', True), self,
+                                      volume_percent=self.preferences.get('music_volume', 70))
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
         self._fullscreen = False
@@ -363,15 +364,44 @@ class MainWindow(QMainWindow, BookActions):
             self._save_preferences()
         ambient.toggled.connect(set_ambient)
         layout.addWidget(ambient)
-        music = QCheckBox("Musique d’accueil : FantasyFair")
-        music.setChecked(self.intro_music.enabled)
-        def set_music(enabled):
-            """Mémoriser le réglage musical sans modifier les effets ni l'ambiance de caverne."""
-            self.intro_music.set_enabled(enabled)
-            self.preferences['music_enabled'] = enabled
+        music_row = QHBoxLayout()
+        music_row.addWidget(QLabel('Musique d’accueil'))
+        music = QSlider(Qt.Horizontal)
+        music.setObjectName('musicVolume')
+        music.setAccessibleName('Volume de la musique d’accueil')
+        music.setRange(0, 100)
+        music.setSingleStep(5)
+        music.setPageStep(10)
+        music.setTickPosition(QSlider.TicksBelow)
+        music.setTickInterval(10)
+        music.setMinimumWidth(220)
+        # Rail de bois sombre, filet de laiton et poignée carrée : un curseur
+        # rétro lisible, également utilisable au clavier (flèches, Début, Fin).
+        music.setStyleSheet("""
+            QSlider::groove:horizontal { height: 8px; background: #291a10;
+                border: 2px solid #8e6a32; border-radius: 2px; }
+            QSlider::sub-page:horizontal { background: #b88a42; }
+            QSlider::handle:horizontal { width: 16px; margin: -7px 0;
+                background: #e0ba71; border: 2px solid #64421e; border-radius: 2px; }
+            QSlider::handle:horizontal:hover, QSlider::handle:horizontal:focus {
+                background: #ffe1a0; border-color: #b88a42; }
+        """)
+        music.setValue(self.intro_music.volume_percent)
+        music_value = QLabel()
+        music_value.setObjectName('musicVolumeValue')
+        music_value.setMinimumWidth(70)
+        def set_music_volume(percent):
+            """Conserver le réglage même à zéro, indépendamment des autres canaux audio."""
+            self.intro_music.set_volume(percent)
+            music_value.setText(f'{percent} %' if percent else 'Muet')
+            self.preferences['music_volume'] = percent
+            self.preferences['music_enabled'] = percent > 0
             self._save_preferences()
-        music.toggled.connect(set_music)
-        layout.addWidget(music)
+        music_value.setText(f'{music.value()} %' if music.value() else 'Muet')
+        music.valueChanged.connect(set_music_volume)
+        music_row.addWidget(music, 1)
+        music_row.addWidget(music_value)
+        layout.addLayout(music_row)
         preview = QHBoxLayout()
         effects = QComboBox()
         for name, label in EFFECT_LABELS.items():
