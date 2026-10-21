@@ -15,6 +15,7 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 | `rules_engine.py` | Suggestions heuristiques pour un texte non catalogué | `encounters`, `stat_events` |
 | `illustrations.py` | Association PDF / catalogue / cadrages | `catalogue_for_pdf` |
 | `grimoire_ui.py` | Parchemin, cartes de choix, titres, zoom et déplacement | `GrimoireScene`, `SingleLineTitle` |
+| `dice_dialog.py` | Plateau de dés 3D, animation et révélation des jets déjà tirés | `DiceCanvas`, `DiceDialog` |
 | `rules_viewer.py` | Lecture des pages physiques 3–14 du PDF | `RulesDialog.render_page` |
 | `save_slots.py` | Validation du format et menu des cinq sauvegardes | `read_save`, `SaveSlotsDialog` |
 | `sound_effects.py` | Réglages, préchargement et demandes de sons | `SoundBank.play` |

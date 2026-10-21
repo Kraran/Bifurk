@@ -64,6 +64,8 @@ Vérifier :
 2. Nouvelle partie, importation de votre PDF, couverture, nom et tirage du héros.
 3. Lecture, illustrations, zoom et fenêtre des règles ; boutons français.
 4. Sons de page et de dés, préécoute et **un véritable assaut de combat**.
+   Les jets 1d6 / 2d6 doivent montrer le plateau animé, les faces et leur total ;
+   tester aussi **Passer l'animation**, puis **Continuer**.
 5. Sauvegarde, fermeture, relance et chargement depuis un emplacement.
 6. Déplacement du dossier complet après fermeture : les données restent portables.
 

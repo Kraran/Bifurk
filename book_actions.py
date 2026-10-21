@@ -538,8 +538,8 @@ class BookActions:
             defender = state.get('defender')
             if defender and self.character['endurance'] > 0:
                 # Deuxième attaque : le héros ne peut que parer ce Squelette.
-                _, enemy_roll = self._roll(2)
-                _, hero_roll = self._roll(2)
+                _, enemy_roll = self._roll(2, context='Combat — Deuxième Squelette')
+                _, hero_roll = self._roll(2, context='Combat — Votre parade')
                 if defender['skill'] + enemy_roll > combat_skill(self.character) + hero_roll:
                     damage = 2
                     answer = QMessageBox.question(self, 'Deuxième Squelette',
