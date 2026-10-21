@@ -411,7 +411,7 @@ class MainWindow(QMainWindow, BookActions):
         escaped = render_links(text, self.paragraphs).replace("#123f70", self.theme.color("link"))
         # Liens bleu nuit soulignés : contraste élevé sur le parchemin clair.
         content = (f'<div style="font-family: \'{self.reading_font_family}\'; '
-                   f'font-size: {self.reader_font_size}pt; color: {self.theme.color("ink")}; line-height: 1.55;">'
+                   f'font-size: {self.reader_font_size}pt; color: {self.theme.color("ink")};">'
                    f'<p>{escaped}</p></div>')
         self.reader.setHtml(content)
 
