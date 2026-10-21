@@ -1,0 +1,3 @@
+# Dépendances dédiées à la compilation, sans modifier l'environnement de jeu.
+-r requirements.txt
+PyInstaller>=6.11,<7

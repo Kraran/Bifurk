@@ -32,7 +32,10 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, 
 
 # Répertoire portable : à côté de l'exécutable empaqueté ou du script.
 APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
-ASSET_DIR = APP_DIR / "assets"
+# PyInstaller place le code et les ressources dans _internal, mais les données
+# portables restent à côté de Bifurk.exe. __file__ fonctionne aussi en mode source.
+RESOURCE_DIR = Path(__file__).resolve().parent
+ASSET_DIR = RESOURCE_DIR / "assets"
 DATA_DIR = APP_DIR / "donnees"
 SAVES_DIR = DATA_DIR / "sauvegardes"
 BOOKS_DIR = DATA_DIR / "grimoires"

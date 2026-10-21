@@ -1,0 +1,2 @@
+# Les scripts cmd.exe doivent être utilisables par double-clic sous Windows.
+*.bat text eol=crlf
