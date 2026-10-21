@@ -152,6 +152,8 @@ print('native preload OK')
                                 env=environment, capture_output=True, text=True, timeout=30)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn('native preload OK', result.stdout)
+        self.assertNotIn('Cannot call meta function', result.stderr)
+        self.assertNotIn('TypeError:', result.stderr)
 
     def test_free_sound_manifest_and_page_has_immediate_audible_attack(self):
         manifest = json.loads((ASSET_DIR/'sounds/sources.json').read_text())

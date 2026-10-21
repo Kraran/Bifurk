@@ -8,7 +8,7 @@ from grimoire_ui import IllustrationDialog, GrimoireScene
 class RulesDialog(IllustrationDialog):
     def __init__(self, pdf_path, parent=None):
         super().__init__(parent)
-        import fitz
+        import pymupdf as fitz
         self.pdf_path = str(pdf_path)
         with fitz.open(self.pdf_path) as document:
             self.last_page = min(14, len(document))
@@ -36,7 +36,7 @@ class RulesDialog(IllustrationDialog):
         self.render_page(0)
 
     def render_page(self, index):
-        import fitz
+        import pymupdf as fitz
         if index < 0:
             return
         with fitz.open(self.pdf_path) as document:

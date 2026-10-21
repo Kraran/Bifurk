@@ -1414,7 +1414,7 @@ class MainWindow(QMainWindow, BookActions):
             self.adventure_tabs.setCurrentIndex(1)
 
     def _illustration_pixmap(self, entry, scale=2):
-        import fitz
+        import pymupdf as fitz
         with fitz.open(self.pdf_path) as doc:
             page = doc[entry["page_pdf"] - 1]
             clip = fitz.Rect(entry["rect"])

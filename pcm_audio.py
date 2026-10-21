@@ -76,8 +76,10 @@ class PcmEffect(QObject):
                                device.description(), device.isFormatSupported(fmt))
             sink = QAudioSink(device, fmt, parent)
             sink.setBufferSize(8192)
+            # A zero-argument slot avoids PySide's QAudio::State conversion bug.
+            # Query the state instead of forwarding the enum through the slot.
             sink.stateChanged.connect(
-                lambda state: parent.logger.info('PCM state=%s error=%s', state, sink.error()))
+                lambda: parent.logger.info('PCM state=%s error=%s', sink.state(), sink.error()))
             parent._pcm_mixer = mixer
             parent._pcm_sink = sink
             # Stop native callbacks before the mixer is destroyed.
