@@ -342,6 +342,9 @@ class MainWindow(QMainWindow, BookActions):
         reader_layout.setContentsMargins(18, 20, 18, 20)
         reader_layout.setSpacing(8)
         self.scene_art = GrimoireScene(ASSET_DIR / "grimoire-library.png")
+        self.scene_entry = None
+        self.scene_title = ""
+        self.scene_art.activated.connect(self._enlarge_scene_art)
         splitter.addWidget(self.scene_art)
         reader_panel.setMinimumWidth(0)
         self.art_toggle = QPushButton("◈  Image")
@@ -731,16 +734,28 @@ class MainWindow(QMainWindow, BookActions):
         self.scene_art.setVisible(visible)
         self.art_toggle.setText("◈  Image" if visible else "◈  Image")
 
-    def _update_scene_art(self):
+    def _update_scene_art(self, prefer_cover=False):
         self.scene_art.set_book_art()
+        self.scene_entry = None
         if self.illustration_catalogue and self.pdf_path:
             entries = images_for_paragraph(self.illustration_catalogue, self.current_paragraph)
-            if entries:
+            book_cover = cover(self.illustration_catalogue)
+            entry = (book_cover if prefer_cover and book_cover else
+                     entries[0] if entries else book_cover)
+            if entry:
                 try:
-                    self.scene_art.set_book_art(self._illustration_pixmap(entries[0], scale=1))
+                    self.scene_art.set_book_art(self._illustration_pixmap(entry, scale=1))
+                    self.scene_entry = entry
+                    self.scene_title = (f"Illustration — paragraphe {self.current_paragraph}"
+                                        if entry is not book_cover else "Couverture du grimoire")
+                    self.scene_art.setAccessibleName(self.scene_title)
                 except (ValueError, RuntimeError, OSError):
                     # L’agrandissement reste disponible si l’aperçu ne peut être calculé.
                     pass
+
+    def _enlarge_scene_art(self):
+        if self.scene_entry is not None:
+            self._show_illustration(self.scene_entry, self.scene_title)
 
     def _show_welcome(self):
         self.choice_group.hide()
@@ -781,8 +796,6 @@ class MainWindow(QMainWindow, BookActions):
         self.paragraphs = paragraphs
         if self.illustration_catalogue is None:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
-        else:
-            self.show_cover()
         self.book_label.setText(Path(path).name)
         self.goto_spin.setMaximum(max(paragraphs))
         first = 1 if 1 in paragraphs else min(paragraphs)
@@ -791,6 +804,7 @@ class MainWindow(QMainWindow, BookActions):
         self.undo_stack.clear(); self.redo_stack.clear()
         self._update_history_controls()
         self.go_to(first)
+        self._update_scene_art(prefer_cover=True)
 
     def _clear_dynamic_layout(self, layout):
         while layout.count():
