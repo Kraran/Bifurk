@@ -8,6 +8,7 @@ from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea
 
 from main import MainWindow
+from grimoire_ui import IllustrationDialog
 
 
 class GrimoireInterfaceTests(unittest.TestCase):
@@ -153,6 +154,40 @@ class GrimoireInterfaceTests(unittest.TestCase):
         self.assertEqual(scene.pan, QPointF())
         scene.set_book_art(image)
         self.assertEqual(scene.zoom, 1)
+
+    def test_enlargement_window_can_maximize_and_restore_default_size(self):
+        w = self.window
+        image = QPixmap(300, 500)
+        image.fill()
+        def inspect(dialog):
+            dialog.show()
+            self.app.processEvents()
+            original = dialog.default_size
+            self.assertTrue(dialog.windowFlags() & Qt.WindowMaximizeButtonHint)
+            self.assertNotEqual(dialog.minimumSize(), dialog.maximumSize())
+            dialog.resize(original.width() + 80, original.height() + 40)
+            self.app.processEvents()
+            self.assertNotEqual(dialog.size(), original)
+            dialog.showMaximized()
+            self.app.processEvents()
+            self.assertTrue(dialog.isMaximized())
+            dialog.restore_default_size()
+            self.app.processEvents()
+            self.assertEqual(dialog.size(), original)
+            dialog.toggle_fullscreen()
+            self.app.processEvents()
+            self.assertTrue(dialog.isFullScreen())
+            QTest.keyClick(dialog, Qt.Key_Escape)
+            self.app.processEvents()
+            self.assertFalse(dialog.isFullScreen())
+            self.assertEqual(dialog.size(), original)
+            dialog.close()
+            return 0
+        with patch.object(w, "_illustration_pixmap", return_value=image), \
+                patch.object(IllustrationDialog, "exec", inspect):
+            w._show_illustration({"page_pdf": 1}, "Illustration")
+        self.assertFalse(any("Voir l’illustration du paragraphe" in b.text()
+                             for b in w.findChildren(QPushButton)))
 
 
 if __name__ == "__main__":
