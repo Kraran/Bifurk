@@ -4,6 +4,7 @@ from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
 from book_actions import BookActions
+from rules_viewer import RulesDialog
 from grimoire_ui import GrimoireScene, GRIMOIRE_STYLE, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
@@ -192,6 +193,7 @@ class MainWindow(QMainWindow, BookActions):
         self.completed_book_events = set()
         self.completed_optional_events = set()
         self.prepared_book_encounters = set()
+        self.encounter_history = {}
         self.book_combat_sequence = None
         self.crocodile_combat = None
         self.piranha_source_wounded = None
@@ -334,7 +336,12 @@ class MainWindow(QMainWindow, BookActions):
         history_bar.addStretch()
         map_btn = QPushButton("🗺 Carte d’exploration")
         map_btn.clicked.connect(self.show_map)
+        self.rules_button = QPushButton("📖 Règles")
+        self.rules_button.setToolTip("Lire les pages PDF 3 à 14 du livre (F1)")
+        self.rules_button.clicked.connect(self.show_rules)
+        history_bar.addWidget(self.rules_button)
         history_bar.addWidget(map_btn)
+        QShortcut(QKeySequence("F1"), self, activated=self.show_rules)
         root.addLayout(history_bar)
         self._update_history_controls()
 
@@ -810,6 +817,7 @@ class MainWindow(QMainWindow, BookActions):
         self.completed_book_events = set()
         self.completed_optional_events = set()
         self.prepared_book_encounters = set()
+        self.encounter_history = {}
         self.book_combat_sequence = None
         self.crocodile_combat = None
         self.piranha_source_wounded = None
@@ -1094,6 +1102,51 @@ class MainWindow(QMainWindow, BookActions):
             self.condition_layout.addWidget(label)
         self.condition_layout.addWidget(QLabel("Vérifiez le texte original : aucun choix n’est bloqué automatiquement."))
 
+    def show_rules(self):
+        if not self.pdf_path:
+            QMessageBox.information(self, "Règles", "Ouvrez un livre pour lire ses règles (pages PDF 3 à 14).")
+            return
+        existing = getattr(self, "rules_dialog", None)
+        if existing is not None and existing.isVisible() and existing.pdf_path == str(self.pdf_path):
+            existing.raise_()
+            existing.activateWindow()
+            return
+        try:
+            dialog = RulesDialog(self.pdf_path, self)
+        except Exception as exc:
+            QMessageBox.warning(self, "Règles indisponibles", str(exc))
+            return
+        if existing is not None:
+            existing.close()
+            existing.deleteLater()
+        self.rules_dialog = dialog
+        dialog.show()
+
+    def _remember_monster(self, name, status="rencontré", number=None):
+        number = self.current_paragraph if number is None else number
+        if self._restoring or number is None:
+            return
+        entry = verified_entry(self.book_event_catalogue, number)
+        state = self._book_state(number)
+        if ((entry or {}).get("combat", {}).get("mode") == "paired"
+                and state.get("pair", -1) >= 0 and name != "Chef Squelette"):
+            name = f"{name} (paire {state['pair'] + 1})"
+        monsters = self.encounter_history.setdefault(str(number), [])
+        monster = next((m for m in monsters if m["name"] == name), None)
+        if monster is None:
+            monsters.append({"name": name, "status": status})
+        elif status != "rencontré":
+            monster["status"] = status
+
+    def _map_monsters_html(self, number):
+        import html
+        monsters = self.encounter_history.get(str(number), [])
+        if not monsters:
+            entry = verified_entry(self.book_event_catalogue, number)
+            monsters = [{"name": m["name"], "status": "issue non enregistrée"}
+                        for m in (entry or {}).get("combat", {}).get("enemies", [])]
+        return "".join(f'<br>⚔ {html.escape(m["name"])} — {html.escape(m["status"])}' for m in monsters)
+
     def show_map(self):
         if not self.paragraphs:
             QMessageBox.information(self, "Carte", "Importez d’abord un PDF.")
@@ -1112,7 +1165,7 @@ class MainWindow(QMainWindow, BookActions):
         for number in self.visited_paragraphs:
             targets = [c['target'] for c in self._paragraph_choices(self.paragraphs.get(number, ''))]
             target_text = ', '.join(('✓ ' if n in self.visited_paragraphs else '○ ') + str(n) for n in targets) or 'aucune sortie détectée'
-            rows.append(f'<p><b><a style="color: #123f70; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">§ {number}</a></b> → {html.escape(target_text)}</p>')
+            rows.append(f'<p><b><a style="color: #123f70; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">§ {number}</a></b> → {html.escape(target_text)}{self._map_monsters_html(number)}</p>')
         # Même bleu nuit, soulignement et contraste que les liens du livre.
         view.document().setDefaultStyleSheet("a:link { color: #123f70; text-decoration: underline; font-weight: bold; }")
         view.setHtml('<h2>Parcours découvert</h2>' + ''.join(rows))
@@ -1136,6 +1189,7 @@ class MainWindow(QMainWindow, BookActions):
             QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if answer != QMessageBox.Yes:
             return
+        self._remember_monster(monster['name'])
         self.enemy_name.setText(monster['name'])
         self.enemy_skill.setValue(monster['skill'])
         self.enemy_endurance.setValue(monster['stamina'])
@@ -1226,8 +1280,28 @@ class MainWindow(QMainWindow, BookActions):
             return
         previous = self.current_paragraph
         if previous is not None and previous != number and not self._restoring:
+            source = verified_entry(self.book_event_catalogue, previous)
+            combat = source.get("combat", {}) if source else {}
+            known = self.encounter_history.get(str(previous), [])
+            if known and combat and self.character["endurance"] > 0:
+                if self.enemy_endurance.value() <= 0:
+                    self._remember_monster(self.enemy_name.text(), "vaincu")
+                elif number in (combat.get("escape_target"), combat.get("diversion_target")):
+                    self._remember_monster(self.enemy_name.text(), "fui")
+                elif number == combat.get("first_hit_target"):
+                    self._remember_monster(self.enemy_name.text(), "repoussé")
+        if previous is not None and previous != number and not self._restoring:
             self.transitions.append([previous, number])
         self.current_paragraph = number
+        if not self._restoring and self.book_event_catalogue:
+            if number in (106, 279):
+                self._remember_monster("Dragon" if number == 106 else "Vampire")
+            if number == 371 and "106" in self.encounter_history:
+                self._remember_monster("Dragon", "vaincu", 106)
+            if number == 327 and "279" in self.encounter_history:
+                self._remember_monster("Vampire", "vaincu", 279)
+            if previous == 17 and number == 380 and "279" in self.encounter_history:
+                self._remember_monster("Vampire", "fui", 279)
         if not self._restoring:
             self._enter_complex_book(number, previous)
         if not self._restoring and apply_entry(self.character, self.completed_book_events, number, self.book_event_catalogue):
@@ -1241,9 +1315,7 @@ class MainWindow(QMainWindow, BookActions):
                     and not (number == 179 and self.character.get("book_facts", {}).get("minotaur_dead"))
                     and number not in self.prepared_book_encounters):
                 opponent = opponents[0]
-                self.enemy_name.setText(opponent["name"])
-                self.enemy_skill.setValue(opponent["skill"])
-                self.enemy_endurance.setValue(opponent["stamina"])
+                self._set_book_enemy(opponent)
                 self.prepared_book_encounters.add(number)
                 self.combat_state.setText(
                     f"⚔ {opponent['name']} · H {opponent['skill']} · Endurance {opponent['stamina']}")
@@ -1309,15 +1381,6 @@ class MainWindow(QMainWindow, BookActions):
         dialog.setWindowIcon(self.windowIcon())
         dialog.setWindowTitle(title)
         layout = QVBoxLayout(dialog)
-        window_tools = QHBoxLayout()
-        fullscreen = QPushButton("⛶  Plein écran / fenêtre (F11)")
-        fullscreen.clicked.connect(dialog.toggle_fullscreen)
-        restore = QPushButton("↙  Taille initiale")
-        restore.clicked.connect(dialog.restore_default_size)
-        window_tools.addWidget(fullscreen)
-        window_tools.addWidget(restore)
-        window_tools.addStretch()
-        layout.addLayout(window_tools)
         # Respecter la surface utile de l'écran, sans défilement horizontal.
         screen = self.screen() or QApplication.primaryScreen()
         available = screen.availableGeometry()
@@ -1660,6 +1723,7 @@ class MainWindow(QMainWindow, BookActions):
 
     def _set_book_enemy(self, monster):
         """Initialise un adversaire vérifié sans changer les données du héros."""
+        self._remember_monster(monster["name"])
         self.enemy_name.setText(monster["name"])
         self.enemy_skill.setValue(monster["skill"])
         self.enemy_endurance.setValue(monster["stamina"])
@@ -1927,6 +1991,7 @@ class MainWindow(QMainWindow, BookActions):
             self.rules_log.setText(f"Vous touchez ({player_attack} contre {enemy_attack}). {luck_text} {self.enemy_name.text()} : -{damage} Endurance.")
             self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, f"Monstre -{damage} PV")
             if self.enemy_endurance.value() == 0:
+                self._remember_monster(self.enemy_name.text(), "vaincu")
                 self.rules_log.setText(self.rules_log.text() + "  ⚑ Victoire !")
                 self._advance_scripted_sequence()
             self._finish_single_book_combat(successful_hit=True)
@@ -2055,6 +2120,7 @@ class MainWindow(QMainWindow, BookActions):
 
     def _snapshot(self):
         return {"character": copy.deepcopy(self.character),
+                "encounter_history": copy.deepcopy(self.encounter_history),
                 "completed_book_events": sorted(self.completed_book_events),
                 "completed_optional_events": sorted(self.completed_optional_events),
                 "prepared_book_encounters": sorted(self.prepared_book_encounters),
@@ -2093,6 +2159,7 @@ class MainWindow(QMainWindow, BookActions):
         self._restoring = True
         try:
             self.character = copy.deepcopy(state["character"])
+            self.encounter_history = copy.deepcopy(state.get("encounter_history", {}))
             # Les anciennes sauvegardes n'enregistraient pas la pièce d'or initiale.
             self.character.setdefault("gold", 1)
             self.character.setdefault("locked_items", [])
@@ -2275,6 +2342,7 @@ class MainWindow(QMainWindow, BookActions):
             elif pdf_reference:
                 QMessageBox.warning(self, "PDF introuvable", "Le grimoire est absent du dossier portable. Réimportez-le pour naviguer.")
             self._restore({"character": data.get("character", self.character),
+                           "encounter_history": data.get("encounter_history", {}),
                            "completed_book_events": data.get("completed_book_events", []),
                            "completed_optional_events": data.get("completed_optional_events", []),
                            "prepared_book_encounters": data.get("prepared_book_encounters", []),
