@@ -1,12 +1,14 @@
 import sys, re, json, random, copy, os, tempfile, hashlib, shutil
 from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
-from navigation import destinations, render_links
+from navigation import destinations, render_links, choice_caption
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
 from book_actions import BookActions
 from rules_viewer import RulesDialog
 from themes import available_themes
 from sound_effects import SoundBank, EFFECT_LABELS
+from save_slots import SaveSlotsDialog
+from datetime import datetime
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
@@ -224,6 +226,7 @@ class MainWindow(QMainWindow, BookActions):
             "potion": "Aucune", "potion_doses": 0,
             "initial": {"habilete": 8, "endurance": 20, "chance": 8}
         }
+        self._initial_character = copy.deepcopy(self.character)
         self.undo_stack = []
         self.redo_stack = []
         self.action_history = []
@@ -334,7 +337,9 @@ class MainWindow(QMainWindow, BookActions):
         for scene in self.findChildren(GrimoireScene):
             scene.set_theme(self.theme)
         self._refresh_character()
-        if self.current_paragraph in self.paragraphs:
+        if self.current_paragraph is not None and self.character['endurance'] <= 0:
+            self._show_death_page()
+        elif self.current_paragraph in self.paragraphs:
             self._render_paragraph_text(self.paragraphs[self.current_paragraph])
         elif self.pdf_path and self.paragraphs:
             self._show_book_title()
@@ -395,7 +400,9 @@ class MainWindow(QMainWindow, BookActions):
 
     def change_reader_font_size(self, delta):
         self.reader_font_size = max(14, min(34, self.reader_font_size + delta))
-        if self.current_paragraph in self.paragraphs:
+        if self.current_paragraph is not None and self.character['endurance'] <= 0:
+            self._show_death_page()
+        elif self.current_paragraph in self.paragraphs:
             scroll_position = self.reader.verticalScrollBar().value()
             self._render_paragraph_text(self.paragraphs[self.current_paragraph])
             self.reader.verticalScrollBar().setValue(scroll_position)
@@ -488,6 +495,8 @@ class MainWindow(QMainWindow, BookActions):
         self.art_toggle.toggled.connect(self._toggle_scene_art)
         self.paragraph_title = QLabel("Bienvenue")
         self.paragraph_title.setObjectName("sectionTitle")
+        self.paragraph_title.setWordWrap(True)
+        self.paragraph_title.setAlignment(Qt.AlignCenter)
         title_row = QHBoxLayout()
         title_row.addStretch()
         title_row.addWidget(self.paragraph_title)
@@ -546,6 +555,7 @@ class MainWindow(QMainWindow, BookActions):
         nav.addWidget(self.goto_spin)
         go_btn = QPushButton("Voyager →")
         go_btn.clicked.connect(lambda: self.go_to(self.goto_spin.value()))
+        self.goto_button = go_btn
         nav.addWidget(go_btn)
         nav.addStretch()
         # La navigation manuelle reste dans l’onglet Dés, hors de la page du récit.
@@ -563,6 +573,7 @@ class MainWindow(QMainWindow, BookActions):
         side_layout.setSpacing(10)
 
         stats_group = QGroupBox("✦  FEUILLE D’AVENTURIER")
+        self.stats_group = stats_group
         stats_grid = QGridLayout(stats_group)
         stats_grid.setHorizontalSpacing(4)
         stats_grid.setContentsMargins(8, 10, 8, 8)
@@ -617,6 +628,9 @@ class MainWindow(QMainWindow, BookActions):
         crest.setFixedSize(64, 64)
         hero_row.addWidget(crest)
         hero_title = QLabel("L’AVENTURIER\nVotre destin s’écrit ici")
+        self.hero_title = hero_title
+        hero_title.setTextFormat(Qt.PlainText)
+        hero_title.setWordWrap(True)
         hero_title.setObjectName("heroTitle")
         hero_row.addWidget(hero_title, 1)
         side_layout.addLayout(hero_row)
@@ -830,15 +844,91 @@ class MainWindow(QMainWindow, BookActions):
             '<p style="font-size:18pt;">Ouvrez le livre. Choisissez votre destin.</p></div>')
         self._clear_dynamic_layout(self.choice_layout)
         first = 1 if 1 in self.paragraphs else min(self.paragraphs)
-        start = ChoiceCard(f"Commencer l’aventure  →  §{first}")
+        label = QLabel('Sous quel nom entrerez-vous dans la légende ?')
+        self.choice_layout.addWidget(label)
+        name = QLineEdit(self.character.get('name', ''))
+        name.setObjectName('adventurerName')
+        name.setPlaceholderText('Nom de votre aventurier')
+        name.setMaxLength(60)
+        name.setAccessibleName('Nom de l’aventurier')
+        self.choice_layout.addWidget(name)
+        start = ChoiceCard(f"Inscrire mon nom et commencer  →  §{first}")
         start.setObjectName("choiceCard")
-        start.clicked.connect(lambda checked=False: self.go_to(first))
+        start.setEnabled(bool(name.text().strip()))
+        name.textChanged.connect(lambda text: start.setEnabled(bool(text.strip())))
+        start.clicked.connect(lambda checked=False: self._begin_adventure(name.text()))
+        name.returnPressed.connect(start.click)
         self.choice_group.setTitle("⚜  L’AVENTURE VOUS ATTEND")
         self.choice_layout.addWidget(start)
         self.choice_group.show()
         self.event_group.hide()
         self.condition_group.hide()
         self._update_scene_art(prefer_cover=True)
+        self.adventure_tabs.setEnabled(False)
+        self.stats_group.setEnabled(False)
+        self.goto_spin.setEnabled(False)
+        self.goto_button.setEnabled(False)
+
+    def _begin_adventure(self, name):
+        name = name.strip()[:60]
+        if not name or not self.paragraphs:
+            return
+        self.character = copy.deepcopy(self._initial_character)
+        self.character['name'] = name
+        self.completed_book_events.clear()
+        self.completed_optional_events.clear()
+        self.prepared_book_encounters.clear()
+        self.encounter_history = {}
+        self.book_combat_sequence = self.crocodile_combat = self.piranha_combat = None
+        self.piranha_source_wounded = None
+        self.book_combat_assaults = {}
+        self.current_paragraph = None
+        self.visited_paragraphs = []
+        self.transitions = []
+        self.adventure_tabs.setEnabled(True)
+        self.stats_group.setEnabled(True)
+        self.goto_spin.setEnabled(True)
+        self.goto_button.setEnabled(True)
+        self.create_character()
+        self.enemy_name.setText('Monstre')
+        self.enemy_skill.setValue(7)
+        self.enemy_endurance.setValue(6)
+        self.combat_journal.clear()
+        self.combat_state.setText('⚔  Aucun combat engagé')
+        self.dice_history.clear()
+        self.dice_result.setText('Résultat : —')
+        self.dice_faces.setText('⚀   ⚀')
+        self.undo_stack.clear()
+        self.redo_stack.clear()
+        self.action_history.clear()
+        self.go_to(1 if 1 in self.paragraphs else min(self.paragraphs))
+
+    def _show_death_page(self):
+        import html
+        self._refresh_character()
+        name = html.escape(self.character.get('name') or 'Aventurier')
+        self.paragraph_title.setText('✦  Fin de l’aventure  ✦')
+        self.reader.setHtml(
+            f'<div style="text-align:center"><p style="font-size:36pt">⚔</p>'
+            f'<h1>La légende de {name} s’achève ici.</h1>'
+            '<p>Votre Endurance est épuisée. La montagne garde ses secrets…</p>'
+            '<p>Un nouveau destin vous attend entre les pages du grimoire.</p></div>')
+        self.event_group.hide()
+        self.condition_group.hide()
+        self._clear_dynamic_layout(self.choice_layout)
+        self.choice_group.setTitle('⚜  UNE NOUVELLE CHRONIQUE')
+        restart = ChoiceCard('✦  Recommencer l’aventure')
+        restart.setObjectName('restartAdventure')
+        restart.clicked.connect(lambda: self._show_book_title())
+        self.choice_layout.addWidget(restart)
+        load = ChoiceCard('Ouvrir une chronique sauvegardée')
+        load.clicked.connect(lambda: self.load_game())
+        self.choice_layout.addWidget(load)
+        self.choice_group.show()
+        self.adventure_tabs.setEnabled(False)
+        self.stats_group.setEnabled(False)
+        self.goto_spin.setEnabled(False)
+        self.goto_button.setEnabled(False)
 
     def open_pdf(self, path=None, *, startup=False):
         if not isinstance(path, (str, Path)):
@@ -891,6 +981,7 @@ class MainWindow(QMainWindow, BookActions):
             item = layout.takeAt(0)
             widget = item.widget()
             if widget is not None:
+                widget.hide()
                 widget.deleteLater()
 
     def _paragraph_choices(self, text):
@@ -907,7 +998,7 @@ class MainWindow(QMainWindow, BookActions):
             clause = prefix[boundary + 1:].strip(" \t,;:-()")
             clause = re.sub(r"(?i)\b(ou|et|puis)\s*$", "", clause).strip()
             if not clause:
-                clause = f"Continuer vers le paragraphe {target}"
+                clause = 'Poursuivre le chemin'
             if len(clause) > 105:
                 clause = clause[-105:].strip()
             # Avoid duplicate destinations in a single paragraph.
@@ -974,7 +1065,7 @@ class MainWindow(QMainWindow, BookActions):
         else:
             for choice in choices:
                 target = choice["target"]
-                button = ChoiceCard(f"{choice['label']}  →  §{target}")
+                button = ChoiceCard(choice_caption(choice['label'], target))
                 button.setObjectName("choiceCard")
                 button.setMinimumHeight(44)
                 button.setAccessibleName(f"{choice['label']}, paragraphe {target}")
@@ -991,9 +1082,14 @@ class MainWindow(QMainWindow, BookActions):
         self._clear_dynamic_layout(self.event_layout)
         scripted = verified_entry(self.book_event_catalogue, self.current_paragraph)
         if scripted:
-            notice = QLabel("✦ Événement du livre vérifié : " + scripted["note"])
-            notice.setWordWrap(True)
-            self.event_layout.addWidget(notice)
+            plain_passage = (
+                scripted['mode'] == 'conditionnel'
+                and set(scripted) <= {'status', 'mode', 'note', 'routes', 'title'}
+                and all(set(route) <= {'target', 'label'} for route in scripted.get('routes', [])))
+            if not plain_passage:
+                notice = QLabel("✦ Événement du livre vérifié : " + scripted["note"])
+                notice.setWordWrap(True)
+                self.event_layout.addWidget(notice)
             self._book_buttons(scripted)
             if scripted["mode"] == "automatique":
                 self.event_layout.addWidget(QLabel("Effets obligatoires appliqués une fois par partie."))
@@ -1215,7 +1311,9 @@ class MainWindow(QMainWindow, BookActions):
         for number in self.visited_paragraphs:
             targets = [c['target'] for c in self._paragraph_choices(self.paragraphs.get(number, ''))]
             target_text = ', '.join(('✓ ' if n in self.visited_paragraphs else '○ ') + str(n) for n in targets) or 'aucune sortie détectée'
-            rows.append(f'<p><b><a style="color: {self.theme.color("link")}; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">§ {number}</a></b> → {html.escape(target_text)}{self._map_monsters_html(number)}</p>')
+            title = self._paragraph_name(number)
+            heading = f'§ {number}' + (f' — {html.escape(title)}' if title else '')
+            rows.append(f'<p><b><a style="color: {self.theme.color("link")}; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">{heading}</a></b> → {html.escape(target_text)}{self._map_monsters_html(number)}</p>')
         # Même bleu nuit, soulignement et contraste que les liens du livre.
         view.document().setDefaultStyleSheet("a:link { color: " + self.theme.color("link") + "; text-decoration: underline; font-weight: bold; }")
         view.setHtml('<h2>Parcours découvert</h2>' + ''.join(rows))
@@ -1230,6 +1328,10 @@ class MainWindow(QMainWindow, BookActions):
         close.rejected.connect(dialog.reject)
         layout.addWidget(close)
         dialog.exec()
+
+    def _paragraph_name(self, number):
+        entry = verified_entry(self.book_event_catalogue, number)
+        return entry.get('title', '') if entry else ''
 
     def prepare_encounter(self, monster):
         answer = QMessageBox.question(self, "Préparer une rencontre",
@@ -1325,6 +1427,10 @@ class MainWindow(QMainWindow, BookActions):
             self._render_choices_and_events(self.paragraphs[number])
 
     def go_to(self, number):
+        if (self.character['endurance'] <= 0 and not self._restoring
+                and getattr(self, '_action_depth', 0) <= 1):
+            self._show_death_page()
+            return
         if number not in self.paragraphs:
             QMessageBox.information(self, "Paragraphe absent", f"Le paragraphe {number} n'a pas été détecté dans le PDF chargé.")
             return
@@ -1398,7 +1504,8 @@ class MainWindow(QMainWindow, BookActions):
         if number not in self.visited_paragraphs:
             self.visited_paragraphs.append(number)
         self.goto_spin.setValue(number)
-        self.paragraph_title.setText(f"Paragraphe {number}")
+        title = self._paragraph_name(number)
+        self.paragraph_title.setText(f'{title}  ·  §{number}' if title else f'Paragraphe {number}')
         text = self.paragraphs[number]
         # Utiliser le même détecteur pour les boutons ET les liens dans le texte.
         self._render_paragraph_text(text)
@@ -1636,6 +1743,8 @@ class MainWindow(QMainWindow, BookActions):
         self.go_to(target)
 
     def _refresh_character(self):
+        self.hero_title.setText('L’AVENTURIER\n' +
+                                (self.character.get('name') or 'Votre destin s’écrit ici'))
         for key, spin in self.stat_spins.items():
             spin.blockSignals(True)
             spin.setValue(int(self.character.get(key, 0)))
@@ -2200,6 +2309,8 @@ class MainWindow(QMainWindow, BookActions):
         self.action_history.append(label)
         self.action_history = self.action_history[-200:]
         self._update_history_controls()
+        if self.character['endurance'] <= 0:
+            self._show_death_page()
         self._autosave()
 
     def _play_state_sounds(self, before):
@@ -2290,6 +2401,14 @@ class MainWindow(QMainWindow, BookActions):
                     self._show_book_title()
         finally:
             self._restoring = False
+        alive = self.character['endurance'] > 0
+        playing = alive and self.current_paragraph is not None
+        self.adventure_tabs.setEnabled(playing)
+        self.stats_group.setEnabled(playing)
+        self.goto_spin.setEnabled(playing)
+        self.goto_button.setEnabled(playing)
+        if not alive:
+            self._show_death_page()
 
     def undo_action(self):
         if not self.undo_stack:
@@ -2318,6 +2437,8 @@ class MainWindow(QMainWindow, BookActions):
 
     def _save_data(self):
         return {"version": "1.0.13", "pdf_path": (str(Path(self.pdf_path).relative_to(APP_DIR)) if self.pdf_path and within_directory(self.pdf_path, APP_DIR) else None),
+                "saved_at": datetime.now().astimezone().isoformat(),
+                "save_name": self.character.get('name') or 'Aventurier sans nom',
                 "pdf_sha256": self._pdf_hash(),
                 **self._snapshot(), "action_history": self.action_history,
                 "undo_stack": self.undo_stack, "redo_stack": self.redo_stack}
@@ -2397,9 +2518,16 @@ class MainWindow(QMainWindow, BookActions):
         return None
 
     def _themed_save_dialog(self, saving):
-        return self._themed_file_dialog(kind="save" if saving else "load", saving=saving)
+        dialog = SaveSlotsDialog(SAVES_DIR, saving, self)
+        if dialog.exec() == QDialog.Accepted:
+            return dialog.selected_path
+        return None
 
     def save_game(self):
+        if self.current_paragraph is None:
+            QMessageBox.information(self, 'Aventure à commencer',
+                                    'Inscrivez le nom de votre aventurier et commencez l’aventure avant de sauvegarder.')
+            return
         path = self._themed_save_dialog(saving=True)
         if not path:
             return

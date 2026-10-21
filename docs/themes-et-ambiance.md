@@ -39,6 +39,25 @@ sert de repli si le thème mémorisé n’existe plus.
 Changer de thème ne modifie ni caractéristiques, ni inventaire, ni rencontres,
 ni historique de partie. Aucun script Python de thème n’est exécuté.
 
+## Aventuriers et chroniques
+
+La page d’ouverture demande le nom de l’aventurier avant le paragraphe 1.
+Commencer tire ses caractéristiques et prépare son équipement de départ.
+Lorsque son Endurance tombe à zéro, une page de fin propose de recommencer
+(nom prérempli, nouveau personnage, progression remise à zéro) ou de charger
+une chronique. Le chargement d’un personnage mort retrouve cette page.
+
+**Sauvegarder** et **Charger** présentent les mêmes cinq emplacements manuels,
+avec le nom de l’aventurier, la date, l’Habileté, l’Endurance et la Chance.
+Remplacer un emplacement demande confirmation. L’autosauvegarde de reprise
+reste séparée ; recommencer ne supprime pas les cinq sauvegardes manuelles.
+Les emplacements sont stockés dans `donnees/sauvegardes/emplacement-1.json`
+à `emplacement-5.json`. Le nom est conservé dans chaque chronique et sert de
+titre de sauvegarde. **Ouvrir une ancienne sauvegarde…**, dans Charger, permet
+de reprendre les anciens fichiers JSON ; ils peuvent ensuite être enregistrés
+dans l’un des cinq emplacements. Un ancien personnage sans nom est affiché
+comme « Aventurier sans nom ».
+
 ## Sons
 
 Les WAV PCM mono proviennent maintenant de packs **CC0**, principalement Kenney
