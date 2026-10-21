@@ -127,8 +127,7 @@ class SoundFeedbackTests(unittest.TestCase):
                 self.assertEqual(w.sounds.effects['page'].play_count, 1)
                 w.go_to(1)
                 self.assertEqual(w.sounds.effects['page'].play_count, 2)
-                next(b for b in w.findChildren(QPushButton)
-                     if b.text() == 'Lancer').click()
+                w.roll_free_dice('1d6')
                 self.assertEqual(w.sounds.effects['dice'].play_count, 1)
                 # Le bouton ouvre désormais le combat complet ; ce test audio
                 # isole son lancement, puis exerce un assaut du moteur sans attente.

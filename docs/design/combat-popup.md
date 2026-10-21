@@ -2,7 +2,7 @@
 
 ![Combat et plateaux intégrés](combat-popup.png)
 
-**Combattre / Reprendre le combat**, dans l'onglet Combat & soins, ouvre une
+**Combattre / Reprendre**, au-dessus de la sacoche, ouvre une
 fenêtre dédiée sans réinitialiser l'adversaire préparé par le livre.
 
 - À gauche : les monstres de la rencontre, leurs Habileté et Endurance, leur
@@ -23,10 +23,39 @@ Les jets de Chance et de protection utilisent le plateau du héros.
 La fiche du personnage et les valeurs du combat utilisent le même état : les
 blessures, soins ou dépenses de Chance sont répercutés dès leur application.
 Le nombre d'assauts, les équipements et les règles particulières restent ceux
-du livre. Les actions de fuite, choix de cible ou stratégie sont accessibles
-dans le cadre central lorsqu'elles sont autorisées. Si une telle action est
-disponible entre deux assauts, **Assaut suivant** permet de reprendre les dés
-adverses sans faire disparaître cette possibilité trop rapidement.
+du livre. **Fuir** et **Soins** sont toujours présents en bas et grisés s'ils ne
+sont pas utilisables. Choix de cible et stratégies restent dans la zone centrale,
+qui défile si nécessaire. **Assaut suivant** lance le prochain assaut : les dés
+rouges partent automatiquement, puis le joueur lance les blancs.
+
+Le journal possède sa propre barre de défilement verticale et garde tous les
+coups de la rencontre. Les actions longues reviennent à la ligne dans une zone
+défilante séparée ; elles ne débordent plus sur le texte de résolution ni sur les
+commandes du bas, y compris dans une fenêtre basse.
+
+## Fuite, soins et équipement
+
+**Fuir** tient compte de la destination, du nombre d'assauts requis, de la survie
+des combattants et des règles particulières de la rencontre. Une fuite autorisée
+dès le début peut être choisie avant tout lancer adverse. Le bouton ne permet pas
+d'interrompre un assaut après avoir vu ses dés ; la pénalité et les éventuels tests
+de Chance sont ceux du moteur du livre.
+
+**Soins** affiche les options dans la même fenêtre. Une potion disponible et utile
+peut être bue entre les assauts ou pendant les pauses de décision du joueur,
+sans remplacer les dés déjà tirés. La Potion de Bonne Fortune augmente aussi le
+maximum de Chance. Les repas sont interdits pendant le combat ; après la victoire,
+ils restent possibles uniquement si le passage l'autorise, avec des provisions et
+une autorisation non consommée. Un soin pris pendant l'assaut est annulé avec cet
+assaut ; un soin entre les assauts constitue sa propre action annulable.
+
+Les sélecteurs d'arme et de bouclier sont sur la carte du héros. Ils utilisent le
+même équipement que la sacoche et sont désactivés pendant la résolution d'un assaut.
+Il n'est donc plus nécessaire de quitter le combat pour ces commandes.
+
+Les onglets **Combat & soins** et **Dés** ont disparu du lecteur. Hors combat,
+**Soins** propose les soins autorisés ; **Actions…** conserve les jets libres,
+les tests manuels de Chance et la navigation manuelle.
 
 Les séquences continuent dans la même fenêtre. **VICTOIRE** est affiché une fois
 toute la rencontre gagnée, puis **Continuer l'aventure** rend la main au récit.
