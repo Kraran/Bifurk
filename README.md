@@ -118,3 +118,13 @@ elle contient deux doses, affichées sur la feuille et dans Soins, utilisables �
 Adresse et Vigueur restaurent leur caractéristique initiale ; chaque dose de Bonne Fortune augmente
 la Chance initiale de 1, puis restaure la Chance à ce nouveau maximum. Les doses sont conservées
 dans les sauvegardes. Une dose sans effet n'est pas consommée.
+
+### Musique d’accueil
+
+`FantasyFair.m4a`, fourni par l’utilisateur, accompagne en boucle l’accueil, la
+création du personnage et le choix d’une sauvegarde. À l’entrée dans l’aventure,
+le volume diminue sur dix secondes puis la musique s’arrête. Le réglage
+**Musique d’accueil : FantasyFair** dans Ambiance est indépendant des effets et
+de l’ambiance de caverne. Le M4A original est diffusé en continu par Qt Multimedia
+et inclus automatiquement dans la distribution Windows avec les autres assets.
+La licence des packs CC0 d’effets sonores ne s’applique pas à ce fichier musical.
