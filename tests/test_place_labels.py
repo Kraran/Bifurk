@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from PySide6.QtWidgets import QApplication, QPushButton, QTextBrowser, QDialog
+from PySide6.QtGui import QFontMetrics
 
 from book_events import DATA_PATH
 from main import MainWindow
@@ -52,7 +53,8 @@ class PlaceLabelsTests(unittest.TestCase):
         w = self.window()
         w.book_event_catalogue = self.catalogue
         w.go_to(1)
-        self.assertEqual(w.paragraph_title.text(), 'L’entrée de la montagne  ·  §1')
+        self.assertEqual(w.paragraph_title.text(), 'L’entrée de la montagne')
+        self.assertEqual(w.paragraph_number.text(), '§ 1')
         self.assertEqual(w.event_layout.count(), 0)
         buttons = [w.choice_layout.itemAt(i).widget()
                    for i in range(w.choice_layout.count())]
@@ -61,7 +63,8 @@ class PlaceLabelsTests(unittest.TestCase):
             'Prendre le passage ouest  →  §71', 'Prendre le passage est  →  §278'])
         buttons[0].click()
         self.assertEqual(w.current_paragraph, 71)
-        self.assertEqual(w.paragraph_title.text(), 'La guérite du garde  ·  §71')
+        self.assertEqual(w.paragraph_title.text(), 'La guérite du garde')
+        self.assertEqual(w.paragraph_number.text(), '§ 71')
 
     def test_map_names_only_visited_scenes(self):
         w = self.window()
@@ -77,10 +80,27 @@ class PlaceLabelsTests(unittest.TestCase):
         self.assertNotIn('La guérite du garde', captured[0])
         self.assertNotIn('La porte du passage est', captured[0])
 
+    def test_title_fits_one_line_with_number_below_on_small_window(self):
+        w = self.window()
+        w.book_event_catalogue = self.catalogue
+        w.paragraphs[223] = 'Une porte fermée.'
+        w.go_to(223)
+        w.resize(930, 800)
+        w.show()
+        self.app.processEvents()
+        self.assertEqual(w.paragraph_title.text(), 'La porte solidement fermée')
+        self.assertEqual(w.paragraph_number.text(), '§ 223')
+        self.assertFalse(w.paragraph_title.wordWrap())
+        self.assertLessEqual(QFontMetrics(w.paragraph_title.fitted_font()).horizontalAdvance(
+            w.paragraph_title.text()), w.paragraph_title.width())
+        self.assertGreaterEqual(w.paragraph_number.y(),
+                                w.paragraph_title.y() + w.paragraph_title.height())
+
     def test_unknown_edition_keeps_numbered_headings_and_safe_fallback(self):
         w = self.window()
         w.paragraphs[1] = 'Rendez-vous au 71.'
         w.go_to(1)
-        self.assertEqual(w.paragraph_title.text(), 'Paragraphe 1')
+        self.assertEqual(w.paragraph_title.text(), 'Paragraphe')
+        self.assertEqual(w.paragraph_number.text(), '§ 1')
         self.assertEqual(w.choice_layout.itemAt(0).widget().text(),
                          'Poursuivre le chemin  →  §71')

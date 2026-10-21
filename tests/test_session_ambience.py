@@ -56,58 +56,64 @@ class SessionAmbienceTests(unittest.TestCase):
             p = patch.object(main, name, return_value=value)
             p.start(); self.addCleanup(p.stop)
 
-    def test_restart_uses_imported_copy_and_restores_matching_autosave(self):
-        self.pdf_mocks()
-        source = self.book()
-        w = self.window()
-        w.open_pdf(source, startup=True)
-        imported = Path(w.pdf_path)
-        self.assertTrue(imported.is_relative_to(main.BOOKS_DIR))
-        w.go_to(1)
-        w.set_stat('endurance', 13)
-        source.unlink()
-        restored = self.window(restore_session=True)
-        self.app.processEvents()
-        self.assertEqual(Path(restored.pdf_path), imported)
-        self.assertEqual(restored.current_paragraph, 1)
-        self.assertEqual(restored.character['endurance'], 13)
-        self.assertEqual(restored.visited_paragraphs, [1])
-
-    def test_different_book_autosave_is_not_applied(self):
-        self.pdf_mocks()
-        w = self.window()
-        w.open_pdf(self.book('first.pdf'), startup=True)
-        last = Path(w.pdf_path)
-        other = main.BOOKS_DIR/'other.pdf'; other.write_bytes(b'%PDF-other')
-        data = w._save_data()
-        data['pdf_path'] = str(other.relative_to(main.APP_DIR))
-        data['character']['endurance'] = 1
-        w._write_atomic(main.SAVES_DIR/'autosave.json', data)
-        restored = self.window(restore_session=True)
-        self.app.processEvents()
-        self.assertEqual(Path(restored.pdf_path), last)
-        self.assertIsNone(restored.current_paragraph)
-        self.assertEqual(restored.character['endurance'], 20)
-
-    def test_existing_installation_resumes_without_preferences_file(self):
+    def test_startup_loads_selected_slot_instead_of_autosave(self):
         self.pdf_mocks()
         w = self.window()
         w.open_pdf(self.book(), startup=True)
-        w.go_to(2)
-        w.preferences_path.unlink()
-        restored = self.window(restore_session=True)
-        self.app.processEvents()
-        self.assertEqual(restored.current_paragraph, 2)
-        self.assertEqual(restored.pdf_path, w.pdf_path)
-        self.assertTrue(restored.preferences_path.is_file())
-
-    def test_missing_last_book_does_not_open_file_picker(self):
-        main.MainWindow._write_atomic(self.window(), main.SETTINGS_DIR/'preferences.json',
-                                     {'last_book':'missing.pdf'})
-        with patch.object(main.MainWindow, '_themed_file_dialog') as picker:
-            restored = self.window(restore_session=True)
+        w._begin_adventure('Éléanor')
+        w.set_stat('endurance', 13)
+        slot = main.SAVES_DIR/'emplacement-1.json'
+        w._write_atomic(slot, w._save_data())
+        w.set_stat('endurance', 2)
+        def choose(dialog):
+            self.assertFalse(dialog.new_game_requested)
+            dialog.selected_path = str(slot)
+            return main.QDialog.Accepted
+        with patch.object(main.SaveSlotsDialog, 'exec', choose):
+            restored = self.window(startup=True)
             self.app.processEvents()
-        picker.assert_not_called()
+        self.assertEqual(restored.character['name'], 'Éléanor')
+        self.assertEqual(restored.character['endurance'], 13)
+
+    def test_startup_new_game_opens_last_book_intro(self):
+        self.pdf_mocks()
+        w = self.window()
+        w.open_pdf(self.book(), startup=True)
+        w._begin_adventure('Éléanor')
+        w.go_to(2)
+        def choose(dialog):
+            dialog.new_game_requested = True
+            return main.QDialog.Accepted
+        with patch.object(main.SaveSlotsDialog, 'exec', choose):
+            restored = self.window(startup=True)
+            self.app.processEvents()
+        self.assertEqual(restored.pdf_path, w.pdf_path)
+        self.assertIsNone(restored.current_paragraph)
+        self.assertNotIn('name', restored.character)
+        self.assertFalse(restored.adventure_tabs.isEnabled())
+
+    def test_startup_without_preferences_never_migrates_autosave(self):
+        self.pdf_mocks()
+        w = self.window()
+        w.open_pdf(self.book(), startup=True)
+        w._begin_adventure('Éléanor')
+        w.preferences_path.unlink()
+        with patch.object(main.SaveSlotsDialog, 'exec', return_value=main.QDialog.Rejected), \
+                patch.object(main.MainWindow, 'load_game') as load:
+            restored = self.window(startup=True)
+            self.app.processEvents()
+        load.assert_not_called()
+        self.assertIsNone(restored.pdf_path)
+
+    def test_startup_new_game_without_book_opens_import_picker(self):
+        def choose(dialog):
+            dialog.new_game_requested = True
+            return main.QDialog.Accepted
+        with patch.object(main.SaveSlotsDialog, 'exec', choose), \
+                patch.object(main.MainWindow, '_themed_file_dialog', return_value=None) as picker:
+            restored = self.window(startup=True)
+            self.app.processEvents()
+        picker.assert_called_once_with(kind='pdf')
         self.assertIsNone(restored.pdf_path)
 
     def test_audio_follows_real_game_events_without_changing_dice(self):

@@ -7,9 +7,9 @@ from book_actions import BookActions
 from rules_viewer import RulesDialog
 from themes import available_themes
 from sound_effects import SoundBank, EFFECT_LABELS
-from save_slots import SaveSlotsDialog
+from save_slots import SaveSlotsDialog, read_save
 from datetime import datetime
-from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog
+from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
@@ -67,18 +67,11 @@ def import_book(source):
 
 
 def resolve_book_reference(reference):
-    """Accepte les anciennes sauvegardes et migre les grimoires externes."""
-    if not reference:
+    """Resolve the current portable reference inside the imported book folder."""
+    if not isinstance(reference, str) or not reference or Path(reference).is_absolute():
         return None
-    candidate = Path(reference)
-    if not candidate.is_absolute():
-        candidate = APP_DIR / candidate
-    if not candidate.is_file():
-        # Une sauvegarde déplacée peut encore retrouver son livre via son nom.
-        candidate = BOOKS_DIR / Path(reference).name
-    if not candidate.is_file():
-        return None
-    return import_book(candidate)
+    candidate = (APP_DIR / reference).resolve()
+    return str(candidate) if within_directory(candidate, BOOKS_DIR) and candidate.is_file() else None
 
 
 
@@ -184,7 +177,7 @@ def set_bronze_titlebar(widget):
 
 
 class MainWindow(QMainWindow, BookActions):
-    def __init__(self, restore_session=False):
+    def __init__(self, startup=False):
         super().__init__()
         self.preferences_path = SETTINGS_DIR / "preferences.json"
         try:
@@ -241,8 +234,8 @@ class MainWindow(QMainWindow, BookActions):
         QShortcut(QKeySequence("F11"), self, activated=self.toggle_fullscreen)
         self._refresh_character()
         self._show_welcome()
-        if restore_session:
-            QTimer.singleShot(0, self._restore_last_grimoire)
+        if startup:
+            QTimer.singleShot(0, self._show_startup_menu)
 
     def _save_preferences(self):
         try:
@@ -255,33 +248,24 @@ class MainWindow(QMainWindow, BookActions):
             self.preferences["last_book"] = str(Path(self.pdf_path).resolve().relative_to(BOOKS_DIR.resolve()))
             self._save_preferences()
 
-    def _restore_last_grimoire(self):
-        reference = self.preferences.get("last_book")
-        autosave = SAVES_DIR / "autosave.json"
-        if not isinstance(reference, str):
-            # Migrate installations that already imported a book before preferences existed.
-            try:
-                previous = json.loads(autosave.read_text(encoding="utf-8"))
-                pdf = resolve_book_reference(previous.get("pdf_path"))
-                if not pdf or not within_directory(pdf, BOOKS_DIR):
-                    return
-                reference = str(Path(pdf).resolve().relative_to(BOOKS_DIR.resolve()))
-                self.preferences["last_book"] = reference
-            except (OSError, ValueError, TypeError, AttributeError):
+    def _show_startup_menu(self):
+        while True:
+            dialog = SaveSlotsDialog(SAVES_DIR, False, self, startup=True)
+            accepted = dialog.exec() == QDialog.Accepted
+            selected, new_game = dialog.selected_path, dialog.new_game_requested
+            dialog.deleteLater()
+            if not accepted:
                 return
-        path = (BOOKS_DIR / reference).resolve()
-        if not within_directory(path, BOOKS_DIR) or not path.is_file():
-            self.rules_log.setText("Le dernier grimoire est introuvable. Vous pouvez en ouvrir un autre.")
-            return
-        try:
-            data = json.loads(autosave.read_text(encoding="utf-8"))
-            saved_pdf = resolve_book_reference(data.get("pdf_path"))
-            if saved_pdf and Path(saved_pdf).resolve() == path:
-                if self.load_game(autosave, announce=False):
-                    return
-        except (OSError, ValueError, TypeError, AttributeError):
-            pass
-        self.open_pdf(path, startup=True)
+            if new_game:
+                reference = self.preferences.get('last_book')
+                path = (BOOKS_DIR / reference).resolve() if isinstance(reference, str) else None
+                if path and within_directory(path, BOOKS_DIR) and path.is_file():
+                    self.open_pdf(path, startup=True)
+                else:
+                    self.open_pdf()
+                return
+            if selected and self.load_game(selected):
+                return
 
     def show_ambience(self):
         dialog = QDialog(self)
@@ -493,15 +477,17 @@ class MainWindow(QMainWindow, BookActions):
         self.art_toggle.setChecked(True)
         self.art_toggle.setToolTip("Afficher ou masquer l’image pour agrandir la zone de lecture")
         self.art_toggle.toggled.connect(self._toggle_scene_art)
-        self.paragraph_title = QLabel("Bienvenue")
+        self.paragraph_title = SingleLineTitle("Bienvenue")
         self.paragraph_title.setObjectName("sectionTitle")
-        self.paragraph_title.setWordWrap(True)
+        self.paragraph_title.setTextFormat(Qt.PlainText)
         self.paragraph_title.setAlignment(Qt.AlignCenter)
-        title_row = QHBoxLayout()
-        title_row.addStretch()
-        title_row.addWidget(self.paragraph_title)
-        title_row.addStretch()
-        reader_layout.addLayout(title_row)
+        self.paragraph_title.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        reader_layout.addWidget(self.paragraph_title)
+        self.paragraph_number = QLabel()
+        self.paragraph_number.setObjectName('paragraphNumber')
+        self.paragraph_number.setAlignment(Qt.AlignCenter)
+        reader_layout.addWidget(self.paragraph_number)
+        self.paragraph_number.hide()
         title_row = QHBoxLayout()
         title_row.setSpacing(8)
         title_row.addStretch()
@@ -826,6 +812,7 @@ class MainWindow(QMainWindow, BookActions):
             self._show_illustration(self.scene_entry, self.scene_title)
 
     def _show_welcome(self):
+        self.paragraph_number.hide()
         self.choice_group.hide()
         self.event_group.hide()
         self.condition_group.hide()
@@ -833,6 +820,7 @@ class MainWindow(QMainWindow, BookActions):
 
     def _show_book_title(self):
         import html
+        self.paragraph_number.hide()
         self.current_paragraph = None
         title = ((self.illustration_catalogue or {}).get("title")
                  or Path(self.pdf_path).stem)
@@ -905,6 +893,7 @@ class MainWindow(QMainWindow, BookActions):
 
     def _show_death_page(self):
         import html
+        self.paragraph_number.hide()
         self._refresh_character()
         name = html.escape(self.character.get('name') or 'Aventurier')
         self.paragraph_title.setText('✦  Fin de l’aventure  ✦')
@@ -1287,10 +1276,6 @@ class MainWindow(QMainWindow, BookActions):
     def _map_monsters_html(self, number):
         import html
         monsters = self.encounter_history.get(str(number), [])
-        if not monsters:
-            entry = verified_entry(self.book_event_catalogue, number)
-            monsters = [{"name": m["name"], "status": "issue non enregistrée"}
-                        for m in (entry or {}).get("combat", {}).get("enemies", [])]
         return "".join(f'<br>⚔ {html.escape(m["name"])} — {html.escape(m["status"])}' for m in monsters)
 
     def show_map(self):
@@ -1505,7 +1490,9 @@ class MainWindow(QMainWindow, BookActions):
             self.visited_paragraphs.append(number)
         self.goto_spin.setValue(number)
         title = self._paragraph_name(number)
-        self.paragraph_title.setText(f'{title}  ·  §{number}' if title else f'Paragraphe {number}')
+        self.paragraph_title.setText(title or 'Paragraphe')
+        self.paragraph_number.setText(f'§ {number}')
+        self.paragraph_number.show()
         text = self.paragraphs[number]
         # Utiliser le même détecteur pour les boutons ET les liens dans le texte.
         self._render_paragraph_text(text)
@@ -2363,9 +2350,6 @@ class MainWindow(QMainWindow, BookActions):
         try:
             self.character = copy.deepcopy(state["character"])
             self.encounter_history = copy.deepcopy(state.get("encounter_history", {}))
-            # Les anciennes sauvegardes n'enregistraient pas la pièce d'or initiale.
-            self.character.setdefault("gold", 1)
-            self.character.setdefault("locked_items", [])
             self.completed_book_events = set(state.get("completed_book_events", []))
             self.completed_optional_events = set(state.get("completed_optional_events", []))
             self.prepared_book_encounters = set(state.get("prepared_book_encounters", []))
@@ -2375,7 +2359,6 @@ class MainWindow(QMainWindow, BookActions):
             self.piranha_combat = copy.deepcopy(state.get("piranha_combat"))
             self.book_combat_assaults = {int(k): int(v) for k, v in state.get("book_combat_assaults", {}).items()}
             self.visited_paragraphs = list(state["visited_paragraphs"])
-            self._sync_book_facts()
             self.transitions = copy.deepcopy(state.get("transitions", []))
             self._refresh_character()
             if "enemy_skill" in state:
@@ -2385,14 +2368,6 @@ class MainWindow(QMainWindow, BookActions):
             if "enemy_name" in state:
                 self.enemy_name.setText(state["enemy_name"])
             target = state["current_paragraph"]
-            entry = verified_entry(self.book_event_catalogue, target)
-            combat = entry.get("combat", {}) if entry else {}
-            if (target == 249 and combat.get("mode") == "fire_breath"
-                    and target not in self.prepared_book_encounters
-                    and not self.character.get("book_facts", {}).get(combat["victory_fact"])):
-                # Ancienne sauvegarde bloquée au §249 avant que le chien soit géré.
-                self._set_book_enemy(combat["enemies"][0])
-                self.prepared_book_encounters.add(target)
             if target in self.paragraphs:
                 self.go_to(target)
             else:
@@ -2443,11 +2418,12 @@ class MainWindow(QMainWindow, BookActions):
                 **self._snapshot(), "action_history": self.action_history,
                 "undo_stack": self.undo_stack, "redo_stack": self.redo_stack}
 
-    def _pdf_hash(self):
-        if not self.pdf_path or not Path(self.pdf_path).is_file():
+    def _pdf_hash(self, path=None):
+        path = path or self.pdf_path
+        if not path or not Path(path).is_file():
             return None
         h = hashlib.sha256()
-        with open(self.pdf_path, "rb") as f:
+        with open(path, "rb") as f:
             for chunk in iter(lambda: f.read(1024 * 1024), b""):
                 h.update(chunk)
         return h.hexdigest()
@@ -2476,33 +2452,21 @@ class MainWindow(QMainWindow, BookActions):
         except OSError:
             pass  # La sauvegarde manuelle reste disponible.
 
-    def _themed_file_dialog(self, kind="pdf", saving=False):
-        """Sélecteur Qt français. Les sauvegardes restent dans donnees/sauvegardes."""
-        titles = {
-            "pdf": "Bifurk — Ouvrir un grimoire",
-            "save": "Bifurk — Sauvegarder la partie",
-            "load": "Bifurk — Charger une partie",
-        }
+    def _themed_file_dialog(self, kind="pdf"):
+        """Sélecteur Qt français réservé à l’import d’un grimoire."""
         dialog = QFileDialog(self)
-        dialog.setWindowTitle(titles[kind])
+        dialog.setWindowTitle('Bifurk — Ouvrir un grimoire')
         dialog.setWindowIcon(self.windowIcon())
         dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-        dialog.setAcceptMode(QFileDialog.AcceptSave if saving else QFileDialog.AcceptOpen)
-        dialog.setFileMode(QFileDialog.AnyFile if saving else QFileDialog.ExistingFile)
+        dialog.setAcceptMode(QFileDialog.AcceptOpen)
+        dialog.setFileMode(QFileDialog.ExistingFile)
         dialog.setLabelText(QFileDialog.LookIn, "Regarder dans :")
         dialog.setLabelText(QFileDialog.FileName, "Nom du fichier :")
         dialog.setLabelText(QFileDialog.FileType, "Type de fichier :")
-        dialog.setLabelText(QFileDialog.Accept, "Enregistrer" if saving else "Ouvrir")
+        dialog.setLabelText(QFileDialog.Accept, "Ouvrir")
         dialog.setLabelText(QFileDialog.Reject, "Annuler")
-        if kind == "pdf":
-            dialog.setNameFilter("Grimoires PDF (*.pdf)")
-            dialog.setDirectory(str(Path(self.pdf_path).parent if self.pdf_path else BOOKS_DIR))
-        else:
-            dialog.setNameFilter("Sauvegardes Bifurk (*.json)")
-            dialog.setDefaultSuffix("json")
-            dialog.setDirectory(str(SAVES_DIR))
-            if saving:
-                dialog.selectFile("bifurk-sauvegarde.json")
+        dialog.setNameFilter("Grimoires PDF (*.pdf)")
+        dialog.setDirectory(str(Path(self.pdf_path).parent if self.pdf_path else BOOKS_DIR))
         dialog.resize(900, 600)
         # Libellés et infobulles des contrôles internes non natifs.
         QTimer.singleShot(0, lambda: franciser_selecteur(dialog))
@@ -2511,17 +2475,15 @@ class MainWindow(QMainWindow, BookActions):
             if not selected:
                 return None
             result = Path(selected[0]).resolve()
-            if kind != "pdf" and not within_directory(result, SAVES_DIR):
-                QMessageBox.warning(self, "Dossier portable", "Les sauvegardes doivent rester dans le dossier donnees/sauvegardes de Bifurk.")
-                return None
             return str(result)
         return None
 
     def _themed_save_dialog(self, saving):
         dialog = SaveSlotsDialog(SAVES_DIR, saving, self)
-        if dialog.exec() == QDialog.Accepted:
-            return dialog.selected_path
-        return None
+        accepted = dialog.exec() == QDialog.Accepted
+        path = dialog.selected_path if accepted else None
+        dialog.deleteLater()
+        return path
 
     def save_game(self):
         if self.current_paragraph is None:
@@ -2544,16 +2506,16 @@ class MainWindow(QMainWindow, BookActions):
         if not path:
             return
         try:
-            data = json.loads(Path(path).read_text(encoding="utf-8"))
-            pdf_reference = data.get("pdf_path")
+            data = read_save(Path(path))
+            pdf_reference = data['pdf_path']
             pdf = resolve_book_reference(pdf_reference)
             if pdf:
-                expected = data.get("pdf_sha256")
-                self.pdf_path = pdf
-                if expected and expected != self._pdf_hash():
+                expected = data['pdf_sha256']
+                if expected and expected != self._pdf_hash(pdf):
                     raise ValueError("Le PDF a changé depuis la sauvegarde.")
                 paragraphs = extract_paragraphs(pdf)
                 illustration_catalogue = catalogue_for_pdf(pdf)
+                self.pdf_path = pdf
                 self.paragraphs = paragraphs
                 self.illustration_catalogue = illustration_catalogue
                 self.book_event_catalogue = load_book_events(pdf)
@@ -2561,26 +2523,11 @@ class MainWindow(QMainWindow, BookActions):
                 if self.paragraphs:
                     self.goto_spin.setMaximum(max(self.paragraphs))
             elif pdf_reference:
-                QMessageBox.warning(self, "PDF introuvable", "Le grimoire est absent du dossier portable. Réimportez-le pour naviguer.")
-            self._restore({"character": data.get("character", self.character),
-                           "encounter_history": data.get("encounter_history", {}),
-                           "completed_book_events": data.get("completed_book_events", []),
-                           "completed_optional_events": data.get("completed_optional_events", []),
-                           "prepared_book_encounters": data.get("prepared_book_encounters", []),
-                           "book_combat_sequence": data.get("book_combat_sequence"),
-                           "crocodile_combat": data.get("crocodile_combat"),
-                           "piranha_source_wounded": data.get("piranha_source_wounded"),
-                           "piranha_combat": data.get("piranha_combat"),
-                           "book_combat_assaults": data.get("book_combat_assaults", {}),
-                           "enemy_name": data.get("enemy_name", self.enemy_name.text()),
-                           "enemy_skill": data.get("enemy_skill", self.enemy_skill.value()),
-                           "enemy_endurance": data.get("enemy_endurance", self.enemy_endurance.value()),
-                           "visited_paragraphs": data.get("visited_paragraphs", []),
-                           "transitions": data.get("transitions", []),
-                           "current_paragraph": data.get("current_paragraph")})
-            self.action_history = data.get("action_history", [])
-            self.undo_stack = [(label, state) for label, state in data.get("undo_stack", [])]
-            self.redo_stack = [(label, state) for label, state in data.get("redo_stack", [])]
+                raise ValueError('Le grimoire de cette sauvegarde est introuvable dans donnees/grimoires.')
+            self._restore(data)
+            self.action_history = data['action_history']
+            self.undo_stack = [(label, state) for label, state in data['undo_stack']]
+            self.redo_stack = [(label, state) for label, state in data['redo_stack']]
             self._update_history_controls()
             self._remember_book()
             if announce:
@@ -2658,7 +2605,7 @@ def main():
                 app._bifurk_translators.append(translator)
                 break
     app.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
-    window = MainWindow(restore_session=True)
+    window = MainWindow(startup=True)
     app.setStyleSheet(window.styleSheet())
     app._bifurk_dialog_filter = DialogThemeFilter(app)
     app.installEventFilter(app._bifurk_dialog_filter)

@@ -3,10 +3,10 @@
 ## Utilisation
 
 Après le premier import, Bifurk mémorise le grimoire **copié dans `donnees/grimoires`**.
-Au démarrage suivant, il reprend la sauvegarde automatique si elle appartient à ce
-livre ; sinon il affiche sa page de titre. Le PDF d’origine peut être déplacé ou
-supprimé après import. Si la copie manque, l’accueil reste disponible pour ouvrir
-un autre livre. Une sauvegarde d’un autre grimoire n’est jamais reprise automatiquement.
+Au démarrage, la fenêtre des chroniques propose **Nouvelle partie** et les cinq
+emplacements à charger. Nouvelle partie ouvre l’introduction du dernier grimoire
+importé ; s’il manque, le sélecteur permet d’en importer un. Le PDF d’origine peut
+être déplacé ou supprimé après import. La progression n’est pas reprise automatiquement.
 
 Le bouton **Ambiance** active ou coupe les sons et choisit le thème. Ces préférences
 et le chemin relatif du dernier livre sont conservés dans
@@ -49,14 +49,17 @@ une chronique. Le chargement d’un personnage mort retrouve cette page.
 
 **Sauvegarder** et **Charger** présentent les mêmes cinq emplacements manuels,
 avec le nom de l’aventurier, la date, l’Habileté, l’Endurance et la Chance.
-Remplacer un emplacement demande confirmation. L’autosauvegarde de reprise
-reste séparée ; recommencer ne supprime pas les cinq sauvegardes manuelles.
+Remplacer ou supprimer un emplacement demande confirmation. **Supprimer** libère
+immédiatement l’emplacement ; un emplacement vide ne peut être ni chargé ni supprimé.
+L’autosauvegarde technique reste séparée des cinq emplacements et n’est pas chargée
+au démarrage. Recommencer ne supprime pas les sauvegardes manuelles.
 Les emplacements sont stockés dans `donnees/sauvegardes/emplacement-1.json`
 à `emplacement-5.json`. Le nom est conservé dans chaque chronique et sert de
-titre de sauvegarde. **Ouvrir une ancienne sauvegarde…**, dans Charger, permet
-de reprendre les anciens fichiers JSON ; ils peuvent ensuite être enregistrés
-dans l’un des cinq emplacements. Un ancien personnage sans nom est affiché
-comme « Aventurier sans nom ».
+titre de sauvegarde. Seul le format actuel est lu ; aucun import ou conversion
+d’anciennes sauvegardes n’est proposé.
+
+Le titre de scène occupe une seule ligne sur toute la largeur du récit ; sa taille
+s’adapte aux fenêtres étroites. Le numéro du paragraphe est affiché sur la ligne suivante.
 
 ## Sons
 
@@ -90,14 +93,16 @@ périphérique de sortie. Il est limité à deux fichiers de 128 Ko.
 
 ```powershell
 git fetch origin
-git switch fix/boucle-audio-qt
+git switch feat/accueil-emplacements
 git pull --ff-only
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py
 ```
 
-Importer un livre, commencer, changer de paragraphe, fermer puis relancer Bifurk :
-le livre et la progression doivent être repris. Dans Ambiance, tester les effets avec **Écouter**, puis une page et un combat réel.
+Importer un livre, commencer et sauvegarder dans un emplacement. Relancer Bifurk :
+choisir la sauvegarde dans la fenêtre d’accueil, ou Nouvelle partie pour retrouver
+l’introduction. Vérifier la suppression avec refus puis confirmation.
+Dans Ambiance, tester les effets avec **Écouter**, puis une page et un combat réel.
 Vérifier le choc avant la boîte de résultat et la réaction immédiate de la page.
 Activer puis couper la caverne séparément des effets. Relancer pour vérifier la mémorisation.
 

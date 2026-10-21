@@ -1,8 +1,32 @@
 """Illustrated, resizable surfaces for the Grimoire desktop theme."""
 from themes import default_theme
 from PySide6.QtCore import Qt, QRectF, QSize, Signal, QPointF
-from PySide6.QtGui import QColor, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen, QShortcut, QKeySequence
+from PySide6.QtGui import QColor, QFont, QFontMetrics, QPalette, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen, QShortcut, QKeySequence
 from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle, QDialog
+
+
+class SingleLineTitle(QLabel):
+    """Fit the whole heading on one line without widening the reader."""
+    def minimumSizeHint(self):
+        return QSize(0, super().minimumSizeHint().height())
+
+    def fitted_font(self):
+        font = QFont(self.font())
+        width = QFontMetrics(font).horizontalAdvance(self.text())
+        available = max(1, self.contentsRect().width() - 8)
+        if width > available:
+            scale = available / width
+            if font.pixelSize() > 0:
+                font.setPixelSize(max(1, int(font.pixelSize() * scale)))
+            else:
+                font.setPointSizeF(max(1, font.pointSizeF() * scale))
+        return font
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setFont(self.fitted_font())
+        painter.setPen(self.palette().color(QPalette.WindowText))
+        painter.drawText(self.contentsRect(), Qt.AlignCenter | Qt.TextSingleLine, self.text())
 
 
 class IllustrationDialog(QDialog):
