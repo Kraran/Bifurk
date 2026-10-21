@@ -9,6 +9,8 @@ from themes import available_themes
 from sound_effects import SoundBank, EFFECT_LABELS
 from save_slots import SaveSlotsDialog, read_save
 from datetime import datetime
+from app_info import APP_NAME, APP_VERSION
+from about_dialog import AboutDialog, BrandButton
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
@@ -17,7 +19,6 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, 
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
     QGroupBox, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar, QTabWidget, QSizePolicy)
 
-APP_NAME = "Bifurk — 1.0.13"
 # Répertoire portable : à côté de l'exécutable empaqueté ou du script.
 APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 ASSET_DIR = APP_DIR / "assets"
@@ -418,12 +419,24 @@ class MainWindow(QMainWindow, BookActions):
         header_frame.setObjectName("grimoireHeader")
         header = QHBoxLayout(header_frame)
         header.setContentsMargins(16, 8, 16, 8)
+        self.about_button = BrandButton()
+        self.about_button.setObjectName('aboutBrand')
+        self.about_button.setCursor(Qt.PointingHandCursor)
+        self.about_button.setAccessibleName('Bifurk — Chroniques d’aventure — À propos')
+        self.about_button.setToolTip('À propos de Bifurk')
+        self.about_button.clicked.connect(self.show_about)
+        brand = QHBoxLayout(self.about_button)
+        brand.setContentsMargins(4, 0, 4, 0)
+        brand.setSpacing(10)
         title = QLabel("⚜  B I F U R K")
         title.setObjectName("appTitle")
-        header.addWidget(title)
+        title.setAttribute(Qt.WA_TransparentForMouseEvents)
+        brand.addWidget(title)
         subtitle = QLabel("CHRONIQUES D’AVENTURE")
         subtitle.setObjectName("subtitle")
-        header.addWidget(subtitle)
+        subtitle.setAttribute(Qt.WA_TransparentForMouseEvents)
+        brand.addWidget(subtitle)
+        header.addWidget(self.about_button)
         header.addStretch()
         self.book_label = QLabel("Aucun livre chargé")
         self.book_label.setObjectName("bookName")
@@ -1295,6 +1308,11 @@ class MainWindow(QMainWindow, BookActions):
             label.setWordWrap(True)
             self.condition_layout.addWidget(label)
         self.condition_layout.addWidget(QLabel("Vérifiez le texte original : aucun choix n’est bloqué automatiquement."))
+
+    def show_about(self):
+        dialog = AboutDialog(ASSET_DIR, self.theme, self)
+        dialog.exec()
+        dialog.deleteLater()
 
     def show_rules(self):
         if not self.pdf_path:
@@ -2469,7 +2487,7 @@ class MainWindow(QMainWindow, BookActions):
         self._record(f"Modifier {key}", before)
 
     def _save_data(self):
-        return {"version": "1.0.13", "pdf_path": (str(Path(self.pdf_path).relative_to(APP_DIR)) if self.pdf_path and within_directory(self.pdf_path, APP_DIR) else None),
+        return {"version": APP_VERSION, "pdf_path": (str(Path(self.pdf_path).relative_to(APP_DIR)) if self.pdf_path and within_directory(self.pdf_path, APP_DIR) else None),
                 "saved_at": datetime.now().astimezone().isoformat(),
                 "save_name": self.character.get('name') or 'Aventurier sans nom',
                 "pdf_sha256": self._pdf_hash(),
@@ -2651,6 +2669,7 @@ def main():
     init_portable_dirs()
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
+    app.setApplicationVersion(APP_VERSION)
     app.setOrganizationName("Bifurk")
     QLocale.setDefault(QLocale(QLocale.French, QLocale.France))
     app._bifurk_translators = []

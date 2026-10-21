@@ -145,3 +145,17 @@ QWidget#readerPanel QGroupBox { background: transparent; }
 QDialog QLabel#saveHeading { color: #f0d39a; font-size: 22px; padding: 10px 0; }
 QLabel#paragraphNumber { color: #67452c; font-size: 16px; background: transparent; }
 QDialog QPushButton[saveSlot="true"] { font-size: 15px; padding: 10px; border-radius: 8px; }
+QPushButton#aboutBrand { background: transparent; border: 1px solid transparent;
+    border-radius: 7px; padding: 3px; min-width: 0; }
+QPushButton#aboutBrand:hover, QPushButton#aboutBrand:focus { border-color: ${gold}; background: #4b2925; }
+QDialog#aboutDialog { background-color: ${scene_background}; border: 1px solid ${frame}; border-radius: 14px; }
+QFrame#aboutBody { background-color: ${scene_background}; border-top: 1px solid ${ornament};
+    border-bottom: 1px solid ${ornament}; }
+QDialog QLabel#aboutHeading { color: ${gold}; font-family: '${reading_font}'; font-size: 24px; font-weight: bold; }
+QDialog QLabel#aboutAppName { color: ${gold}; font-family: '${reading_font}'; font-size: 36px; font-weight: bold; }
+QDialog QLabel#aboutVersion, QDialog QLabel#aboutKey { color: ${ornament}; }
+QDialog QLabel#aboutNote { background-color: ${icon_background}; color: ${page};
+    border-radius: 8px; padding: 12px; font-size: 12px; }
+QDialog QPushButton#aboutDismiss { min-width: 0; padding: 0; font-size: 24px;
+    border: none; background: transparent; }
+QDialog QPushButton#aboutDismiss:hover { color: ${gold}; background: ${icon_background}; }

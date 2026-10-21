@@ -1,4 +1,4 @@
-# Bifurk 1.0.13 — Français et mode portable
+# Bifurk 1.1.0 — Français et mode portable
 
 ## Interface Le Grimoire
 
@@ -9,7 +9,9 @@ Les commandes sont regroupées dans les onglets Sacoche, Combat & soins et Dés.
 
 [Captures et instructions de test](docs/design/grimoire.md).
 
-Le dernier grimoire et sa sauvegarde automatique sont repris au démarrage.
+Le démarrage propose une nouvelle partie ou le chargement d’un des cinq emplacements.
+Le titre **Bifurk — Chroniques d’aventure**, icône comprise, ouvre la fenêtre **À propos** :
+version, auteur, présentation et liens GitHub.
 Le bouton **Ambiance** permet de couper les effets sonores et de choisir le thème.
 [Reprise, sons et préparation de thèmes](docs/themes-et-ambiance.md).
 
