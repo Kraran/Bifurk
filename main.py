@@ -277,7 +277,10 @@ class MainWindow(QMainWindow, BookActions):
             self._render_paragraph_text(self.paragraphs[self.current_paragraph])
             self.reader.verticalScrollBar().setValue(scroll_position)
         else:
-            self._show_welcome()
+            if self.pdf_path and self.paragraphs:
+                self._show_book_title()
+            else:
+                self._show_welcome()
         self.font_size_label.setText(f"{self.reader_font_size} pt")
 
     def _render_paragraph_text(self, text):
@@ -763,6 +766,30 @@ class MainWindow(QMainWindow, BookActions):
         self.condition_group.hide()
         self.reader.setHtml("<h1>Ouvrez le grimoire.</h1><p>Une porte oubliée. Un trésor légendaire. Et vos décisions pour seule boussole.</p><p>Choisissez votre livre avec <b>Ouvrir un grimoire</b>, puis créez votre aventurier dans <b>Combat &amp; soins</b>.</p><p>Explorez, lancez les dés et écrivez votre propre histoire.</p>")
 
+    def _show_book_title(self):
+        import html
+        self.current_paragraph = None
+        title = ((self.illustration_catalogue or {}).get("title")
+                 or Path(self.pdf_path).stem)
+        self.paragraph_title.setText("✦  Votre aventure commence ici  ✦")
+        self.reader.setHtml(
+            f'<div style="text-align:center; color:#632c33; font-family:\'{self.reading_font_family}\';">'
+            f'<p style="font-size:16pt;">✦ LIVRE D’AVENTURE ✦</p>'
+            f'<h1 style="font-size:38pt;">{html.escape(title)}</h1>'
+            '<p style="font-size:18pt;">Ouvrez le livre. Choisissez votre destin.</p></div>')
+        self._clear_dynamic_layout(self.choice_layout)
+        first = 1 if 1 in self.paragraphs else min(self.paragraphs)
+        start = ChoiceCard(f"Commencer l’aventure  →  §{first}")
+        start.setObjectName("choiceCard")
+        start.clicked.connect(lambda checked=False: self.go_to(first))
+        self.choice_group.setTitle("⚜  L’AVENTURE VOUS ATTEND")
+        self.choice_layout.addWidget(start)
+        self.choice_group.show()
+        self.event_group.hide()
+        self.condition_group.hide()
+        self.illustration_button.hide()
+        self._update_scene_art(prefer_cover=True)
+
     def open_pdf(self):
         path = self._themed_file_dialog(kind="pdf")
         if not path:
@@ -803,8 +830,8 @@ class MainWindow(QMainWindow, BookActions):
         self.visited_paragraphs = []
         self.undo_stack.clear(); self.redo_stack.clear()
         self._update_history_controls()
-        self.go_to(first)
-        self._update_scene_art(prefer_cover=True)
+        self._show_book_title()
+        self._autosave()
 
     def _clear_dynamic_layout(self, layout):
         while layout.count():
@@ -852,6 +879,7 @@ class MainWindow(QMainWindow, BookActions):
         return events
 
     def _render_choices_and_events(self, text):
+        self.choice_group.setTitle("⚜  QUELLE SERA VOTRE VOIE ?")
         self._clear_dynamic_layout(self.choice_layout)
         choices = self._paragraph_choices(text)
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
@@ -1294,12 +1322,12 @@ class MainWindow(QMainWindow, BookActions):
         max_height = max(260, available.height() - 150)
         displayed = pixmap.scaled(max_width - 44, max_height - 110,
                                   Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        label = QLabel()
-        label.setObjectName("illustrationImage")
-        label.setAlignment(Qt.AlignCenter)
-        label.setPixmap(displayed)
-        label.setFixedSize(displayed.size())
-        layout.addWidget(label, alignment=Qt.AlignCenter)
+        viewer = GrimoireScene(ASSET_DIR / "grimoire-library.png")
+        viewer.setMinimumSize(200, 180)
+        viewer.set_book_art(pixmap)
+        viewer.setAccessibleName(title)
+        layout.addWidget(viewer, 1)
+        layout.addWidget(QLabel("Molette : zoom · Glisser : déplacer · Clic : recadrer"))
         status = "association probable" if entry.get("statut") == "probable" else "association vérifiée par position" if entry.get("statut") == "verifie_position" else "association vérifiée"
         status_label = QLabel(f"Page PDF {entry['page_pdf']} · {status}")
         status_label.setObjectName("illustrationStatus")
@@ -2094,6 +2122,8 @@ class MainWindow(QMainWindow, BookActions):
                 self.go_to(target)
             else:
                 self.current_paragraph = target
+                if target is None and self.pdf_path and self.paragraphs:
+                    self._show_book_title()
         finally:
             self._restoring = False
 

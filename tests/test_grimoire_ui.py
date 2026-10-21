@@ -2,8 +2,8 @@
 import unittest
 from unittest.mock import patch
 
-from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap, QWheelEvent
+from PySide6.QtCore import Qt, QPoint, QPointF
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea
 
@@ -100,7 +100,7 @@ class GrimoireInterfaceTests(unittest.TestCase):
         w = self.window
         book_cover = {"id": "cover", "type": "couverture"}
         chapter_art = {"id": "chapter", "type": "illustration", "statut": "verifie", "paragraphes": [1]}
-        catalogue = {"illustrations": [book_cover, chapter_art]}
+        catalogue = {"title": "Le Sorcier de la Montagne de Feu", "illustrations": [book_cover, chapter_art]}
         image = QPixmap(100, 150)
         image.fill()
         with patch.object(w, "_themed_file_dialog", return_value="/tmp/ui-book.pdf"), \
@@ -112,16 +112,47 @@ class GrimoireInterfaceTests(unittest.TestCase):
                 patch.object(w, "_show_illustration") as popup:
             w.open_pdf()
             popup.assert_not_called()
+            self.assertIsNone(w.current_paragraph)
+            self.assertEqual(w.visited_paragraphs, [])
+            self.assertIn("Le Sorcier de la Montagne de Feu", w.reader.toPlainText())
             self.assertEqual(w.scene_entry, book_cover)
             QTest.mouseDClick(w.scene_art, Qt.LeftButton)
             popup.assert_called_once_with(book_cover, "Couverture du grimoire")
             popup.reset_mock()
-            w.go_to(1)
+            w.choice_layout.itemAt(0).widget().click()
+            self.assertEqual(w.current_paragraph, 1)
             self.assertEqual(w.scene_entry, chapter_art)
             QTest.mouseDClick(w.scene_art, Qt.LeftButton)
             popup.assert_called_once_with(chapter_art, "Illustration — paragraphe 1")
+            w.undo_action()
+            self.assertIsNone(w.current_paragraph)
+            self.assertEqual(w.scene_entry, book_cover)
+            self.assertIn("Le Sorcier de la Montagne de Feu", w.reader.toPlainText())
             w.go_to(2)
             self.assertEqual(w.scene_entry, book_cover)
+
+    def test_image_zoom_pan_and_click_reset(self):
+        scene = self.window.scene_art
+        image = QPixmap(600, 600)
+        image.fill()
+        scene.set_book_art(image)
+        center = scene.rect().center()
+        wheel = QWheelEvent(QPointF(center), QPointF(scene.mapToGlobal(center)),
+                            QPoint(), QPoint(0, 720), Qt.NoButton, Qt.NoModifier,
+                            Qt.NoScrollPhase, False)
+        QApplication.sendEvent(scene, wheel)
+        self.assertGreater(scene.zoom, 1)
+        QTest.mousePress(scene, Qt.LeftButton, pos=center)
+        self.assertEqual(scene.cursor().shape(), Qt.CrossCursor)
+        QTest.mouseMove(scene, center + QPoint(30, 20))
+        QTest.mouseRelease(scene, Qt.LeftButton, pos=center + QPoint(30, 20))
+        self.assertGreater(scene.zoom, 1)
+        self.assertNotEqual(scene.pan, QPointF())
+        QTest.mouseClick(scene, Qt.LeftButton, pos=center)
+        self.assertEqual(scene.zoom, 1)
+        self.assertEqual(scene.pan, QPointF())
+        scene.set_book_art(image)
+        self.assertEqual(scene.zoom, 1)
 
 
 if __name__ == "__main__":
