@@ -194,7 +194,8 @@ class MainWindow(QMainWindow, BookActions):
         self.themes = available_themes(ASSET_DIR / "themes")
         self.theme = self.themes.get(self.preferences.get("theme"), self.themes["grimoire"])
         self.sounds = SoundBank(ASSET_DIR / "sounds", self.preferences.get("sound_enabled", True), self,
-                                ambient_enabled=self.preferences.get("ambient_enabled", False))
+                            ambient_enabled=self.preferences.get("ambient_enabled", False),
+                            diagnostic_path=SETTINGS_DIR / "audio.log")
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
         self._fullscreen = False

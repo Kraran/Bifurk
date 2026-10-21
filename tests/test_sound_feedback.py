@@ -7,11 +7,13 @@ import wave
 import os
 import subprocess
 import sys
+import tempfile
 from enum import Enum
 from pathlib import Path
 from unittest.mock import patch, call
 
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QApplication, QMessageBox, QDialog, QPushButton
 from book_events import DATA_PATH
 from main import MainWindow, ASSET_DIR
 from sound_effects import SoundBank, EFFECT_LABELS
@@ -32,6 +34,7 @@ class FakeEffect:
     Ready, Loading, Error, Infinite = 2, 1, 3, Loop.Infinite
     def __init__(self, parent):
         self.statusChanged = Signal()
+        self.playingChanged = Signal()
         self.state = self.Ready
         self.play_count = self.stop_count = 0
     def setVolume(self, value): self.volume = value
@@ -43,6 +46,7 @@ class FakeEffect:
     def status(self): return self.state
     def play(self): self.play_count += 1
     def stop(self): self.stop_count += 1
+    def isPlaying(self): return self.play_count > self.stop_count
 
 
 class SoundFeedbackTests(unittest.TestCase):
@@ -77,6 +81,48 @@ class SoundFeedbackTests(unittest.TestCase):
             self.assertEqual(ambient.stop_count, 0)
             bank.set_ambient_enabled(False)
             self.assertEqual(ambient.stop_count, 1)
+
+    def test_diagnostics_distinguish_requests_mute_and_backend_playback(self):
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(SoundBank, '_backend', return_value=FakeEffect):
+            path = Path(directory) / 'audio.log'
+            bank = SoundBank(ASSET_DIR/'sounds', diagnostic_path=path)
+            bank.play('dice')
+            bank.effects['dice'].playingChanged.emit()
+            bank.set_enabled(False)
+            bank.play('page')
+            bank._close_log()
+            log = path.read_text()
+            self.assertIn('request dice allowed=True', log)
+            self.assertIn('dispatch dice status=2', log)
+            self.assertIn('playing dice=True', log)
+            self.assertIn('request page allowed=False', log)
+
+    def test_game_buttons_keep_using_audio_after_ambience_dialog_closes(self):
+        with patch.object(SoundBank, '_backend', return_value=FakeEffect):
+            w = MainWindow()
+            try:
+                w.sounds.set_enabled(True)
+                w.paragraphs = {1: 'Salle.', 2: 'Suite.'}
+                def preview():
+                    dialog = w.findChild(QDialog)
+                    next(b for b in dialog.findChildren(QPushButton)
+                         if b.text() == 'Écouter').click()
+                    dialog.reject()
+                QTimer.singleShot(0, preview)
+                w.show_ambience()
+                self.assertEqual(w.sounds.effects['page'].play_count, 1)
+                w.go_to(1)
+                self.assertEqual(w.sounds.effects['page'].play_count, 2)
+                next(b for b in w.findChildren(QPushButton)
+                     if b.text() == 'Lancer').click()
+                self.assertEqual(w.sounds.effects['dice'].play_count, 1)
+                with patch.object(QMessageBox, 'exec', return_value=QMessageBox.No):
+                    w.findChild(QPushButton, 'combatButton').click()
+                self.assertEqual(w.sounds.effects['swords'].play_count, 1)
+            finally:
+                w.close()
+                w.deleteLater()
 
     def test_preload_with_real_qt_multimedia_accepts_infinite_loop(self):
         # Isolate native audio initialization; Linux CI has no PipeWire configuration.
