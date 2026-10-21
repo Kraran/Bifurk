@@ -1,0 +1,80 @@
+"""Convert the credited CC0 packs to low-latency PCM (requires FFmpeg).
+
+Usage: python scripts/prepare_sounds.py /path/to/downloaded/packs
+Archive filenames and download URLs are listed in assets/sounds/sources.json.
+"""
+import array
+import json
+import math
+import hashlib
+import subprocess
+import sys
+import tempfile
+import wave
+import zipfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / 'assets/sounds'
+
+
+def normalize(path, trim_attack=False):
+    with wave.open(str(path), 'rb') as f:
+        params = f.getparams()
+        samples = array.array('h', f.readframes(f.getnframes()))
+    if sys.byteorder != 'little': samples.byteswap()
+    peak = max(map(abs, samples)) or 1
+    if trim_attack:
+        window = max(1, int(params.framerate * .005))
+        for index in range(0, len(samples)-window, window):
+            rms = math.sqrt(sum(v*v for v in samples[index:index+window]) / window)
+            if rms >= peak * .025:
+                # Keep 10 ms of the attack, rather than the recording's faint handling noise.
+                samples = samples[max(0, index-window*2):]
+                break
+    samples = array.array('h', (round(v * 27500 / peak) for v in samples))
+    if sys.byteorder != 'little': samples.byteswap()
+    with wave.open(str(path), 'wb') as f:
+        f.setparams(params); f.writeframes(samples.tobytes())
+
+
+def prepare(folder):
+    manifest = json.loads((OUT/'sources.json').read_text())
+    for pack in manifest['packs'].values():
+        if hashlib.sha256((folder/pack['archive']).read_bytes()).hexdigest() != pack['sha256']:
+            raise ValueError(f"Archive différente de la source créditée : {pack['archive']}")
+    with tempfile.TemporaryDirectory() as temporary:
+        temporary = Path(temporary)
+        for name, spec in manifest['effects'].items():
+            inputs = []
+            for index, member in enumerate(spec['files']):
+                pack = manifest['packs'][spec['pack']]
+                if pack['archive'].endswith('.zip'):
+                    with zipfile.ZipFile(folder/pack['archive']) as archive:
+                        data = archive.read(member)
+                else:
+                    data = (folder/pack['archive']).read_bytes()
+                path = temporary/(str(index)+Path(member).suffix)
+                path.write_bytes(data)
+                inputs += ['-i', str(path)]
+            command = ['ffmpeg','-v','error','-y',*inputs]
+            if len(spec['files']) > 1:
+                command += ['-filter_complex','[0:a][1:a]concat=n=2:v=0:a=1[out]','-map','[out]']
+            filters = []
+            if name != 'ambient':
+                filters += ['silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.003']
+            if name == 'death': filters += ['asetrate=33075','aresample=44100']
+            if filters:
+                if len(spec['files']) > 1:
+                    position = command.index('-filter_complex') + 1
+                    command[position] = command[position].replace('[out]', ',' + ','.join(filters) + '[out]')
+                else:
+                    command += ['-af', ','.join(filters)]
+            command += ['-ac','1','-ar','22050' if name=='ambient' else '44100',
+                        '-c:a','pcm_s16le',str(OUT/f'{name}.wav')]
+            subprocess.run(command, check=True)
+            normalize(OUT/f'{name}.wav', trim_attack=name == 'page')
+
+
+if __name__ == '__main__':
+    prepare(Path(sys.argv[1]))

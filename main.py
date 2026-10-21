@@ -6,7 +6,7 @@ from illustrations import catalogue_for_pdf, images_for_paragraph, cover
 from book_actions import BookActions
 from rules_viewer import RulesDialog
 from themes import available_themes
-from sound_effects import SoundBank
+from sound_effects import SoundBank, EFFECT_LABELS
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
@@ -193,7 +193,8 @@ class MainWindow(QMainWindow, BookActions):
             self.preferences = {}
         self.themes = available_themes(ASSET_DIR / "themes")
         self.theme = self.themes.get(self.preferences.get("theme"), self.themes["grimoire"])
-        self.sounds = SoundBank(ASSET_DIR / "sounds", self.preferences.get("sound_enabled", True), self)
+        self.sounds = SoundBank(ASSET_DIR / "sounds", self.preferences.get("sound_enabled", True), self,
+                                ambient_enabled=self.preferences.get("ambient_enabled", False))
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
         self._fullscreen = False
@@ -282,7 +283,7 @@ class MainWindow(QMainWindow, BookActions):
         dialog = QDialog(self)
         dialog.setWindowTitle("Bifurk — Ambiance")
         layout = QVBoxLayout(dialog)
-        sound = QCheckBox("Activer les sons des pages, des dés et des combats")
+        sound = QCheckBox("Activer les effets sonores")
         sound.setChecked(self.sounds.enabled)
         def set_sound(enabled):
             self.sounds.set_enabled(enabled)
@@ -290,6 +291,25 @@ class MainWindow(QMainWindow, BookActions):
             self._save_preferences()
         sound.toggled.connect(set_sound)
         layout.addWidget(sound)
+        ambient = QCheckBox("Ambiance de fond : caverne")
+        ambient.setChecked(self.sounds.ambient_enabled)
+        def set_ambient(enabled):
+            self.sounds.set_ambient_enabled(enabled)
+            self.preferences["ambient_enabled"] = enabled
+            self._save_preferences()
+        ambient.toggled.connect(set_ambient)
+        layout.addWidget(ambient)
+        preview = QHBoxLayout()
+        effects = QComboBox()
+        for name, label in EFFECT_LABELS.items():
+            effects.addItem(label, name)
+        listen = QPushButton("Écouter")
+        listen.setEnabled(self.sounds.enabled)
+        sound.toggled.connect(listen.setEnabled)
+        listen.clicked.connect(lambda: self.sounds.play(effects.currentData()))
+        preview.addWidget(effects, 1)
+        preview.addWidget(listen)
+        layout.addLayout(preview)
         layout.addWidget(QLabel("Thème de l’interface"))
         themes = QComboBox()
         for key, theme in self.themes.items():
@@ -1308,6 +1328,8 @@ class MainWindow(QMainWindow, BookActions):
             QMessageBox.information(self, "Paragraphe absent", f"Le paragraphe {number} n'a pas été détecté dans le PDF chargé.")
             return
         previous = self.current_paragraph
+        if previous != number and not self._restoring:
+            self.sounds.play("page")
         if previous is not None and previous != number and not self._restoring:
             source = verified_entry(self.book_event_catalogue, previous)
             combat = source.get("combat", {}) if source else {}
@@ -1322,8 +1344,6 @@ class MainWindow(QMainWindow, BookActions):
         if previous is not None and previous != number and not self._restoring:
             self.transitions.append([previous, number])
         self.current_paragraph = number
-        if previous != number and not self._restoring:
-            self.sounds.play("page")
         if not self._restoring and self.book_event_catalogue:
             if number in (106, 279):
                 self._remember_monster("Dragon" if number == 106 else "Vampire")
@@ -1740,8 +1760,6 @@ class MainWindow(QMainWindow, BookActions):
         self.rules_log.setText(f"Potion utilisée : {label} {old} → {target}. Doses restantes : {doses-1}.")
 
     def _log_assault(self, player_rolls, enemy_rolls, player_attack, enemy_attack, outcome):
-        if player_rolls and enemy_rolls:
-            self.sounds.play("swords")
         self._book_round_played = True
         if (self.crocodile_combat
                 and self.current_paragraph == self.crocodile_combat["paragraph"]):
@@ -1985,6 +2003,7 @@ class MainWindow(QMainWindow, BookActions):
         player_rolls, player_total = self._roll(2)
         enemy_attack = self.enemy_skill.value() + enemy_total
         player_attack = combat_skill(self.character) + player_total + combat_rules.get("attack_bonus", 0)
+        self.sounds.play("swords")
         if player_attack == enemy_attack:
             self.rules_log.setText(f"Égalité ({player_attack} contre {enemy_attack}) : aucun dégât. Relancez l'assaut.")
             self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, "Parade")
@@ -2172,6 +2191,8 @@ class MainWindow(QMainWindow, BookActions):
     def _record(self, label, before):
         if self._restoring or before == self._snapshot():
             return
+        if label not in ("Créer un personnage", "Changer de potion"):
+            self._play_state_sounds(before)
         self.undo_stack.append((label, before))
         self.undo_stack = self.undo_stack[-100:]
         self.redo_stack.clear()
@@ -2179,6 +2200,43 @@ class MainWindow(QMainWindow, BookActions):
         self.action_history = self.action_history[-200:]
         self._update_history_controls()
         self._autosave()
+
+    def _play_state_sounds(self, before):
+        """One outcome cue per action; no replay on refresh, Undo or loading."""
+        from collections import Counter
+        old = before["character"]
+        new = self.character
+        if old.get("endurance", 0) > 0 and new.get("endurance", 0) <= 0:
+            self.sounds.play("death")
+            return
+        old_wins = {(p, m["name"]) for p, monsters in before.get("encounter_history", {}).items()
+                    for m in monsters if m["status"] in ("vaincu", "repoussé")}
+        wins = {(p, m["name"]) for p, monsters in self.encounter_history.items()
+                for m in monsters if m["status"] in ("vaincu", "repoussé")}
+        if (wins - old_wins or
+                (new.get("book_facts", {}).get("adventure_won")
+                 and not old.get("book_facts", {}).get("adventure_won"))):
+            self.sounds.play("victory")
+            return
+        if new.get("potion_doses", 0) < old.get("potion_doses", 0):
+            self.sounds.play("potion")
+            return
+        source = before["current_paragraph"]
+        if source != self.current_paragraph:
+            entry = verified_entry(self.book_event_catalogue, source)
+            if entry:
+                keyed = entry.get("special") == "keys" or any(
+                    r["target"] == self.current_paragraph and "clé" in r["label"].casefold()
+                    for r in available_routes(old, entry))
+                if keyed:
+                    self.sounds.play("key")
+                    return
+        if new.get("endurance", 0) < old.get("endurance", 0):
+            self.sounds.play("hit")
+        elif new.get("gold", 0) != old.get("gold", 0):
+            self.sounds.play("coins")
+        elif Counter(new.get("inventory", [])) - Counter(old.get("inventory", [])):
+            self.sounds.play("item")
 
     def _update_history_controls(self):
         if not hasattr(self, "undo_btn"):
