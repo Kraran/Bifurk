@@ -4,7 +4,7 @@ from datetime import date
 from PySide6.QtCore import Qt, QUrl, QRectF, QSize
 from PySide6.QtGui import QDesktopServices, QPixmap, QPainter, QColor, QLinearGradient, QPainterPath
 from PySide6.QtWidgets import (QDialog, QFrame, QVBoxLayout, QHBoxLayout,
-                               QGridLayout, QLabel, QPushButton, QWidget, QSizePolicy)
+                               QGridLayout, QLabel, QPushButton, QSizePolicy)
 
 from app_info import APP_VERSION, APP_RELEASE_DATE, AUTHOR, AUTHOR_URL, REPOSITORY_URL
 
@@ -18,15 +18,20 @@ class BrandButton(QPushButton):
         return self.sizeHint()
 
 
-class AuthorPortrait(QWidget):
+class AuthorPortrait(QPushButton):
     def __init__(self, path, background, parent=None):
         super().__init__(parent)
+        self.setObjectName('aboutPortrait')
+        self.setAutoDefault(False)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setToolTip('Ouvrir le profil GitHub de Kraran')
+        self.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(AUTHOR_URL)))
         self.pixmap = QPixmap(str(path))
         self.background = QColor(background)
         self.setFixedWidth(218)
         self.setMinimumHeight(380)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        self.setAccessibleName('Portrait de présentation de Kraran')
+        self.setAccessibleName('Portrait de Kraran — ouvrir son profil GitHub')
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -47,6 +52,9 @@ class AuthorPortrait(QWidget):
         gradient.setColorAt(.65, transparent)
         gradient.setColorAt(1, self.background)
         painter.fillRect(rect, gradient)
+        if self.hasFocus():
+            painter.setPen(self.palette().buttonText().color())
+            painter.drawRoundedRect(rect.adjusted(2, 2, -2, -2), 8, 8)
 
 
 class AboutDialog(QDialog):
@@ -65,12 +73,6 @@ class AboutDialog(QDialog):
         heading.setObjectName('aboutHeading')
         header.addWidget(heading)
         header.addStretch()
-        dismiss = QPushButton('×')
-        dismiss.setObjectName('aboutDismiss')
-        dismiss.setAccessibleName('Fermer À propos')
-        dismiss.setFixedSize(32, 32)
-        dismiss.clicked.connect(self.reject)
-        header.addWidget(dismiss)
         root.addLayout(header)
         body = QFrame()
         body.setObjectName('aboutBody')

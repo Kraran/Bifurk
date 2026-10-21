@@ -156,6 +156,3 @@ QDialog QLabel#aboutAppName { color: ${gold}; font-family: '${reading_font}'; fo
 QDialog QLabel#aboutVersion, QDialog QLabel#aboutKey { color: ${ornament}; }
 QDialog QLabel#aboutNote { background-color: ${icon_background}; color: ${page};
     border-radius: 8px; padding: 12px; font-size: 12px; }
-QDialog QPushButton#aboutDismiss { min-width: 0; padding: 0; font-size: 24px;
-    border: none; background: transparent; }
-QDialog QPushButton#aboutDismiss:hover { color: ${gold}; background: ${icon_background}; }
