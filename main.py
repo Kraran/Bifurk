@@ -18,6 +18,7 @@ from book_actions import BookActions
 from rules_viewer import RulesDialog
 from themes import available_themes
 from sound_effects import SoundBank, EFFECT_LABELS
+from intro_music import IntroMusic
 from save_slots import SaveSlotsDialog, read_save
 from datetime import datetime
 from app_info import APP_NAME, APP_VERSION
@@ -236,6 +237,8 @@ class MainWindow(QMainWindow, BookActions):
         self.sounds = SoundBank(ASSET_DIR / "sounds", self.preferences.get("sound_enabled", True), self,
                             ambient_enabled=self.preferences.get("ambient_enabled", False),
                             diagnostic_path=SETTINGS_DIR / "audio.log")
+        self.intro_music = IntroMusic(ASSET_DIR / 'sounds' / 'FantasyFair.m4a',
+                                      self.preferences.get('music_enabled', True), self)
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
         self._fullscreen = False
@@ -309,6 +312,7 @@ class MainWindow(QMainWindow, BookActions):
 
     def _show_startup_menu(self):
         """Proposer les cinq emplacements ou une nouvelle aventure ; ne pas charger l’autosave."""
+        self.intro_music.menu()
         while True:
             dialog = SaveSlotsDialog(SAVES_DIR, False, self, startup=True)
             accepted = dialog.exec() == QDialog.Accepted
@@ -359,6 +363,15 @@ class MainWindow(QMainWindow, BookActions):
             self._save_preferences()
         ambient.toggled.connect(set_ambient)
         layout.addWidget(ambient)
+        music = QCheckBox("Musique d’accueil : FantasyFair")
+        music.setChecked(self.intro_music.enabled)
+        def set_music(enabled):
+            """Mémoriser le réglage musical sans modifier les effets ni l'ambiance de caverne."""
+            self.intro_music.set_enabled(enabled)
+            self.preferences['music_enabled'] = enabled
+            self._save_preferences()
+        music.toggled.connect(set_music)
+        layout.addWidget(music)
         preview = QHBoxLayout()
         effects = QComboBox()
         for name, label in EFFECT_LABELS.items():
@@ -996,6 +1009,7 @@ class MainWindow(QMainWindow, BookActions):
         """Afficher la couverture, le titre et le formulaire de création avant le §1.
 
         Un simple rafraîchissement conserve le tirage, le nom et le compteur de relances."""
+        self.intro_music.menu()
         if self._adventurer_draft is None:
             self._prepare_adventurer()
         self.paragraph_number.hide()
@@ -1157,6 +1171,7 @@ class MainWindow(QMainWindow, BookActions):
         self.redo_stack.clear()
         self.action_history.clear()
         self.go_to(1 if 1 in self.paragraphs else min(self.paragraphs))
+        self.intro_music.fade_out()
 
     def _show_death_page(self):
         """Afficher la fin d’aventure et proposer recommencer ou charger ; bloquer les actions de jeu."""
@@ -2957,9 +2972,12 @@ class MainWindow(QMainWindow, BookActions):
 
         Recharger texte et catalogues depuis le livre puis restaurer l’état et les piles
         d’historique sans rejouer ses effets. announce contrôle l’affichage des erreurs."""
+        self.intro_music.menu()
         if not isinstance(path, (str, Path)):
             path = self._themed_save_dialog(saving=False)
         if not path:
+            if self.current_paragraph is not None:
+                self.intro_music.fade_out()
             return
         try:
             data = read_save(Path(path))
@@ -2986,10 +3004,13 @@ class MainWindow(QMainWindow, BookActions):
             self.redo_stack = [(label, state) for label, state in data['redo_stack']]
             self._update_history_controls()
             self._remember_book()
+            self.intro_music.fade_out()
             if announce:
                 QMessageBox.information(self, "Chargement", "Partie chargée.")
             return True
         except Exception as exc:
+            if self.current_paragraph is not None:
+                self.intro_music.fade_out()
             if announce:
                 QMessageBox.critical(self, "Chargement impossible", str(exc))
             return False

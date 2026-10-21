@@ -1,0 +1,71 @@
+"""Musique des menus : flux compressé en boucle et fondu indépendant des effets.
+
+Le lecteur conserve le M4A original et le décode en continu, sans charger plusieurs
+minutes de PCM en mémoire. Les écrans demandent simplement menu() ou fade_out().
+Le service possède son animation Qt : un retour au menu annule le fondu précédent.
+"""
+from PySide6.QtCore import QAbstractAnimation, QObject, QPropertyAnimation, QUrl
+from PySide6.QtGui import QGuiApplication
+
+
+class IntroMusic(QObject):
+    """Piloter FantasyFair uniquement pendant l'accueil et la préparation d'une partie."""
+    VOLUME = 0.45
+    FADE_MS = 10000
+
+    def __init__(self, path, enabled=True, parent=None):
+        """Préparer l'état sans ouvrir de périphérique audio avant le premier menu."""
+        super().__init__(parent)
+        self.path = path
+        self.enabled = bool(enabled)
+        self.in_menu = False
+        self.player = self.output = self.fade = None
+
+    def _create_player(self):
+        """Désactiver la sortie dans les tests sans écran ; Qt décode le M4A en production."""
+        if QGuiApplication.platformName() in ('offscreen', 'minimal') or not self.path.is_file():
+            return False
+        from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
+        self.output = QAudioOutput(self)
+        self.player = QMediaPlayer(self)
+        self.player.setAudioOutput(self.output)
+        self.player.setLoops(QMediaPlayer.Infinite.value)
+        self.player.setSource(QUrl.fromLocalFile(str(self.path.resolve())))
+        return True
+
+    def menu(self):
+        """Jouer en boucle, sans recommencer le morceau entre deux écrans de préparation."""
+        self.in_menu = True
+        if self.fade:
+            self.fade.stop()
+        if not self.enabled or (self.player is None and not self._create_player()):
+            return
+        self.output.setVolume(self.VOLUME)
+        self.player.play()
+
+    def fade_out(self):
+        """Réduire le volume pendant dix secondes puis arrêter le flux à volume nul."""
+        self.in_menu = False
+        if self.player is None or not self.enabled:
+            return
+        if self.fade is None:
+            self.fade = QPropertyAnimation(self.output, b'volume', self)
+            self.fade.finished.connect(self.player.stop)
+        # Les rafraîchissements et les changements de paragraphe ne prolongent pas le fondu.
+        if self.fade.state() == QAbstractAnimation.State.Running:
+            return
+        self.fade.setDuration(self.FADE_MS)
+        self.fade.setStartValue(self.output.property('volume'))
+        self.fade.setEndValue(0.0)
+        self.fade.start()
+
+    def set_enabled(self, enabled):
+        """Couper immédiatement ou reprendre seulement si un menu est encore affiché."""
+        self.enabled = bool(enabled)
+        if not self.enabled:
+            if self.fade:
+                self.fade.stop()
+            if self.player:
+                self.player.stop()
+        elif self.in_menu:
+            self.menu()
