@@ -40,6 +40,22 @@ class GrimoireInterfaceTests(unittest.TestCase):
         w.undo_action()
         self.assertEqual(w.current_paragraph, 1)
 
+    def test_first_text_line_has_same_spacing_as_following_lines(self):
+        w = self.window
+        for size in (14, 20, 34):
+            with self.subTest(size=size):
+                w.reader_font_size = size
+                w._render_paragraph_text('Première ligne.\nDeuxième ligne.\nTroisième ligne.')
+                self.app.processEvents()
+                document = w.reader.document()
+                block = document.begin()
+                positions = []
+                while block.isValid():
+                    positions.append(document.documentLayout().blockBoundingRect(block).y())
+                    block = block.next()
+                self.assertEqual(len(positions), 3)
+                self.assertAlmostEqual(positions[1] - positions[0], positions[2] - positions[1], places=2)
+
     def test_hidden_art_stays_hidden_when_following_a_choice(self):
         w = self.window
         w.go_to(1)
