@@ -30,7 +30,7 @@ from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLib
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
-    QGroupBox, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar, QTabWidget, QSizePolicy)
+    QGroupBox, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar, QTabWidget, QSizePolicy, QMenu)
 
 # Répertoire portable : à côté de l'exécutable empaqueté ou du script.
 APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
@@ -633,17 +633,6 @@ class MainWindow(QMainWindow, BookActions):
         self.condition_layout = QVBoxLayout(self.condition_group)
         reader_layout.addWidget(self.condition_group)
 
-        nav = QHBoxLayout()
-        nav.addWidget(QLabel("Aller au paragraphe"))
-        self.goto_spin = QSpinBox()
-        self.goto_spin.setRange(1, 999)
-        nav.addWidget(self.goto_spin)
-        go_btn = QPushButton("Voyager →")
-        go_btn.clicked.connect(lambda: self.go_to(self.goto_spin.value()))
-        self.goto_button = go_btn
-        nav.addWidget(go_btn)
-        nav.addStretch()
-        # La navigation manuelle reste dans l’onglet Dés, hors de la page du récit.
         reader_scroll = QScrollArea()
         reader_scroll.setObjectName("pageScroll")
         reader_scroll.setWidgetResizable(True)
@@ -773,76 +762,28 @@ class MainWindow(QMainWindow, BookActions):
         inv_layout.insertWidget(2, self.shield_check)
         self._add_adventure_tab(inv_group, "Sacoche")
 
-        dice_group = QGroupBox("⚄  DÉS DU DESTIN")
-        dice_layout = QVBoxLayout(dice_group)
-        dice_layout.addLayout(nav)
-        dice_row = QHBoxLayout()
-        self.dice_combo = QComboBox()
-        self.dice_combo.addItems(["1d6", "2d6", "3d6", "1d20"])
-        dice_row.addWidget(self.dice_combo)
-        roll_btn = QPushButton("Lancer")
-        roll_btn.clicked.connect(self.roll_dice)
-        dice_row.addWidget(roll_btn)
-        dice_layout.addLayout(dice_row)
-        self.dice_result = QLabel("Résultat : —")
-        self.dice_result.setObjectName("diceResult")
-        dice_layout.addWidget(self.dice_result)
-        self.dice_faces = QLabel("⚀   ⚀")
-        self.dice_faces.setAlignment(Qt.AlignCenter)
-        self.dice_faces.setObjectName("diceFaces")
-        dice_layout.addWidget(self.dice_faces)
-        self.dice_history = QListWidget()
-        self.dice_history.setMaximumHeight(110)
-        dice_layout.addWidget(self.dice_history)
-
-
-        rules_group = QGroupBox("⚔  ÉPREUVES & COMBATS")
-        rules_layout = QVBoxLayout(rules_group)
-        luck_row = QVBoxLayout()
-        luck_btn = QPushButton("Tenter sa Chance (2d6)")
-        luck_btn.clicked.connect(self.test_luck)
-        luck_row.addWidget(luck_btn)
-        eat_btn = QPushButton("Prendre un repas (+4 Endurance)")
-        eat_btn.clicked.connect(self.eat_meal)
-        luck_row.addWidget(eat_btn)
-        potion_btn = QPushButton("Boire une dose de potion")
-        potion_btn.clicked.connect(self.drink_potion)
-        luck_row.addWidget(potion_btn)
-        rules_layout.addLayout(luck_row)
-
-        combat_grid = QGridLayout()
-        combat_grid.addWidget(QLabel("Monstre"), 0, 0, 1, 2)
-        self.enemy_name = QLineEdit("Monstre")
-        combat_grid.addWidget(self.enemy_name, 0, 2, 1, 2)
-        combat_grid.addWidget(QLabel("Habileté"), 1, 0)
-        self.enemy_skill = QSpinBox(); self.enemy_skill.setRange(0, 99); self.enemy_skill.setValue(7)
-        combat_grid.addWidget(self.enemy_skill, 1, 1)
-        combat_grid.addWidget(QLabel("Endurance"), 1, 2)
-        self.enemy_endurance = QSpinBox(); self.enemy_endurance.setRange(0, 999); self.enemy_endurance.setValue(6)
-        combat_grid.addWidget(self.enemy_endurance, 1, 3)
-        rules_layout.addLayout(combat_grid)
-        combat_btn = QPushButton("⚔  Combattre / Reprendre le combat")
-        combat_btn.setObjectName("combatButton")
-        combat_btn.clicked.connect(self.open_combat)
-        rules_layout.addWidget(combat_btn)
-        self.rules_log = QLabel("Tentez votre Chance ou lancez un assaut lorsque le récit le demande.")
-        self.rules_log.setWordWrap(True)
-        self.rules_log.setObjectName("muted")
-        rules_layout.addWidget(self.rules_log)
-        self.combat_state = QLabel("⚔  Aucun combat engagé")
-        self.combat_state.setObjectName("combatState")
-        self.combat_state.setWordWrap(True)
-        rules_layout.insertWidget(rules_layout.count()-1, self.combat_state)
-        self.combat_journal = QListWidget()
-        self.combat_journal.setObjectName("combatJournal")
-        self.combat_journal.setMaximumHeight(135)
-        rules_layout.addWidget(QLabel("CHRONIQUE DES ASSAUTS"))
-        rules_layout.addWidget(self.combat_journal)
-        # L’assaut doit rester avant les soins dans la zone visible du combat.
-        rules_layout.removeItem(luck_row)
-        rules_layout.addLayout(luck_row)
-        self._add_adventure_tab(rules_group, "Combat & soins")
-        self._add_adventure_tab(dice_group, "Dés")
+        # Les widgets d'état du moteur ne constituent plus des panneaux visibles.
+        # Leur remplacement par un modèle indépendant est distinct du transfert UI.
+        self._build_engine_fields()
+        self.adventure_tabs.tabBar().hide()
+        controls = QGridLayout()
+        self.combat_button = QPushButton("⚔  Combattre / Reprendre")
+        self.combat_button.setObjectName("combatButton")
+        self.combat_button.clicked.connect(self.open_combat)
+        controls.addWidget(self.combat_button, 0, 0, 1, 2)
+        self.care_button = QPushButton("Soins")
+        self.care_button.clicked.connect(self.show_care_menu)
+        controls.addWidget(self.care_button, 1, 0)
+        self.tools_button = QPushButton("Actions…")
+        tools = QMenu(self.tools_button)
+        tools.addAction("Tenter sa Chance (2d6)", self.test_luck)
+        dice = tools.addMenu("Dés libres")
+        for notation in ("1d6", "2d6", "3d6", "1d20"):
+            dice.addAction(notation, lambda checked=False, n=notation: self.roll_free_dice(n))
+        tools.addAction("Aller à un paragraphe…", self.choose_paragraph)
+        self.tools_button.setMenu(tools)
+        controls.addWidget(self.tools_button, 1, 1)
+        side_layout.insertLayout(side_layout.indexOf(self.adventure_tabs), controls)
 
         save_row = QHBoxLayout()
         save_btn = QPushButton("Sauvegarder")
@@ -875,6 +816,136 @@ class MainWindow(QMainWindow, BookActions):
         page.setMinimumHeight(150)
         page.setWidget(content)
         self.adventure_tabs.addTab(page, title)
+
+    def _build_engine_fields(self):
+        """Conserver les champs lus par les instantanés, hors de l'interface du lecteur.
+
+        Les combattants sont préparés par le catalogue / les rencontres détectées.
+        Les commandes visibles vivent dans CombatDialog ; aucun ancien onglet
+        Combat ou Dés n'est créé par cette réserve de widgets non affichée.
+        """
+        fields = self._engine_fields = QWidget(self)
+        fields.hide()
+        self.enemy_name = QLineEdit('Monstre', fields)
+        self.enemy_skill = QSpinBox(fields)
+        self.enemy_skill.setRange(0, 99)
+        self.enemy_skill.setValue(7)
+        self.enemy_endurance = QSpinBox(fields)
+        self.enemy_endurance.setRange(0, 999)
+        self.enemy_endurance.setValue(6)
+        self.rules_log = QLabel('Préparez le combat lorsque le récit le demande.', fields)
+        self.combat_state = QLabel('Aucun combat engagé', fields)
+        self.combat_journal = QListWidget(fields)
+        self.dice_combo = QComboBox(fields)
+        self.dice_combo.addItems(['1d6', '2d6', '3d6', '1d20'])
+        self.dice_result = QLabel('Résultat : —', fields)
+        self.dice_faces = QLabel('⚀  ⚀', fields)
+        self.dice_history = QListWidget(fields)
+        self.goto_spin = QSpinBox(fields)
+        self.goto_spin.setRange(1, 999)
+        self.goto_button = QPushButton('Voyager', fields)
+        self.goto_button.clicked.connect(lambda: self.go_to(self.goto_spin.value()))
+
+    def _refresh_action_controls(self):
+        """Actualiser les commandes permanentes sans dépendre d'anciens onglets."""
+        if not hasattr(self, 'combat_button'):
+            return
+        playing = self.current_paragraph is not None and self._adventurer_draft is None and self.character['endurance'] > 0
+        self.combat_button.setEnabled(playing)
+        self.tools_button.setEnabled(playing)
+        self.care_button.setEnabled(playing and any(option['enabled'] for option in self.care_options()))
+
+    def choose_paragraph(self):
+        """Ouvrir la navigation manuelle depuis le menu Actions, avec les mêmes contrôles de route."""
+        number, accepted = QInputDialog.getInt(self, 'Voyager', 'Numéro de paragraphe :',
+                                              self.current_paragraph or 1, 1, self.goto_spin.maximum())
+        if accepted:
+            self.go_to(number)
+
+    def roll_free_dice(self, notation):
+        """Déplacer les jets libres dans Actions ; garder un résultat visible pour 3d6 et 1d20."""
+        self.dice_combo.setCurrentText(notation)
+        self.roll_dice()
+        if notation not in ('1d6', '2d6'):
+            QMessageBox.information(self, 'Dés libres', self.dice_result.text())
+
+    def care_options(self, *, in_combat=False):
+        """Décrire les soins disponibles sans les appliquer : potion et repas autorisé par le livre.
+
+        Les potions fonctionnent pendant un combat. Un repas exige un passage
+        explicitement autorisé, une provision et une autorisation non consommée.
+        La Potion de Bonne Fortune reste utile au maximum puisqu'elle augmente
+        aussi le total initial de Chance.
+        """
+        char = self.character
+        alive = char['endurance'] > 0 and self._adventurer_draft is None
+        potion = char.get('potion', 'Aucune')
+        doses = char.get('potion_doses', 0)
+        key = {"Potion d'Adresse": 'habilete', 'Potion de Vigueur': 'endurance',
+               'Potion de Bonne Fortune': 'chance'}.get(potion)
+        useful = key and (key == 'chance' or char[key] < char.get('initial', {}).get(key, char[key]))
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+        meal = (entry.get('optional_meal') or entry.get('optional_meal_restore') == 2 or entry.get('enchanted_meal'))
+        meal = meal or (self.current_paragraph == 7 and self.piranha_combat
+                        and self.piranha_combat.get('status') == 'victory')
+        meal_useful = char['endurance'] < char.get('initial', {}).get('endurance', char['endurance'])
+        if entry.get('enchanted_meal'):
+            meal_useful = meal_useful or char['habilete'] < char.get('initial', {}).get('habilete', char['habilete'])
+        taken = self._book_state(self.current_paragraph).get('care_meal_taken')
+        if entry.get('enchanted_meal') and self.current_paragraph in self.completed_book_events:
+            taken = True
+        return [
+            {'id': 'potion', 'label': f'{potion} — {doses} dose(s)',
+             'enabled': bool(alive and useful and doses > 0),
+             'reason': 'Aucune dose utile disponible.'},
+            {'id': 'meal', 'label': 'Prendre un repas',
+             'enabled': bool(alive and not in_combat and meal and meal_useful and not taken and char.get('provisions', 0) > 0),
+             'reason': 'Repas interdit pendant le combat, non autorisé ici, déjà pris ou provisions épuisées.'},
+        ]
+
+    def use_care(self, kind):
+        """Revérifier un soin au clic et l'appliquer dans une transaction annulable."""
+        in_combat = self._combat_dialog is not None and not self._combat_dialog.outcome
+        option = next((o for o in self.care_options(in_combat=in_combat) if o['id'] == kind), None)
+        if not option or not option['enabled']:
+            return
+        if kind == 'potion':
+            self.drink_potion()
+        else:
+            entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+            if entry.get('enchanted_meal'):
+                self.take_enchanted_meal()
+            elif entry.get('optional_meal_restore') == 2:
+                self.eat_shared_meal()
+            else:
+                self.eat_meal()
+            self._book_state(self.current_paragraph, True)['care_meal_taken'] = True
+        self._refresh_character()
+        if self.current_paragraph in self.paragraphs:
+            self._render_choices_and_events(self.paragraphs[self.current_paragraph])
+
+    def show_care_menu(self):
+        """Offrir les soins hors combat sans réintroduire un onglet de commandes."""
+        menu = QMenu(self)
+        for option in self.care_options():
+            action = menu.addAction(option['label'])
+            action.setEnabled(option['enabled'])
+            action.setToolTip(option['reason'] if not option['enabled'] else '')
+            action.triggered.connect(lambda checked=False, kind=option['id']: self.use_care(kind))
+        menu.exec(self.care_button.mapToGlobal(self.care_button.rect().bottomLeft()))
+        menu.deleteLater()
+
+    def can_flee_combat(self):
+        """Partager les restrictions de fuite entre le lecteur et le bouton permanent du combat."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+        combat = entry.get('combat', {})
+        target = combat.get('escape_target')
+        assaults = self.book_combat_assaults.get(self.current_paragraph, 0)
+        permitted = flee_available(combat, assaults,
+            1 if combat.get('precombat_escape') else self.enemy_endurance.value(), self.character['endurance'])
+        if combat.get('escape_luck_interval'):
+            permitted = permitted and assaults >= self._book_state(self.current_paragraph).get('escape_after', 6)
+        return bool(permitted and target in self.paragraphs)
 
     def _set_theme(self):
         """Distribuer le QSS, les polices et les surfaces dessinées aux widgets existants."""
@@ -1276,18 +1347,18 @@ class MainWindow(QMainWindow, BookActions):
                 self.event_layout.addWidget(btn)
             if scripted.get("optional_meal_restore") == 2:
                 shared_btn = QPushButton("Partager un repas (+2 Endurance ; -1 Provision)")
-                shared_btn.setEnabled(self.character.get("provisions", 0) > 0)
-                shared_btn.clicked.connect(lambda checked=False: self.eat_shared_meal())
+                shared_btn.setEnabled(self.care_options()[1]['enabled'])
+                shared_btn.clicked.connect(lambda checked=False: self.use_care('meal'))
                 self.event_layout.addWidget(shared_btn)
             if scripted.get("optional_meal"):
                 meal_btn = QPushButton("Prendre un repas (+4 Endurance ; -1 Provision)")
-                meal_btn.setEnabled(self.character.get("provisions", 0) > 0)
-                meal_btn.clicked.connect(lambda checked=False: self.eat_meal())
+                meal_btn.setEnabled(self.care_options()[1]['enabled'])
+                meal_btn.clicked.connect(lambda checked=False: self.use_care('meal'))
                 self.event_layout.addWidget(meal_btn)
             if scripted.get("enchanted_meal") and self.current_paragraph not in self.completed_book_events:
                 btn = QPushButton("Prendre le repas enchanté (1 Provision ; +6 E, +1 H)")
-                btn.setEnabled(self.character.get("provisions", 0) > 0)
-                btn.clicked.connect(lambda checked=False: self.take_enchanted_meal())
+                btn.setEnabled(self.care_options()[1]['enabled'])
+                btn.clicked.connect(lambda checked=False: self.use_care('meal'))
                 self.event_layout.addWidget(btn)
             if scripted.get("trade_choices") and not any(
                     k.startswith(f"{self.current_paragraph}:trade:")
@@ -1332,15 +1403,13 @@ class MainWindow(QMainWindow, BookActions):
             self.event_layout.addWidget(diversion_btn)
         if escape_target is not None:
             combat_rules = entry["combat"]
-            permitted = flee_available(combat_rules, self.book_combat_assaults.get(self.current_paragraph, 0),
-                                       1 if combat_rules.get("precombat_escape") else self.enemy_endurance.value(), self.character["endurance"])
-            if combat_rules.get("escape_luck_interval"):
-                permitted = permitted and self.book_combat_assaults.get(self.current_paragraph, 0) >= self._book_state(self.current_paragraph).get("escape_after", 6)
+            permitted = self.can_flee_combat()
             escape_label = ("Tenter sa Chance pour fuir (blessure de fuite)"
                             if combat_rules.get("escape_luck_interval")
                             else "Fuir le combat (pénalité obligatoire)")
             btn = QPushButton(f"{escape_label} → §{escape_target}")
             btn.setProperty('combatAction', True)
+            btn.setProperty('combatEscape', True)
             btn.setEnabled(permitted and escape_target in self.paragraphs)
             btn.clicked.connect(lambda checked=False, n=self.current_paragraph: self.escape_scripted_combat(n))
             self.event_layout.addWidget(btn)
@@ -1719,9 +1788,7 @@ class MainWindow(QMainWindow, BookActions):
         self.event_group.setVisible(self.event_layout.count() > 0)
         self.condition_group.setVisible(self.condition_layout.count() > 0)
         self._update_scene_art()
-        entry = verified_entry(self.book_event_catalogue, number)
-        if entry and entry.get("combat", {}).get("enemies") and self.enemy_endurance.value() > 0:
-            self.adventure_tabs.setCurrentIndex(1)
+        self._refresh_action_controls()
 
     def _illustration_pixmap(self, entry, scale=2):
         """Rendre le rectangle catalogué, avec page PDF base 1 et pixels copiés.
@@ -1997,6 +2064,7 @@ class MainWindow(QMainWindow, BookActions):
         weapon = equipped_weapon(self.character) or "—"
         armor = next((item for item in self.character.get("inventory", []) if "armure" in str(item).casefold() or "bouclier" in str(item).casefold()), "—")
         self.equipment_label.setText(f"⚔  Arme : {weapon}     ◈  Protection : {armor}")
+        self._refresh_action_controls()
         if self._combat_dialog is not None:
             self._combat_dialog.refresh_stats()
 
@@ -2934,6 +3002,7 @@ def _track_action(method, label):
 # publique si elle doit être annulable et autosauvegardée. Ne pas y ajouter les
 # simples rafraîchissements visuels ni Undo/Redo, qui gèrent leurs propres piles.
 for _name, _label in {
+    'use_care': 'Utiliser un soin',
     "go_to": "Changer de paragraphe", "apply_detected_event": "Appliquer un événement",
     "perform_book_action": "Résoudre une action du livre",
     "resolve_book_roll": "Résoudre une épreuve du livre",

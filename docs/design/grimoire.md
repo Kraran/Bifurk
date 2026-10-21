@@ -14,15 +14,16 @@ Ces captures utilisent un court récit de démonstration original, sans extrait 
 ## Utilisation
 
 - Importer le PDF avec **Ouvrir un grimoire**.
-- Créer le personnage depuis **Combat & soins**, ou charger une sauvegarde.
+- Choisir **Nouvelle partie** et valider l'aventurier tiré, ou charger une sauvegarde.
 - Choisir une destination sur les cartes sous le récit ; les longs libellés reviennent à la ligne.
 - À l’ouverture d’un livre catalogué, sa couverture apparaît à gauche et le titre occupe la page de texte. **Commencer l’aventure → §1** ouvre le premier paragraphe et son illustration. Aucun paragraphe n’est marqué comme visité avant ce clic. Ensuite, les illustrations des paragraphes prennent le relais ; la couverture sert de fond en leur absence. Un double-clic sur l’image ouvre son agrandissement. Dans les deux vues, la molette zoome, un glisser avec le bouton gauche déplace l’image (curseur en croix), et un simple clic rétablit le cadrage intégral. Le zoom se réinitialise à chaque changement d’image. La fenêtre indépendante possède les boutons natifs de maximisation et de restauration, et le raccourci **F11**. Les boutons supplémentaires de plein écran et de taille initiale ont été retirés. Échap quitte le plein écran. Le bouton « Voir l’illustration du paragraphe » a été supprimé au profit du double-clic.
 - Le bouton **Image** masque la colonne d’illustration pour libérer de la place. Les images cataloguées
   du livre remplacent le décor et restent intégralement cadrées ; le double-clic
   ouvre la vue détaillée. La bibliothèque est un décor générique, pas une scène du livre.
 - La sacoche utilise des lignes compactes. **Gérer les objets…** déplie l’ajout et le retrait ; les noms des objets restent visibles.
-- La fiche affiche valeurs et jauges numériques. Les onglets **Sacoche**, **Combat & soins**
-  et **Dés** regroupent les commandes. La navigation manuelle par numéro se trouve dans **Dés**.
+- La fiche affiche valeurs et jauges numériques. La **Sacoche** reste dans le lecteur ;
+  **Combattre / Reprendre**, **Soins** et **Actions…** remplacent les anciens onglets.
+  La navigation manuelle par numéro se trouve dans **Actions…**.
 - Les panneaux peuvent défiler séparément dans les petites fenêtres ; le plein écran reste accessible par F11.
 
 ## Tester sous Windows

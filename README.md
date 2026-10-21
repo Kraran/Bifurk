@@ -5,7 +5,8 @@
 Page ivoire, bibliothèque illustrée, choix sous forme de cartes et sacoche avec emblèmes.
 Les illustrations du livre sont affichées à gauche du récit et peuvent être masquées ou agrandies.
 La sacoche présente les objets en lignes compactes ; **Gérer les objets…** déplie les commandes d’ajout et de retrait.
-Les commandes sont regroupées dans les onglets Sacoche, Combat & soins et Dés.
+La sacoche reste dans le panneau latéral. Les combats possèdent leur fenêtre ;
+les soins et les outils ponctuels sont accessibles par **Soins** et **Actions…**.
 
 [Captures et instructions de test](docs/design/grimoire.md).
 
@@ -20,10 +21,12 @@ y compris pendant la création de l'aventurier. Les faces et leur
 total restent visibles jusqu'à **Continuer**. **Passer l'animation** révèle
 immédiatement le résultat déjà tiré. [Présentation et contrôles](docs/design/des-animes.md).
 
-Le bouton **Combattre / Reprendre le combat** ouvre une fenêtre dédiée : adversaires
+Le bouton **Combattre / Reprendre** ouvre une fenêtre dédiée : adversaires
 et dés rouges automatiques à gauche, aventurier et dés blancs à lancer à droite,
 chronique des coups et décisions de Chance au centre. La fiche du héros se met
-à jour pendant le combat. [Présentation des combats](docs/design/combat-popup.md).
+à jour pendant le combat. **Fuir** et **Soins** restent en bas, grisés lorsque
+les règles les interdisent ; le journal défile sans déborder de son cadre.
+[Présentation des combats](docs/design/combat-popup.md).
 
 ## Démarrage
 

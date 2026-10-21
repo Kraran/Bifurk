@@ -102,8 +102,9 @@ class GrimoireInterfaceTests(unittest.TestCase):
         self.assertLessEqual(w.scene_art.geometry().right(), page.geometry().left() + 1)
         self.assertGreaterEqual(w.reader.height(), 230)
         self.assertTrue(w.choice_group.isVisible())
-        w.adventure_tabs.setCurrentIndex(1)
-        self.assertEqual(w.adventure_tabs.currentIndex(), 1)
+        self.assertEqual(w.adventure_tabs.count(), 1)
+        self.assertEqual(w.adventure_tabs.tabText(0), 'Sacoche')
+        self.assertFalse(w.adventure_tabs.tabBar().isVisible())
 
     def test_inventory_icons_do_not_change_saved_item_names(self):
         w = self.window

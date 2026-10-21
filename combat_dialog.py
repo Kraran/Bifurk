@@ -10,11 +10,14 @@ import html
 from string import Template
 
 from PySide6.QtCore import QEventLoop, Qt, QTimer
+from PySide6.QtGui import QTextOption
 from PySide6.QtWidgets import (QDialog, QFrame, QGridLayout, QHBoxLayout, QLabel,
-                               QPushButton, QTextBrowser, QVBoxLayout)
+                               QPushButton, QTextBrowser, QVBoxLayout, QScrollArea,
+                               QWidget, QSizePolicy, QLayout, QComboBox, QCheckBox)
 
 from book_events import combat_skill, verified_entry
 from dice_dialog import DiceCanvas
+from grimoire_ui import ChoiceCard
 
 
 class CombatDialog(QDialog):
@@ -32,7 +35,8 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.setObjectName('combatDialog')
         self.setWindowTitle('Bifurk — Le champ de bataille')
         self.setWindowIcon(owner.windowIcon())
-        self.resize(1100, 720)
+        area = owner.screen().availableGeometry()
+        self.resize(min(1100, max(780, area.width() - 60)), min(720, max(560, area.height() - 70)))
         self.setMinimumSize(780, 560)
         self.origin = owner.current_paragraph
         self.paragraphs = {self.origin}
@@ -47,14 +51,13 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self._last_enemy_dead = False
         self._round_number = 0
         self._scheduled = False
+        self._launch_requested = False
+        self._care_open = False
         # Des minuteries filles sont annulées avec la fenêtre. Des singleShot
         # sans contexte peuvent rappeler un objet Python dont Qt a détruit le C++.
         self._begin_timer = QTimer(self)
         self._begin_timer.setSingleShot(True)
         self._begin_timer.timeout.connect(self._begin_round)
-        self._next_timer = QTimer(self)
-        self._next_timer.setSingleShot(True)
-        self._next_timer.timeout.connect(self._schedule_round)
         self._dice_timer = QTimer(self)
         self._dice_timer.setSingleShot(True)
         self._dice_timer.timeout.connect(self._start_dice)
@@ -64,7 +67,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.setStyleSheet(Template('''
             QDialog#combatDialog { background: $scene_background; }
             QFrame#combatCard { background: $icon_background; border: 1px solid $ornament; border-radius: 12px; }
-            QLabel#combatHeading { font-size: 21px; font-weight: bold; color: $gold; }
+            QLabel#combatHeading { font-size: 18px; font-weight: bold; color: $gold; }
             QLabel#combatStats { font-size: 18px; color: $page; }
             QTextBrowser#opponentStats { background: transparent; color: $page;
                 border: none; font-family: '$ui_font'; font-size: 18px; }
@@ -74,7 +77,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
                 border: 1px solid $ornament; border-radius: 8px; padding: 10px;
                 font-family: '$ui_font'; font-size: 15px; }
             QPushButton#heroRoll { background: $page; color: $ink;
-                font-size: 17px; font-weight: bold; padding: 13px; }
+                font-size: 17px; font-weight: bold; padding: 13px; min-width: 170px; }
             QPushButton#heroRoll:disabled { background: $scene_background; color: $ornament; }
         ''').substitute({**owner.theme.colors, 'ui_font': owner.ui_font_family}))
         layout = QVBoxLayout(self)
@@ -96,6 +99,14 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.hero.setWordWrap(True)
         self.hero.setObjectName('combatStats')
         hero_layout.addWidget(self.hero)
+        self.weapon = QComboBox()
+        self.weapon.setAccessibleName('Arme utilisée pendant le combat')
+        self.weapon.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        self.weapon.currentTextChanged.connect(self._change_weapon)
+        hero_layout.addWidget(self.weapon)
+        self.shield = QCheckBox('Utiliser le bouclier')
+        self.shield.toggled.connect(self._change_shield)
+        hero_layout.addWidget(self.shield)
         hero_layout.addStretch()
         grid.addWidget(self.hero_card, 0, 2)
         center, center_layout = self._card('CHRONIQUE DU COMBAT')
@@ -106,9 +117,26 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         center_layout.addWidget(self.banner)
         self.history = QTextBrowser()
         self.history.setObjectName('battleHistory')
+        self.history.setMinimumSize(0, 100)
+        self.history.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
+        self.history.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.history.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.history.setWordWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
         center_layout.addWidget(self.history, 1)
-        self.actions = QVBoxLayout()
-        center_layout.addLayout(self.actions)
+        self.action_scroll = QScrollArea()
+        self.action_scroll.setObjectName('combatActions')
+        self.action_scroll.setWidgetResizable(True)
+        self.action_scroll.setFrameShape(QFrame.NoFrame)
+        self.action_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.action_scroll.setMaximumHeight(145)
+        self.action_scroll.setMinimumHeight(0)
+        actions_host = QWidget()
+        self.actions = QVBoxLayout(actions_host)
+        self.actions.setContentsMargins(0, 0, 0, 0)
+        self.actions.setSizeConstraint(QLayout.SetMinAndMaxSize)
+        self.action_scroll.setWidget(actions_host)
+        self.action_scroll.hide()
+        center_layout.addWidget(self.action_scroll)
         grid.addWidget(center, 0, 1, 2, 1)
         self.enemy_tray, self.enemy_tray_layout = self._card('DÉS ADVERSES — AUTOMATIQUES')
         self.enemy_placeholder = QLabel('Le monstre prépare son attaque…')
@@ -134,6 +162,15 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.pause.setToolTip('Un assaut commencé est terminé avant de revenir au livre.')
         self.pause.clicked.connect(self.reject)
         controls.addWidget(self.pause)
+        self.flee = QPushButton('Fuir')
+        self.flee.setObjectName('fleeCombat')
+        self.flee.clicked.connect(self._flee)
+        controls.addWidget(self.flee)
+        self.care = QPushButton('Soins')
+        self.care.setObjectName('combatCare')
+        self.care.setCheckable(True)
+        self.care.clicked.connect(self._toggle_care)
+        controls.addWidget(self.care)
         controls.addStretch()
         self.secondary = QPushButton('Sans Chance')
         self.secondary.clicked.connect(lambda: self._answer(False))
@@ -229,14 +266,91 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             if status == 'Au combat':
                 active_anchor = f'enemy-{index}'
             parts.append(f"<a name='enemy-{index}'></a><b>{html.escape(enemy['name'])}</b><br>"
-                         f"Habileté {enemy['skill']} · Endurance {stamina}<br><small>{status}</small>")
+                         f"Habileté {enemy['skill']}<br>Endurance {stamina}<br><small>{status}</small>")
         self.enemies.setText('<br><br>'.join(parts) or 'Adversaire à déterminer selon le livre.')
         if active_anchor:
             self.enemies.scrollToAnchor(active_anchor)
         char = owner.character
-        self.hero.setText(f"<b>{html.escape(char.get('name') or 'Votre aventurier')}</b><br><br>"
+        self.hero.setText(f"<b>{html.escape(char.get('name') or 'Votre aventurier')}</b><br>"
                           f"Habileté {char['habilete']}<br>Endurance {char['endurance']}<br>Chance {char['chance']}"
-                          f"<br><br><small>Habileté de combat : {combat_skill(char)}</small>")
+                          f"<br><small>Habileté de combat : {combat_skill(char)}</small>")
+        self.weapon.blockSignals(True)
+        self.weapon.clear()
+        self.weapon.addItems([self.owner.weapon_combo.itemText(i) for i in range(self.owner.weapon_combo.count())])
+        self.weapon.setCurrentText(self.owner.weapon_combo.currentText())
+        self.weapon.blockSignals(False)
+        self.shield.blockSignals(True)
+        self.shield.setVisible(self.owner.shield_check.isVisible() or
+                               'Bouclier au croissant' in char.get('inventory', []))
+        self.shield.setChecked(bool(char.get('shield_equipped')))
+        self.shield.blockSignals(False)
+        self._refresh_footer()
+
+    def _refresh_footer(self):
+        """Stabiliser Fuir / Soins en bas, sans autoriser une action concurrente au lancer."""
+        if not hasattr(self, 'flee'):
+            return
+        can_act = not self.busy and not self.outcome
+        self.flee.setEnabled(can_act and self.owner.can_flee_combat())
+        self.flee.setToolTip('Fuir avec la pénalité du livre.' if self.flee.isEnabled()
+                             else 'Fuite non autorisée ici, assauts requis ou assaut en cours.')
+        # Une potion peut être bue dans les pauses de décision de l'assaut. Elle
+        # appartient alors à la même transaction que cet assaut, sans second jet.
+        care_pause = not self.busy or self.phase in ('player', 'luck')
+        options = self.owner.care_options(in_combat=not bool(self.outcome))
+        self.care.setEnabled(care_pause and self.outcome != 'Défaite' and any(o['enabled'] for o in options))
+        self.care.setToolTip('Choisir un soin autorisé.' if self.care.isEnabled()
+                             else 'Aucun soin utilisable ou lancer en cours.')
+        self.weapon.setEnabled(can_act)
+        self.shield.setEnabled(can_act)
+
+    def _flee(self):
+        """Revérifier la fuite au clic et déléguer coûts, Chance et destination au moteur."""
+        if not self.busy and not self.outcome and self.owner.can_flee_combat():
+            self._run(lambda: self.owner.escape_scripted_combat(self.owner.current_paragraph))
+
+    def _toggle_care(self):
+        """Ouvrir les soins dans la zone défilante, sans masquer le journal ni lancer un assaut."""
+        self._care_open = self.care.isChecked()
+        self._pause_preparation()
+        self._refresh_actions()
+
+    def _apply_care(self, kind):
+        """Appliquer une potion ou un repas autorisé sans remplacer le résultat de l'assaut."""
+        if self.busy and self.phase not in ('player', 'luck'):
+            return
+        self._pause_preparation()
+        self.owner.use_care(kind)
+        self.log(self.owner.rules_log.text())
+        self._care_open = False
+        self.care.setChecked(False)
+        self.refresh_stats()
+        self._refresh_actions()
+
+    def _change_weapon(self, name):
+        """Réutiliser la commande annulable de la sacoche entre deux assauts."""
+        if name and not self.busy and not self.outcome:
+            self._pause_preparation()
+            self.owner.change_weapon(name)
+            self.log(self.owner.rules_log.text())
+
+    def _change_shield(self, checked):
+        """Mettre à jour le même équipement que la fiche sans dupliquer son bonus."""
+        if not self.busy and not self.outcome:
+            self._pause_preparation()
+            self.owner.change_shield_use(checked)
+            self.owner._refresh_character()
+            self.log(self.owner.rules_log.text())
+
+    def _pause_preparation(self):
+        """Laisser finir les préparatifs avant un assaut pas encore commencé."""
+        if not self.busy and not self.outcome:
+            self._begin_timer.stop()
+            self._scheduled = False
+            self._launch_requested = False
+            self.phase = 'next'
+            self.primary.setText('Assaut suivant')
+            self.primary.setEnabled(self._round_available())
 
     def log(self, text):
         """Conserver toute la chronique de cette fenêtre, sans limite de soixante coups."""
@@ -272,6 +386,14 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         if not self._round_available():
             self.prompt.setText(owner.rules_log.text())
             return
+        if owner.can_flee_combat() and not self._launch_requested:
+            self.phase = 'next'
+            self.primary.setText('Engager l’assaut' if self._round_number == 0 else 'Assaut suivant')
+            self.primary.setEnabled(True)
+            self.prompt.setText('Vous pouvez fuir selon le livre ou engager le prochain assaut.')
+            self._refresh_footer()
+            return
+        self._launch_requested = False
         self._round_number += 1
         self.log(f'— Assaut {self._round_number} —')
         self._run(owner.combat_round)
@@ -293,7 +415,10 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         """Exécuter une seule action suivie du moteur et observer son issue après ses hooks."""
         if self.busy or self.outcome:
             return
+        self._care_open = False
+        self.care.setChecked(False)
         self.busy = True
+        self._refresh_footer()
         for index in range(self.actions.count()):
             self.actions.itemAt(index).widget().setEnabled(False)
         self._last_enemy_dead = False
@@ -331,29 +456,40 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             super().accept()
         else:
             self._refresh_actions()
-            if any(self.actions.itemAt(i).widget().isEnabled() for i in range(self.actions.count())):
-                # Laisser le temps de choisir une fuite ou une stratégie, au lieu
-                # de verrouiller ces boutons par un nouvel assaut automatique.
-                self.phase = 'next'
-                allowed = self._round_available()
-                self.primary.setText('Assaut suivant' if allowed else 'Choisissez une action')
-                self.primary.setEnabled(allowed)
-                self.prompt.setText(owner.rules_log.text())
-            else:
-                self._next_timer.start(400)
+            # Entre les coups, le joueur peut lire le journal, fuir ou se soigner.
+            # Le prochain assaut déclenche à nouveau les dés rouges automatiquement.
+            self.phase = 'next'
+            allowed = self._round_available()
+            self.primary.setText('Assaut suivant' if allowed else 'Choisissez une action')
+            self.primary.setEnabled(allowed)
+            self.prompt.setText(owner.rules_log.text())
+        self._refresh_footer()
 
     def _refresh_actions(self):
         """Réutiliser les boutons du livre et leurs contrôles plutôt que dupliquer ses règles."""
         while self.actions.count():
-            self.actions.takeAt(0).widget().deleteLater()
+            widget = self.actions.takeAt(0).widget()
+            widget.hide()
+            widget.setParent(None)
+            widget.deleteLater()
         layout = self.owner.event_layout
         for index in range(layout.count()):
             source = layout.itemAt(index).widget()
-            if isinstance(source, QPushButton) and source.property('combatAction'):
-                button = QPushButton(source.text())
+            if (isinstance(source, QPushButton) and source.property('combatAction')
+                    and not source.property('combatEscape')):
+                button = ChoiceCard(source.text())
                 button.setEnabled(source.isEnabled() and not self.busy)
                 button.clicked.connect(lambda checked=False, source=source: self._run(source.click))
                 self.actions.addWidget(button)
+        if self._care_open:
+            for option in self.owner.care_options(in_combat=not bool(self.outcome)):
+                button = ChoiceCard(option['label'])
+                button.setEnabled(option['enabled'])
+                button.setToolTip(option['reason'] if not option['enabled'] else '')
+                button.clicked.connect(lambda checked=False, kind=option['id']: self._apply_care(kind))
+                self.actions.addWidget(button)
+        self.action_scroll.setVisible(self.actions.count() > 0)
+        self._refresh_footer()
 
     def present_roll(self, rolls, context, *, opponent=False):
         """Attendre le clic du joueur ou démarrer le dé rouge automatiquement, sans relancer."""
@@ -368,13 +504,14 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         canvas = DiceCanvas(rolls, self.owner.theme, self,
                             color='#b52c39' if opponent else None,
                             pip_color='#fff1d4' if opponent else None, caption=False)
-        canvas.setMinimumSize(200, 190)
+        canvas.setMinimumSize(160, 125)
         canvas.hide()
         layout.addWidget(canvas, 1)
         self._trays[opponent] = canvas
         self._canvas = canvas
         self.prompt.setText(context)
         self.phase = 'opponent' if opponent else 'player'
+        self._refresh_footer()
         self.primary.setText('Lancer mes dés')
         self.primary.setEnabled(not opponent)
         self.secondary.hide()
@@ -403,6 +540,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
                 self.hero_placeholder.hide()
             self.owner.sounds.play('dice')
             self.phase = 'animating'
+            self._refresh_footer()
             self.primary.setEnabled(False)
             self._canvas.show()
             self._canvas.start()
@@ -415,6 +553,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.log(text)
         self.prompt.setText(text)
         self.phase = 'luck'
+        self._refresh_footer()
         self._choice = False
         self.primary.setText('Tenter ma Chance')
         self.primary.setEnabled(True)
@@ -436,6 +575,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             self._answer(True)
         elif self.phase == 'next':
             self.primary.setEnabled(False)
+            self._launch_requested = True
             self._schedule_round()
 
     def _answer(self, lucky):
@@ -494,7 +634,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
 
     def done(self, result):
         """Suspendre les rappels de la vue avant fermeture, y compris entre deux assauts."""
-        for timer in (self._begin_timer, self._next_timer, self._dice_timer, self._exit_timer):
+        for timer in (self._begin_timer, self._dice_timer, self._exit_timer):
             timer.stop()
         self._scheduled = False
         super().done(result)

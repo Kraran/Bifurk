@@ -155,9 +155,8 @@ class CombatDialogTests(unittest.TestCase):
         self.run_round(dialog)
         self.assertEqual(dialog.phase, 'next')
         self.assertTrue(dialog.primary.isEnabled())
-        self.assertFalse(dialog._next_timer.isActive())
-        flee = next(dialog.actions.itemAt(i).widget() for i in range(dialog.actions.count())
-                    if 'Fuir le combat' in dialog.actions.itemAt(i).widget().text())
+        self.assertFalse(dialog._begin_timer.isActive())
+        flee = dialog.flee
         self.assertTrue(flee.isEnabled())
         flee.click()
         self.assertEqual(self.w.current_paragraph, 189)

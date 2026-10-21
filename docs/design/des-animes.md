@@ -25,7 +25,7 @@ ses dés blancs. Les tests de Chance et jets de protection éventuels utilisent
 point de tirage. Il n'existe pas de bouton de relance
 dans cette fenêtre : les relances de création restent limitées par les règles.
 
-Les variantes libres **3d6 et 1d20** de l'outil Dés conservent leur affichage
+Les variantes libres **3d6 et 1d20** du menu Actions… / Dés libres conservent leur affichage
 classique. Le plateau animé concerne un ou deux dés à six faces.
 
 ## Maintenance
