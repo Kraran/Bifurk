@@ -172,8 +172,9 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.care.clicked.connect(self._toggle_care)
         controls.addWidget(self.care)
         controls.addStretch()
-        self.secondary = QPushButton('Sans Chance')
-        self.secondary.clicked.connect(lambda: self._answer(False))
+        self.secondary = QPushButton('Tenter ma Chance')
+        self.secondary.setAutoDefault(False)
+        self.secondary.clicked.connect(lambda: self._answer(True))
         self.secondary.hide()
         controls.addWidget(self.secondary)
         self.primary = QPushButton('Lancer mes dés')
@@ -352,9 +353,12 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             self.primary.setText('Assaut suivant')
             self.primary.setEnabled(self._round_available())
 
-    def log(self, text):
+    def log(self, text, *, bold=False):
         """Conserver toute la chronique de cette fenêtre, sans limite de soixante coups."""
-        self.history.append(html.escape(text).replace('\n', '<br>'))
+        # Chaque entrée fixe sa graisse pour ne pas propager celle du titre au récit.
+        escaped = html.escape(text).replace('\n', '<br>')
+        weight = 'bold' if bold else 'normal'
+        self.history.append(f'<span style="font-weight: {weight};">{escaped}</span>')
         self.history.verticalScrollBar().setValue(self.history.verticalScrollBar().maximum())
 
     def note_assault(self, player, enemy, player_attack, enemy_attack, outcome):
@@ -395,7 +399,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             return
         self._launch_requested = False
         self._round_number += 1
-        self.log(f'— Assaut {self._round_number} —')
+        self.log(f'— Assaut {self._round_number} —', bold=True)
         self._run(owner.combat_round)
 
     def _round_available(self):
@@ -555,8 +559,10 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.phase = 'luck'
         self._refresh_footer()
         self._choice = False
-        self.primary.setText('Tenter ma Chance')
+        self.primary.setText('Sans Chance')
         self.primary.setEnabled(True)
+        self.primary.setDefault(True)
+        self.primary.setFocus()
         self.secondary.show()
         self._wait_loop = QEventLoop(self)
         self._wait_loop.exec()
@@ -566,13 +572,13 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         return self._choice
 
     def _primary_clicked(self):
-        """Un bouton unique lance les dés, accepte la Chance ou poursuit après l'issue."""
+        """Un bouton unique lance les dés, refuse la Chance ou poursuit après l'issue."""
         if self.outcome:
             super().accept()
         elif self.phase == 'player':
             self._start_dice()
         elif self.phase == 'luck':
-            self._answer(True)
+            self._answer(False)
         elif self.phase == 'next':
             self.primary.setEnabled(False)
             self._launch_requested = True

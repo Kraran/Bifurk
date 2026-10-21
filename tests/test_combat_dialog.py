@@ -69,6 +69,19 @@ class CombatDialogTests(unittest.TestCase):
         with patch('main.random.randint', return_value=1):
             dialog._run(self.w.combat_round)
 
+    def test_luck_buttons_offer_safe_default_and_explicit_attempt(self):
+        """Les deux boutons renvoient leur décision réelle sans consommer de dés ici."""
+        dialog = CombatDialog(self.w)
+        for attempt in (False, True):
+            def answer():
+                self.assertEqual(dialog.primary.text(), 'Sans Chance')
+                self.assertTrue(dialog.primary.isDefault())
+                self.assertEqual(dialog.secondary.text(), 'Tenter ma Chance')
+                button = dialog.secondary if attempt else dialog.primary
+                button.click()
+            QTimer.singleShot(0, answer)
+            self.assertEqual(dialog.choose_luck('Aggraver la blessure ?'), attempt)
+
     def test_damage_updates_both_character_sheet_and_popup_immediately(self):
         self.w.character['habilete'] = 1
         dialog = self.session()
@@ -249,7 +262,7 @@ class CombatDialogTests(unittest.TestCase):
                 else:
                     dialog.primary.click()
             elif dialog.phase == 'luck':
-                dialog.secondary.click()
+                dialog.primary.click()
             elif dialog.outcome:
                 observations.append(('outcome', dialog.outcome))
                 dialog.primary.click()
@@ -279,6 +292,13 @@ class CombatDialogTests(unittest.TestCase):
         self.assertIn(('animation', self.w.theme.color('page')), observations)
         self.assertIn(('outcome', 'Victoire'), observations)
         self.assertEqual(len(self.w.undo_stack), 1)
+        document = self.w._combat_popup.history.document()
+        heading = document.find('— Assaut 1 —')
+        self.assertFalse(heading.isNull())
+        self.assertGreater(heading.charFormat().fontWeight(), 400)
+        prose = document.find('Gardien :')
+        self.assertFalse(prose.isNull())
+        self.assertEqual(prose.charFormat().fontWeight(), 400)
 
     def test_pause_resolves_started_round_and_resume_keeps_chronicle(self):
         self.w.enemy_endurance.setValue(6)
