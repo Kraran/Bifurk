@@ -3,7 +3,8 @@
 ## Interface Le Grimoire
 
 Page ivoire, bibliothèque illustrée, choix sous forme de cartes et sacoche avec emblèmes.
-Les illustrations du livre sont intégrées au récit et peuvent être masquées ou agrandies.
+Les illustrations du livre sont affichées à gauche du récit et peuvent être masquées ou agrandies.
+La sacoche présente les objets en lignes compactes ; **Gérer les objets…** déplie les commandes d’ajout et de retrait.
 Les commandes sont regroupées dans les onglets Sacoche, Combat & soins et Dés.
 
 [Captures et instructions de test](docs/design/grimoire.md).

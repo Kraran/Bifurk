@@ -4,7 +4,7 @@ from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
 from book_actions import BookActions
-from grimoire_ui import GrimoireScene, GRIMOIRE_STYLE, inventory_icon, ChoiceCard
+from grimoire_ui import GrimoireScene, GRIMOIRE_STYLE, inventory_icon, ChoiceCard, IlluminatedPage
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
@@ -184,7 +184,7 @@ class MainWindow(QMainWindow, BookActions):
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
         self._fullscreen = False
-        self.resize(1380, 850)
+        self.resize(1600, 900)
         self.setMinimumSize(930, 650)
         self.pdf_path = None
         self.illustration_catalogue = None
@@ -336,15 +336,15 @@ class MainWindow(QMainWindow, BookActions):
         self._update_history_controls()
 
         splitter = QSplitter(Qt.Horizontal)
-        reader_panel = QWidget()
+        reader_panel = IlluminatedPage()
         reader_panel.setObjectName("readerPanel")
         reader_layout = QVBoxLayout(reader_panel)
-        reader_layout.setContentsMargins(14, 12, 14, 14)
+        reader_layout.setContentsMargins(18, 20, 18, 20)
         reader_layout.setSpacing(8)
         self.scene_art = GrimoireScene(ASSET_DIR / "grimoire-library.png")
-        reader_layout.addWidget(self.scene_art)
+        splitter.addWidget(self.scene_art)
         reader_panel.setMinimumWidth(0)
-        self.art_toggle = QPushButton("◈  Illustration")
+        self.art_toggle = QPushButton("◈  Image")
         self.art_toggle.setCheckable(True)
         self.art_toggle.setChecked(True)
         self.art_toggle.setToolTip("Afficher ou masquer l’image pour agrandir la zone de lecture")
@@ -352,7 +352,12 @@ class MainWindow(QMainWindow, BookActions):
         self.paragraph_title = QLabel("Bienvenue")
         self.paragraph_title.setObjectName("sectionTitle")
         title_row = QHBoxLayout()
+        title_row.addStretch()
         title_row.addWidget(self.paragraph_title)
+        title_row.addStretch()
+        reader_layout.addLayout(title_row)
+        title_row = QHBoxLayout()
+        title_row.setSpacing(8)
         title_row.addStretch()
         title_row.addWidget(self.art_toggle)
         minus_btn = QPushButton("A−")
@@ -421,11 +426,13 @@ class MainWindow(QMainWindow, BookActions):
         side = QWidget()
         side.setObjectName("sidePanel")
         side_layout = QVBoxLayout(side)
-        side_layout.setContentsMargins(12, 8, 12, 12)
-        side_layout.setSpacing(14)
+        side_layout.setContentsMargins(8, 8, 8, 8)
+        side_layout.setSpacing(10)
 
         stats_group = QGroupBox("✦  FEUILLE D’AVENTURIER")
         stats_grid = QGridLayout(stats_group)
+        stats_grid.setHorizontalSpacing(4)
+        stats_grid.setContentsMargins(8, 10, 8, 8)
         self.stat_spins = {}
         self.stat_bars = {}
         stats = [("HABILETÉ", "habilete"), ("ENDURANCE", "endurance"), ("CHANCE", "chance")]
@@ -438,7 +445,7 @@ class MainWindow(QMainWindow, BookActions):
             spin.setAlignment(Qt.AlignCenter)
             spin.setButtonSymbols(QSpinBox.UpDownArrows)
             spin.setObjectName("heroValue")
-            spin.setMinimumHeight(54)
+            spin.setMinimumHeight(46)
             spin.setAccessibleName(label)
             spin.valueChanged.connect(lambda value, k=key: self.set_stat(k, value))
             stats_grid.addWidget(spin, 1, column)
@@ -455,6 +462,8 @@ class MainWindow(QMainWindow, BookActions):
             spin.setRange(0, 999)
             spin.setAccessibleName(label)
             spin.valueChanged.connect(lambda value, k=key: self.set_stat(k, value))
+            spin.setMinimumWidth(40)
+            spin.setMaximumWidth(70)
             resources.addWidget(spin)
             self.stat_spins[key] = spin
         stats_grid.addLayout(resources, 3, 0, 1, 3)
@@ -466,6 +475,7 @@ class MainWindow(QMainWindow, BookActions):
         self.initial_label = QLabel("Valeurs de départ : —")
         self.initial_label.setObjectName("initialStats")
         self.initial_label.setWordWrap(True)
+        self.initial_label.hide()
         stats_grid.addWidget(self.initial_label, 5, 0, 1, 3)
         hero_row = QHBoxLayout()
         crest = QLabel("⚔")
@@ -485,14 +495,20 @@ class MainWindow(QMainWindow, BookActions):
         self.adventure_tabs.setMinimumHeight(160)
         side_layout.addWidget(self.adventure_tabs, 1)
 
-        inv_group = QGroupBox("✦  SACOCHE & TRÉSORS")
+        inv_group = QFrame()
+        inv_group.setObjectName("inventoryPanel")
         inv_layout = QVBoxLayout(inv_group)
+        inv_layout.setContentsMargins(8, 14, 8, 10)
+        inv_layout.setSpacing(8)
+        inventory_heading = QLabel("✦  SACOCHE & TRÉSORS")
+        inventory_heading.setObjectName("inventoryHeading")
+        inv_layout.addWidget(inventory_heading)
         self.inventory_list = QListWidget()
         self.inventory_list.setObjectName("inventoryCards")
         self.inventory_list.setWordWrap(True)
         self.inventory_list.setMinimumHeight(150)
-        self.inventory_list.setSpacing(3)
-        self.inventory_list.setIconSize(QSize(42, 42))
+        self.inventory_list.setSpacing(0)
+        self.inventory_list.setIconSize(QSize(26, 26))
         inv_layout.addWidget(self.inventory_list)
         inv_row = QHBoxLayout()
         self.item_input = QLineEdit()
@@ -504,13 +520,21 @@ class MainWindow(QMainWindow, BookActions):
         remove_item_btn = QPushButton("Retirer")
         remove_item_btn.clicked.connect(self.remove_item)
         inv_row.addWidget(remove_item_btn)
-        inv_layout.addLayout(inv_row)
+        inventory_tools = QWidget()
+        inventory_tools.setLayout(inv_row)
+        inventory_tools.hide()
+        manage_inventory = QPushButton("Gérer les objets…")
+        manage_inventory.setCheckable(True)
+        manage_inventory.toggled.connect(inventory_tools.setVisible)
+        inv_layout.addWidget(manage_inventory)
+        inv_layout.addWidget(inventory_tools)
         self.equipment_label = QLabel("⚔  Arme : Épée     ◈  Protection : Armure de cuir")
         self.equipment_label.setWordWrap(True)
         self.equipment_label.setObjectName("equipment")
-        inv_layout.insertWidget(0, self.equipment_label)
+        self.equipment_label.hide()
         self.weapon_combo = QComboBox()
         self.weapon_combo.currentTextChanged.connect(self.change_weapon)
+        self.weapon_combo.setToolTip("Arme équipée")
         inv_layout.insertWidget(1, self.weapon_combo)
         self.shield_check = QCheckBox("Utiliser le bouclier au croissant")
         self.shield_check.toggled.connect(self.change_shield_use)
@@ -607,10 +631,11 @@ class MainWindow(QMainWindow, BookActions):
         scroll.setFrameShape(QFrame.NoFrame)
         scroll.setWidget(side)
         splitter.addWidget(scroll)
-        scroll.setMinimumWidth(390)
-        splitter.setSizes([880, 390])
-        splitter.setStretchFactor(0, 3)
-        splitter.setStretchFactor(1, 1)
+        scroll.setMinimumWidth(365)
+        splitter.setSizes([300, 880, 340])
+        splitter.setStretchFactor(0, 2)
+        splitter.setStretchFactor(1, 5)
+        splitter.setStretchFactor(2, 1)
         splitter.setChildrenCollapsible(False)
         root.addWidget(splitter, 1)
         self.setCentralWidget(central)
@@ -704,7 +729,7 @@ class MainWindow(QMainWindow, BookActions):
 
     def _toggle_scene_art(self, visible):
         self.scene_art.setVisible(visible)
-        self.art_toggle.setText("◈  Illustration" if visible else "◈  Illustration")
+        self.art_toggle.setText("◈  Image" if visible else "◈  Image")
 
     def _update_scene_art(self):
         self.scene_art.set_book_art()
