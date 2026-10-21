@@ -109,3 +109,12 @@ Le [guide de maintenance](docs/maintenance.md) présente les modules, le cycle d
 partie, les règles du catalogue, les sauvegardes, le rendu Qt et le flux audio.
 Les modules et fonctions du code applicatif sont documentés en français ; les
 suites de tests et outils précisent également leur rôle et leurs contraintes.
+
+### Potion de départ
+
+À la création, choisissez Adresse, Vigueur ou Bonne Fortune dans la liste (Vigueur est présélectionnée).
+Le choix est conservé lors des relances. Une fois la partie commencée, la fiole ne peut plus être changée :
+elle contient deux doses, affichées sur la feuille et dans Soins, utilisables également en combat.
+Adresse et Vigueur restaurent leur caractéristique initiale ; chaque dose de Bonne Fortune augmente
+la Chance initiale de 1, puis restaure la Chance à ce nouveau maximum. Les doses sont conservées
+dans les sauvegardes. Une dose sans effet n'est pas consommée.

@@ -688,13 +688,16 @@ class MainWindow(QMainWindow, BookActions):
         self.potion_combo = QComboBox()
         self.potion_combo.addItems(["Aucune", "Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune"])
         self.potion_combo.setAccessibleName("Potion choisie")
-        self.potion_combo.currentTextChanged.connect(self.change_potion)
+        # Le choix appartient à la création ; la feuille ne peut ni changer ni recharger la fiole.
+        self.potion_combo.setEnabled(False)
         stats_grid.addWidget(self.potion_combo, 4, 0, 1, 3)
+        self.potion_doses_label = QLabel()
+        stats_grid.addWidget(self.potion_doses_label, 5, 0, 1, 3)
         self.initial_label = QLabel("Valeurs de départ : —")
         self.initial_label.setObjectName("initialStats")
         self.initial_label.setWordWrap(True)
         self.initial_label.hide()
-        stats_grid.addWidget(self.initial_label, 5, 0, 1, 3)
+        stats_grid.addWidget(self.initial_label, 6, 0, 1, 3)
         hero_row = QHBoxLayout()
         crest = QLabel("⚔")
         crest.setObjectName("heroCrest")
@@ -1032,6 +1035,19 @@ class MainWindow(QMainWindow, BookActions):
         reroll.setEnabled(self._creation_rerolls < 2)
         reroll.clicked.connect(self._reroll_adventurer)
         self.choice_layout.addWidget(reroll)
+        self.choice_layout.addWidget(QLabel('Votre potion de départ — une fiole, deux doses'))
+        potion = QComboBox()
+        potion.setObjectName('startingPotion')
+        potion.setAccessibleName('Choisir la potion de départ')
+        potion.addItems(["Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune"])
+        potion.setCurrentText(self.character['potion'])
+        potion.currentTextChanged.connect(self.change_potion)
+        self.choice_layout.addWidget(potion)
+        description = QLabel("Adresse : restaure l’Habileté initiale. Vigueur : restaure l’Endurance initiale. "
+                             "Bonne Fortune : augmente la Chance initiale de 1 puis la restaure. "
+                             "Chaque dose peut être bue via Soins, même en combat.")
+        description.setWordWrap(True)
+        self.choice_layout.addWidget(description)
         self.choice_group.show()
         self.event_group.hide()
         self.condition_group.hide()
@@ -1047,6 +1063,7 @@ class MainWindow(QMainWindow, BookActions):
         self._creation_rerolls = 0
         self._adventurer_draft = self._roll_adventurer()
         self.character = copy.deepcopy(self._initial_character)
+        self.character.update(potion='Potion de Vigueur', potion_doses=2)
         self._apply_adventurer_draft()
 
     def _apply_adventurer_draft(self):
@@ -1104,7 +1121,9 @@ class MainWindow(QMainWindow, BookActions):
         if not name or not self.paragraphs or self._adventurer_draft is None or self.current_paragraph is not None:
             return
         self._discard_combat_popup()
+        potion = self.character['potion']
         self.character = copy.deepcopy(self._initial_character)
+        self.character.update(potion=potion, potion_doses=2)
         self.character['name'] = name
         self.character['initial'] = copy.deepcopy(self._adventurer_draft)
         self.character.update(self._adventurer_draft)
@@ -2031,6 +2050,9 @@ class MainWindow(QMainWindow, BookActions):
         self.potion_combo.blockSignals(True)
         self.potion_combo.setCurrentText(self.character.get("potion", "Aucune"))
         self.potion_combo.blockSignals(False)
+        doses = self.character.get('potion_doses', 0)
+        self.potion_doses_label.setText(f'Doses restantes : {doses} / 2' if self.character.get('potion') != 'Aucune'
+                                       else 'Aucune potion')
         self.inventory_list.clear()
         for name in self.character.get("inventory", []):
             item = QListWidgetItem(inventory_icon(name, self.theme), str(name))
@@ -2109,9 +2131,13 @@ class MainWindow(QMainWindow, BookActions):
         return {'habilete': skill_roll + 6, 'endurance': endurance_roll + 12, 'chance': luck_roll + 6}
 
     def change_potion(self, value):
-        """Modifier le choix de potion et mettre à jour sa présentation."""
+        """Choisir la fiole avant le départ uniquement ; aucun remplissage en cours de jeu."""
+        if (self._adventurer_draft is None or self.current_paragraph is not None
+                or value not in ("Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune")):
+            return
         self.character["potion"] = value
-        self.character["potion_doses"] = 2 if value != "Aucune" else 0
+        self.character["potion_doses"] = 2
+        self._refresh_character()
 
     def test_luck(self):
         """Comparer 2d6 à la Chance avant de dépenser un point, puis afficher le résultat."""
@@ -2152,6 +2178,11 @@ class MainWindow(QMainWindow, BookActions):
 
     def drink_potion(self):
         """Appliquer la potion choisie et consommer une dose selon les règles de la caractéristique."""
+        # Revérifier aussi les appels directs : pas de dose après la mort,
+        # pendant la création, à fiole vide ou sans effet utile.
+        if not self.care_options()[0]['enabled']:
+            self.rules_log.setText("Aucune dose de potion utilisable.")
+            return
         potion = self.character.get("potion", "Aucune")
         doses = self.character.get("potion_doses", 0)
         if potion == "Aucune" or doses <= 0:
@@ -3014,7 +3045,7 @@ for _name, _label in {
     "eat_meal": "Prendre un repas", "eat_shared_meal": "Partager un repas",
     "drink_potion": "Boire une potion",
     "combat_round": "Assaut de combat", "add_item": "Ajouter un objet",
-    "remove_item": "Retirer un objet", "change_potion": "Changer de potion",
+    "remove_item": "Retirer un objet",
     "change_weapon": "Changer d'arme",
     "change_shield_use": "Utiliser le bouclier",
     "take_book_shield": "Prendre le bouclier",
