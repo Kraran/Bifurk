@@ -269,8 +269,10 @@ class AdventureLifecycleTests(unittest.TestCase):
             self.assertIsNotNone(button)
             button.click()
             return dialog.result()
-        with patch.object(SaveSlotsDialog, 'exec', choose_new):
+        with patch.object(SaveSlotsDialog, 'exec', choose_new), \
+                patch.object(QMessageBox, 'question', return_value=QMessageBox.Yes) as confirm:
             w.load_game()
+        confirm.assert_called_once()
         self.assertIsNone(w.current_paragraph)
         self.assertEqual(w._creation_rerolls, 0)
         self.assertIsNotNone(w._adventurer_draft)
@@ -283,3 +285,20 @@ class AdventureLifecycleTests(unittest.TestCase):
         self.assertEqual(w.visited_paragraphs, [1])
         self.assertEqual(w.encounter_history, {})
         self.assertEqual(path.read_bytes(), saved)
+
+    def test_declining_new_game_keeps_load_menu_and_current_adventure(self):
+        self.start()
+        self.w.go_to(2)
+        before = self.w._snapshot()
+        dialog = SaveSlotsDialog(main.SAVES_DIR, False, self.w)
+        with patch.object(QMessageBox, 'question', return_value=QMessageBox.No) as confirm:
+            dialog.findChild(QPushButton, 'newAdventure').click()
+        confirm.assert_called_once()
+        self.assertFalse(dialog.new_game_requested)
+        self.assertEqual(dialog.result(), 0)
+        self.assertEqual(self.w._snapshot(), before)
+        startup = SaveSlotsDialog(main.SAVES_DIR, False, self.w, startup=True)
+        with patch.object(QMessageBox, 'question') as confirm:
+            startup.findChild(QPushButton, 'newAdventure').click()
+        confirm.assert_not_called()
+        self.assertTrue(startup.new_game_requested)
