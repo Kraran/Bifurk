@@ -135,10 +135,17 @@ from unittest.mock import patch
 from PySide6.QtWidgets import QApplication
 from PySide6.QtMultimedia import QSoundEffect
 from sound_effects import SoundBank
+from pcm_audio import PcmEffect
 app = QApplication([])
 with patch.object(SoundBank, '_backend', return_value=QSoundEffect):
     bank = SoundBank(Path('assets/sounds'))
     assert bank.effects['ambient'].loopCount() == -2
+with patch.object(SoundBank, '_backend', return_value=PcmEffect):
+    pcm = SoundBank(Path('assets/sounds'))
+    assert all(effect.status() == effect.Ready for effect in pcm.effects.values())
+    pcm.play('page')
+    assert any(pcm._pcm_mixer.readData(44100 * 4))
+    pcm._pcm_sink.stop()
 print('native preload OK')
 """
         result = subprocess.run([sys.executable, '-c', script], cwd=ASSET_DIR.parent,

@@ -58,15 +58,20 @@ son individuellement. L’**ambiance de fond : caverne** a sa propre commande,
 indépendante des effets, et reste désactivée par défaut. La boucle joue à faible volume.
 
 `scripts/prepare_sounds.py` convertit les archives créditées avec FFmpeg, uniquement
-pour préparer les assets. FFmpeg n’est pas requis pour jouer. `QSoundEffect`
-(QtMultimedia, inclus dans PySide6) assure la lecture locale, sans service externe
-et sans toucher au générateur de hasard du jeu.
+pour préparer les assets. FFmpeg n’est pas requis pour jouer. Un flux PCM stéréo
+continu via `QAudioSink` (QtMultimedia, inclus dans PySide6) mélange les effets et
+la caverne. Il transmet du silence entre les actions pour garder la sortie ouverte,
+plutôt que de démarrer un lecteur pour chaque effet très court. La lecture reste
+locale et ne touche pas au générateur de hasard du jeu.
+
+Le journal `donnees/parametres/audio.log` indique les demandes, les lectures et le
+périphérique de sortie. Il est limité à deux fichiers de 128 Ko.
 
 ## Tester sous Windows
 
 ```powershell
 git fetch origin
-git switch feat/sons-libres-reactifs
+git switch fix/boucle-audio-qt
 git pull --ff-only
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py

@@ -51,8 +51,8 @@ class SoundBank(QObject):
         if QGuiApplication.platformName() in ('offscreen', 'minimal'):
             return None
         try:
-            from PySide6.QtMultimedia import QSoundEffect
-            return QSoundEffect
+            from pcm_audio import PcmEffect
+            return PcmEffect
         except ImportError:
             return None
 
