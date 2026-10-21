@@ -4,7 +4,7 @@ from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
 from book_actions import BookActions
-from grimoire_ui import GrimoireScene, GRIMOIRE_STYLE, inventory_icon, ChoiceCard, IlluminatedPage
+from grimoire_ui import GrimoireScene, GRIMOIRE_STYLE, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
@@ -339,7 +339,7 @@ class MainWindow(QMainWindow, BookActions):
         self._update_history_controls()
 
         splitter = QSplitter(Qt.Horizontal)
-        reader_panel = IlluminatedPage()
+        reader_panel = IlluminatedPage(ASSET_DIR / "parchment.jpg")
         reader_panel.setObjectName("readerPanel")
         reader_layout = QVBoxLayout(reader_panel)
         reader_layout.setContentsMargins(18, 20, 18, 20)
@@ -390,10 +390,6 @@ class MainWindow(QMainWindow, BookActions):
         self.reader.setObjectName("reader")
         self.reader.setMinimumHeight(230)
         reader_layout.addWidget(self.reader, 1)
-        self.illustration_button = QPushButton("🖼  Voir l’illustration du paragraphe")
-        self.illustration_button.clicked.connect(self.show_paragraph_illustration)
-        self.illustration_button.hide()
-        reader_layout.addWidget(self.illustration_button)
 
         self.choice_group = QGroupBox("⚜  QUELLE SERA VOTRE VOIE ?")
         self.choice_layout = QVBoxLayout(self.choice_group)
@@ -787,7 +783,6 @@ class MainWindow(QMainWindow, BookActions):
         self.choice_group.show()
         self.event_group.hide()
         self.condition_group.hide()
-        self.illustration_button.hide()
         self._update_scene_art(prefer_cover=True)
 
     def open_pdf(self):
@@ -1283,7 +1278,6 @@ class MainWindow(QMainWindow, BookActions):
         text = self.paragraphs[number]
         # Utiliser le même détecteur pour les boutons ET les liens dans le texte.
         self._render_paragraph_text(text)
-        self.illustration_button.setVisible(bool(self.illustration_catalogue and images_for_paragraph(self.illustration_catalogue, number)))
         self.reader.moveCursor(QTextCursor.Start)
         self._render_choices_and_events(text)
         self.choice_group.setVisible(any(isinstance(self.choice_layout.itemAt(i).widget(), QPushButton)
@@ -1310,17 +1304,26 @@ class MainWindow(QMainWindow, BookActions):
         except Exception as exc:
             QMessageBox.warning(self, "Illustration", str(exc))
             return
-        dialog = QDialog(self)
+        dialog = IllustrationDialog(self)
         dialog.setObjectName("illustrationDialog")
         dialog.setWindowIcon(self.windowIcon())
         dialog.setWindowTitle(title)
         layout = QVBoxLayout(dialog)
+        window_tools = QHBoxLayout()
+        fullscreen = QPushButton("⛶  Plein écran / fenêtre (F11)")
+        fullscreen.clicked.connect(dialog.toggle_fullscreen)
+        restore = QPushButton("↙  Taille initiale")
+        restore.clicked.connect(dialog.restore_default_size)
+        window_tools.addWidget(fullscreen)
+        window_tools.addWidget(restore)
+        window_tools.addStretch()
+        layout.addLayout(window_tools)
         # Respecter la surface utile de l'écran, sans défilement horizontal.
         screen = self.screen() or QApplication.primaryScreen()
         available = screen.availableGeometry()
         max_width = max(320, available.width() - 90)
         max_height = max(260, available.height() - 150)
-        displayed = pixmap.scaled(max_width - 44, max_height - 110,
+        displayed = pixmap.scaled(max_width - 44, max_height - 160,
                                   Qt.KeepAspectRatio, Qt.SmoothTransformation)
         viewer = GrimoireScene(ASSET_DIR / "grimoire-library.png")
         viewer.setMinimumSize(200, 180)
@@ -1335,8 +1338,10 @@ class MainWindow(QMainWindow, BookActions):
         close_button = QPushButton("Fermer")
         close_button.clicked.connect(dialog.accept)
         layout.addWidget(close_button)
-        dialog.setFixedSize(min(max_width, displayed.width() + 54),
-                            min(max_height, displayed.height() + 125))
+        dialog.default_size = QSize(min(max_width, max(440, displayed.width() + 54)),
+                                    min(max_height, displayed.height() + 175))
+        dialog.setMinimumSize(400, 300)
+        dialog.resize(dialog.default_size)
         dialog.exec()
 
     def show_cover(self):

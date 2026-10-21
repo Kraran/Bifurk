@@ -1,11 +1,42 @@
 """Illustrated, resizable surfaces for the Grimoire desktop theme."""
 from PySide6.QtCore import Qt, QRectF, QSize, Signal, QPointF
-from PySide6.QtGui import QColor, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen
-from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle
+from PySide6.QtGui import QColor, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen, QShortcut, QKeySequence
+from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle, QDialog
+
+
+class IllustrationDialog(QDialog):
+    """Resizable illustration window with native maximize and an explicit size reset."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent, Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint
+                         | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint)
+        self.default_size = QSize(640, 600)
+        QShortcut(QKeySequence("F11"), self, activated=self.toggle_fullscreen)
+
+    def toggle_fullscreen(self):
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
+
+    def restore_default_size(self):
+        self.showNormal()
+        self.resize(self.default_size)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape and self.isFullScreen():
+            self.restore_default_size()
+            event.accept()
+        else:
+            super().keyPressEvent(event)
 
 
 class IlluminatedPage(QWidget):
     """A book page with painted corner flourishes, independent of native controls."""
+
+    def __init__(self, texture_path=None, parent=None):
+        super().__init__(parent)
+        self.texture = QPixmap(str(texture_path)) if texture_path else QPixmap()
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -15,6 +46,9 @@ class IlluminatedPage(QWidget):
         page.addRoundedRect(QRectF(self.rect()), 12, 12)
         p.setClipPath(page)
         p.fillPath(page, QColor("#ead9b8"))
+        if not self.texture.isNull():
+            p.setRenderHint(QPainter.SmoothPixmapTransform)
+            p.drawPixmap(QRectF(self.rect()), self.texture, QRectF(self.texture.rect()))
         p.setPen(QPen(QColor("#ad8950"), 1.2))
         p.drawRoundedRect(self.rect().adjusted(4, 4, -5, -5), 10, 10)
         p.drawRoundedRect(self.rect().adjusted(8, 8, -9, -9), 8, 8)
@@ -320,4 +354,6 @@ QFrame#inventoryPanel, QListWidget#inventoryCards { border-radius: 8px; }
 QWidget#sidePanel QSpinBox, QWidget#sidePanel QComboBox { border-radius: 7px; }
 QTabWidget#adventureTabs::pane { border-radius: 8px; }
 QTabBar::tab { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+QTextBrowser#reader { background: transparent; }
+QWidget#readerPanel QGroupBox { background: transparent; }
 """
