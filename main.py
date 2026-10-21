@@ -5,7 +5,9 @@ from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
 from book_actions import BookActions
 from rules_viewer import RulesDialog
-from grimoire_ui import GrimoireScene, GRIMOIRE_STYLE, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog
+from themes import available_themes
+from sound_effects import SoundBank
+from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
@@ -180,8 +182,18 @@ def set_bronze_titlebar(widget):
 
 
 class MainWindow(QMainWindow, BookActions):
-    def __init__(self):
+    def __init__(self, restore_session=False):
         super().__init__()
+        self.preferences_path = SETTINGS_DIR / "preferences.json"
+        try:
+            self.preferences = json.loads(self.preferences_path.read_text(encoding="utf-8"))
+            if not isinstance(self.preferences, dict):
+                self.preferences = {}
+        except (OSError, ValueError):
+            self.preferences = {}
+        self.themes = available_themes(ASSET_DIR / "themes")
+        self.theme = self.themes.get(self.preferences.get("theme"), self.themes["grimoire"])
+        self.sounds = SoundBank(ASSET_DIR / "sounds", self.preferences.get("sound_enabled", True), self)
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
         self._fullscreen = False
@@ -216,11 +228,99 @@ class MainWindow(QMainWindow, BookActions):
         self._restoring = False
         self.reader_font_size = 20
         self._load_fonts()
+        self._default_fonts = (self.reading_font_family, self.ui_font_family)
+        self.reading_font_family = self.theme.data.get("fonts", {}).get("reading", self.reading_font_family)
+        self.ui_font_family = self.theme.data.get("fonts", {}).get("ui", self.ui_font_family)
         self._build_ui()
         self._set_theme()
         QShortcut(QKeySequence("F11"), self, activated=self.toggle_fullscreen)
         self._refresh_character()
         self._show_welcome()
+        if restore_session:
+            QTimer.singleShot(0, self._restore_last_grimoire)
+
+    def _save_preferences(self):
+        try:
+            self._write_atomic(self.preferences_path, self.preferences)
+        except OSError:
+            self.rules_log.setText("Les préférences n’ont pas pu être enregistrées.")
+
+    def _remember_book(self):
+        if self.pdf_path and within_directory(self.pdf_path, BOOKS_DIR):
+            self.preferences["last_book"] = str(Path(self.pdf_path).resolve().relative_to(BOOKS_DIR.resolve()))
+            self._save_preferences()
+
+    def _restore_last_grimoire(self):
+        reference = self.preferences.get("last_book")
+        autosave = SAVES_DIR / "autosave.json"
+        if not isinstance(reference, str):
+            # Migrate installations that already imported a book before preferences existed.
+            try:
+                previous = json.loads(autosave.read_text(encoding="utf-8"))
+                pdf = resolve_book_reference(previous.get("pdf_path"))
+                if not pdf or not within_directory(pdf, BOOKS_DIR):
+                    return
+                reference = str(Path(pdf).resolve().relative_to(BOOKS_DIR.resolve()))
+                self.preferences["last_book"] = reference
+            except (OSError, ValueError, TypeError, AttributeError):
+                return
+        path = (BOOKS_DIR / reference).resolve()
+        if not within_directory(path, BOOKS_DIR) or not path.is_file():
+            self.rules_log.setText("Le dernier grimoire est introuvable. Vous pouvez en ouvrir un autre.")
+            return
+        try:
+            data = json.loads(autosave.read_text(encoding="utf-8"))
+            saved_pdf = resolve_book_reference(data.get("pdf_path"))
+            if saved_pdf and Path(saved_pdf).resolve() == path:
+                if self.load_game(autosave, announce=False):
+                    return
+        except (OSError, ValueError, TypeError, AttributeError):
+            pass
+        self.open_pdf(path, startup=True)
+
+    def show_ambience(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Bifurk — Ambiance")
+        layout = QVBoxLayout(dialog)
+        sound = QCheckBox("Activer les sons des pages, des dés et des combats")
+        sound.setChecked(self.sounds.enabled)
+        def set_sound(enabled):
+            self.sounds.set_enabled(enabled)
+            self.preferences["sound_enabled"] = enabled
+            self._save_preferences()
+        sound.toggled.connect(set_sound)
+        layout.addWidget(sound)
+        layout.addWidget(QLabel("Thème de l’interface"))
+        themes = QComboBox()
+        for key, theme in self.themes.items():
+            themes.addItem(theme.name, key)
+        themes.setCurrentIndex(themes.findData(self.theme.id))
+        themes.currentIndexChanged.connect(lambda index: self.apply_theme(themes.itemData(index)))
+        layout.addWidget(themes)
+        close = QDialogButtonBox(QDialogButtonBox.Close)
+        close.rejected.connect(dialog.reject)
+        layout.addWidget(close)
+        dialog.exec()
+
+    def apply_theme(self, theme_id):
+        self.theme = self.themes[theme_id]
+        fonts = self.theme.data.get("fonts", {})
+        self.reading_font_family = fonts.get("reading", self._default_fonts[0])
+        self.ui_font_family = fonts.get("ui", self._default_fonts[1])
+        self._set_theme()
+        for page in self.findChildren(IlluminatedPage):
+            page.set_theme(self.theme)
+        for scene in self.findChildren(GrimoireScene):
+            scene.set_theme(self.theme)
+        self._refresh_character()
+        if self.current_paragraph in self.paragraphs:
+            self._render_paragraph_text(self.paragraphs[self.current_paragraph])
+        elif self.pdf_path and self.paragraphs:
+            self._show_book_title()
+        else:
+            self._show_welcome()
+        self.preferences["theme"] = theme_id
+        self._save_preferences()
 
     def toggle_fullscreen(self):
         """Basculer entre plein écran immersif et fenêtre normale."""
@@ -286,10 +386,10 @@ class MainWindow(QMainWindow, BookActions):
         self.font_size_label.setText(f"{self.reader_font_size} pt")
 
     def _render_paragraph_text(self, text):
-        escaped = render_links(text, self.paragraphs)
+        escaped = render_links(text, self.paragraphs).replace("#123f70", self.theme.color("link"))
         # Liens bleu nuit soulignés : contraste élevé sur le parchemin clair.
         content = (f'<div style="font-family: \'{self.reading_font_family}\'; '
-                   f'font-size: {self.reader_font_size}pt; color: #30241b; line-height: 1.55;">'
+                   f'font-size: {self.reader_font_size}pt; color: {self.theme.color("ink")}; line-height: 1.55;">'
                    f'<p>{escaped}</p></div>')
         self.reader.setHtml(content)
 
@@ -334,6 +434,9 @@ class MainWindow(QMainWindow, BookActions):
         self.history_label = QLabel("Historique : 0 action")
         history_bar.addWidget(self.history_label)
         history_bar.addStretch()
+        ambience = QPushButton("♫ Ambiance")
+        ambience.clicked.connect(self.show_ambience)
+        history_bar.addWidget(ambience)
         map_btn = QPushButton("🗺 Carte d’exploration")
         map_btn.clicked.connect(self.show_map)
         self.rules_button = QPushButton("📖 Règles")
@@ -346,12 +449,12 @@ class MainWindow(QMainWindow, BookActions):
         self._update_history_controls()
 
         splitter = QSplitter(Qt.Horizontal)
-        reader_panel = IlluminatedPage(ASSET_DIR / "parchment.jpg")
+        reader_panel = IlluminatedPage(self.theme.assets["parchment"], theme=self.theme)
         reader_panel.setObjectName("readerPanel")
         reader_layout = QVBoxLayout(reader_panel)
         reader_layout.setContentsMargins(18, 20, 18, 20)
         reader_layout.setSpacing(8)
-        self.scene_art = GrimoireScene(ASSET_DIR / "grimoire-library.png")
+        self.scene_art = GrimoireScene(self.theme.assets["scene"], theme=self.theme)
         self.scene_entry = None
         self.scene_title = ""
         self.scene_art.activated.connect(self._enlarge_scene_art)
@@ -658,83 +761,7 @@ class MainWindow(QMainWindow, BookActions):
         self.adventure_tabs.addTab(page, title)
 
     def _set_theme(self):
-        parchment = (ASSET_DIR / "parchment.jpg").as_posix()
-        leather = (ASSET_DIR / "leather.jpg").as_posix()
-        self.setStyleSheet("""
-            QMainWindow, QWidget { background-color: #241d18; color: #e9d6b3; font-family: 'Lato'; font-size: 13px; }
-            QMainWindow { background-image: url('LEATHER'); }
-            QLabel { background: transparent; }
-            QLabel#appTitle { color: #edcb87; font-family: Lato; font-size: 29px; font-weight: bold; }
-            QLabel#subtitle { color: #aa8b5a; font-size: 10px; letter-spacing: 2px; }
-            QLabel#sectionTitle { color: #f0d39a; font-size: 25px; font-weight: bold; padding: 6px 2px; }
-            QLabel#muted { color: #bca98b; }
-            QWidget#readerPanel, QWidget#sidePanel { background: transparent; }
-            QGroupBox { background-color: #30251d; border: 1px solid #79603b; border-radius: 7px;
-                margin-top: 17px; padding: 13px 9px 9px; font-weight: bold; color: #e9c989; }
-            QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 8px; background: #30251d; }
-            QPushButton { background-color: #4a3527; color: #f1dcaf; border: 1px solid #9b7948;
-                border-radius: 5px; padding: 9px 12px; font-family: Lato; font-weight: bold; }
-            QPushButton:hover { background-color: #705038; border-color: #e1bc75; }
-            QPushButton:pressed { background-color: #38291f; }
-            QPushButton:disabled { color: #897963; border-color: #514537; }
-            QPushButton#goldButton { background-color: #a27a3f; color: #21170f; border: 1px solid #e0b975; }
-            QPushButton#goldButton:hover { background-color: #c59a53; }
-            QSpinBox, QLineEdit, QComboBox { background: #e6d0a5; color: #35251a; border: 1px solid #9d784b;
-                border-radius: 4px; padding: 6px; selection-background-color: #9a723c; }
-            QSpinBox::up-button, QSpinBox::down-button { width: 17px; }
-            QListWidget { background-color: #e8d7b4; color: #3a291c; border: 1px solid #95744a;
-                border-radius: 4px; padding: 4px; }
-            QListWidget::item { padding: 4px; }
-            QListWidget::item:selected { background: #a47a42; color: #fff4d8; }
-            QTextBrowser#reader { background-color: #e8d0a2; background-image: url('PARCHMENT');
-                color: #34251b; border: 5px double #806039; border-radius: 3px;
-                padding: 28px 33px; font-family: "EB Garamond"; font-size: 20px; }
-            QTextBrowser#reader QScrollBar { background: #cfb383; }
-            QLabel#diceResult { color: #f6d58d; font-size: 19px; font-weight: bold; }
-            QLabel#diceFaces { font-size: 43px; color: #e9cb8b; padding: 5px; }
-            QLabel#equipment { background: #4b3727; color: #e8c88d; padding: 11px; border: 1px solid #987648; border-radius: 5px; }
-            QLabel#initialStats { color: #c9b08a; font-size: 11px; }
-            QLabel#combatState { background: #49301f; color: #f1d59b; padding: 9px; border: 1px solid #aa7b43; border-radius: 5px; }
-            QProgressBar { border: 1px solid #8b6b44; border-radius: 5px; background: #1f1915; color: #fff0ce; height: 20px; text-align: center; font-weight: bold; }
-            QProgressBar::chunk { background: #a17c45; border-radius: 4px; }
-            QListWidget#combatJournal { background: #d9c59e; color: #38271a; }
-
-            QScrollArea#sideScroll { background: transparent; border: none; }
-            QScrollBar:vertical { background: #30261f; width: 12px; margin: 0; }
-            QScrollBar::handle:vertical { background: #82623d; border-radius: 5px; min-height: 30px; }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
-            QSplitter::handle { background: #79603b; width: 3px; }
-            QDialog, QMessageBox, QFileDialog { background-color: #2b211a; color: #f1d9ac; }
-            QDialog QLabel, QMessageBox QLabel, QFileDialog QLabel { color: #f0dbb6; background: transparent; }
-            QDialog QPushButton, QMessageBox QPushButton { min-width: 85px; }
-            QDialog QTextBrowser { background-color: #e8d0a2; background-image: url('PARCHMENT');
-                color: #34251b; border: 3px double #806039; padding: 12px;
-                font-family: 'EB Garamond'; font-size: 17px; }
-            QDialog QScrollArea { background: #2b211a; border: none; }
-            QDialog QDialogButtonBox { background: transparent; }
-            QFileDialog QTreeView, QFileDialog QListView, QFileDialog QTableView {
-                background-color: #e8d0a2; color: #30241b;
-                alternate-background-color: #dcc39a; selection-background-color: #967044;
-                selection-color: #fff2d8; border: 1px solid #947143;
-            }
-            QFileDialog QHeaderView::section { background: #4a3527; color: #f1dcaf;
-                border: 1px solid #9b7948; padding: 5px; }
-            QFileDialog QLineEdit, QFileDialog QComboBox { background: #e8d0a2; color: #30241b;
-                border: 1px solid #9b7948; padding: 5px; }
-            QFileDialog QToolButton { background: #4a3527; color: #f1dcaf;
-                border: 1px solid #9b7948; border-radius: 4px; padding: 5px; }
-            QFileDialog QToolButton:hover { background: #705038; }
-            QFileDialog QScrollBar:horizontal { background: #30261f; height: 12px; }
-            QFileDialog QScrollBar::handle:horizontal { background: #82623d; border-radius: 5px; }
-            QFileDialog QSplitter::handle { background: #79603b; }
-            QDialog#illustrationDialog { background-color: #30231a; }
-            QDialog QLabel#illustrationImage { background: #e8d0a2; border: 5px double #a37a43; padding: 4px; }
-            QDialog QLabel#illustrationStatus { color: #cdb58b; font-size: 11px; }
-            QMessageBox QLabel#qt_msgbox_label { color: #f0dbb6; font-size: 14px; }
-            QMessageBox QLabel#qt_msgboxex_icon_label { background: transparent; }
-        """.replace('PARCHMENT', parchment).replace('LEATHER', leather).replace("EB Garamond", self.reading_font_family).replace("Lato", self.ui_font_family))
-
-        self.setStyleSheet(self.styleSheet() + GRIMOIRE_STYLE.replace("EB Garamond", self.reading_font_family))
+        self.setStyleSheet(self.theme.stylesheet(self.reading_font_family, self.ui_font_family))
 
     def _toggle_scene_art(self, visible):
         self.scene_art.setVisible(visible)
@@ -776,7 +803,7 @@ class MainWindow(QMainWindow, BookActions):
                  or Path(self.pdf_path).stem)
         self.paragraph_title.setText("✦  Votre aventure commence ici  ✦")
         self.reader.setHtml(
-            f'<div style="text-align:center; color:#632c33; font-family:\'{self.reading_font_family}\';">'
+            f'<div style="text-align:center; color:{self.theme.color("accent")}; font-family:\'{self.reading_font_family}\';">'
             f'<p style="font-size:16pt;">✦ LIVRE D’AVENTURE ✦</p>'
             f'<h1 style="font-size:38pt;">{html.escape(title)}</h1>'
             '<p style="font-size:18pt;">Ouvrez le livre. Choisissez votre destin.</p></div>')
@@ -792,8 +819,9 @@ class MainWindow(QMainWindow, BookActions):
         self.condition_group.hide()
         self._update_scene_art(prefer_cover=True)
 
-    def open_pdf(self):
-        path = self._themed_file_dialog(kind="pdf")
+    def open_pdf(self, path=None, *, startup=False):
+        if not isinstance(path, (str, Path)):
+            path = self._themed_file_dialog(kind="pdf")
         if not path:
             return
         try:
@@ -824,7 +852,7 @@ class MainWindow(QMainWindow, BookActions):
         self.piranha_combat = None
         self.book_combat_assaults = {}
         self.paragraphs = paragraphs
-        if self.illustration_catalogue is None:
+        if self.illustration_catalogue is None and not startup:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
         self.book_label.setText(Path(path).name)
         self.goto_spin.setMaximum(max(paragraphs))
@@ -834,6 +862,7 @@ class MainWindow(QMainWindow, BookActions):
         self.undo_stack.clear(); self.redo_stack.clear()
         self._update_history_controls()
         self._show_book_title()
+        self._remember_book()
         self._autosave()
 
     def _clear_dynamic_layout(self, layout):
@@ -1165,9 +1194,9 @@ class MainWindow(QMainWindow, BookActions):
         for number in self.visited_paragraphs:
             targets = [c['target'] for c in self._paragraph_choices(self.paragraphs.get(number, ''))]
             target_text = ', '.join(('✓ ' if n in self.visited_paragraphs else '○ ') + str(n) for n in targets) or 'aucune sortie détectée'
-            rows.append(f'<p><b><a style="color: #123f70; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">§ {number}</a></b> → {html.escape(target_text)}{self._map_monsters_html(number)}</p>')
+            rows.append(f'<p><b><a style="color: {self.theme.color("link")}; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">§ {number}</a></b> → {html.escape(target_text)}{self._map_monsters_html(number)}</p>')
         # Même bleu nuit, soulignement et contraste que les liens du livre.
-        view.document().setDefaultStyleSheet("a:link { color: #123f70; text-decoration: underline; font-weight: bold; }")
+        view.document().setDefaultStyleSheet("a:link { color: " + self.theme.color("link") + "; text-decoration: underline; font-weight: bold; }")
         view.setHtml('<h2>Parcours découvert</h2>' + ''.join(rows))
         def navigate(url):
             m = re.search(r'(?:paragraph:|paragraph%3A)(\d+)', url.toString(), re.I)
@@ -1293,6 +1322,8 @@ class MainWindow(QMainWindow, BookActions):
         if previous is not None and previous != number and not self._restoring:
             self.transitions.append([previous, number])
         self.current_paragraph = number
+        if previous != number and not self._restoring:
+            self.sounds.play("page")
         if not self._restoring and self.book_event_catalogue:
             if number in (106, 279):
                 self._remember_monster("Dragon" if number == 106 else "Vampire")
@@ -1388,7 +1419,7 @@ class MainWindow(QMainWindow, BookActions):
         max_height = max(260, available.height() - 150)
         displayed = pixmap.scaled(max_width - 44, max_height - 160,
                                   Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        viewer = GrimoireScene(ASSET_DIR / "grimoire-library.png")
+        viewer = GrimoireScene(self.theme.assets["scene"], theme=self.theme)
         viewer.setMinimumSize(200, 180)
         viewer.set_book_art(pixmap)
         viewer.setAccessibleName(title)
@@ -1593,7 +1624,7 @@ class MainWindow(QMainWindow, BookActions):
         self.potion_combo.blockSignals(False)
         self.inventory_list.clear()
         for name in self.character.get("inventory", []):
-            item = QListWidgetItem(inventory_icon(name), str(name))
+            item = QListWidgetItem(inventory_icon(name, self.theme), str(name))
             item.setToolTip(str(name) + (" — Arme équipée" if name == equipped_weapon(self.character) else ""))
             self.inventory_list.addItem(item)
         self.shield_check.blockSignals(True)
@@ -1627,6 +1658,7 @@ class MainWindow(QMainWindow, BookActions):
 
 
     def _roll(self, count=1, sides=6):
+        self.sounds.play("dice")
         rolls = [random.randint(1, sides) for _ in range(count)]
         return rolls, sum(rolls)
 
@@ -1708,6 +1740,8 @@ class MainWindow(QMainWindow, BookActions):
         self.rules_log.setText(f"Potion utilisée : {label} {old} → {target}. Doses restantes : {doses-1}.")
 
     def _log_assault(self, player_rolls, enemy_rolls, player_attack, enemy_attack, outcome):
+        if player_rolls and enemy_rolls:
+            self.sounds.play("swords")
         self._book_round_played = True
         if (self.crocodile_combat
                 and self.current_paragraph == self.crocodile_combat["paragraph"]):
@@ -2110,8 +2144,7 @@ class MainWindow(QMainWindow, BookActions):
     def roll_dice(self):
         notation = self.dice_combo.currentText()
         count, sides = notation.lower().split("d")
-        rolls = [random.randint(1, int(sides)) for _ in range(int(count))]
-        total = sum(rolls)
+        rolls, total = self._roll(int(count), int(sides))
         result = f"{notation} : {' + '.join(map(str, rolls))} = {total}"
         self.dice_result.setText(result)
         faces = "⚀⚁⚂⚃⚄⚅"
@@ -2318,8 +2351,9 @@ class MainWindow(QMainWindow, BookActions):
         except OSError as exc:
             QMessageBox.critical(self, "Erreur", str(exc))
 
-    def load_game(self):
-        path = self._themed_save_dialog(saving=False)
+    def load_game(self, path=None, *, announce=True):
+        if not isinstance(path, (str, Path)):
+            path = self._themed_save_dialog(saving=False)
         if not path:
             return
         try:
@@ -2361,9 +2395,14 @@ class MainWindow(QMainWindow, BookActions):
             self.undo_stack = [(label, state) for label, state in data.get("undo_stack", [])]
             self.redo_stack = [(label, state) for label, state in data.get("redo_stack", [])]
             self._update_history_controls()
-            QMessageBox.information(self, "Chargement", "Partie chargée.")
+            self._remember_book()
+            if announce:
+                QMessageBox.information(self, "Chargement", "Partie chargée.")
+            return True
         except Exception as exc:
-            QMessageBox.critical(self, "Chargement impossible", str(exc))
+            if announce:
+                QMessageBox.critical(self, "Chargement impossible", str(exc))
+            return False
 
 
 def _track_action(method, label):
@@ -2432,7 +2471,7 @@ def main():
                 app._bifurk_translators.append(translator)
                 break
     app.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
-    window = MainWindow()
+    window = MainWindow(restore_session=True)
     app.setStyleSheet(window.styleSheet())
     app._bifurk_dialog_filter = DialogThemeFilter(app)
     app.installEventFilter(app._bifurk_dialog_filter)

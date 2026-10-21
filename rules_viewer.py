@@ -27,7 +27,7 @@ class RulesDialog(IllustrationDialog):
         navigation.addWidget(self.pages, 1)
         navigation.addWidget(self.following)
         layout.addLayout(navigation)
-        self.viewer = GrimoireScene("")
+        self.viewer = GrimoireScene("", theme=getattr(parent, "theme", None))
         layout.addWidget(self.viewer, 1)
         layout.addWidget(QLabel("Molette : zoom · Glisser : déplacer · Clic : recadrer"))
         self.previous.clicked.connect(lambda: self.pages.setCurrentIndex(self.pages.currentIndex()-1))

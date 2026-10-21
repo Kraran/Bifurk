@@ -1,0 +1,24 @@
+{
+  "id": "grimoire",
+  "name": "Le Grimoire",
+  "stylesheet": "theme.qss",
+  "assets": {
+    "parchment": "../../parchment.jpg",
+    "leather": "../../leather.jpg",
+    "scene": "../../grimoire-library.png"
+  },
+  "colors": {
+    "page": "#ead9b8",
+    "ink": "#30241b",
+    "accent": "#632c33",
+    "ornament": "#ad8950",
+    "rubric": "#79313b",
+    "scene_background": "#201811",
+    "frame": "#bb9455",
+    "gold": "#dfbf7c",
+    "icon_background": "#4b2925",
+    "icon_border": "#ba9459",
+    "icon_ink": "#f5d89c",
+    "link": "#123f70"
+  }
+}

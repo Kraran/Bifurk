@@ -1,4 +1,5 @@
 """Illustrated, resizable surfaces for the Grimoire desktop theme."""
+from themes import default_theme
 from PySide6.QtCore import Qt, QRectF, QSize, Signal, QPointF
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen, QShortcut, QKeySequence
 from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle, QDialog
@@ -34,9 +35,15 @@ class IllustrationDialog(QDialog):
 class IlluminatedPage(QWidget):
     """A book page with painted corner flourishes, independent of native controls."""
 
-    def __init__(self, texture_path=None, parent=None):
+    def __init__(self, texture_path=None, parent=None, theme=None):
         super().__init__(parent)
+        self.theme = theme or default_theme()
         self.texture = QPixmap(str(texture_path)) if texture_path else QPixmap()
+
+    def set_theme(self, theme):
+        self.theme = theme
+        self.texture = QPixmap(str(theme.assets['parchment']))
+        self.update()
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -45,11 +52,11 @@ class IlluminatedPage(QWidget):
         page = QPainterPath()
         page.addRoundedRect(QRectF(self.rect()), 12, 12)
         p.setClipPath(page)
-        p.fillPath(page, QColor("#ead9b8"))
+        p.fillPath(page, QColor(self.theme.color("page")))
         if not self.texture.isNull():
             p.setRenderHint(QPainter.SmoothPixmapTransform)
             p.drawPixmap(QRectF(self.rect()), self.texture, QRectF(self.texture.rect()))
-        p.setPen(QPen(QColor("#ad8950"), 1.2))
+        p.setPen(QPen(QColor(self.theme.color("ornament")), 1.2))
         p.drawRoundedRect(self.rect().adjusted(4, 4, -5, -5), 10, 10)
         p.drawRoundedRect(self.rect().adjusted(8, 8, -9, -9), 8, 8)
         for x, y, rotation in ((12, 12, 0), (self.width()-12, 12, 90),
@@ -63,7 +70,7 @@ class IlluminatedPage(QWidget):
             flourish.cubicTo(0, 10, 30, 29, 22, 10)
             flourish.cubicTo(12, -5, 10, 31, 43, 0)
             p.drawPath(flourish)
-            p.setBrush(QColor("#79313b"))
+            p.setBrush(QColor(self.theme.color("rubric")))
             p.drawEllipse(QRectF(5, 5, 5, 5))
             p.restore()
 
@@ -90,16 +97,17 @@ class ChoiceCard(QPushButton):
         self.style().drawControl(QStyle.CE_PushButton, option, painter, self)
 
 
-def inventory_icon(name):
+def inventory_icon(name, theme=None):
     """Small vector emblems stay sharp and work without platform emoji fonts."""
+    theme = theme or default_theme()
     canvas = QPixmap(48, 48)
     canvas.fill(Qt.transparent)
     p = QPainter(canvas)
     p.setRenderHint(QPainter.Antialiasing)
-    p.setPen(QPen(QColor("#ba9459"), 1.5))
-    p.setBrush(QColor("#4b2925"))
+    p.setPen(QPen(QColor(theme.color("icon_border")), 1.5))
+    p.setBrush(QColor(theme.color("icon_background")))
     p.drawRoundedRect(2, 2, 44, 44, 7, 7)
-    p.setPen(QPen(QColor("#f5d89c"), 2.5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+    p.setPen(QPen(QColor(theme.color("icon_ink")), 2.5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
     text = str(name).casefold()
     if "clé" in text:
         p.drawEllipse(12, 10, 13, 13)
@@ -143,8 +151,9 @@ class GrimoireScene(QWidget):
 
     activated = Signal()
 
-    def __init__(self, image_path, parent=None):
+    def __init__(self, image_path, parent=None, theme=None):
         super().__init__(parent)
+        self.theme = theme or default_theme()
         self.atmosphere = QPixmap(str(image_path))
         self.picture = self.atmosphere
         self.is_book_art = False
@@ -155,6 +164,13 @@ class GrimoireScene(QWidget):
         self.setMinimumSize(160, 280)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setAccessibleName("Bibliothèque du grimoire — décor d’ambiance")
+
+    def set_theme(self, theme):
+        self.theme = theme
+        self.atmosphere = QPixmap(str(theme.assets['scene']))
+        if not self.is_book_art:
+            self.picture = self.atmosphere
+        self.update()
 
     def sizeHint(self):
         return QSize(300, 640)
@@ -253,7 +269,7 @@ class GrimoireScene(QWidget):
         clip = QPainterPath()
         clip.addRoundedRect(box, 8, 8)
         painter.setClipPath(clip)
-        painter.fillRect(box, QColor("#201811"))
+        painter.fillRect(box, QColor(self.theme.color("scene_background")))
         if not self.picture.isNull():
             painter.setRenderHint(QPainter.SmoothPixmapTransform)
             scale = (self._fit_scale() * self.zoom if self.is_book_art else
@@ -267,93 +283,17 @@ class GrimoireScene(QWidget):
             shade.setColorAt(0, QColor(20, 12, 8, 0))
             shade.setColorAt(1, QColor(20, 12, 8, 210))
             painter.fillRect(box, shade)
-            painter.setPen(QColor("#f5db9e"))
+            painter.setPen(QColor(self.theme.color("gold")))
             painter.drawText(box.adjusted(18, 0, -18, -12),
                              Qt.AlignBottom | Qt.AlignLeft,
                              "✦  BIFURK")
         painter.setClipping(False)
-        painter.setPen(QColor("#bb9455"))
+        painter.setPen(QColor(self.theme.color("frame")))
         painter.drawRoundedRect(box, 8, 8)
         for x in (12, self.width() - 12):
             for y in (12, self.height() - 12):
                 painter.save()
                 painter.translate(x, y)
                 painter.rotate(45)
-                painter.fillRect(QRectF(-3, -3, 6, 6), QColor("#dfbf7c"))
+                painter.fillRect(QRectF(-3, -3, 6, 6), QColor(self.theme.color("gold")))
                 painter.restore()
-
-
-GRIMOIRE_STYLE = """
-QSpinBox#heroValue { background: #4e2925; color: #ffe4a7; border: 1px solid #a7804d;
-    font-size: 28px; font-family: 'EB Garamond'; padding: 5px; }
-QSpinBox#heroValue QLineEdit { background: transparent; color: #ffe4a7; border: none; padding: 0; }
-QScrollArea#pageScroll { background: transparent; border: none; }
-QWidget#readerPanel { background: #ead9b8; border: 1px solid #b49360; border-radius: 9px; }
-QWidget#sidePanel { background: #281b17; border: 1px solid #89653d; border-radius: 9px; }
-QFrame#grimoireHeader { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 #642a2e,stop:1 #35151c);
-    border: 1px solid #b18a4e; border-bottom: 3px double #d6ad69; border-radius: 6px; }
-QLabel#appTitle { font-family: 'EB Garamond'; font-size: 31px; color: #ffe2a3; }
-QLabel#sectionTitle { font-family: 'EB Garamond'; color: #642a2e; font-size: 27px; }
-QLabel#subtitle { color: #ddbd83; }
-QLabel#bookName { color: #efd9b2; }
-QTextBrowser#reader { background: #f6ecd6; background-image: none; color: #30241b;
-    border: 1px solid #c9ac7c; border-left: 4px double #b49360; border-radius: 3px; padding: 18px 24px; }
-QWidget#readerPanel QGroupBox { background: #f3e6ca; color: #642a2e;
-    border: 1px solid #b49360; margin-top: 14px; padding-top: 12px; }
-QWidget#readerPanel QGroupBox::title { background: #f3e6ca; color: #642a2e; }
-QWidget#readerPanel QLabel { color: #4c3528; }
-QWidget#readerPanel QPushButton { background: #e9d4ab; color: #442a1e; border: 1px solid #a67e45; }
-QWidget#readerPanel QPushButton:hover { background: #fcecc9; border: 1px solid #71313a; }
-QWidget#readerPanel QPushButton#choiceCard { text-align: left; padding: 13px 16px;
-    border-left: 4px solid #843741; font-size: 14px; }
-QPushButton:focus { border: 2px solid #efc568; }
-QWidget#readerPanel QPushButton:focus { border: 2px solid #74313a; }
-QWidget#readerPanel QPushButton:disabled { color: #8a7963; border-color: #c5b89f; }
-QTabWidget#adventureTabs::pane { border: 1px solid #87633b; background: #30211a; border-radius: 4px; }
-QTabBar::tab { background: #35231d; color: #cbb18b; padding: 10px 12px; border: 1px solid #795536; }
-QTabBar::tab:selected { background: #6c2f36; color: #ffe7b1; border-bottom: 2px solid #d9b16b; }
-QTabBar::tab:hover { color: #fff0cb; background: #51312a; }
-QLabel#heroCrest { background: #55262c; border: 3px double #d1ad69; border-radius: 30px;
-    color: #f9dda0; font-size: 30px; min-width: 60px; min-height: 60px; }
-QLabel#heroTitle { font-family: 'EB Garamond'; font-size: 23px; color: #f6d99f; }
-QProgressBar#enduranceBar::chunk { background: #963c46; }
-QProgressBar#chanceBar::chunk { background: #52705b; }
-QProgressBar#habileteBar::chunk { background: #a7803e; }
-QListWidget#inventoryCards { background: #35251c; border: none; padding: 4px; }
-QListWidget#inventoryCards::item { background: #eeddbc; color: #432d20; border: 1px solid #ad8953;
-    border-radius: 5px; margin: 3px; padding: 12px; }
-QListWidget#inventoryCards::item:selected { background: #76343c; color: #fff0cd; border-color: #e7bf78; }
-QPushButton#combatButton { background: #7c303b; color: #fff0cd; padding: 15px; border: 2px solid #bd9154; }
-QPushButton#combatButton:hover { background: #9a414d; }
-"""
-
-# The margins belong to the frame, not to the text: titles cannot touch controls.
-GRIMOIRE_STYLE += """
-QGroupBox { margin-top: 22px; padding: 22px 10px 10px; }
-QGroupBox::title { top: 3px; left: 14px; padding: 2px 8px; }
-QWidget#readerPanel QGroupBox { margin-top: 22px; padding: 22px 10px 10px; }
-QLabel#inventoryHeading { color: #f1d49a; padding: 6px 0 10px; font-weight: bold; }
-QFrame#inventoryPanel { background: #30221a; border: none; }
-QListWidget#inventoryCards { padding: 0; background: #30221a; }
-QListWidget#inventoryCards::item { margin: 1px 0; padding: 4px 6px; border: 1px solid #8d6d44; }
-QWidget#readerPanel { border: 4px double #a68149; border-radius: 2px; }
-QTextBrowser#reader { border: none; background: #f5e8ce; padding: 12px 16px; }
-QWidget#readerPanel QPushButton#choiceCard { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
-    stop:0 #f9edce, stop:1 #dfc08c); border: 3px double #9d743c; border-left: 5px solid #823842; }
-QWidget#readerPanel QPushButton#choiceCard:hover { background: #fff1c8; border-color: #6f2933; }
-QSpinBox#heroValue { font-size: 24px; background: #55252c; border: 3px double #c6a064; }
-QSpinBox#heroValue::up-button, QSpinBox#heroValue::down-button { width: 0; height: 0; border: none; }
-QWidget#sidePanel QSpinBox { background: #422a23; color: #f9e2b2; border: 1px solid #a88652; }
-QWidget#sidePanel QSpinBox QLineEdit { background: transparent; color: #f9e2b2; border: none; }
-QWidget#sidePanel QComboBox { background: #422a23; color: #f9e2b2; padding: 7px; }
-QTabBar::tab { padding: 12px 10px; }
-QWidget#readerPanel { border-radius: 12px; }
-QTextBrowser#reader { border-radius: 10px; }
-QWidget#readerPanel QPushButton#choiceCard { border-radius: 8px; }
-QFrame#inventoryPanel, QListWidget#inventoryCards { border-radius: 8px; }
-QWidget#sidePanel QSpinBox, QWidget#sidePanel QComboBox { border-radius: 7px; }
-QTabWidget#adventureTabs::pane { border-radius: 8px; }
-QTabBar::tab { border-top-left-radius: 8px; border-top-right-radius: 8px; }
-QTextBrowser#reader { background: transparent; }
-QWidget#readerPanel QGroupBox { background: transparent; }
-"""

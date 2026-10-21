@@ -9,6 +9,10 @@ Les commandes sont regroupées dans les onglets Sacoche, Combat & soins et Dés.
 
 [Captures et instructions de test](docs/design/grimoire.md).
 
+Le dernier grimoire et sa sauvegarde automatique sont repris au démarrage.
+Le bouton **Ambiance** permet de couper les effets sonores et de choisir le thème.
+[Reprise, sons et préparation de thèmes](docs/themes-et-ambiance.md).
+
 ## Démarrage
 
 ```bash
