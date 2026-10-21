@@ -1,0 +1,187 @@
+"""Dés 3D : géométrie finale, cycle modal et intégrité du hasard du moteur.
+
+Les trajectoires sont testées sans attendre leur durée réelle. Les scénarios de
+jeu observent la présentation avec des doublures ; un vrai exec Qt contrôle aussi
+la révélation du résultat et la fermeture sans relance.
+"""
+import math
+from pathlib import Path
+import random
+import sys
+import unittest
+from unittest.mock import call, patch
+
+from PySide6.QtCore import QTimer, Qt
+from PySide6.QtTest import QTest
+from PySide6.QtWidgets import QApplication, QMessageBox
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+import main
+from dice_dialog import DiceCanvas, DiceDialog, FACES, PIPS, die_angles, transformed
+
+
+class DiceDialogTests(unittest.TestCase):
+    """Les faces visibles doivent être celles réellement utilisées, quelle que soit la fermeture."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Partager l'unique application Qt de la suite."""
+        cls.app = QApplication.instance() or QApplication([])
+
+    def setUp(self):
+        """Mémoriser les widgets pour les détruire après chaque scénario."""
+        self.widgets = []
+
+    def tearDown(self):
+        """Terminer les animations et libérer les fenêtres sans laisser de timer actif."""
+        for widget in self.widgets:
+            if isinstance(widget, DiceDialog):
+                widget.canvas.finish()
+            widget.close()
+            widget.deleteLater()
+        self.app.processEvents()
+
+    def dialog(self, rolls=(2, 5)):
+        """Construire un dialogue réel pour contrôler le cycle de révélation."""
+        dialog = DiceDialog(rolls, 'Combat — Aventurier')
+        self.widgets.append(dialog)
+        return dialog
+
+    def test_each_final_front_face_matches_the_roll_and_opposites_sum_to_seven(self):
+        for value in range(1, 7):
+            with self.subTest(value=value):
+                depths = {face: transformed(normal, value, 1)[2]
+                          for face, normal, u, v in FACES}
+                self.assertEqual(max(depths, key=depths.get), value)
+                self.assertEqual(len(PIPS[value]), value)
+                self.assertTrue(all(math.isfinite(n) for n in die_angles(value, .5)))
+        for value, normal, u, v in FACES:
+            opposite = next(other for other, n, _, _ in FACES
+                            if n == tuple(-x for x in normal))
+            self.assertEqual(value + opposite, 7)
+
+    def test_animation_and_painting_do_not_consume_random_numbers(self):
+        dialog = self.dialog()
+        state = random.getstate()
+        dialog.resize(560, 430)
+        for progress in (0, .15, .5, .9, 1):
+            dialog.canvas.progress = progress
+            self.assertFalse(dialog.grab().isNull())
+        self.assertEqual(random.getstate(), state)
+
+    def test_skip_or_escape_reveals_then_continues_without_replacing_faces(self):
+        dialog = self.dialog((1, 6))
+        dialog.show()
+        self.app.processEvents()
+        self.assertTrue(dialog.canvas.timer.isActive())
+        QTest.keyClick(dialog, Qt.Key_Escape)
+        self.assertTrue(dialog.isVisible())
+        self.assertFalse(dialog.canvas.timer.isActive())
+        self.assertEqual(dialog.result.text(), 'Résultat : 1 + 6 = 7')
+        self.assertEqual(dialog.proceed.text(), 'Continuer')
+        QTest.keyClick(dialog, Qt.Key_Escape)
+        self.assertFalse(dialog.isVisible())
+        self.assertEqual(dialog.canvas.rolls, (1, 6))
+
+    def test_finished_emits_once_and_single_die_result_is_readable(self):
+        dialog = self.dialog((4,))
+        signals = []
+        dialog.canvas.finished.connect(lambda: signals.append(True))
+        dialog.canvas.finish()
+        dialog.canvas.finish()
+        self.assertEqual(signals, [True])
+        self.assertEqual(dialog.canvas.progress, 1)
+        self.assertEqual(dialog.result.text(), 'Résultat : 4')
+
+    def test_actual_modal_loop_reveals_and_closes(self):
+        dialog = self.dialog()
+        dialog.canvas.DURATION_MS = 1
+        reached_end = []
+
+        def finish_and_continue():
+            reached_end.append(dialog.canvas._finished)
+            # Toujours fermer, même si le test révèle une panne de la minuterie.
+            dialog.canvas.finish()
+            dialog.proceed.click()
+
+        QTimer.singleShot(80, finish_and_continue)
+        self.assertEqual(dialog.exec(), DiceDialog.Accepted)
+        self.assertEqual(reached_end, [True])
+        self.assertFalse(dialog.canvas.timer.isActive())
+        self.assertEqual(dialog.result.text(), 'Résultat : 2 + 5 = 7')
+
+    def test_native_close_during_motion_shows_result_before_closing(self):
+        dialog = self.dialog()
+        dialog.show()
+        dialog.close()
+        self.assertTrue(dialog.isVisible())
+        self.assertEqual(dialog.canvas.progress, 1)
+        dialog.close()
+        self.assertFalse(dialog.isVisible())
+
+    def test_invalid_dice_are_rejected(self):
+        for rolls in ([], [0], [7], [True], [1, 2, 3]):
+            with self.subTest(rolls=rolls), self.assertRaises(ValueError):
+                DiceCanvas(rolls)
+
+    def test_roll_draws_once_and_preserves_original_result_after_presentation(self):
+        window = main.MainWindow()
+        self.widgets.append(window)
+        with patch('main.random.randint', side_effect=[2, 6]) as draw, \
+                patch.object(window, '_show_dice_roll') as show:
+            self.assertEqual(window._roll(2, context='Chance'), ([2, 6], 8))
+        self.assertEqual(draw.call_args_list, [call(1, 6), call(1, 6)])
+        show.assert_called_once_with([2, 6], 'Chance')
+
+    def test_free_dice_variants_keep_their_existing_behavior(self):
+        window = main.MainWindow()
+        self.widgets.append(window)
+        with patch.object(window, '_show_dice_roll') as show, \
+                patch('main.random.randint', return_value=3):
+            self.assertEqual(window._roll(3), ([3, 3, 3], 9))
+            self.assertEqual(window._roll(1, 20), ([3], 3))
+        show.assert_not_called()
+
+    def test_game_can_open_real_popup_and_return_same_faces(self):
+        window = main.MainWindow()
+        self.widgets.append(window)
+        shown = []
+
+        def read_and_continue():
+            dialog = next(w for w in self.app.topLevelWidgets() if isinstance(w, DiceDialog))
+            dialog.canvas.finish()
+            shown.append((dialog.canvas.rolls, dialog.result.text()))
+            dialog.accept()
+
+        QTimer.singleShot(0, read_and_continue)
+        with patch.object(main.QApplication, 'platformName', return_value='windows'), \
+                patch('main.random.randint', side_effect=[4, 5]):
+            self.assertEqual(window._roll(2), ([4, 5], 9))
+        self.assertEqual(shown, [((4, 5), 'Résultat : 4 + 5 = 9')])
+
+    def test_combat_presents_enemy_then_hero_and_keeps_one_undo_entry(self):
+        window = main.MainWindow()
+        self.widgets.append(window)
+        window.enemy_name.setText('Gardien')
+        window.enemy_skill.setValue(8)
+        window.enemy_endurance.setValue(6)
+        window.character['name'] = 'Éléanor'
+        window.character['habilete'] = 8
+        with patch.object(window, '_show_dice_roll') as show, \
+                patch('main.random.randint', side_effect=[1, 2, 3, 4]), \
+                patch.object(QMessageBox, 'exec', return_value=QMessageBox.No), \
+                patch.object(window, '_autosave'):
+            window.combat_round()
+        self.assertEqual(show.call_args_list, [call([1, 2], 'Combat — Gardien'),
+                                              call([3, 4], 'Combat — Éléanor')])
+        self.assertEqual(window.enemy_endurance.value(), 4)
+        self.assertEqual(len(window.undo_stack), 1)
+        with patch.object(window, '_show_dice_roll') as show, patch.object(window, '_autosave'):
+            window.undo_action()
+        show.assert_not_called()
+        self.assertEqual(window.enemy_endurance.value(), 6)
+
+
+if __name__ == '__main__':
+    unittest.main()

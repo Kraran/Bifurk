@@ -22,6 +22,7 @@ from save_slots import SaveSlotsDialog, read_save
 from datetime import datetime
 from app_info import APP_NAME, APP_VERSION
 from about_dialog import AboutDialog, BrandButton
+from dice_dialog import DiceDialog
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
@@ -1989,19 +1990,39 @@ class MainWindow(QMainWindow, BookActions):
         self.equipment_label.setText(f"⚔  Arme : {weapon}     ◈  Protection : {armor}")
 
 
-    def _roll(self, count=1, sides=6):
-        """Jouer le signal de dés et retourner (faces, somme) avec le générateur de jeu.
+    def _roll(self, count=1, sides=6, *, context=None):
+        """Tirer une seule fois, présenter le résultat animé puis retourner (faces, somme).
 
-        Tous les jets de règles passent ici ; les services audio ne consomment pas de hasard."""
+        L'animation ne consomme aucun hasard. Les variantes libres 3d6 / 1d20
+        conservent leur affichage classique ; tous les jets réglementaires 1d6
+        et 2d6 passent par le même plateau, y compris les combats particuliers."""
         self.sounds.play("dice")
         rolls = [random.randint(1, sides) for _ in range(count)]
+        if sides == 6 and count in (1, 2):
+            label = context or (f'Épreuve — § {self.current_paragraph}'
+                                if self.current_paragraph is not None else 'Création de l’aventurier')
+            self._show_dice_roll(rolls, label)
         return rolls, sum(rolls)
+
+    def _show_dice_roll(self, rolls, context):
+        """Présenter les faces tirées sans mutation de partie ni écriture d'historique.
+
+        Les plateformes Qt de test ne lancent pas de boucle modale ; le dialogue
+        et sa géométrie restent testables directement en offscreen.
+        """
+        if QApplication.platformName() in ('offscreen', 'minimal'):
+            return
+        dialog = DiceDialog(rolls, context, self.theme, self)
+        try:
+            dialog.exec()
+        finally:
+            dialog.deleteLater()
 
     def _roll_adventurer(self):
         """Tirer les valeurs initiales selon les règles : H=1d6+6, E=2d6+12, C=1d6+6."""
-        _, skill_roll = self._roll(1)
-        _, endurance_roll = self._roll(2)
-        _, luck_roll = self._roll(1)
+        _, skill_roll = self._roll(1, context='Création — Habileté : 1d6 + 6')
+        _, endurance_roll = self._roll(2, context='Création — Endurance : 2d6 + 12')
+        _, luck_roll = self._roll(1, context='Création — Chance : 1d6 + 6')
         return {'habilete': skill_roll + 6, 'endurance': endurance_roll + 12, 'chance': luck_roll + 6}
 
     def change_potion(self, value):
@@ -2011,7 +2032,7 @@ class MainWindow(QMainWindow, BookActions):
 
     def test_luck(self):
         """Comparer 2d6 à la Chance avant de dépenser un point, puis afficher le résultat."""
-        rolls, total = self._roll(2)
+        rolls, total = self._roll(2, context='Tentez votre Chance')
         lucky = total <= self.character["chance"]
         self.character["chance"] = max(0, self.character["chance"] - 1)
         self._refresh_character()
@@ -2321,8 +2342,8 @@ class MainWindow(QMainWindow, BookActions):
         combat_rules = entry.get("combat", {}) if entry else {}
         if combat_rules.get("mode") == "fire_breath" and not self._resolve_fire_breath():
             return
-        enemy_rolls, enemy_total = self._roll(2)
-        player_rolls, player_total = self._roll(2)
+        enemy_rolls, enemy_total = self._roll(2, context=f'Combat — {self.enemy_name.text() or "Adversaire"}')
+        player_rolls, player_total = self._roll(2, context=f'Combat — {self.character.get("name") or "Votre aventurier"}')
         enemy_attack = self.enemy_skill.value() + enemy_total
         player_attack = combat_skill(self.character) + player_total + combat_rules.get("attack_bonus", 0)
         self.sounds.play("swords")
@@ -2347,7 +2368,7 @@ class MainWindow(QMainWindow, BookActions):
             answer = outcome.exec()
             damage = base_damage
             if answer == QMessageBox.Yes:
-                luck_rolls, luck_total = self._roll(2)
+                luck_rolls, luck_total = self._roll(2, context='Chance — Aggraver la blessure')
                 was_lucky = luck_total <= self.character["chance"]
                 self.character["chance"] = max(0, self.character["chance"] - 1)
                 if was_lucky:
@@ -2373,7 +2394,7 @@ class MainWindow(QMainWindow, BookActions):
         else:
             base_damage = 2
             if combat_rules.get("defense_roll"):
-                _, defense_die = self._roll(1)
+                _, defense_die = self._roll(1, context='Combat — Protection d’invisibilité')
                 base_damage = 2 if defense_die % 2 else 1 if defense_die in (2, 4) else 0
                 if base_damage == 0:
                     self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack,
@@ -2389,7 +2410,7 @@ class MainWindow(QMainWindow, BookActions):
             answer = outcome.exec()
             damage = base_damage
             if answer == QMessageBox.Yes:
-                luck_rolls, luck_total = self._roll(2)
+                luck_rolls, luck_total = self._roll(2, context='Chance — Réduire la blessure')
                 was_lucky = luck_total <= self.character["chance"]
                 self.character["chance"] = max(0, self.character["chance"] - 1)
                 if was_lucky:
@@ -2402,7 +2423,7 @@ class MainWindow(QMainWindow, BookActions):
                 luck_text = ""
             shield_note = ""
             if self.character.get("shield_equipped") and SHIELD_NAME in self.character.get("inventory", []):
-                shield_rolls, shield_total = self._roll(1)
+                shield_rolls, shield_total = self._roll(1, context='Combat — Bouclier au croissant')
                 reduced = shield_damage(damage, shield_total)
                 shield_note = f" Bouclier {shield_rolls}: -{damage - reduced} dégât."
                 damage = reduced
