@@ -1,5 +1,13 @@
 # Bifurk 1.0.13 — Français et mode portable
 
+## Interface Le Grimoire
+
+Page ivoire, bibliothèque illustrée, choix sous forme de cartes et sacoche avec emblèmes.
+Les illustrations du livre sont intégrées au récit et peuvent être masquées ou agrandies.
+Les commandes sont regroupées dans les onglets Sacoche, Combat & soins et Dés.
+
+[Captures et instructions de test](docs/design/grimoire.md).
+
 ## Démarrage
 
 ```bash

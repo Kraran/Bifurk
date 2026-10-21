@@ -4,12 +4,13 @@ from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
 from book_actions import BookActions
+from grimoire_ui import GrimoireScene, GRIMOIRE_STYLE, inventory_icon, ChoiceCard
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
-from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QTranslator, QLibraryInfo, QLocale
+from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
-    QGroupBox, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar)
+    QGroupBox, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar, QTabWidget, QSizePolicy)
 
 APP_NAME = "Bifurk — 1.0.13"
 # Répertoire portable : à côté de l'exécutable empaqueté ou du script.
@@ -290,10 +291,13 @@ class MainWindow(QMainWindow, BookActions):
     def _build_ui(self):
         central = QWidget()
         root = QVBoxLayout(central)
-        root.setContentsMargins(20, 15, 20, 18)
+        root.setContentsMargins(16, 12, 16, 12)
         root.setSpacing(12)
 
-        header = QHBoxLayout()
+        header_frame = QFrame()
+        header_frame.setObjectName("grimoireHeader")
+        header = QHBoxLayout(header_frame)
+        header.setContentsMargins(16, 8, 16, 8)
         title = QLabel("⚜  B I F U R K")
         title.setObjectName("appTitle")
         header.addWidget(title)
@@ -302,7 +306,9 @@ class MainWindow(QMainWindow, BookActions):
         header.addWidget(subtitle)
         header.addStretch()
         self.book_label = QLabel("Aucun livre chargé")
-        self.book_label.setObjectName("muted")
+        self.book_label.setObjectName("bookName")
+        self.book_label.setMaximumWidth(240)
+        self.book_label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         header.addWidget(self.book_label)
         self.open_btn = QPushButton("✦  Ouvrir un grimoire…")
         self.open_btn.setObjectName("goldButton")
@@ -312,7 +318,7 @@ class MainWindow(QMainWindow, BookActions):
         self.fullscreen_btn.setToolTip("Plein écran (F11) — Échap pour quitter")
         self.fullscreen_btn.clicked.connect(self.toggle_fullscreen)
         header.addWidget(self.fullscreen_btn)
-        root.addLayout(header)
+        root.addWidget(header_frame)
         history_bar = QHBoxLayout()
         self.undo_btn = QPushButton("↶ Annuler")
         self.redo_btn = QPushButton("↷ Rétablir")
@@ -333,12 +339,22 @@ class MainWindow(QMainWindow, BookActions):
         reader_panel = QWidget()
         reader_panel.setObjectName("readerPanel")
         reader_layout = QVBoxLayout(reader_panel)
-        reader_layout.setContentsMargins(0, 0, 8, 0)
+        reader_layout.setContentsMargins(14, 12, 14, 14)
+        reader_layout.setSpacing(8)
+        self.scene_art = GrimoireScene(ASSET_DIR / "grimoire-library.png")
+        reader_layout.addWidget(self.scene_art)
+        reader_panel.setMinimumWidth(0)
+        self.art_toggle = QPushButton("◈  Illustration")
+        self.art_toggle.setCheckable(True)
+        self.art_toggle.setChecked(True)
+        self.art_toggle.setToolTip("Afficher ou masquer l’image pour agrandir la zone de lecture")
+        self.art_toggle.toggled.connect(self._toggle_scene_art)
         self.paragraph_title = QLabel("Bienvenue")
         self.paragraph_title.setObjectName("sectionTitle")
         title_row = QHBoxLayout()
         title_row.addWidget(self.paragraph_title)
         title_row.addStretch()
+        title_row.addWidget(self.art_toggle)
         minus_btn = QPushButton("A−")
         minus_btn.setToolTip("Réduire la taille du texte")
         minus_btn.clicked.connect(lambda: self.change_reader_font_size(-2))
@@ -350,22 +366,25 @@ class MainWindow(QMainWindow, BookActions):
         plus_btn.clicked.connect(lambda: self.change_reader_font_size(2))
         title_row.addWidget(plus_btn)
         reader_layout.addLayout(title_row)
-        cover_button = QPushButton("◈  Couverture")
+        cover_button = QPushButton("◈")
+        cover_button.setToolTip("Voir la couverture du livre")
+        cover_button.setAccessibleName("Voir la couverture")
         cover_button.clicked.connect(self.show_cover)
-        reader_layout.addWidget(cover_button)
+        title_row.insertWidget(1, cover_button)
         self.reader = QTextBrowser()
         # Les liens paragraph:NNN sont gérés par follow_link, jamais par QTextBrowser.
         self.reader.setOpenLinks(False)
         self.reader.setOpenExternalLinks(False)
         self.reader.anchorClicked.connect(self.follow_link)
         self.reader.setObjectName("reader")
+        self.reader.setMinimumHeight(230)
         reader_layout.addWidget(self.reader, 1)
         self.illustration_button = QPushButton("🖼  Voir l’illustration du paragraphe")
         self.illustration_button.clicked.connect(self.show_paragraph_illustration)
         self.illustration_button.hide()
         reader_layout.addWidget(self.illustration_button)
 
-        self.choice_group = QGroupBox("⚜  LES VOIES DU DESTIN")
+        self.choice_group = QGroupBox("⚜  QUELLE SERA VOTRE VOIE ?")
         self.choice_layout = QVBoxLayout(self.choice_group)
         self.choice_hint = QLabel("Les destinations détectées apparaîtront ici.")
         self.choice_hint.setWordWrap(True)
@@ -391,8 +410,13 @@ class MainWindow(QMainWindow, BookActions):
         go_btn.clicked.connect(lambda: self.go_to(self.goto_spin.value()))
         nav.addWidget(go_btn)
         nav.addStretch()
-        reader_layout.addLayout(nav)
-        splitter.addWidget(reader_panel)
+        # La navigation manuelle reste dans l’onglet Dés, hors de la page du récit.
+        reader_scroll = QScrollArea()
+        reader_scroll.setObjectName("pageScroll")
+        reader_scroll.setWidgetResizable(True)
+        reader_scroll.setFrameShape(QFrame.NoFrame)
+        reader_scroll.setWidget(reader_panel)
+        splitter.addWidget(reader_scroll)
 
         side = QWidget()
         side.setObjectName("sidePanel")
@@ -400,40 +424,75 @@ class MainWindow(QMainWindow, BookActions):
         side_layout.setContentsMargins(12, 8, 12, 12)
         side_layout.setSpacing(14)
 
-        stats_group = QGroupBox("⚔  FEUILLE D’AVENTURIER")
+        stats_group = QGroupBox("✦  FEUILLE D’AVENTURIER")
         stats_grid = QGridLayout(stats_group)
         self.stat_spins = {}
-        stats = [("HABILETÉ", "habilete"), ("ENDURANCE", "endurance"), ("CHANCE", "chance"), ("Provisions", "provisions"), ("Pièces d'or", "gold")]
-        for row, (label, key) in enumerate(stats):
-            stats_grid.addWidget(QLabel(label), row, 0)
+        self.stat_bars = {}
+        stats = [("HABILETÉ", "habilete"), ("ENDURANCE", "endurance"), ("CHANCE", "chance")]
+        for column, (label, key) in enumerate(stats):
+            caption = QLabel(label)
+            caption.setAlignment(Qt.AlignCenter)
+            stats_grid.addWidget(caption, 0, column)
             spin = QSpinBox()
             spin.setRange(0, 999)
+            spin.setAlignment(Qt.AlignCenter)
+            spin.setButtonSymbols(QSpinBox.UpDownArrows)
+            spin.setObjectName("heroValue")
+            spin.setMinimumHeight(54)
+            spin.setAccessibleName(label)
             spin.valueChanged.connect(lambda value, k=key: self.set_stat(k, value))
+            stats_grid.addWidget(spin, 1, column)
             self.stat_spins[key] = spin
-            stats_grid.addWidget(spin, row, 1)
-        stats_grid.addWidget(QLabel("Potion"), 5, 0)
+            bar = QProgressBar()
+            bar.setObjectName(key + "Bar")
+            bar.setRange(0, 100)
+            stats_grid.addWidget(bar, 2, column)
+            self.stat_bars[key] = bar
+        resources = QHBoxLayout()
+        for label, key in (("Provisions", "provisions"), ("Or", "gold")):
+            resources.addWidget(QLabel(label))
+            spin = QSpinBox()
+            spin.setRange(0, 999)
+            spin.setAccessibleName(label)
+            spin.valueChanged.connect(lambda value, k=key: self.set_stat(k, value))
+            resources.addWidget(spin)
+            self.stat_spins[key] = spin
+        stats_grid.addLayout(resources, 3, 0, 1, 3)
         self.potion_combo = QComboBox()
         self.potion_combo.addItems(["Aucune", "Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune"])
+        self.potion_combo.setAccessibleName("Potion choisie")
         self.potion_combo.currentTextChanged.connect(self.change_potion)
-        stats_grid.addWidget(self.potion_combo, 5, 1)
-        self.stat_bars = {}
-        for key, label in (("endurance", "Vitalité"), ("chance", "Fortune"), ("habilete", "Maîtrise")):
-            bar = QProgressBar()
-            bar.setObjectName("statBar")
-            bar.setRange(0, 100)
-            bar.setFormat(label + "  %v %")
-            bar.setTextVisible(True)
-            self.stat_bars[key] = bar
-            stats_grid.addWidget(bar, stats_grid.rowCount(), 0, 1, 2)
+        stats_grid.addWidget(self.potion_combo, 4, 0, 1, 3)
         self.initial_label = QLabel("Valeurs de départ : —")
         self.initial_label.setObjectName("initialStats")
         self.initial_label.setWordWrap(True)
-        stats_grid.addWidget(self.initial_label, stats_grid.rowCount(), 0, 1, 2)
+        stats_grid.addWidget(self.initial_label, 5, 0, 1, 3)
+        hero_row = QHBoxLayout()
+        crest = QLabel("⚔")
+        crest.setObjectName("heroCrest")
+        crest.setAlignment(Qt.AlignCenter)
+        crest.setFixedSize(64, 64)
+        hero_row.addWidget(crest)
+        hero_title = QLabel("L’AVENTURIER\nVotre destin s’écrit ici")
+        hero_title.setObjectName("heroTitle")
+        hero_row.addWidget(hero_title, 1)
+        side_layout.addLayout(hero_row)
         side_layout.addWidget(stats_group)
+        self.adventure_tabs = QTabWidget()
+        self.adventure_tabs.setObjectName("adventureTabs")
+        self.adventure_tabs.setDocumentMode(True)
+        self.adventure_tabs.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Ignored)
+        self.adventure_tabs.setMinimumHeight(160)
+        side_layout.addWidget(self.adventure_tabs, 1)
 
         inv_group = QGroupBox("✦  SACOCHE & TRÉSORS")
         inv_layout = QVBoxLayout(inv_group)
         self.inventory_list = QListWidget()
+        self.inventory_list.setObjectName("inventoryCards")
+        self.inventory_list.setWordWrap(True)
+        self.inventory_list.setMinimumHeight(150)
+        self.inventory_list.setSpacing(3)
+        self.inventory_list.setIconSize(QSize(42, 42))
         inv_layout.addWidget(self.inventory_list)
         inv_row = QHBoxLayout()
         self.item_input = QLineEdit()
@@ -456,10 +515,11 @@ class MainWindow(QMainWindow, BookActions):
         self.shield_check = QCheckBox("Utiliser le bouclier au croissant")
         self.shield_check.toggled.connect(self.change_shield_use)
         inv_layout.insertWidget(2, self.shield_check)
-        side_layout.addWidget(inv_group, 1)
+        self._add_adventure_tab(inv_group, "Sacoche")
 
         dice_group = QGroupBox("⚄  DÉS DU DESTIN")
         dice_layout = QVBoxLayout(dice_group)
+        dice_layout.addLayout(nav)
         dice_row = QHBoxLayout()
         self.dice_combo = QComboBox()
         self.dice_combo.addItems(["1d6", "2d6", "3d6", "1d20"])
@@ -478,15 +538,16 @@ class MainWindow(QMainWindow, BookActions):
         self.dice_history = QListWidget()
         self.dice_history.setMaximumHeight(110)
         dice_layout.addWidget(self.dice_history)
-        side_layout.addWidget(dice_group)
+
 
         rules_group = QGroupBox("⚔  ÉPREUVES & COMBATS")
         rules_layout = QVBoxLayout(rules_group)
-        create_btn = QPushButton("Créer / relancer le personnage (1d6+6, 2d6+12, 1d6+6)")
+        create_btn = QPushButton("✦  Créer un aventurier")
         create_btn.clicked.connect(self.create_character)
+        create_btn.setToolTip("Nouveau tirage : Habileté 1d6+6, Endurance 2d6+12, Chance 1d6+6")
         rules_layout.addWidget(create_btn)
 
-        luck_row = QHBoxLayout()
+        luck_row = QVBoxLayout()
         luck_btn = QPushButton("Tenter sa Chance (2d6)")
         luck_btn.clicked.connect(self.test_luck)
         luck_row.addWidget(luck_btn)
@@ -509,7 +570,8 @@ class MainWindow(QMainWindow, BookActions):
         self.enemy_endurance = QSpinBox(); self.enemy_endurance.setRange(0, 999); self.enemy_endurance.setValue(6)
         combat_grid.addWidget(self.enemy_endurance, 1, 3)
         rules_layout.addLayout(combat_grid)
-        combat_btn = QPushButton("Résoudre un assaut")
+        combat_btn = QPushButton("⚔  Lancer l’assaut")
+        combat_btn.setObjectName("combatButton")
         combat_btn.clicked.connect(self.combat_round)
         rules_layout.addWidget(combat_btn)
         self.rules_log = QLabel("Règles : créez un personnage, puis testez la Chance ou un combat.")
@@ -525,7 +587,11 @@ class MainWindow(QMainWindow, BookActions):
         self.combat_journal.setMaximumHeight(135)
         rules_layout.addWidget(QLabel("CHRONIQUE DES ASSAUTS"))
         rules_layout.addWidget(self.combat_journal)
-        side_layout.addWidget(rules_group)
+        # L’assaut doit rester avant les soins dans la zone visible du combat.
+        rules_layout.removeItem(luck_row)
+        rules_layout.addLayout(luck_row)
+        self._add_adventure_tab(rules_group, "Combat & soins")
+        self._add_adventure_tab(dice_group, "Dés")
 
         save_row = QHBoxLayout()
         save_btn = QPushButton("Sauvegarder")
@@ -541,10 +607,21 @@ class MainWindow(QMainWindow, BookActions):
         scroll.setFrameShape(QFrame.NoFrame)
         scroll.setWidget(side)
         splitter.addWidget(scroll)
-        splitter.setSizes([810, 480])
+        scroll.setMinimumWidth(390)
+        splitter.setSizes([880, 390])
+        splitter.setStretchFactor(0, 3)
+        splitter.setStretchFactor(1, 1)
         splitter.setChildrenCollapsible(False)
         root.addWidget(splitter, 1)
         self.setCentralWidget(central)
+
+    def _add_adventure_tab(self, content, title):
+        page = QScrollArea()
+        page.setWidgetResizable(True)
+        page.setFrameShape(QFrame.NoFrame)
+        page.setMinimumHeight(150)
+        page.setWidget(content)
+        self.adventure_tabs.addTab(page, title)
 
     def _set_theme(self):
         parchment = (ASSET_DIR / "parchment.jpg").as_posix()
@@ -584,8 +661,8 @@ class MainWindow(QMainWindow, BookActions):
             QLabel#equipment { background: #4b3727; color: #e8c88d; padding: 11px; border: 1px solid #987648; border-radius: 5px; }
             QLabel#initialStats { color: #c9b08a; font-size: 11px; }
             QLabel#combatState { background: #49301f; color: #f1d59b; padding: 9px; border: 1px solid #aa7b43; border-radius: 5px; }
-            QProgressBar#statBar { border: 1px solid #8b6b44; border-radius: 5px; background: #1f1915; color: #fff0ce; height: 20px; text-align: center; font-weight: bold; }
-            QProgressBar#statBar::chunk { background: #a17c45; border-radius: 4px; }
+            QProgressBar { border: 1px solid #8b6b44; border-radius: 5px; background: #1f1915; color: #fff0ce; height: 20px; text-align: center; font-weight: bold; }
+            QProgressBar::chunk { background: #a17c45; border-radius: 4px; }
             QListWidget#combatJournal { background: #d9c59e; color: #38271a; }
 
             QScrollArea#sideScroll { background: transparent; border: none; }
@@ -623,8 +700,28 @@ class MainWindow(QMainWindow, BookActions):
             QMessageBox QLabel#qt_msgboxex_icon_label { background: transparent; }
         """.replace('PARCHMENT', parchment).replace('LEATHER', leather).replace("EB Garamond", self.reading_font_family).replace("Lato", self.ui_font_family))
 
+        self.setStyleSheet(self.styleSheet() + GRIMOIRE_STYLE.replace("EB Garamond", self.reading_font_family))
+
+    def _toggle_scene_art(self, visible):
+        self.scene_art.setVisible(visible)
+        self.art_toggle.setText("◈  Illustration" if visible else "◈  Illustration")
+
+    def _update_scene_art(self):
+        self.scene_art.set_book_art()
+        if self.illustration_catalogue and self.pdf_path:
+            entries = images_for_paragraph(self.illustration_catalogue, self.current_paragraph)
+            if entries:
+                try:
+                    self.scene_art.set_book_art(self._illustration_pixmap(entries[0], scale=1))
+                except (ValueError, RuntimeError, OSError):
+                    # L’agrandissement reste disponible si l’aperçu ne peut être calculé.
+                    pass
+
     def _show_welcome(self):
-        self.reader.setHtml("<h2>Bienvenue, aventurier.</h2><p>Importez le PDF de votre livre pour commencer.</p><p>Bifurk affiche les destinations détectées sous forme de choix cliquables et propose des événements simples à confirmer. Les PDF scannés nécessitant de l'OCR ne sont pas pris en charge.</p>")
+        self.choice_group.hide()
+        self.event_group.hide()
+        self.condition_group.hide()
+        self.reader.setHtml("<h1>Ouvrez le grimoire.</h1><p>Une porte oubliée. Un trésor légendaire. Et vos décisions pour seule boussole.</p><p>Choisissez votre livre avec <b>Ouvrir un grimoire</b>, puis créez votre aventurier dans <b>Combat &amp; soins</b>.</p><p>Explorez, lancez les dés et écrivez votre propre histoire.</p>")
 
     def open_pdf(self):
         path = self._themed_file_dialog(kind="pdf")
@@ -757,7 +854,10 @@ class MainWindow(QMainWindow, BookActions):
         else:
             for choice in choices:
                 target = choice["target"]
-                button = QPushButton(f"{choice['label']}  →  §{target}")
+                button = ChoiceCard(f"{choice['label']}  →  §{target}")
+                button.setObjectName("choiceCard")
+                button.setMinimumHeight(44)
+                button.setAccessibleName(f"{choice['label']}, paragraphe {target}")
                 button.setToolTip(f"Ouvrir le paragraphe {target}")
                 button.setEnabled(target in self.paragraphs)
                 if entry and "routes" in entry:
@@ -908,8 +1008,6 @@ class MainWindow(QMainWindow, BookActions):
             self.event_layout.addWidget(button)
         events = self._paragraph_events(text) + stat_events(text)
         events = [e for i,e in enumerate(events) if not any(x['key']==e['key'] and x['amount']==e['amount'] for x in events[:i])]
-        if not events:
-            self.event_layout.addWidget(QLabel("Aucun événement simple reconnu. Les effets conditionnels restent manuels."))
         for event in events:
             amount = event["amount"]
             # Show an explicit confirmation before applying any extracted effect.
@@ -923,7 +1021,6 @@ class MainWindow(QMainWindow, BookActions):
         pattern = re.compile(r"(?i)\bsi vous (?:êtes )?(?:en possession d[eu'’]|possédez|avez|disposez d[eu'’])\s+([^,.\n;:]{2,90})")
         matches = pattern.findall(text)
         if not matches:
-            self.condition_layout.addWidget(QLabel("Aucune condition d’objet reconnue."))
             return
         inventory = [x.casefold() for x in self.character.get("inventory", [])]
         for raw in matches[:8]:
@@ -1122,8 +1219,14 @@ class MainWindow(QMainWindow, BookActions):
         self.illustration_button.setVisible(bool(self.illustration_catalogue and images_for_paragraph(self.illustration_catalogue, number)))
         self.reader.moveCursor(QTextCursor.Start)
         self._render_choices_and_events(text)
-        if self.illustration_catalogue and images_for_paragraph(self.illustration_catalogue, number):
-            self.show_paragraph_illustration()
+        self.choice_group.setVisible(any(isinstance(self.choice_layout.itemAt(i).widget(), QPushButton)
+                                        for i in range(self.choice_layout.count())))
+        self.event_group.setVisible(self.event_layout.count() > 0)
+        self.condition_group.setVisible(self.condition_layout.count() > 0)
+        self._update_scene_art()
+        entry = verified_entry(self.book_event_catalogue, number)
+        if entry and entry.get("combat", {}).get("enemies") and self.enemy_endurance.value() > 0:
+            self.adventure_tabs.setCurrentIndex(1)
 
     def _illustration_pixmap(self, entry, scale=2):
         import fitz
@@ -1354,7 +1457,10 @@ class MainWindow(QMainWindow, BookActions):
         self.potion_combo.setCurrentText(self.character.get("potion", "Aucune"))
         self.potion_combo.blockSignals(False)
         self.inventory_list.clear()
-        self.inventory_list.addItems(self.character.get("inventory", []))
+        for name in self.character.get("inventory", []):
+            item = QListWidgetItem(inventory_icon(name), str(name))
+            item.setToolTip(str(name) + (" — Arme équipée" if name == equipped_weapon(self.character) else ""))
+            self.inventory_list.addItem(item)
         self.shield_check.blockSignals(True)
         self.shield_check.setVisible(SHIELD_NAME in self.character.get("inventory", []))
         self.shield_check.setChecked(bool(self.character.get("shield_equipped", False)))
@@ -1376,11 +1482,11 @@ class MainWindow(QMainWindow, BookActions):
             maximum = max(1, int(initial.get(key, self.character.get(key, 1))))
             current = max(0, int(self.character.get(key, 0)))
             bar.setValue(min(100, round(100 * current / maximum)))
-            bar.setFormat(f"{current} / {maximum}  •  {bar.value()} %")
+            bar.setFormat(f"{current} / {maximum}")
         self.initial_label.setText("Départ  •  Habileté {habilete}  |  Endurance {endurance}  |  Chance {chance}".format(
             **{key: initial.get(key, "—") for key in ("habilete", "endurance", "chance")}))
         items = [str(item).casefold() for item in self.character.get("inventory", [])]
-        weapon = next((item for item in self.character.get("inventory", []) if "épée" in str(item).casefold() or "hache" in str(item).casefold()), "—")
+        weapon = equipped_weapon(self.character) or "—"
         armor = next((item for item in self.character.get("inventory", []) if "armure" in str(item).casefold() or "bouclier" in str(item).casefold()), "—")
         self.equipment_label.setText(f"⚔  Arme : {weapon}     ◈  Protection : {armor}")
 
