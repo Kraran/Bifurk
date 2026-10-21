@@ -1,0 +1,175 @@
+"""Illustrated, resizable surfaces for the Grimoire desktop theme."""
+from PySide6.QtCore import Qt, QRectF, QSize
+from PySide6.QtGui import QColor, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen
+from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle
+
+
+class ChoiceCard(QPushButton):
+    """Wrap long destinations while keeping native button focus and keyboard behaviour."""
+
+    def __init__(self, text, parent=None):
+        super().__init__(text, parent)
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(18, 12, 14, 12)
+        caption = QLabel(text)
+        caption.setWordWrap(True)
+        caption.setAttribute(Qt.WA_TransparentForMouseEvents)
+        caption.setStyleSheet("background: transparent; border: none;")
+        layout.addWidget(caption)
+
+    def paintEvent(self, event):
+        option = QStyleOptionButton()
+        self.initStyleOption(option)
+        option.text = ""
+        painter = QPainter(self)
+        self.style().drawControl(QStyle.CE_PushButton, option, painter, self)
+
+
+def inventory_icon(name):
+    """Small vector emblems stay sharp and work without platform emoji fonts."""
+    canvas = QPixmap(48, 48)
+    canvas.fill(Qt.transparent)
+    p = QPainter(canvas)
+    p.setRenderHint(QPainter.Antialiasing)
+    p.setPen(QPen(QColor("#ba9459"), 1.5))
+    p.setBrush(QColor("#4b2925"))
+    p.drawRoundedRect(2, 2, 44, 44, 7, 7)
+    p.setPen(QPen(QColor("#f5d89c"), 2.5, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+    text = str(name).casefold()
+    if "clé" in text:
+        p.drawEllipse(12, 10, 13, 13)
+        p.drawLine(23, 22, 35, 35)
+        p.drawLine(30, 30, 34, 26)
+        p.drawLine(34, 34, 38, 30)
+    elif "épée" in text or "hache" in text or "piquet" in text:
+        p.drawLine(14, 35, 35, 12)
+        p.drawLine(14, 26, 23, 35)
+        p.drawLine(12, 36, 16, 39)
+        p.drawLine(30, 14, 36, 11)
+        p.drawLine(36, 11, 34, 18)
+    elif "armure" in text or "bouclier" in text:
+        path = QPainterPath()
+        path.moveTo(12, 12); path.lineTo(36, 12); path.lineTo(34, 29)
+        path.quadTo(31, 36, 24, 39); path.quadTo(17, 36, 14, 29); path.closeSubpath()
+        p.drawPath(path)
+        p.drawLine(24, 15, 24, 33)
+    elif "potion" in text or "bouteille" in text:
+        p.drawRect(20, 10, 8, 9)
+        p.drawEllipse(14, 20, 20, 19)
+        p.drawLine(18, 29, 30, 29)
+    elif "lanterne" in text:
+        p.drawArc(18, 8, 12, 12, 0, 180 * 16)
+        p.drawRect(15, 19, 18, 18)
+        p.drawLine(12, 17, 36, 17)
+        p.drawLine(24, 23, 24, 32)
+    else:
+        path = QPainterPath()
+        path.moveTo(24, 10); path.lineTo(37, 23); path.lineTo(24, 38)
+        path.lineTo(11, 23); path.closeSubpath()
+        p.drawPath(path)
+        p.drawLine(11, 23, 37, 23)
+        p.drawLine(24, 10, 24, 38)
+    p.end()
+    return QIcon(canvas)
+
+
+class GrimoireScene(QWidget):
+    """Paint an atmospheric banner, or fit a book illustration without cropping it."""
+
+    def __init__(self, image_path, parent=None):
+        super().__init__(parent)
+        self.atmosphere = QPixmap(str(image_path))
+        self.picture = self.atmosphere
+        self.is_book_art = False
+        self.setMinimumHeight(110)
+        self.setMaximumHeight(160)
+        self.setAccessibleName("Bibliothèque du grimoire — décor d’ambiance")
+
+    def sizeHint(self):
+        return QSize(760, 135)
+
+    def set_book_art(self, pixmap=None):
+        self.is_book_art = pixmap is not None and not pixmap.isNull()
+        self.picture = pixmap if self.is_book_art else self.atmosphere
+        self.setAccessibleName("Illustration du paragraphe" if self.is_book_art
+                               else "Bibliothèque du grimoire — décor d’ambiance")
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        box = QRectF(self.rect()).adjusted(2, 2, -2, -2)
+        clip = QPainterPath()
+        clip.addRoundedRect(box, 8, 8)
+        painter.setClipPath(clip)
+        painter.fillRect(box, QColor("#201811"))
+        if not self.picture.isNull():
+            mode = Qt.KeepAspectRatio if self.is_book_art else Qt.KeepAspectRatioByExpanding
+            scaled = self.picture.scaled(self.size(), mode, Qt.SmoothTransformation)
+            painter.drawPixmap((self.width() - scaled.width()) // 2,
+                               (self.height() - scaled.height()) // 2, scaled)
+        if not self.is_book_art:
+            shade = QLinearGradient(0, self.height() / 2, 0, self.height())
+            shade.setColorAt(0, QColor(20, 12, 8, 0))
+            shade.setColorAt(1, QColor(20, 12, 8, 210))
+            painter.fillRect(box, shade)
+            painter.setPen(QColor("#f5db9e"))
+            painter.drawText(box.adjusted(18, 0, -18, -12),
+                             Qt.AlignBottom | Qt.AlignLeft,
+                             "✦  LES CHRONIQUES DE VOTRE AVENTURE")
+        painter.setClipping(False)
+        painter.setPen(QColor("#bb9455"))
+        painter.drawRoundedRect(box, 8, 8)
+        for x in (12, self.width() - 12):
+            for y in (12, self.height() - 12):
+                painter.save()
+                painter.translate(x, y)
+                painter.rotate(45)
+                painter.fillRect(QRectF(-3, -3, 6, 6), QColor("#dfbf7c"))
+                painter.restore()
+
+
+GRIMOIRE_STYLE = """
+QSpinBox#heroValue { background: #4e2925; color: #ffe4a7; border: 1px solid #a7804d;
+    font-size: 28px; font-family: 'EB Garamond'; padding: 5px; }
+QSpinBox#heroValue QLineEdit { background: transparent; color: #ffe4a7; border: none; padding: 0; }
+QScrollArea#pageScroll { background: transparent; border: none; }
+QWidget#readerPanel { background: #ead9b8; border: 1px solid #b49360; border-radius: 9px; }
+QWidget#sidePanel { background: #281b17; border: 1px solid #89653d; border-radius: 9px; }
+QFrame#grimoireHeader { background: qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 #642a2e,stop:1 #35151c);
+    border: 1px solid #b18a4e; border-bottom: 3px double #d6ad69; border-radius: 6px; }
+QLabel#appTitle { font-family: 'EB Garamond'; font-size: 31px; color: #ffe2a3; }
+QLabel#sectionTitle { font-family: 'EB Garamond'; color: #642a2e; font-size: 27px; }
+QLabel#subtitle { color: #ddbd83; }
+QLabel#bookName { color: #efd9b2; }
+QTextBrowser#reader { background: #f6ecd6; background-image: none; color: #30241b;
+    border: 1px solid #c9ac7c; border-left: 4px double #b49360; border-radius: 3px; padding: 18px 24px; }
+QWidget#readerPanel QGroupBox { background: #f3e6ca; color: #642a2e;
+    border: 1px solid #b49360; margin-top: 14px; padding-top: 12px; }
+QWidget#readerPanel QGroupBox::title { background: #f3e6ca; color: #642a2e; }
+QWidget#readerPanel QLabel { color: #4c3528; }
+QWidget#readerPanel QPushButton { background: #e9d4ab; color: #442a1e; border: 1px solid #a67e45; }
+QWidget#readerPanel QPushButton:hover { background: #fcecc9; border: 1px solid #71313a; }
+QWidget#readerPanel QPushButton#choiceCard { text-align: left; padding: 13px 16px;
+    border-left: 4px solid #843741; font-size: 14px; }
+QPushButton:focus { border: 2px solid #efc568; }
+QWidget#readerPanel QPushButton:focus { border: 2px solid #74313a; }
+QWidget#readerPanel QPushButton:disabled { color: #8a7963; border-color: #c5b89f; }
+QTabWidget#adventureTabs::pane { border: 1px solid #87633b; background: #30211a; border-radius: 4px; }
+QTabBar::tab { background: #35231d; color: #cbb18b; padding: 10px 12px; border: 1px solid #795536; }
+QTabBar::tab:selected { background: #6c2f36; color: #ffe7b1; border-bottom: 2px solid #d9b16b; }
+QTabBar::tab:hover { color: #fff0cb; background: #51312a; }
+QLabel#heroCrest { background: #55262c; border: 3px double #d1ad69; border-radius: 30px;
+    color: #f9dda0; font-size: 30px; min-width: 60px; min-height: 60px; }
+QLabel#heroTitle { font-family: 'EB Garamond'; font-size: 23px; color: #f6d99f; }
+QProgressBar#enduranceBar::chunk { background: #963c46; }
+QProgressBar#chanceBar::chunk { background: #52705b; }
+QProgressBar#habileteBar::chunk { background: #a7803e; }
+QListWidget#inventoryCards { background: #35251c; border: none; padding: 4px; }
+QListWidget#inventoryCards::item { background: #eeddbc; color: #432d20; border: 1px solid #ad8953;
+    border-radius: 5px; margin: 3px; padding: 12px; }
+QListWidget#inventoryCards::item:selected { background: #76343c; color: #fff0cd; border-color: #e7bf78; }
+QPushButton#combatButton { background: #7c303b; color: #fff0cd; padding: 15px; border: 2px solid #bd9154; }
+QPushButton#combatButton:hover { background: #9a414d; }
+"""
