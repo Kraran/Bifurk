@@ -126,6 +126,9 @@ n'ajoute aucune compatibilité avec les anciens formats de sauvegarde.
 
 - `Bifurk.spec` sélectionne explicitement les ressources et conserve les
   métadonnées des dépendances. Les hooks PyInstaller gèrent leurs bibliothèques natives.
+  Les données PyMuPDF sont également collectées : certaines versions chargent dès
+  l'import les configurations YAML et modèles ONNX de leur analyseur de mise en
+  page. Sans ces fichiers, l'accueil fonctionne mais l'import du livre échoue.
 - `requirements-build.txt` ajoute PyInstaller aux dépendances de l'application.
   Ces dépendances utilisent des plages de versions : deux builds à des dates
   différentes peuvent embarquer des versions différentes. Les métadonnées livrées
