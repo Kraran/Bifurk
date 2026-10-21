@@ -23,6 +23,7 @@ from datetime import datetime
 from app_info import APP_NAME, APP_VERSION
 from about_dialog import AboutDialog, BrandButton
 from dice_dialog import DiceDialog
+from combat_dialog import CombatDialog
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
@@ -255,6 +256,8 @@ class MainWindow(QMainWindow, BookActions):
         self.piranha_source_wounded = None
         self.piranha_combat = None
         self.book_combat_assaults = {}
+        self._combat_dialog = None  # Uniquement pendant l'exécution modale.
+        self._combat_popup = None   # Chronique conservée si le combat est suspendu.
         self.paragraphs = {}
         self.current_paragraph = None
         self.visited_paragraphs = []
@@ -818,9 +821,9 @@ class MainWindow(QMainWindow, BookActions):
         self.enemy_endurance = QSpinBox(); self.enemy_endurance.setRange(0, 999); self.enemy_endurance.setValue(6)
         combat_grid.addWidget(self.enemy_endurance, 1, 3)
         rules_layout.addLayout(combat_grid)
-        combat_btn = QPushButton("⚔  Lancer l’assaut")
+        combat_btn = QPushButton("⚔  Combattre / Reprendre le combat")
         combat_btn.setObjectName("combatButton")
-        combat_btn.clicked.connect(self.combat_round)
+        combat_btn.clicked.connect(self.open_combat)
         rules_layout.addWidget(combat_btn)
         self.rules_log = QLabel("Tentez votre Chance ou lancez un assaut lorsque le récit le demande.")
         self.rules_log.setWordWrap(True)
@@ -1029,6 +1032,7 @@ class MainWindow(QMainWindow, BookActions):
         name = name.strip()[:60]
         if not name or not self.paragraphs or self._adventurer_draft is None or self.current_paragraph is not None:
             return
+        self._discard_combat_popup()
         self.character = copy.deepcopy(self._initial_character)
         self.character['name'] = name
         self.character['initial'] = copy.deepcopy(self._adventurer_draft)
@@ -1319,9 +1323,11 @@ class MainWindow(QMainWindow, BookActions):
         if (state and self.current_paragraph == 86 and state["phase"] == "initial"
                 and state["assaults"] >= 2 and self.enemy_endurance.value() > 0):
             continue_btn = QPushButton("Continuer le combat contre le Crocodile")
+            continue_btn.setProperty('combatAction', True)
             continue_btn.clicked.connect(lambda checked=False: self.choose_crocodile_strategy("continue"))
             self.event_layout.addWidget(continue_btn)
             diversion_btn = QPushButton("Faire un dernier assaut puis rejoindre le §350")
+            diversion_btn.setProperty('combatAction', True)
             diversion_btn.clicked.connect(lambda checked=False: self.choose_crocodile_strategy("diversion"))
             self.event_layout.addWidget(diversion_btn)
         if escape_target is not None:
@@ -1334,12 +1340,14 @@ class MainWindow(QMainWindow, BookActions):
                             if combat_rules.get("escape_luck_interval")
                             else "Fuir le combat (pénalité obligatoire)")
             btn = QPushButton(f"{escape_label} → §{escape_target}")
+            btn.setProperty('combatAction', True)
             btn.setEnabled(permitted and escape_target in self.paragraphs)
             btn.clicked.connect(lambda checked=False, n=self.current_paragraph: self.escape_scripted_combat(n))
             self.event_layout.addWidget(btn)
         if self.current_paragraph == 350 and self.piranha_combat:
             if self.piranha_combat.get("status") == "roll_pending":
                 dice_button = QPushButton("🎲 Déterminer qui subit l'attaque des Piranhas (1d6)")
+                dice_button.setProperty('combatAction', True)
                 dice_button.clicked.connect(lambda checked=False: self.roll_piranha_target())
                 self.event_layout.addWidget(dice_button)
             elif self.piranha_combat.get("status") == "fighting":
@@ -1522,6 +1530,7 @@ class MainWindow(QMainWindow, BookActions):
             QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
         if answer != QMessageBox.Yes:
             return
+        self._discard_combat_popup()
         self._remember_monster(monster['name'])
         self.enemy_name.setText(monster['name'])
         self.enemy_skill.setValue(monster['skill'])
@@ -1988,20 +1997,26 @@ class MainWindow(QMainWindow, BookActions):
         weapon = equipped_weapon(self.character) or "—"
         armor = next((item for item in self.character.get("inventory", []) if "armure" in str(item).casefold() or "bouclier" in str(item).casefold()), "—")
         self.equipment_label.setText(f"⚔  Arme : {weapon}     ◈  Protection : {armor}")
+        if self._combat_dialog is not None:
+            self._combat_dialog.refresh_stats()
 
 
-    def _roll(self, count=1, sides=6, *, context=None):
+    def _roll(self, count=1, sides=6, *, context=None, opponent=False):
         """Tirer une seule fois, présenter le résultat animé puis retourner (faces, somme).
 
         L'animation ne consomme aucun hasard. Les variantes libres 3d6 / 1d20
         conservent leur affichage classique ; tous les jets réglementaires 1d6
         et 2d6 passent par le même plateau, y compris les combats particuliers."""
-        self.sounds.play("dice")
+        if self._combat_dialog is None:
+            self.sounds.play("dice")
         rolls = [random.randint(1, sides) for _ in range(count)]
         if sides == 6 and count in (1, 2):
             label = context or (f'Épreuve — § {self.current_paragraph}'
                                 if self.current_paragraph is not None else 'Création de l’aventurier')
-            self._show_dice_roll(rolls, label)
+            if self._combat_dialog is not None:
+                self._combat_dialog.present_roll(rolls, label, opponent=opponent)
+            else:
+                self._show_dice_roll(rolls, label)
         return rolls, sum(rolls)
 
     def _show_dice_roll(self, rolls, context):
@@ -2104,8 +2119,66 @@ class MainWindow(QMainWindow, BookActions):
             self.book_combat_assaults[number] = self.book_combat_assaults.get(number, 0) + 1
         self.combat_journal.insertItem(0, f"Vous {player_rolls} = {player_attack} | Ennemi {enemy_rolls} = {enemy_attack} | {outcome}")
         self.combat_state.setText(f"⚔  {self.enemy_name.text()} • Endurance {self.enemy_endurance.value()} | Héros {self.character['endurance']}")
+        if self._combat_dialog is not None:
+            self._combat_dialog.note_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, outcome)
         while self.combat_journal.count() > 60:
             self.combat_journal.takeItem(self.combat_journal.count() - 1)
+
+    def _log_combat_detail(self, text):
+        """Journaliser une phase spéciale sans la compter comme un nouvel assaut."""
+        self.combat_journal.insertItem(0, text)
+        if self._combat_dialog is not None:
+            self._combat_dialog.log(text)
+
+    def open_combat(self):
+        """Ouvrir ou reprendre le combat ; l'entrée dans la fenêtre ne modifie pas ses adversaires.
+
+        Le dialogue appelle la méthode d'assaut déjà suivie par l'historique.
+        Ne pas envelopper open_combat dans _track_action : chaque assaut conserve
+        sa propre transaction, ses effets spéciaux et son autosave.
+        """
+        if self._combat_dialog is not None or self._adventurer_draft is not None:
+            return
+        if self.character['endurance'] <= 0:
+            self._show_death_page()
+            return
+        popup = self._combat_popup
+        if (popup is None or popup.outcome or self.current_paragraph not in popup.paragraphs
+                or self.enemy_name.text() not in [e['name'] for e in popup.roster]):
+            if popup is not None:
+                popup.deleteLater()
+            popup = self._combat_popup = CombatDialog(self)
+        popup.refresh_stats()
+        self._combat_dialog = popup
+        try:
+            popup.exec()
+        finally:
+            self._combat_dialog = None
+
+    def _discard_combat_popup(self):
+        """Abandonner la chronique visuelle après restauration, nouvelle partie ou nouvelle rencontre."""
+        if self._combat_dialog is None and self._combat_popup is not None:
+            self._combat_popup.deleteLater()
+            self._combat_popup = None
+
+    def _ask_combat_question(self, title, text):
+        """Poser une question du livre dans le combat actif, ou garder le dialogue standard hors combat."""
+        if self._combat_dialog is not None:
+            return QMessageBox.Yes if self._combat_dialog.choose_luck(title + '\n' + text) else QMessageBox.No
+        return QMessageBox.question(self, title, text, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+    def _assault_luck_choice(self, title, text, information):
+        """Partager la décision de Chance entre le plateau et les appels directs du moteur."""
+        if self._combat_dialog is not None:
+            return QMessageBox.Yes if self._combat_dialog.choose_luck(text + '\n' + information) else QMessageBox.No
+        outcome = QMessageBox(self)
+        outcome.setWindowTitle(title)
+        outcome.setText(text)
+        outcome.setInformativeText(information)
+        outcome.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        outcome.button(QMessageBox.Yes).setText('Tenter ma Chance')
+        outcome.button(QMessageBox.No).setText('Non')
+        return outcome.exec()
 
     def _set_book_enemy(self, monster):
         """Initialise un adversaire vérifié sans changer les données du héros."""
@@ -2202,10 +2275,9 @@ class MainWindow(QMainWindow, BookActions):
         if rules.get("escape_luck_interval"):
             self._vampire_escape(rules)
             return
-        attempt = QMessageBox.question(
-            self, "Fuir le combat", "Tenter votre Chance pour la blessure de fuite ?\n"
-            "Sans Chance : -2 Endurance. Chance réussie : -1. Échec : -3.",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        attempt = self._ask_combat_question(
+            "Fuir le combat", "Tenter votre Chance pour la blessure de fuite ?\n"
+            "Sans Chance : -2 Endurance. Chance réussie : -1. Échec : -3.")
         rolls = None
         if attempt == QMessageBox.Yes:
             rolls, total = self._roll(2)
@@ -2342,7 +2414,7 @@ class MainWindow(QMainWindow, BookActions):
         combat_rules = entry.get("combat", {}) if entry else {}
         if combat_rules.get("mode") == "fire_breath" and not self._resolve_fire_breath():
             return
-        enemy_rolls, enemy_total = self._roll(2, context=f'Combat — {self.enemy_name.text() or "Adversaire"}')
+        enemy_rolls, enemy_total = self._roll(2, context=f'Combat — {self.enemy_name.text() or "Adversaire"}', opponent=True)
         player_rolls, player_total = self._roll(2, context=f'Combat — {self.character.get("name") or "Votre aventurier"}')
         enemy_attack = self.enemy_skill.value() + enemy_total
         player_attack = combat_skill(self.character) + player_total + combat_rules.get("attack_bonus", 0)
@@ -2357,15 +2429,10 @@ class MainWindow(QMainWindow, BookActions):
                 self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack,
                                   "Arme ordinaire inefficace : aucune blessure au monstre")
                 return
-            outcome = QMessageBox(self)
-            outcome.setWindowTitle("Vous touchez !")
             base_damage = combat_rules.get("hit_damage", 2)
-            outcome.setText(f"Votre force d'attaque {player_attack} dépasse celle du monstre ({enemy_attack}).\nDégâts de base : {base_damage} Endurance au monstre.")
-            outcome.setInformativeText("Voulez-vous tenter votre Chance pour aggraver la blessure ?")
-            outcome.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            outcome.button(QMessageBox.Yes).setText("Tenter ma Chance")
-            outcome.button(QMessageBox.No).setText("Non")
-            answer = outcome.exec()
+            answer = self._assault_luck_choice("Vous touchez !",
+                f"Votre force d'attaque {player_attack} dépasse celle du monstre ({enemy_attack}).\nDégâts de base : {base_damage} Endurance au monstre.",
+                "Voulez-vous tenter votre Chance pour aggraver la blessure ?")
             damage = base_damage
             if answer == QMessageBox.Yes:
                 luck_rolls, luck_total = self._roll(2, context='Chance — Aggraver la blessure')
@@ -2400,14 +2467,9 @@ class MainWindow(QMainWindow, BookActions):
                     self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack,
                                       "Invisibilité : coup paré (6), aucun dégât")
                     return
-            outcome = QMessageBox(self)
-            outcome.setWindowTitle("Le monstre vous touche !")
-            outcome.setText(f"Force d'attaque du monstre {enemy_attack} contre la vôtre {player_attack}.\nVous perdez {base_damage} Endurance.")
-            outcome.setInformativeText("Voulez-vous tenter votre Chance pour minimiser la blessure ?")
-            outcome.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            outcome.button(QMessageBox.Yes).setText("Tenter ma Chance")
-            outcome.button(QMessageBox.No).setText("Non")
-            answer = outcome.exec()
+            answer = self._assault_luck_choice("Le monstre vous touche !",
+                f"Force d'attaque du monstre {enemy_attack} contre la vôtre {player_attack}.\nVous perdez {base_damage} Endurance.",
+                "Voulez-vous tenter votre Chance pour minimiser la blessure ?")
             damage = base_damage
             if answer == QMessageBox.Yes:
                 luck_rolls, luck_total = self._roll(2, context='Chance — Réduire la blessure')
@@ -2613,6 +2675,7 @@ class MainWindow(QMainWindow, BookActions):
 
         _restoring est toujours relâché dans finally. Un héros déjà accepté revenant à
         l’introduction par Undo ne récupère pas de relances de création."""
+        self._discard_combat_popup()
         self._restoring = True
         try:
             self.character = copy.deepcopy(state["character"])

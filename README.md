@@ -15,10 +15,15 @@ version, auteur, présentation et liens GitHub.
 Le bouton **Ambiance** permet de couper les effets sonores et de choisir le thème.
 [Reprise, sons et préparation de thèmes](docs/themes-et-ambiance.md).
 
-Les jets réglementaires de **1d6 et 2d6** ouvrent un plateau de dés en 3D animés,
-y compris pendant les combats et la création de l'aventurier. Les faces et leur
+Hors combat, les jets réglementaires de **1d6 et 2d6** ouvrent un plateau de dés en 3D animés,
+y compris pendant la création de l'aventurier. Les faces et leur
 total restent visibles jusqu'à **Continuer**. **Passer l'animation** révèle
 immédiatement le résultat déjà tiré. [Présentation et contrôles](docs/design/des-animes.md).
+
+Le bouton **Combattre / Reprendre le combat** ouvre une fenêtre dédiée : adversaires
+et dés rouges automatiques à gauche, aventurier et dés blancs à lancer à droite,
+chronique des coups et décisions de Chance au centre. La fiche du héros se met
+à jour pendant le combat. [Présentation des combats](docs/design/combat-popup.md).
 
 ## Démarrage
 
