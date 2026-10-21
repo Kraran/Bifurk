@@ -30,13 +30,13 @@ Bifurk/
 └── donnees/
     ├── grimoires/       # copies locales des PDF importés
     ├── sauvegardes/     # sauvegardes manuelles et autosave.json
-    └── parametres/      # réservé aux futurs réglages
+    └── parametres/      # préférences et diagnostic audio
 ```
 
 - Les sélecteurs Qt utilisent les libellés français ; les catalogues `qtbase_fr.qm` / `qt_fr.qm` sont chargés automatiquement depuis `translations/` ou les traductions de Qt si elles sont installées. Les commandes courantes et leurs infobulles disposent également d'une traduction de secours.
 - Les PDF choisis en dehors de Bifurk sont **copiés** dans `donnees/grimoires/`. Le fichier d'origine n'est pas modifié.
-- Les sauvegardes manuelles sont limitées à `donnees/sauvegardes/` et la sauvegarde automatique y est créée.
-- Les chemins PDF des nouvelles sauvegardes sont relatifs au dossier Bifurk. Une ancienne sauvegarde peut importer automatiquement son PDF d'origine si celui-ci est toujours accessible.
+- Le démarrage propose Nouvelle partie ou le chargement d’un des cinq emplacements. Chaque emplacement affiche l’aventurier, la date et ses trois caractéristiques ; son remplacement ou sa suppression demande confirmation.
+- Les sauvegardes sont dans `donnees/sauvegardes/`. Seul le format actuel est accepté. Les références PDF restent relatives au dossier Bifurk et pointent vers les grimoires importés.
 - Les répertoires de données sont créés au démarrage. Bifurk doit donc être installé dans un dossier **accessible en écriture**, par exemple une clé USB ou un dossier personnel, et non dans `Program Files` protégé.
 - Les dépendances Python restent nécessaires en mode source. Pour une distribution portable Windows autonome sans installation de Python, un empaquetage en exécutable sera nécessaire.
 

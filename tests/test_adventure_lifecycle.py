@@ -130,19 +130,55 @@ class AdventureLifecycleTests(unittest.TestCase):
         self.assertEqual(w.character['name'], 'Éléanor')
         self.assertEqual(w.character['initial'], data['character']['initial'])
 
-    def test_legacy_save_and_corrupt_slot(self):
+    def test_incomplete_format_and_corrupt_slot_are_not_loadable(self):
         folder = main.SAVES_DIR
         folder.mkdir(exist_ok=True)
         path = folder / 'emplacement-1.json'
-        w = self.w
-        w.go_to(1)
-        legacy = w._save_data()
-        legacy.pop('saved_at')
-        legacy.pop('save_name')
-        w._write_atomic(path, legacy)
+        self.start()
+        data = self.w._save_data()
+        data.pop('saved_at')
+        self.w._write_atomic(path, data)
         (folder / 'emplacement-2.json').write_text('{broken')
-        dialog = SaveSlotsDialog(folder, False, w)
-        self.assertIn('Aventurier sans nom', dialog.findChild(QPushButton, 'saveSlot1').text())
+        dialog = SaveSlotsDialog(folder, False, self.w)
+        self.assertFalse(dialog.findChild(QPushButton, 'saveSlot1').isEnabled())
         self.assertFalse(dialog.findChild(QPushButton, 'saveSlot2').isEnabled())
-        self.assertTrue(w.load_game(path, announce=False))
-        self.assertEqual(w.current_paragraph, 1)
+        before = self.w._snapshot()
+        self.assertFalse(self.w.load_game(path, announce=False))
+        self.assertEqual(self.w._snapshot(), before)
+
+    def test_delete_requires_confirmation_and_frees_only_selected_slot(self):
+        self.start()
+        folder = main.SAVES_DIR
+        path = folder/'emplacement-2.json'
+        other = folder/'emplacement-3.json'
+        self.w._write_atomic(path, self.w._save_data())
+        self.w._write_atomic(other, self.w._save_data())
+        dialog = SaveSlotsDialog(folder, False, self.w, startup=True)
+        self.assertIsNotNone(dialog.findChild(QPushButton, 'newAdventure'))
+        self.assertFalse(dialog.findChild(QPushButton, 'deleteSlot1').isEnabled())
+        with patch.object(QMessageBox, 'question', return_value=QMessageBox.No):
+            dialog.findChild(QPushButton, 'deleteSlot2').click()
+        self.assertTrue(path.is_file())
+        with patch.object(QMessageBox, 'question', return_value=QMessageBox.Yes):
+            dialog.findChild(QPushButton, 'deleteSlot2').click()
+        self.assertFalse(path.exists())
+        self.assertTrue(other.is_file())
+        self.assertFalse(dialog.findChild(QPushButton, 'saveSlot2').isEnabled())
+        self.assertFalse(dialog.findChild(QPushButton, 'deleteSlot2').isEnabled())
+        self.assertIsNone(dialog.selected_path)
+        self.assertFalse(dialog.result())
+        dialog.findChild(QPushButton, 'newAdventure').click()
+        self.assertTrue(dialog.new_game_requested)
+
+    def test_delete_failure_keeps_slot_available(self):
+        self.start()
+        path = main.SAVES_DIR/'emplacement-1.json'
+        self.w._write_atomic(path, self.w._save_data())
+        dialog = SaveSlotsDialog(main.SAVES_DIR, True, self.w)
+        with patch.object(QMessageBox, 'question', return_value=QMessageBox.Yes), \
+                patch.object(Path, 'unlink', side_effect=PermissionError('Accès refusé')), \
+                patch.object(QMessageBox, 'critical') as error:
+            dialog.findChild(QPushButton, 'deleteSlot1').click()
+        error.assert_called_once()
+        self.assertTrue(path.is_file())
+        self.assertTrue(dialog.findChild(QPushButton, 'saveSlot1').isEnabled())

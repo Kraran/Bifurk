@@ -143,4 +143,5 @@ QTabBar::tab { border-top-left-radius: 8px; border-top-right-radius: 8px; }
 QTextBrowser#reader { background: transparent; }
 QWidget#readerPanel QGroupBox { background: transparent; }
 QDialog QLabel#saveHeading { color: #f0d39a; font-size: 22px; padding: 10px 0; }
+QLabel#paragraphNumber { color: #67452c; font-size: 16px; background: transparent; }
 QDialog QPushButton[saveSlot="true"] { font-size: 15px; padding: 10px; border-radius: 8px; }

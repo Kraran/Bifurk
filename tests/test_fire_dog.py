@@ -205,23 +205,6 @@ class FireDog(unittest.TestCase):
             w.go_to(249)
             self.assertEqual(w.enemy_endurance.value(),expected['enemy_endurance'])
 
-    def test_legacy_save_blocked_at249_initializes_only_missing_dog(self):
-        w=self.w
-        state=w._snapshot()
-        state['prepared_book_encounters']=[]
-        state['enemy_name']='Rat-garou'
-        state['enemy_skill']=8
-        state['enemy_endurance']=0
-        state['character']['endurance']=13
-        w._restore(state)
-        self.assertEqual(w.character['endurance'],13)
-        self.assertEqual((w.enemy_name.text(),w.enemy_skill.value(),w.enemy_endurance.value()),('Chien',7,6))
-        self.assertIn(249,w.prepared_book_encounters)
-        self.win()
-        snapshot=w._snapshot()
-        w._restore(snapshot)
-        self.assertEqual(w.enemy_endurance.value(),4)
-
     def test_pdf249_targets_and_encounter_match_catalogue(self):
         pdf=next(ROOT.glob('*.pdf'),None)
         if pdf is None:

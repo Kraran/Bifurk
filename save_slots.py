@@ -3,37 +3,83 @@ import json
 from datetime import datetime
 from PySide6.QtCore import Qt
 
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QPushButton,
+from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton,
                                QDialogButtonBox, QMessageBox)
 
 
+def read_save(path):
+    """Read the current format; incomplete saves are not migrated."""
+    data = json.loads(path.read_text(encoding='utf-8'))
+    required = {'saved_at', 'save_name', 'pdf_path', 'pdf_sha256', 'character',
+                'encounter_history', 'completed_book_events', 'completed_optional_events',
+                'prepared_book_encounters', 'book_combat_sequence', 'crocodile_combat',
+                'piranha_source_wounded', 'piranha_combat', 'book_combat_assaults',
+                'current_paragraph', 'visited_paragraphs', 'transitions',
+                'enemy_skill', 'enemy_endurance', 'enemy_name',
+                'action_history', 'undo_stack', 'redo_stack'}
+    if not isinstance(data, dict) or not required <= data.keys():
+        raise ValueError('Format de sauvegarde invalide.')
+    if not isinstance(data['character'], dict) or not isinstance(data['save_name'], str) or not data['save_name'].strip():
+        raise ValueError('Aventurier invalide.')
+    for key in ('habilete', 'endurance', 'chance'):
+        if type(data['character'].get(key)) is not int:
+            raise ValueError('Caractéristiques invalides.')
+    datetime.fromisoformat(data['saved_at'])
+    return data
+
+
 class SaveSlotsDialog(QDialog):
-    def __init__(self, folder, saving, parent=None):
+    def __init__(self, folder, saving, parent=None, *, startup=False):
         super().__init__(parent)
         self.selected_path = None
-        self.setWindowTitle('Sauvegarder l’aventure' if saving else 'Charger une aventure')
+        self.new_game_requested = False
+        self.folder, self.saving = folder, saving
+        self.setWindowTitle('Commencer une aventure' if startup else
+                            'Sauvegarder l’aventure' if saving else 'Charger une aventure')
         self.setMinimumWidth(560)
         layout = QVBoxLayout(self)
         heading = QLabel('✦  LES CHRONIQUES DES AVENTURIERS  ✦')
         heading.setObjectName('saveHeading')
         heading.setAlignment(Qt.AlignCenter)
         layout.addWidget(heading)
-        layout.addWidget(QLabel('Choisissez un emplacement.'))
+        if startup:
+            new_game = QPushButton('✦  Nouvelle partie')
+            new_game.setObjectName('newAdventure')
+            new_game.setMinimumHeight(48)
+            new_game.clicked.connect(self.start_new_game)
+            layout.addWidget(new_game)
+        layout.addWidget(QLabel('Charger une aventure ou commencer une nouvelle partie.' if startup
+                                else 'Choisissez un emplacement.'))
+        self.slots = QVBoxLayout()
+        layout.addLayout(self.slots)
+        self.refresh_slots()
+        close = QDialogButtonBox(QDialogButtonBox.Cancel)
+        close.button(QDialogButtonBox.Cancel).setText('Annuler')
+        close.rejected.connect(self.reject)
+        layout.addWidget(close)
+
+    def start_new_game(self):
+        self.new_game_requested = True
+        self.accept()
+
+    def refresh_slots(self):
+        while self.slots.count():
+            widget = self.slots.takeAt(0).widget()
+            widget.hide()
+            widget.setParent(None)
+            widget.deleteLater()
         for number in range(1, 6):
-            path = folder / f'emplacement-{number}.json'
+            path = self.folder / f'emplacement-{number}.json'
             exists = path.exists()
             valid = False
             description = 'Emplacement libre'
             if exists:
                 try:
-                    data = json.loads(path.read_text(encoding='utf-8'))
-                    if not isinstance(data, dict) or not isinstance(data.get('character'), dict):
-                        raise ValueError('Invalid save')
+                    data = read_save(path)
                     character = data['character']
-                    date = (datetime.fromisoformat(data['saved_at']) if data.get('saved_at')
-                            else datetime.fromtimestamp(path.stat().st_mtime).astimezone())
+                    date = datetime.fromisoformat(data['saved_at'])
                     description = (
-                        f'{character.get("name") or "Aventurier sans nom"}  ·  {date:%d/%m/%Y à %H:%M}\n'
+                        f'{data["save_name"]}  ·  {date:%d/%m/%Y à %H:%M}\n'
                         f'Habileté {character["habilete"]}   ·   '
                         f'Endurance {character["endurance"]}   ·   Chance {character["chance"]}')
                     valid = True
@@ -43,24 +89,31 @@ class SaveSlotsDialog(QDialog):
             button.setObjectName(f'saveSlot{number}')
             button.setProperty('saveSlot', True)
             button.setMinimumHeight(82)
-            button.setEnabled(saving or valid)
+            button.setEnabled(self.saving or valid)
             button.clicked.connect(lambda checked=False, p=path, occupied=exists:
-                                   self.choose(p, saving and occupied))
-            layout.addWidget(button)
-        close = QDialogButtonBox(QDialogButtonBox.Cancel)
-        close.button(QDialogButtonBox.Cancel).setText('Annuler')
-        if not saving and parent is not None:
-            legacy = QPushButton('Ouvrir une ancienne sauvegarde…')
-            legacy.clicked.connect(self.open_legacy)
-            layout.addWidget(legacy)
-        close.rejected.connect(self.reject)
-        layout.addWidget(close)
+                                   self.choose(p, self.saving and occupied))
+            row = QWidget()
+            row_layout = QHBoxLayout(row)
+            row_layout.setContentsMargins(0, 0, 0, 0)
+            row_layout.addWidget(button, 1)
+            delete = QPushButton('Supprimer')
+            delete.setObjectName(f'deleteSlot{number}')
+            delete.setAccessibleName(f'Supprimer la sauvegarde de l’emplacement {number}')
+            delete.setEnabled(exists)
+            delete.clicked.connect(lambda checked=False, p=path: self.delete_save(p))
+            row_layout.addWidget(delete)
+            self.slots.addWidget(row)
 
-    def open_legacy(self):
-        path = self.parent()._themed_file_dialog(kind='load')
-        if path:
-            self.selected_path = path
-            self.accept()
+    def delete_save(self, path):
+        if QMessageBox.question(self, 'Supprimer la chronique',
+                'Supprimer définitivement la sauvegarde de cet emplacement ?',
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
+            return
+        try:
+            path.unlink()
+        except OSError as exc:
+            QMessageBox.critical(self, 'Suppression impossible', str(exc))
+        self.refresh_slots()
 
     def choose(self, path, confirm):
         if confirm and QMessageBox.question(

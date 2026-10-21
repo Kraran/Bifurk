@@ -57,9 +57,8 @@ La texture de parchemin fournie dans `assets/parchment.jpg` est peinte sur toute
 ## Carte et règles
 
 La carte affiche les adversaires rencontrés et leur issue (rencontré, vaincu, fui ou repoussé).
-Cet historique suit les sauvegardes, l’annulation et le rétablissement. Pour les anciennes
-sauvegardes sans historique, les rencontres cataloguées des paragraphes visités sont signalées
-avec « issue non enregistrée », sans inventer de victoire ou de fuite.
+Cet historique suit les sauvegardes, l’annulation et le rétablissement. Seules les
+rencontres enregistrées pendant la partie sont affichées.
 
 Le bouton permanent **Règles** (ou **F1**) ouvre les pages **PDF 3 à 14** du livre chargé,
 dans une fenêtre séparée non modale. Précédente, Suivante et la liste des pages permettent

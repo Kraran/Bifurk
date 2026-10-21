@@ -106,13 +106,6 @@ class BookActions:
         if self.current_paragraph in self.paragraphs:
             self._render_choices_and_events(self.paragraphs[self.current_paragraph])
 
-    def _sync_book_facts(self):
-        """Reprend les marqueurs d'avant l'introduction des faits partagés."""
-        if 294 in self.completed_book_events or '390:pieces5' in self.completed_optional_events:
-            self.character.setdefault('book_facts', {})['first_body_searched'] = True
-        if 369 in self.visited_paragraphs:
-            self.character.setdefault('book_facts', {})['holy_water_consumed'] = True
-
     def _resolve_fire_breath(self):
         """§249 : une esquive par assaut, indépendante des coups ordinaires."""
         use_luck = QMessageBox.question(
@@ -154,14 +147,12 @@ class BookActions:
         entry = verified_entry(self.book_event_catalogue, number)
         if not entry:
             return
-        self._sync_book_facts()
         if entry.get('entry_effects') and not self._book_state(number).get('entry_effects_applied'):
             apply_effects(self.character, entry['entry_effects'])
             self._book_state(number, True)['entry_effects_applied'] = True
         if previous != number:
             visits = self.character.setdefault('book_visits', {})
-            # Une ancienne sauvegarde peut déjà avoir visité ce passage.
-            before = visits.get(str(number), int(number in self.visited_paragraphs))
+            before = visits.get(str(number), 0)
             visits[str(number)] = before + 1
             apply_effects(self.character, entry.get('visit_effects', []))
             if entry.get('special') == 'key_trap':

@@ -308,20 +308,6 @@ class FinalEvents(unittest.TestCase):
         self.assertEqual(w.character['gold'], 1)
         self.assertFalse(w.character.get('book_facts', {}).get('first_body_searched'))
 
-    def test_legacy_save_infers_searched_corpse_from_either_marker(self):
-        w = self.w
-        for completed, optional in [([294], []), ([], ['390:pieces5'])]:
-            state = w._snapshot()
-            state['character'].pop('book_facts', None)
-            state['completed_book_events'] = completed
-            state['completed_optional_events'] = optional
-            state['current_paragraph'] = 390
-            w._restore(state)
-            self.assertTrue(w.character['book_facts']['first_body_searched'])
-            gold = w.character['gold']
-            w.apply_optional_book_event(390, 'pieces5')
-            self.assertEqual(w.character['gold'], gold)
-
     def test_second_corpse393_optional_loot_is_once_and_bottle_consumes369(self):
         w = self.w
         w.go_to(393)
