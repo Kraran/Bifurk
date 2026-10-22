@@ -122,3 +122,19 @@ $env:QT_QPA_PLATFORM = "offscreen"
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 Remove-Item Env:QT_QPA_PLATFORM
 ```
+
+### Diagnostics Media Foundation sous Windows
+
+Avant l'initialisation multimédia, `audio_configuration.configure_audio_backend`
+ajoute `av1_mf`, `h264_mf` et `hevc_mf` à `QT_FFMPEG_EXCLUDE_ENCODERS` sous Windows.
+Qt teste normalement ces encodeurs vidéo même pour créer le lecteur musical ;
+leurs transformations MFT peuvent manquer, alors que le décodage AAC fonctionne.
+Bifurk ne réalise aucun encodage vidéo : exclure ces sondes évite leurs erreurs
+sans changer le son, le décodeur musical ou les règles de journalisation.
+Les exclusions déjà présentes sont conservées. Aucun réglage système Windows ni
+installation de codecs supplémentaires n'est nécessaire pour cette correction.
+
+Cette option interne a été vérifiée dans Qt 6.12 ; sa prise en charge doit être
+recontrôlée lors d'une mise à jour majeure de PySide6/Qt. Elle ne supprime pas les
+véritables erreurs audio ni les autres avertissements indépendants, notamment ceux
+concernant les polices.
