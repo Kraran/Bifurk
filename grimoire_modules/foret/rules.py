@@ -30,6 +30,50 @@ DURABLE = {'Anneau de Lumière','Bottes à Bondir','Corde Magique','Brassard de 
 HAMMER_HEAD = 'Tête de marteau en bronze — G'
 HAMMER_HANDLE = 'Manche de marteau en ébène — G'
 ENCHANTED_SWORD = 'Épée enchantée'
+GAS_PARAGRAPHS = {22,169,222}
+
+
+def gas_resolved(character, paragraph):
+    """Partager l’ouverture de la boîte entre ses variantes protégées et toxiques."""
+    if paragraph not in GAS_PARAGRAPHS:
+        return False
+    identity = 'silver_box' if paragraph in (22,169) else 'purple_mushroom'
+    return (identity in peek(character).get('hazards', [])
+            or paragraph in (22,169) and entry_resolved(character,338))
+
+
+def inhale_gas(character, paragraph, die):
+    """Un dé d’Endurance ; -2 Habileté seulement pour la boîte, butin si survie."""
+    alive(character)
+    if paragraph not in GAS_PARAGRAPHS:
+        raise ValueError('Gaz non intégré pour ce passage.')
+    dice(die,1,6)
+    if gas_resolved(character,paragraph):
+        return False
+    if paragraph in (22,169):
+        character['habilete'] = max(0,character['habilete']-2)
+    damage_hero(character,die)
+    identity = 'silver_box' if paragraph in (22,169) else 'purple_mushroom'
+    state(character).setdefault('hazards', []).append(identity)
+    if paragraph in (22,169) and character['endurance'] > 0:
+        reward(character,'entry:silver_box_filters',items=['Boîte d’argent'])
+    return True
+
+
+def find_mushroom_filters(character, total):
+    """§60 : chercher un achat utilisable ; la branche suivante consomme la charge."""
+    alive(character)
+    dice(total)
+    if available(character,'Filtres à Nez') <= 0:
+        raise ValueError('Aucun Filtre à Nez utilisable à chercher.')
+    return 183 if spend_luck(character,total) else 44
+
+
+def extract_stone_sword(character, total):
+    """§182 : épreuve d’Habileté sans dépense de Chance ni blessure d’échec."""
+    alive(character)
+    dice(total)
+    return 70 if total <= effective_skill(character) else 334
 
 
 def effective_skill(character):

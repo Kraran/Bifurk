@@ -31,6 +31,16 @@ converties globalement en événements exécutables.
   deux fléchettes avec deux dépenses même après un échec, bras de fer arrêté au
   premier échec, Brassard sans dés, coffre retentable avec une blessure par échec,
   fosse au pieu, fièvre avec contrôle de survie avant les dés et embuscade du retour.
+  Le §182 compare 2d6 à l’Habileté effective pour extraire l’épée du rocher :
+  réussite vers le §70, échec sans blessure vers le §334, sans dépense de Chance.
+- **Gaz toxiques (§§22, 169, 222, 60)** : un seul d6 de perte d’Endurance.
+  La boîte d’argent enlève aussi deux points d’Habileté de base ; le champignon
+  n’en enlève aucun. Les §§22/169 et les variantes protégées §§338/365 partagent
+  la même ouverture : ni deuxième blessure, ni deuxième boîte, ni charge de filtre
+  dépensée sur une ouverture déjà résolue. La boîte est récupérée seulement si
+  le héros survit. Au §60, chercher les filtres exige une charge achetée et un
+  test de Chance ; les §§183/44 consomment ensuite cette charge et appliquent
+  leur propre effet. Les liens attendent la résolution des dés.
 - **Soins et transformations** : cinq rations de convalescence sans restauration
   d’Endurance ; repas maudit qui enlève quatre points au lieu de soigner ; Potion
   de Force trouvée (+5 E) distincte de la fiole initiale à deux doses ; vœu du génie

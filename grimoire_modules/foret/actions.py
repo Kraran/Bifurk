@@ -203,6 +203,8 @@ class ForetMechanicsActions(FightingFantasyActions):
                 button.clicked.connect(lambda checked=False: self.perform_foret_action(action, payload))
             self.event_layout.addWidget(button)
         number = self.current_paragraph
+        if number in rules.GAS_PARAGRAPHS and not rules.gas_resolved(self.character,number):
+            add('Résoudre le gaz toxique (1d6)', 'gas')
         if number in rules.ENTRY_RULES and not rules.entry_resolved(self.character, number):
             rule = rules.ENTRY_RULES[number]
             label = ('Utiliser ' + rule['use'] if rule.get('use') else
@@ -242,7 +244,9 @@ class ForetMechanicsActions(FightingFantasyActions):
                     395:('Résister à l’éclair de la lanterne — Chance', 'lantern_flash'),
                     154:('Abandonner la lanterne noircie', 'discard_lantern'),
                     370:('Choisir l’objet perdu…', 'lose_item'),
-                    192:('Constater la transformation de l’épée', 'gnome_sword')}
+                    192:('Constater la transformation de l’épée', 'gnome_sword'),
+                    60:('Chercher les Filtres à Nez — Chance', 'find_filters'),
+                    182:('Dégager l’épée du rocher — Habileté', 'stone_sword')}
         if number in commands and not self._book_state(number).get('foret_resolved'):
             label, action = commands[number]
             add(label, action)
@@ -351,14 +355,28 @@ class ForetMechanicsActions(FightingFantasyActions):
         number = self.current_paragraph
         expected = {'wish':34,'swap':308,'ambush':98,'fever':259,'spiked_pit':278,'buy':261,'door':73,'darts':309,'lift':372,'wrestle':266,'bracelet':52,
                     'convalescence':304,'cursed_meal':328,'combat_potion':262,'hammer':204,
-                    'lantern_flash':395,'discard_lantern':154,'lose_item':370,'gnome_sword':192}
+                    'lantern_flash':395,'discard_lantern':154,'lose_item':370,'gnome_sword':192,
+                    'find_filters':60,'stone_sword':182}
         if action in expected and number != expected[action]:
             return
         if self._book_state(number).get('foret_resolved') and action in expected and action != 'buy':
             return
         target = None
         try:
-            if action == 'payment':
+            if action == 'gas':
+                if number not in rules.GAS_PARAGRAPHS or rules.gas_resolved(self.character,number):
+                    return
+                _, die = self._roll(1,context='Gaz toxique — perte d’Endurance')
+                rules.inhale_gas(self.character,number,die)
+            elif action == 'find_filters':
+                if rules.available(self.character,'Filtres à Nez') <= 0:
+                    raise ValueError('Aucun Filtre à Nez utilisable à chercher.')
+                _, total = self._roll(2,context='Chance — trouver les Filtres à Nez')
+                target = rules.find_mushroom_filters(self.character,total)
+            elif action == 'stone_sword':
+                _, total = self._roll(2,context='Habileté — dégager l’épée du rocher')
+                target = rules.extract_stone_sword(self.character,total)
+            elif action == 'payment':
                 if number not in rules.PAYMENT_PARAGRAPHS:
                     return
                 rules.pay_paragraph(self.character, number, gold=payload[0], items=payload[1])
