@@ -80,6 +80,87 @@ class CombatControlsTests(unittest.TestCase):
         self.assertEqual(self.w.book_combat_assaults.get(8, 0), 0)
         dialog.close()
 
+    def test_reader_and_popup_flee_stay_synchronized_during_an_assault(self):
+        """Le lecteur ne doit pas proposer une fuite pendant les dés de la popup."""
+        dialog = self.session(8)
+        dialog.choose_luck = Mock(return_value=False)
+        observed = []
+
+        def reader_button():
+            return next(self.w.event_layout.itemAt(i).widget()
+                        for i in range(self.w.event_layout.count())
+                        if self.w.event_layout.itemAt(i).widget().property('combatEscape'))
+
+        def present(*args, **kwargs):
+            # Reconstruire aussi le lecteur pendant l'assaut : une mise à jour
+            # de l'interface ne doit pas réactiver son bouton prématurément.
+            self.w._render_choices_and_events(self.w.paragraphs[8])
+            observed.append((dialog.flee.isEnabled(), reader_button().isEnabled()))
+
+        dialog.present_roll = present
+        self.w.character['habilete'] = self.w.enemy_skill.value()
+        with patch('main.random.randint', return_value=1):
+            dialog._run(self.w.combat_round)
+        self.assertEqual(observed, [(False, False), (False, False)])
+        self.assertTrue(dialog.flee.isEnabled())
+        self.assertTrue(reader_button().isEnabled())
+
+    def test_flee_unlocks_after_real_assaults_at_each_book_threshold(self):
+        """Des parades comptent comme assauts ; ne pas fabriquer le compteur."""
+        for number, threshold in ((16, 2), (61, 2), (143, 3), (163, 3), (179, 3), (333, 6)):
+            with self.subTest(paragraph=number):
+                dialog = self.session(number)
+                # Le Géant exige un test de Chance préliminaire, indépendant
+                # du compteur vérifié ici. Les jets de combat donnent égalité.
+                self.w._book_state(number, True)['opening_done'] = True
+                self.w.character['habilete'] = self.w.enemy_skill.value()
+                dialog.present_roll = Mock()
+                self.assertFalse(dialog.flee.isEnabled())
+                for assault in range(1, threshold + 1):
+                    with patch('main.random.randint', return_value=1):
+                        dialog._run(self.w.combat_round)
+                    self.assertEqual(self.w.book_combat_assaults[number], assault)
+                    self.assertEqual(dialog.flee.isEnabled(), assault >= threshold)
+                    if assault < threshold:
+                        self.assertIn(str(threshold - assault), dialog.flee.toolTip())
+
+    def test_vampire_failed_escape_requires_six_more_assaults(self):
+        """Cliquer Fuir ne doit pas permettre de retenter immédiatement après l'échec."""
+        dialog = self.session(333)
+        self.w.character.update(habilete=10, chance=7)
+        dialog.present_roll = Mock()
+        for _ in range(6):
+            with patch('main.random.randint', return_value=1):
+                dialog._run(self.w.combat_round)
+        self.assertTrue(dialog.flee.isEnabled())
+        with patch('main.random.randint', return_value=4):
+            dialog.flee.click()
+        self.assertEqual(self.w.current_paragraph, 333)
+        self.assertEqual(self.w.character['chance'], 6)
+        self.assertFalse(dialog.flee.isEnabled())
+        self.assertIn('6 assaut', dialog.flee.toolTip())
+        for assault in range(7, 13):
+            with patch('main.random.randint', return_value=1):
+                dialog._run(self.w.combat_round)
+            self.assertEqual(dialog.flee.isEnabled(), assault == 12)
+        with patch('main.random.randint', return_value=1):
+            dialog.flee.click()
+        self.assertEqual(self.w.current_paragraph, 380)
+        self.assertEqual(self.w.character['endurance'], 18)
+        self.assertEqual(self.w.character['chance'], 5)
+
+    def test_flee_forbidden_by_book_and_when_vampire_destination_missing(self):
+        """Une action affichée active doit pouvoir être réellement résolue."""
+        dialog = self.session(142)
+        self.assertFalse(dialog.flee.isEnabled())
+        self.assertIn('ne permet pas', dialog.flee.toolTip())
+        dialog = self.session(333)
+        self.w.book_combat_assaults[333] = 6
+        self.w.paragraphs.pop(224)
+        dialog.refresh_stats()
+        self.assertFalse(dialog.flee.isEnabled())
+        self.assertIn('absente', dialog.flee.toolTip())
+
     def test_meals_forbidden_in_combat_but_potion_available(self):
         dialog = self.session(16)
         self.w.character.update(endurance=4, potion='Potion de Vigueur', potion_doses=1)
