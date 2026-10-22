@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 CATALOGUES = Path(__file__).resolve().parent.parent / 'catalogues'
-SUPPORTED_ENGINES = {'sorcier-1982'}
+SUPPORTED_ENGINES = {'sorcier-1982', 'foret-1983'}
 SUPPORTED_REPAIRS = {'misplaced-fragment-253'}
 
 
@@ -33,6 +33,11 @@ class GrimoireModule:
     rules_pages: tuple
     catalogue_paths: tuple
     text_repairs: tuple
+    intro_pages: tuple = ()
+    intro_title: str = ''
+    status: str = 'ready'
+    starting_gold: int | None = None
+    starting_items: tuple = ()
 
     def catalogue(self, kind):
         """Refuser un catalogue d'une autre édition, même si le manifeste le désigne."""
@@ -87,8 +92,27 @@ def available_modules(catalogue_root=None):
             paths.append((kind, candidate))
         if not {'events', 'illustrations'} <= dict(paths).keys():
             raise ValueError('Catalogues événements et illustrations requis.')
+        intro = data.get('intro_pages', [])
+        if not isinstance(intro, list) or (intro and (len(intro) != 2
+                      or any(type(n) is not int for n in intro) or not 1 <= intro[0] <= intro[1])):
+            raise ValueError('Intervalle de prologue invalide.')
+        title, intro_title = data.get('title'), data.get('intro_title', '')
+        if not isinstance(title, str) or not title.strip():
+            raise ValueError('Titre du grimoire invalide.')
+        if not isinstance(intro_title, str) or (intro and not intro_title.strip()):
+            raise ValueError('Titre du prologue invalide.')
+        status = data.get('status', 'ready')
+        if status not in ('ready', 'preview'):
+            raise ValueError('État de module inconnu.')
+        gold = data.get('starting_gold')
+        items = data.get('starting_items', [])
+        if gold is not None and (type(gold) is not int or gold < 0):
+            raise ValueError('Or initial invalide.')
+        if not isinstance(items, list) or any(not isinstance(item, str) or not item.strip() for item in items):
+            raise ValueError('Objets initiaux invalides.')
         module = GrimoireModule(identity, data['title'], data['engine'], digest,
-                                data['paragraph_count'], tuple(pages), tuple(paths), tuple(repairs))
+                                data['paragraph_count'], tuple(pages), tuple(paths), tuple(repairs),
+                                tuple(intro), data.get('intro_title', ''), status, gold, tuple(items))
         # Contrôler toutes les associations avant de publier le module au lecteur.
         module.catalogue('events')
         module.catalogue('illustrations')

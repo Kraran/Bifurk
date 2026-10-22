@@ -36,6 +36,8 @@ def read_save(path):
     for key in ('habilete', 'endurance', 'chance'):
         if type(data['character'].get(key)) is not int:
             raise ValueError('Caractéristiques invalides.')
+    if not isinstance(data.get('book_title', ''), str):
+        raise ValueError('Titre du grimoire invalide.')
     datetime.fromisoformat(data['saved_at'])
     return data
 
@@ -150,10 +152,12 @@ class SaveSlotsDialog(QDialog):
                     valid = True
                 except (OSError, ValueError, KeyError, TypeError):
                     description = 'Sauvegarde illisible'
-            button = SaveSlotButton(f'⚜  Emplacement {number}\n{description}')
+            title = data.get('book_title', '') if exists and valid else ''
+            heading = f'⚜  Emplacement {number}' + (f' · {title}' if title else '')
+            button = SaveSlotButton(f'{heading}\n{description}')
             button.setObjectName(f'saveSlot{number}')
             button.setProperty('saveSlot', True)
-            button.setToolTip(description)
+            button.setToolTip((title + '\n' if title else '') + description)
             button.setMinimumHeight(82)
             button.setEnabled(self.saving or valid)
             button.clicked.connect(lambda checked=False, p=path, occupied=exists:

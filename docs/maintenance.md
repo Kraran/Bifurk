@@ -13,6 +13,8 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 | `grimoire_modules/registry.py` | Manifestes et reconnaissance des éditions | `module_for_pdf`, `available_modules` |
 | `grimoire_modules/fighting_fantasy/` | Règles et commandes partagées de Défis Fantastiques | `FightingFantasyActions`, `rules` |
 | `grimoire_modules/controller.py` | Délégation vers le contrôleur du livre ouvert | `ModuleActions`, `CONTROLLERS` |
+| `grimoire_library.py` | Bibliothèque des PDF privés et choix de l’aventure | `imported_grimoires`, `GrimoireLibraryDialog` |
+| `grimoire_modules/foret/` | Présentation du second grimoire sans règles non vérifiées | `ForetController` |
 | `grimoire_modules/sorcier/` | Interactions, navigation, création, soins et combats du Sorcier | `SorcierController`, `perform_book_action` |
 | `navigation.py` | Détection des renvois, libellés et HTML échappé | `destinations`, `render_links` |
 | `rules_engine.py` | Suggestions heuristiques pour un texte non catalogué | `encounters`, `stat_events` |

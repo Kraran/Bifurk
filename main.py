@@ -17,6 +17,7 @@ from grimoire_modules.controller import ModuleActions
 from grimoire_modules.fighting_fantasy.rules import POTION_STATS, POTION_DOSES
 from grimoire_modules.registry import module_for_pdf
 from rules_viewer import RulesDialog
+from grimoire_library import imported_grimoires, GrimoireLibraryDialog
 from themes import available_themes
 from sound_effects import SoundBank, EFFECT_LABELS
 from intro_music import IntroMusic
@@ -377,10 +378,54 @@ class MainWindow(QMainWindow, ModuleActions):
             if selected and self.load_game(selected):
                 return
 
-    def _start_new_game(self):
-        """Reprendre le livre chargé, sinon le dernier importé, sinon demander un PDF.
+    def _select_grimoire(self, books):
+        """Ne renvoyer une intention qu'après validation du sélecteur, sans changer la partie."""
+        reference = self.preferences.get('last_book')
+        last = BOOKS_DIR / reference if isinstance(reference, str) else None
+        dialog = GrimoireLibraryDialog(books, self.pdf_path or last, self)
+        try:
+            if dialog.exec() != QDialog.Accepted:
+                return None
+            return ('import', None) if dialog.import_requested else ('open', dialog.selected_path)
+        finally:
+            dialog.deleteLater()
 
-        Cette étape ouvre la création ; les statistiques seront validées avant le §1."""
+    def _imported_grimoires(self):
+        """Présenter une erreur de bibliothèque sans abandonner la partie en cours."""
+        try:
+            return imported_grimoires(BOOKS_DIR)
+        except (OSError, ValueError) as exc:
+            QMessageBox.warning(self, 'Bibliothèque indisponible', str(exc))
+            return None
+
+    def show_library(self):
+        """Choisir une aventure ou importer un livre, avec confirmation si une partie est en cours."""
+        books = self._imported_grimoires()
+        if books is None:
+            return
+        if not books:
+            self.open_pdf()
+            return
+        choice = self._select_grimoire(books)
+        if choice is None:
+            return
+        if self.current_paragraph is not None and QMessageBox.question(
+                self, 'Ouvrir un grimoire',
+                'Commencer une nouvelle aventure ? La progression non sauvegardée sera abandonnée.',
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
+            return
+        self.open_pdf(choice[1] if choice[0] == 'open' else None)
+
+    def _start_new_game(self):
+        """Choisir parmi plusieurs livres ; avec un seul, conserver le démarrage direct."""
+        books = self._imported_grimoires()
+        if books is None:
+            return
+        if len(books) > 1:
+            choice = self._select_grimoire(books)
+            if choice is not None:
+                self.open_pdf(choice[1] if choice[0] == 'open' else None, startup=True)
+            return
         if self.pdf_path and self.paragraphs:
             self._restart_adventure()
             return
@@ -388,8 +433,53 @@ class MainWindow(QMainWindow, ModuleActions):
         path = (BOOKS_DIR / reference).resolve() if isinstance(reference, str) else None
         if path and within_directory(path, BOOKS_DIR) and path.is_file():
             self.open_pdf(path, startup=True)
+        elif books:
+            self.open_pdf(books[0].path, startup=True)
         else:
             self.open_pdf()
+
+    def _close_book_dialogs(self):
+        """Retirer les vues liées à l'ancien PDF avant de changer d'aventure."""
+        for name in ('rules_dialog', 'prologue_dialog'):
+            dialog = getattr(self, name, None)
+            if dialog is not None:
+                dialog.close()
+                dialog.deleteLater()
+                setattr(self, name, None)
+
+    def _new_character_template(self):
+        """Appliquer les ressources de départ du module à une copie neuve, jamais au héros chargé."""
+        character = copy.deepcopy(self._initial_character)
+        gold = getattr(self.book_module, 'starting_gold', None)
+        if gold is not None:
+            character['gold'] = gold
+        for item in getattr(self.book_module, 'starting_items', ()):
+            if item not in character['inventory']:
+                character['inventory'].append(item)
+        return character
+
+    def show_prologue(self):
+        """Consulter les pages privées du prologue sans appliquer d'effet ni lancer de dés."""
+        pages = getattr(self.book_module, 'intro_pages', ())
+        if not self.pdf_path or not pages:
+            return
+        existing = getattr(self, 'prologue_dialog', None)
+        if existing is not None and existing.isVisible() and existing.pdf_path == str(self.pdf_path):
+            existing.raise_()
+            existing.activateWindow()
+            return
+        if existing is not None:
+            existing.close()
+            existing.deleteLater()
+            self.prologue_dialog = None
+        try:
+            dialog = RulesDialog(self.pdf_path, self, pages=pages,
+                                 title=self.book_module.intro_title, section='Prologue')
+        except Exception as exc:
+            QMessageBox.warning(self, 'Prologue indisponible', str(exc))
+            return
+        self.prologue_dialog = dialog
+        dialog.show()
 
     def show_ambience(self):
         """Construire les réglages de thème et sons, avec préécoute des effets disponibles."""
@@ -630,9 +720,10 @@ class MainWindow(QMainWindow, ModuleActions):
         self.book_label.setMaximumWidth(240)
         self.book_label.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         header.addWidget(self.book_label)
-        self.open_btn = QPushButton("✦  Ouvrir un grimoire…")
+        self.open_btn = QPushButton("✦  Grimoires…")
         self.open_btn.setObjectName("goldButton")
-        self.open_btn.clicked.connect(self.open_pdf)
+        self.open_btn.setToolTip("Choisir un grimoire importé ou ajouter un livre PDF")
+        self.open_btn.clicked.connect(self.show_library)
         header.addWidget(self.open_btn)
         self.fullscreen_btn = QPushButton("⛶  Plein écran")
         self.fullscreen_btn.setToolTip("Plein écran (F11) — Échap pour quitter")
@@ -1006,6 +1097,8 @@ class MainWindow(QMainWindow, ModuleActions):
         # La couverture est réservée à l'introduction. Pendant la lecture, le
         # décor fourni remplit la surface sans devenir une illustration active.
         background = None if prefer_cover else QPixmap(str(ASSET_DIR / 'illustration-background.jpg'))
+        if getattr(self.book_module, 'status', 'ready') == 'preview':
+            background = None  # Le décor du thème reste neutre avant l'association des illustrations du livre.
         self.scene_art.set_background_art(background)
         self.scene_entry = None
         self.scene_title = ''
@@ -1036,7 +1129,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.choice_group.hide()
         self.event_group.hide()
         self.condition_group.hide()
-        self.reader.setHtml("<h1>Ouvrez le grimoire.</h1><p>Une porte oubliée. Un trésor légendaire. Et vos décisions pour seule boussole.</p><p>Choisissez votre livre avec <b>Ouvrir un grimoire</b>, puis découvrez votre nouvel aventurier sur la page d’introduction.</p><p>Explorez, lancez les dés et écrivez votre propre histoire.</p>")
+        self.reader.setHtml("<h1>Ouvrez le grimoire.</h1><p>Une porte oubliée. Un trésor légendaire. Et vos décisions pour seule boussole.</p><p>Choisissez votre livre avec <b>Grimoires…</b>, puis découvrez votre nouvel aventurier sur la page d’introduction.</p><p>Explorez, lancez les dés et écrivez votre propre histoire.</p>")
 
     def _show_book_title(self):
         """Afficher la couverture, le titre et le formulaire de création avant le §1.
@@ -1052,6 +1145,11 @@ class MainWindow(QMainWindow, ModuleActions):
         self._clear_dynamic_layout(self.choice_layout)
         first = 1 if 1 in self.paragraphs else min(self.paragraphs)
         label = QLabel('Sous quel nom entrerez-vous dans la légende ?')
+        if getattr(self.book_module, 'intro_pages', ()):
+            prologue = QPushButton(f'Lire le prologue — {self.book_module.intro_title}')
+            prologue.setObjectName('readPrologue')
+            prologue.clicked.connect(self.show_prologue)
+            self.choice_layout.addWidget(prologue)
         self.choice_layout.addWidget(label)
         name = QLineEdit(self._creation_name)
         name.setObjectName('adventurerName')
@@ -1112,7 +1210,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self._creation_name = self.character.get('name', '')
         self._creation_rerolls = 0
         self._adventurer_draft = self._roll_adventurer()
-        self.character = copy.deepcopy(self._initial_character)
+        self.character = self._new_character_template()
         self.character.update(potion='Potion de Vigueur', potion_doses=POTION_DOSES)
         self._apply_adventurer_draft()
 
@@ -1132,10 +1230,12 @@ class MainWindow(QMainWindow, ModuleActions):
         remaining = 2 - self._creation_rerolls
         instruction = (f'Vous pouvez garder ce tirage ou le relancer encore {remaining} fois.'
                        if remaining else 'Dernier tirage validé automatiquement. Inscrivez votre nom pour partir.')
+        preparation = ('<p>Aventure en préparation : couverture et prologue disponibles ; événements et combats à venir.</p>'
+                       if getattr(self.book_module, 'status', 'ready') == 'preview' else '')
         self.reader.setHtml(
             f'<div style="text-align:center; color:{self.theme.color("accent")}; font-family:\'{self.reading_font_family}\';">'
             '<p style="font-size:16pt">✦ LIVRE D’AVENTURE ✦</p>'
-            f'<h1 style="font-size:38pt">{html.escape(title)}</h1>'
+            f'<h1 style="font-size:38pt">{html.escape(title)}</h1>{preparation}'
             '<h2>✦ Votre nouvel aventurier ✦</h2>'
             f'<p style="font-size:22pt"><b>Habileté {stats["habilete"]} &nbsp; · &nbsp; '
             f'Endurance {stats["endurance"]} &nbsp; · &nbsp; Chance {stats["chance"]}</b></p>'
@@ -1172,7 +1272,7 @@ class MainWindow(QMainWindow, ModuleActions):
             return
         self._discard_combat_popup()
         potion = self.character['potion']
-        self.character = copy.deepcopy(self._initial_character)
+        self.character = self._new_character_template()
         self.character.update(potion=potion, potion_doses=POTION_DOSES)
         self.character['name'] = name
         self.character['initial'] = copy.deepcopy(self._adventurer_draft)
@@ -1219,7 +1319,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.reader.setHtml(
             f'<div style="text-align:center"><p style="font-size:36pt">⚔</p>'
             f'<h1>La légende de {name} s’achève ici.</h1>'
-            '<p>Votre Endurance est épuisée. La montagne garde ses secrets…</p>'
+            '<p>Votre Endurance est épuisée. Le grimoire garde ses secrets…</p>'
             '<p>Un nouveau destin vous attend entre les pages du grimoire.</p></div>')
         self.event_group.hide()
         self.condition_group.hide()
@@ -1262,6 +1362,8 @@ class MainWindow(QMainWindow, ModuleActions):
         except Exception as exc:
             QMessageBox.critical(self, "Import impossible", str(exc))
             return
+        self._discard_combat_popup()
+        self._close_book_dialogs()
         self.book_module = book_module
         self.pdf_path = path
         self.illustration_catalogue = illustrations
@@ -1280,7 +1382,8 @@ class MainWindow(QMainWindow, ModuleActions):
         self.paragraphs = paragraphs
         if self.illustration_catalogue is None and not startup:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
-        self.book_label.setText(Path(path).name)
+        self.book_label.setText(book_module.title if book_module else Path(path).name)
+        self.book_label.setToolTip(self.book_label.text())
         self.goto_spin.setMaximum(max(paragraphs))
         first = 1 if 1 in paragraphs else min(paragraphs)
         self.transitions = []
@@ -2053,6 +2156,7 @@ class MainWindow(QMainWindow, ModuleActions):
                 "save_name": self.character.get('name') or 'Aventurier sans nom',
                 "pdf_sha256": self._pdf_hash(),
                 "module_id": self.book_module.id if self.book_module else None,
+                "book_title": self.book_module.title if self.book_module else (Path(self.pdf_path).stem if self.pdf_path else ""),
                 **self._snapshot(), "action_history": self.action_history,
                 "undo_stack": self.undo_stack, "redo_stack": self.redo_stack}
 
@@ -2182,12 +2286,14 @@ class MainWindow(QMainWindow, ModuleActions):
                     raise ValueError("Le module de cette sauvegarde ne correspond pas au grimoire.")
                 paragraphs = extract_paragraphs(pdf)
                 illustration_catalogue = book_module.catalogue('illustrations') if book_module else None
+                self._close_book_dialogs()
                 self.pdf_path = pdf
                 self.paragraphs = paragraphs
                 self.illustration_catalogue = illustration_catalogue
                 self.book_module = book_module
                 self.book_event_catalogue = book_module.catalogue('events') if book_module else None
-                self.book_label.setText(Path(pdf).name)
+                self.book_label.setText(book_module.title if book_module else Path(pdf).name)
+                self.book_label.setToolTip(self.book_label.text())
                 if self.paragraphs:
                     self.goto_spin.setMaximum(max(self.paragraphs))
             elif pdf_reference:

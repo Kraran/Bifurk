@@ -152,3 +152,11 @@ Voir [le guide d’intégration](docs/modules-grimoires.md) pour préparer un au
 Les règles communes (création, Chance, soins, combats et fuite) sont regroupées
 dans un [socle Défis Fantastiques](docs/socle-defis-fantastiques.md),
 réutilisable par les prochains modules sans les exceptions du Sorcier.
+
+### La Forêt de la Malédiction — présentation
+
+Le deuxième module propose sa couverture, son prologue et ses règles. Le bouton
+**Grimoires…** permet de choisir parmi les livres importés ou d'importer un PDF.
+La Forêt est **en préparation** : consultation et sauvegarde sont disponibles,
+mais ses événements et combats seront intégrés après leur revue.
+Voir [le détail de cette étape](docs/foret-module-presentation.md).

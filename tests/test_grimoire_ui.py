@@ -136,7 +136,7 @@ class GrimoireInterfaceTests(unittest.TestCase):
                 patch("main.extract_paragraphs", return_value=w.paragraphs), \
                 patch("main.import_book", return_value="/tmp/ui-book.pdf"), \
                 patch("main.module_for_pdf", return_value=SimpleNamespace(
-                    id='test', engine='sorcier-1982', rules_pages=(3, 14),
+                    id='test', title='Le Sorcier de la Montagne de Feu', engine='sorcier-1982', rules_pages=(3, 14),
                     catalogue=lambda kind: catalogue if kind == 'illustrations' else None)), \
                 patch.object(w, "_illustration_pixmap", return_value=image), \
                 patch.object(w, "_show_illustration") as popup:

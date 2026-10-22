@@ -1,0 +1,24 @@
+{
+  "schema_version": 6,
+  "book_id": "foret_malediction_1983",
+  "title": "La Forêt de la Malédiction",
+  "pdf_sha256": "0abac11c0e88ce244c5513bf4b1537fa46159df5606d3e3c8c28b83e6614f6e1",
+  "pdf_pages": 170,
+  "page_index": "1-based",
+  "coordinate_system": "PDF points, PyMuPDF page coordinates",
+  "illustrations": [
+    {
+      "id": "couverture",
+      "type": "couverture",
+      "page_pdf": 1,
+      "rect": [
+        1.5,
+        0,
+        504.55,
+        842.0
+      ],
+      "statut": "verifie",
+      "paragraphes": []
+    }
+  ]
+}

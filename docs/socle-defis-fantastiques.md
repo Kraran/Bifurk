@@ -90,8 +90,9 @@ soins, sauvegardes et annulations. Exécution :
 .\.venv\Scripts\python.exe -m unittest discover -s tests
 ```
 
-La prochaine étape ajoutera le manifeste, la présentation et l'adaptateur de la
-Forêt. Sa navigation et ses événements seront vérifiés séparément ; hériter de
+Le manifeste, la présentation et l'adaptateur de consultation de la Forêt sont
+maintenant décrits dans [l'étape 2](foret-module-presentation.md). Sa navigation et
+ses événements seront vérifiés séparément ; hériter de
 `FightingFantasyActions` ne signifie pas recopier le contrôleur du Sorcier.
 Les vues d'équipement et les présentations des rencontres particulières encore
 spécifiques au premier livre seront adaptées à mesure de l'intégration du second.

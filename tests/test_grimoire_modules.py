@@ -74,7 +74,9 @@ class ModuleRegistryTests(unittest.TestCase):
         _, path = self.add_book('first', b'original')
         original = json.loads(path.read_text())
         for update in ({'engine': 'unsupported'}, {'rules_pages': [14, 3]},
-                       {'catalogues': {'events': '../outside.json'}}):
+                       {'catalogues': {'events': '../outside.json'}}, {'intro_pages': None},
+                       {'intro_pages': [14, 16], 'intro_title': ''}, {'starting_gold': -1},
+                       {'starting_items': [5]}, {'status': 'unknown'}):
             with self.subTest(update=update):
                 path.write_text(json.dumps(original | update))
                 with self.assertRaises(ValueError):
