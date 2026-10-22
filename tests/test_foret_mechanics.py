@@ -14,6 +14,37 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_gnome_transforms_and_returns_same_weapon_only_once(self):
+        c = hero(inventory=['Épée'],equipped_weapon='Épée')
+        self.assertTrue(r.transform_gnome_sword(c))
+        self.assertEqual(c['inventory'],[])
+        self.assertEqual(r.peek(c)['gnome_sword'],'Épée')
+        self.assertFalse(r.transform_gnome_sword(c))
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.pay_paragraph(c,12,gold=9)
+        self.assertEqual(c,before)
+        self.assertTrue(r.pay_paragraph(c,12,gold=10))
+        self.assertEqual((c['gold'],c['inventory'],c['equipped_weapon']),(20,['Épée'],'Épée'))
+        self.assertFalse(r.pay_paragraph(c,12,gold=10))
+        self.assertFalse(r.transform_gnome_sword(c))
+        self.assertEqual(c['inventory'],['Épée'])
+
+    def test_gnome_two_selected_objects_are_alternative_to_gold_and_remove_charges(self):
+        c = hero()
+        r.buy(c,'Anneau de Lumière',2)
+        before = deepcopy(c)
+        for gold,items in ((10,['Anneau de Lumière']),(0,['Anneau de Lumière']),(0,['Anneau de Lumière']*3)):
+            with self.assertRaises(ValueError):r.pay_paragraph(c,12,gold=gold,items=items)
+            self.assertEqual(c,before)
+        self.assertTrue(r.pay_paragraph(c,12,items=['Anneau de Lumière']*2))
+        self.assertEqual(c['gold'],24)
+        self.assertEqual(r.available(c,'Anneau de Lumière'),0)
+        self.assertNotIn('Épée',c['inventory'])
+        c = hero(gold=0,inventory=['Objet verrouillé','Bijou'],locked_items=['Objet verrouillé'])
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.pay_paragraph(c,12,items=c['inventory'])
+        self.assertEqual(c,before)
+
     def test_lantern_flash_success_failure_and_lethal_damage(self):
         for total, endurance, target, remaining in ((2,20,154,20),(12,20,370,17),(12,3,None,0)):
             with self.subTest(total=total,endurance=endurance):

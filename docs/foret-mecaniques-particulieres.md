@@ -30,11 +30,16 @@ converties globalement en événements exécutables.
   de Force trouvée (+5 E) distincte de la fiole initiale à deux doses ; vœu du génie
   sur une seule caractéristique ; échange des valeurs courantes H/C sans échange
   des plafonds. La lanterne magique ne consomme pas la lanterne de voyage.
-- **Paiements** : choix des exemplaires et des pièces aux §§14, 32, 36, 218,
+- **Paiements** : choix des exemplaires et des pièces aux §§12, 14, 32, 36, 218,
   279 et 297. Le tribut représente exactement cinq unités ; chaque pièce et chaque
   objet compte pour une unité. La valeur estimée d’un bijou ne crée pas des pièces.
   Annuler ou proposer un tarif invalide ne modifie rien. Le paiement de deux objets
   achetés exige leur provenance et leur charge disponible.
+- **Gnome (§§192, 46, 12)** : l’identité de l’arme transformée est conservée
+  hors de l’inventaire jusqu’à sa restitution. Le projectile du §46 coûte deux
+  points de Chance une seule fois. Le §12 exige exactement dix pièces OU deux
+  exemplaires choisis, puis restitue la même épée sans en fabriquer une nouvelle.
+  Un passage consulté directement sans arme transformée ne crée pas d’épée.
 - **Quête** : seules la tête et le manche marqués G valident le marteau. Les
   fausses pièces ne conviennent pas. La remise retire les deux pièces authentiques
   et marque la victoire sans inventer une valeur d’or pour les récompenses finales.
@@ -98,6 +103,12 @@ Sorcier :
   sans objet susceptible d’être retiré n’est pas décrit : la commande explique
   ce blocage et laisse le passage non résolu, sans inventer de paiement de remplacement.
   L’Anneau de Lenteur et les objets verrouillés ne peuvent pas être choisis.
+- **Objets précieux du Gnome (§12)** : aucun inventaire fermé ni seuil de valeur
+  n’est défini par la source. Le joueur choisit explicitement les deux objets
+  qu’il accepte de donner comme précieux ; le moteur vérifie les exemplaires
+  présents et refuse les objets verrouillés. Il ne convertit pas les bijoux en
+  monnaie. Sans paiement valide, les sorties restent bloquées ; aucune issue
+  gratuite n’est ajoutée au cas d’insolvabilité non décrit.
 
 ## Organisation et persistance
 
@@ -122,8 +133,8 @@ existant : le Sorcier conserve son moteur et ses règles.
 `mechanics_implementation` dans le catalogue énumère les passages raccordés ;
 `automation_pending` conserve la liste des passages qui n’ont pas encore une
 intégration complète. Les autres effets ordinaires et rencontres restent à relier,
-ainsi que les illustrations. Cela inclut notamment le tarif en objets précieux
-du §12 et l’épée du §70.
+ainsi que les illustrations. L’épée du §70 reste à intégrer après choix explicite
+de sa politique de bonus et de plafond d’Habileté.
 Les §§29/317 demandent encore de confirmer le mode des deux adversaires.
 Les corrections fournies par l’utilisateur le 22 octobre 2026 lèvent les deux
 blocages de source : §186 complété par Anguille Carnivore H5/E4 et victoire au
