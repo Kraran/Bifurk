@@ -20,6 +20,7 @@
     "icon_background": "#4b2925",
     "icon_border": "#ba9459",
     "icon_ink": "#f5d89c",
-    "link": "#123f70"
+    "link": "#123f70",
+    "defeated_enemy": "#aaa39b"
   }
 }
