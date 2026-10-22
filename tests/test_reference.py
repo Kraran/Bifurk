@@ -315,7 +315,7 @@ class Reference(unittest.TestCase):
         labels = [w.event_layout.itemAt(i).widget().text()
                   for i in range(w.event_layout.count())
                   if hasattr(w.event_layout.itemAt(i).widget(), "text")]
-        self.assertTrue(any("Lancer le dé" in t for t in labels))
+        self.assertTrue(any("Lancer les 2 dés" in t for t in labels))
         self.assertTrue(any("§208" in w.choice_layout.itemAt(i).widget().text()
                             for i in range(w.choice_layout.count())
                             if hasattr(w.choice_layout.itemAt(i).widget(), "text")))

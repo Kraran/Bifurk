@@ -147,9 +147,9 @@ class GrimoireInterfaceTests(unittest.TestCase):
             QTest.mouseDClick(w.scene_art, Qt.LeftButton)
             popup.assert_called_once_with(book_cover, "Couverture du grimoire")
             popup.reset_mock()
-            name = w.choice_layout.itemAt(1).widget()
+            name = w.creation_name_field
             name.setText('Éléanor')
-            w.choice_layout.itemAt(2).widget().click()
+            w.creation_start_button.click()
             self.assertEqual(w.current_paragraph, 1)
             self.assertEqual(w.scene_entry, chapter_art)
             QTest.mouseDClick(w.scene_art, Qt.LeftButton)
@@ -160,7 +160,7 @@ class GrimoireInterfaceTests(unittest.TestCase):
             self.assertIn("Le Sorcier de la Montagne de Feu", w.reader.toPlainText())
             w.go_to(2)
             self.assertIsNone(w.current_paragraph)
-            w.choice_layout.itemAt(2).widget().click()
+            w.creation_start_button.click()
             w.go_to(2)
             self.assertEqual(w.scene_entry, book_cover)
 

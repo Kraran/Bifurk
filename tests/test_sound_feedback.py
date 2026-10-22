@@ -129,6 +129,8 @@ class SoundFeedbackTests(unittest.TestCase):
                 self.assertEqual(w.sounds.effects['page'].play_count, 2)
                 w.roll_free_dice('1d6')
                 self.assertEqual(w.sounds.effects['dice'].play_count, 1)
+                with patch.object(QMessageBox, 'question', return_value=QMessageBox.Yes):
+                    w.prepare_encounter({'name': 'Gardien', 'skill': 7, 'stamina': 6})
                 # Le bouton ouvre désormais le combat complet ; ce test audio
                 # isole son lancement, puis exerce un assaut du moteur sans attente.
                 with patch('main.CombatDialog.exec', return_value=QDialog.Rejected) as opened:

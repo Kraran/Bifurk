@@ -240,6 +240,8 @@ class CombatDialogTests(unittest.TestCase):
 
     def drive_modal(self, *, pause_at_player=False):
         """Piloter les vrais événements Qt et fermer proprement même en cas de régression."""
+        self.w.current_paragraph = 1
+        self.w._remember_monster('Gardien')
         observations = []
         failures = []
         timer = QTimer()
