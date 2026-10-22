@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (QDialog, QFrame, QGridLayout, QHBoxLayout, QLabel
 from book_events import combat_skill, verified_entry
 from dice_dialog import DiceCanvas
 from grimoire_ui import ChoiceCard
-from stat_feedback import STAT_LABELS, StatFeedback, rich_stat_anchor
+from stat_feedback import STAT_LABELS, StatFeedback, monster_stat_anchor, rich_stat_anchor
 
 
 class CombatDialog(QDialog):
@@ -185,6 +185,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         controls.addWidget(self.primary)
         layout.addLayout(controls)
         self._trays = {}
+        self.monster_feedback = {}
         self.stat_feedback = StatFeedback(self, {
             key: (self.hero, lambda widget, k=key: rich_stat_anchor(widget,
                   f'{STAT_LABELS[k]} {self.owner.character[k]}')) for key in STAT_LABELS
@@ -239,6 +240,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         """Lire le même état que la fiche principale ; ne pas conserver un second héros."""
         owner = self.owner
         current = owner.enemy_name.text()
+        sequence_index = None
         if owner.current_paragraph in self.paragraphs and not self.outcome:
             entry = verified_entry(owner.book_event_catalogue, owner.current_paragraph) or {}
             mode = entry.get('combat', {}).get('mode')
@@ -247,8 +249,15 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
                 if monster:
                     self.roster.append(copy.deepcopy(monster))
             group = owner._book_state(owner.current_paragraph).get('pair')
-            active = next((e for e in self.roster if e['name'] == current and (e['stamina'] > 0 or e.get('pending'))
-                           and ('group' not in e or e['group'] == group)), None)
+            sequence = owner.book_combat_sequence
+            if mode == 'sequence' and sequence and sequence['paragraph'] == owner.current_paragraph:
+                # Le moteur conserve encore la cible à zéro avant de préparer
+                # la suivante. Son indice évite de modifier un homonyme vivant.
+                sequence_index = sequence['index']
+                active = self.roster[sequence_index] if 0 <= sequence_index < len(self.roster) else None
+            else:
+                active = next((e for e in self.roster if e['name'] == current and (e['stamina'] > 0 or e.get('pending'))
+                               and ('group' not in e or e['group'] == group)), None)
             if active:
                 if mode != 'piranhas' or (owner.piranha_combat or {}).get('status') != 'roll_pending':
                     active['stamina'] = owner.enemy_endurance.value()
@@ -257,7 +266,8 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         parts = []
         active_anchor = None
         for index, enemy in enumerate(self.roster):
-            status = 'Vaincu' if enemy['stamina'] <= 0 else 'Au combat' if enemy['name'] == current else 'En attente'
+            is_current = index == sequence_index if sequence_index is not None else enemy['name'] == current
+            status = 'Vaincu' if enemy['stamina'] <= 0 else 'Au combat' if is_current else 'En attente'
             if 'group' in enemy:
                 group = owner._book_state(self.origin).get('pair', -1)
                 if enemy['group'] < group and enemy['stamina'] > 0:
@@ -271,11 +281,16 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
                 status = 'Jet préalable nécessaire'
             if status == 'Au combat':
                 active_anchor = f'enemy-{index}'
-            parts.append(f"<a name='enemy-{index}'></a><b>{html.escape(enemy['name'])}</b><br>"
-                         f"Habileté {enemy['skill']}<br>Endurance {stamina}<br><small>{status}</small>")
-        self.enemies.setText('<br><br>'.join(parts) or 'Adversaire à déterminer selon le livre.')
+            parts.append(f"<p><a name='enemy-{index}'></a><b>{html.escape(enemy['name'])}</b><br>"
+                         f"Habileté {enemy['skill']}<br>Endurance {stamina}<br><small>{status}</small></p>")
+        previous_scroll = self.enemies.verticalScrollBar().value()
+        self.enemies.setText(''.join(parts) or 'Adversaire à déterminer selon le livre.')
         if active_anchor:
             self.enemies.scrollToAnchor(active_anchor)
+        else:
+            # Le dernier coup reste visible quand la cible passe à zéro :
+            # aucun ennemi vivant ne fournit alors d'ancre de recentrage.
+            self.enemies.verticalScrollBar().setValue(previous_scroll)
         char = owner.character
         self.hero.setText(f"<b>{html.escape(char.get('name') or 'Votre aventurier')}</b><br>"
                           f"Habileté {char['habilete']}<br>Endurance {char['endurance']}<br>Chance {char['chance']}"
@@ -294,6 +309,33 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.stat_feedback.observe(char,
             enabled=self.isVisible() and not self.owner._restoring,
             batch=self.owner._feedback_action_id)
+        self._refresh_monster_feedback()
+
+    def _refresh_monster_feedback(self):
+        """Comparer chaque adversaire à ses propres valeurs, y compris après sa mort.
+
+        L'indice dans la liste reste stable lors des combats successifs ou par
+        paires. L'arrivée du suivant n'est donc jamais interprétée comme un soin.
+        Les valeurs provisoires des Piranhas ne servent pas de référence.
+        """
+        for index, enemy in enumerate(self.roster):
+            feedback = self.monster_feedback.get(index)
+            if enemy.get('pending'):
+                if feedback is not None:
+                    feedback.clear()
+                    feedback.previous = None
+                continue
+            if feedback is None:
+                viewport = self.enemies.viewport()
+                feedback = StatFeedback(viewport, {
+                    key: (viewport, lambda widget, i=index, k=key: monster_stat_anchor(
+                        self.enemies, i, f'{STAT_LABELS[k]} {self.roster[i]["skill" if k == "habilete" else "stamina"]}'))
+                    for key in ('habilete', 'endurance')
+                }, lambda: self.owner.theme)
+                self.monster_feedback[index] = feedback
+            feedback.observe({'habilete': enemy['skill'], 'endurance': enemy['stamina']},
+                enabled=self.isVisible() and not self.owner._restoring,
+                batch=self.owner._feedback_action_id)
 
     def _refresh_footer(self):
         """Stabiliser Fuir / Soins en bas, sans autoriser une action concurrente au lancer."""

@@ -13,6 +13,27 @@ from PySide6.QtWidgets import QLabel
 STAT_LABELS = {'habilete': 'Habileté', 'endurance': 'Endurance', 'chance': 'Chance'}
 
 
+def monster_stat_anchor(browser, index, phrase):
+    """Suivre une ligne du monstre dans le document défilant, sans confondre les homonymes.
+
+    Chaque adversaire possède son paragraphe HTML. cursorRect fournit la
+    position dans le viewport et tient compte du défilement. Une ligne hors
+    écran ne doit pas produire de badge flottant sur un autre adversaire.
+    """
+    block = browser.document().findBlockByNumber(index)
+    if not block.isValid():
+        return None
+    text = block.text()
+    start = text.rfind(phrase)
+    if start < 0:
+        return None
+    cursor = QTextCursor(block)
+    cursor.setPosition(block.position() + len(text[:start].encode('utf-16-le')) // 2)
+    rect = browser.cursorRect(cursor)
+    point = QPointF(browser.viewport().width() - 4, rect.center().y())
+    return point if browser.viewport().rect().contains(point.toPoint()) else None
+
+
 def rich_stat_anchor(widget, phrase):
     """Localiser une ligne du héros même si son nom occupe plusieurs lignes.
 
@@ -72,7 +93,6 @@ class StatBadge(QLabel):
         self.animation.stop()
         self.progress = 0.0
         self._position()
-        self.show()
         self.raise_()
         self.animation.start()
 
@@ -87,12 +107,16 @@ class StatBadge(QLabel):
         width = max(36, QFontMetrics(self._font()).horizontalAdvance(self.text()) + 18)
         local = (self.placement(self.anchor) if self.placement else
                  QPointF(self.anchor.width() / 2, self.anchor.height() / 2))
+        if local is None:
+            self.hide()
+            return
         point = QPointF(self.anchor.mapTo(self.parentWidget(), local.toPoint()))
         x = point.x() - (width if self.placement else width / 2)
         y = point.y() - 13 - self.progress * 10
         x = max(4, min(self.parentWidget().width() - width - 4, x))
         y = max(4, min(self.parentWidget().height() - 30, y))
         self.setGeometry(round(x), round(y), width, 26)
+        self.show()
 
     def _advance(self, progress):
         self.progress = float(progress)
@@ -146,6 +170,8 @@ class StatFeedback(QObject):
                 continue
             anchor, placement = self.targets[key]
             if not anchor.isVisible() or anchor.visibleRegion().isEmpty():
+                continue
+            if placement is not None and placement(anchor) is None:
                 continue
             old = self.active.get(key)
             total = delta
