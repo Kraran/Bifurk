@@ -5,7 +5,7 @@ _ff_* sont des méthodes ordinaires déléguées vers l'adaptateur ouvert : aucu
 exception du Sorcier ni import de son module n'est nécessaire à ce socle.
 """
 from PySide6.QtWidgets import QMessageBox
-from book_events import verified_entry, apply_effects
+from book_events import verified_entry, apply_effects, equipped_weapon, equip_weapon
 from .rules import (POTION_STATS, POTION_DOSES, adventurer_stats, spend_luck,
                     combat_damage, potion_useful, drink_potion, eat_meal,
                     flee_available, escape_damage)
@@ -13,6 +13,17 @@ from .rules import (POTION_STATS, POTION_DOSES, adventurer_stats, spend_luck,
 
 class FightingFantasyActions:
     """Fournir création, soins, assauts et fuite ; le livre étend seulement les exceptions."""
+    def _ff_weapon_choices(self):
+        """Armes historiques du Sorcier ; une autre aventure définit sa propre liste."""
+        return [name for name in ('Épée','Épée magique','Épée trouvée dans la rivière')
+                if name in self.character.get('inventory', [])]
+
+    def _ff_equipped_weapon(self):
+        return equipped_weapon(self.character)
+
+    def _ff_equip_weapon(self, name):
+        return equip_weapon(self.character,name)
+
     def _ff_item_removed(self, name):
         """Notifier un retrait manuel ; le socle n’attribue aucun pouvoir aux objets."""
 

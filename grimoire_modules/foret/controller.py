@@ -33,7 +33,7 @@ class ForetController(ForetMechanicsActions):
             return set()
         if self.current_paragraph in rules.PAYMENT_PARAGRAPHS and not rules.payment_resolved(self.character, self.current_paragraph):
             return set()
-        if self.current_paragraph in (73,309,52,266,304,328,262,204,388,98,259,278,34,308) and not self._book_state(self.current_paragraph).get('foret_resolved'):
+        if self.current_paragraph in (73,309,52,266,304,328,262,204,388,98,259,278,34,308,70,192,46,395,370) and not self._book_state(self.current_paragraph).get('foret_resolved'):
             return set()
         if self.current_paragraph == 372 and not self._book_state(372).get('foret_resolved'):
             return {288} & set(self.paragraphs)
@@ -55,6 +55,14 @@ class ForetController(ForetMechanicsActions):
             QMessageBox.information(self, 'Paragraphe absent', f'Le paragraphe {number} est introuvable.')
             return
         previous = self.current_paragraph
+        if previous == 356 and number == 231 and not self._restoring:
+            # Cette sortie signifie jeter la lampe, pas la ranger pour un vœu futur.
+            if 'Lanterne magique' in self.character.get('inventory', []):
+                rules.pay(self.character,items=['Lanterne magique'])
+            if not rules.entry_resolved(self.character,356):
+                rules.reward(self.character,'entry:356')
+            rules.state(self.character)['lantern_used'] = True
+            self._refresh_character()
         if not self._restoring and previous != number:
             self.sounds.play('page')
             if previous is not None:

@@ -164,3 +164,5 @@ Voir [le détail de cette étape](docs/foret-module-presentation.md).
 La revue des **400 paragraphes de la Forêt** est terminée : titres, choix et mécaniques sont catalogués. Les événements sont en cours d’intégration ; les anomalies du PDF aux §§186 et 267 sont corrigées grâce aux précisions fournies. Voir [le bilan et les contrôles](docs/reviews/foret-400-paragraphes.md).
 
 L’étape 4 ajoute la boutique, les charges, les équipements, les épreuves et les combats particuliers de la Forêt. Le module reste en préparation : [périmètre et tests](docs/foret-mecaniques-particulieres.md).
+
+La suite des mécaniques de la Forêt ajoute les échanges du Gnome, l’épée enchantée, les branches de la lanterne, les trésors et les repas hors combat. Voir [les règles et interprétations retenues](docs/foret-mecaniques-particulieres.md).
