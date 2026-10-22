@@ -324,6 +324,29 @@ class MainWindow(QMainWindow, ModuleActions):
         if startup:
             QTimer.singleShot(0, self._show_startup_menu)
 
+    def _play_startup_intro(self):
+        """Jouer le film avant le menu ; le même lecteur musical accompagne les deux."""
+        self.intro_music.menu()
+        path = ASSET_DIR / 'video' / 'introduction.mp4'
+        if QApplication.platformName() in ('offscreen', 'minimal') or not path.is_file():
+            self.show()
+            self._show_startup_menu()
+            return
+        from intro_video import IntroVideoDialog
+        dialog = IntroVideoDialog(path, self)
+        self._intro_dialog = dialog  # Garder le lecteur vivant pendant la cinématique.
+
+        def continue_to_game():
+            self._intro_dialog = None
+            self.show()
+            dialog.deleteLater()
+            # Attendre le retrait de la vidéo avant d'ouvrir le menu modal.
+            QTimer.singleShot(0, self._show_startup_menu)
+
+        dialog.finished.connect(continue_to_game)
+        dialog.showMaximized()
+        dialog.start()
+
     def _save_preferences(self):
         """Enregistrer les choix d’interface séparément de l’état des sauvegardes."""
         try:
@@ -2297,11 +2320,11 @@ def main():
                 app._bifurk_translators.append(translator)
                 break
     app.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
-    window = MainWindow(startup=True)
+    window = MainWindow()
     app.setStyleSheet(window.styleSheet())
     app._bifurk_dialog_filter = DialogThemeFilter(app)
     app.installEventFilter(app._bifurk_dialog_filter)
-    window.show()
+    QTimer.singleShot(0, window._play_startup_intro)
     sys.exit(app.exec())
 
 if __name__ == "__main__":
