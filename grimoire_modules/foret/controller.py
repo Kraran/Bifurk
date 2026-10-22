@@ -1,18 +1,19 @@
-"""Adaptateur de présentation de la Forêt, sans automatismes de paragraphes.
+"""Adaptateur de la Forêt : consultation et mécaniques explicitement intégrées.
 
 La consultation conserve le héros et les sauvegardes, mais n'invente aucune règle
 à partir du texte. Les 400 entrées sont analysées ; aucune action du Sorcier
-n'est héritée. Les événements seront ajoutés lors des étapes suivantes.
+n'est héritée. Les profils et actions intégrés sont séparés de l’analyse documentaire.
 """
 import re
 from PySide6.QtGui import QTextCursor
-from PySide6.QtWidgets import QLabel, QMessageBox, QPushButton
+from PySide6.QtWidgets import QLabel, QMessageBox
 from grimoire_ui import ChoiceCard
 from navigation import choice_caption
-from grimoire_modules.fighting_fantasy.controller import FightingFantasyActions
+from .actions import ForetMechanicsActions
+from . import rules
 
 
-class ForetController(FightingFantasyActions):
+class ForetController(ForetMechanicsActions):
     """Consulter la couverture, les règles, le prologue et les renvois explicites."""
     def _analysed_reading_entry(self):
         """Lire uniquement les métadonnées de consultation, jamais des effets de jeu."""
@@ -21,19 +22,30 @@ class ForetController(FightingFantasyActions):
 
     def _reading_link_targets(self):
         """Un renvoi illisible ou supposé ne doit pas devenir un lien cliquable."""
+        if self.combat_available():
+            return set()
+        combat = self._foret_combat()
+        if combat and (combat['finished'] or combat.get('escaped')):
+            profile = self._combat_entry(self.current_paragraph)['combat']
+            key = 'escape_target' if combat.get('escaped') else 'victory_target'
+            return {profile.get(key)} & set(self.paragraphs)
+        if self.current_paragraph in rules.ENTRY_RULES and not rules.ENTRY_RULES[self.current_paragraph].get('optional') and not rules.entry_resolved(self.character, self.current_paragraph):
+            return set()
+        if self.current_paragraph in rules.PAYMENT_PARAGRAPHS and not rules.payment_resolved(self.character, self.current_paragraph):
+            return set()
+        if self.current_paragraph in (73,309,52,266,304,328,262,204,388,98,259,278,34,308) and not self._book_state(self.current_paragraph).get('foret_resolved'):
+            return set()
+        if self.current_paragraph == 372 and not self._book_state(372).get('foret_resolved'):
+            return {288} & set(self.paragraphs)
+        resolved_target = self._book_state(self.current_paragraph).get('foret_target')
+        if resolved_target is not None:
+            return {resolved_target} & set(self.paragraphs)
         return {route['target'] for route in self._analysed_reading_entry().get('routes', [])
-                if route['target'] in self.paragraphs}
-
-    def combat_available(self):
-        """Les combats de la Forêt ne sont pas encore vérifiés ni automatisés."""
-        return False
-
-    def combat_round(self):
-        """Refuser aussi un appel direct tant que les rencontres ne sont pas intégrées."""
-        self.rules_log.setText('Les combats de cette aventure sont encore en préparation.')
+                if route['target'] in self.paragraphs
+                and rules.route_available(self.character, self.current_paragraph, route['target'])}
 
     def go_to(self, number):
-        """Afficher un passage sans appliquer d'effet ni préparer un combat par déduction."""
+        """Afficher le passage et préparer seulement les profils intégrés, sans déduction du texte."""
         if self._adventurer_draft is not None and not self._restoring:
             return
         if self.character['endurance'] <= 0 and not self._restoring:
@@ -48,8 +60,17 @@ class ForetController(FightingFantasyActions):
             if previous is not None:
                 self.transitions.append([previous, number])
         self.current_paragraph = number
+        if number == 98 and previous != number and not self._restoring:
+            # Chaque nouvelle tentative de retour à Yaztromo traverse une nouvelle
+            # embuscade ; une réussite ancienne ne doit pas ouvrir le chemin.
+            self._book_state(number, True).pop('foret_resolved', None)
+            self._book_state(number, True).pop('foret_target', None)
         if number not in self.visited_paragraphs:
             self.visited_paragraphs.append(number)
+        self._foret_prepare_combat()
+        if number == 156 and previous != number and not self._restoring:
+            rules.damage_hero(self.character, 3)
+            self._refresh_character()
         self.goto_spin.setValue(number)
         self.paragraph_title.setText(self._paragraph_name(number) or 'La Forêt de la Malédiction')
         self.paragraph_number.setText(f'§ {number}')
@@ -71,10 +92,11 @@ class ForetController(FightingFantasyActions):
             button = ChoiceCard(choice_caption(choice['label'], target))
             button.setObjectName('choiceCard')
             if choice.get('condition_text'):
-                button.setToolTip('Condition du livre (non contrôlée) : ' + choice['condition_text'])
-            button.setEnabled(target in self.paragraphs)
+                button.setToolTip('Condition du livre : ' + choice['condition_text'])
+            button.setEnabled(target in self._reading_link_targets())
             button.clicked.connect(lambda checked=False, n=target: self.go_to(n))
             self.choice_layout.addWidget(button)
+        self._foret_mechanics_buttons()
         for route in self._analysed_reading_entry().get('unresolved_routes', []):
             button = ChoiceCard(route['label'])
             button.setEnabled(False)
@@ -85,7 +107,7 @@ class ForetController(FightingFantasyActions):
                 warning = QLabel('Source à confirmer : ' + issue['details'])
                 warning.setWordWrap(True)
                 self.event_layout.addWidget(warning)
-        notice = QLabel('Les 400 paragraphes sont analysés. Aventure en préparation : les événements et combats ne sont pas encore automatisés. '
+        notice = QLabel('Aventure en préparation : les mécaniques intégrées disposent de boutons dédiés ; les autres événements restent en cours d’intégration. '
                         'Les renvois permettent pour le moment de consulter le livre.')
         notice.setWordWrap(True)
         self.event_layout.addWidget(notice)

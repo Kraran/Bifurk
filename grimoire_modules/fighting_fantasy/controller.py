@@ -13,6 +13,21 @@ from .rules import (POTION_STATS, POTION_DOSES, adventurer_stats, spend_luck,
 
 class FightingFantasyActions:
     """Fournir création, soins, assauts et fuite ; le livre étend seulement les exceptions."""
+    def _ff_item_removed(self, name):
+        """Notifier un retrait manuel ; le socle n’attribue aucun pouvoir aux objets."""
+
+    def _combat_entry(self, number):
+        """Lire une rencontre vérifiée ; le module peut valider ses profils séparément."""
+        return verified_entry(self.book_event_catalogue, number)
+
+    def _combat_roster(self):
+        """None conserve le suivi historique du dialogue de combat."""
+        return None
+
+    def _ff_after_attack_rolls(self):
+        """Autoriser la résolution après les jets ; une aventure peut intercaler un danger."""
+        return True
+
     def _reading_link_targets(self):
         """Limiter les liens du lecteur ; chaque module peut filtrer ses renvois."""
         return self.paragraphs
@@ -56,7 +71,7 @@ class FightingFantasyActions:
         if (not state or self.current_paragraph != state["paragraph"]
                 or self.enemy_endurance.value() > 0):
             return
-        entry = verified_entry(self.book_event_catalogue, state["paragraph"])
+        entry = self._combat_entry(state["paragraph"])
         if not entry:
             return
         combat = entry.get("combat", {})
@@ -86,7 +101,7 @@ class FightingFantasyActions:
         """Fuite vérifiée : restriction d'assauts, blessure, Chance puis navigation."""
         if number != self.current_paragraph:
             return
-        entry = verified_entry(self.book_event_catalogue, number)
+        entry = self._combat_entry(number)
         rules = entry.get("combat", {}) if entry else {}
         target = rules.get("escape_target")
         if self._ff_escape_override(number, rules):
@@ -131,7 +146,7 @@ class FightingFantasyActions:
         if (self.current_paragraph is None or self._adventurer_draft is not None
                 or self.character['endurance'] <= 0):
             return False
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+        entry = self._combat_entry(self.current_paragraph) or {}
         combat = entry.get('combat', {})
         if combat.get('precombat_escape'):
             return True
@@ -179,7 +194,7 @@ class FightingFantasyActions:
         nécessaires doivent être chargées : sinon
         le bouton serait actif alors que le moteur refuse de résoudre le jet.
         """
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+        entry = self._combat_entry(self.current_paragraph) or {}
         combat = entry.get('combat', {})
         target = combat.get('escape_target')
         if target is None:
@@ -233,7 +248,7 @@ class FightingFantasyActions:
         cap = self.character.get("initial", {}).get("endurance", current)
         self._refresh_character()
         self.rules_log.setText(f"Repas consommé : Endurance {current} → {self.character['endurance']} (maximum {cap}). Provisions -1.")
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        entry = self._combat_entry(self.current_paragraph)
         if (entry and entry.get("optional_meal")
                 and self.current_paragraph in self.paragraphs):
             self._render_choices_and_events(self.paragraphs[self.current_paragraph])
@@ -273,6 +288,10 @@ class FightingFantasyActions:
         enemy_attack = self.enemy_skill.value() + enemy_total
         player_attack = combat_rules.get("skill", self.character["habilete"]) + player_total + combat_rules.get("attack_bonus", 0)
         self.sounds.play("swords")
+        if not self._ff_after_attack_rolls():
+            self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack,
+                              'Assaut interrompu par le danger spécial')
+            return
         if player_attack == enemy_attack:
             self.rules_log.setText(f"Égalité ({player_attack} contre {enemy_attack}) : aucun dégât. Relancez l'assaut.")
             self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, "Parade")
@@ -366,7 +385,7 @@ class FightingFantasyActions:
 
     def _ff_after_hit(self):
         """Suivre une victoire ordinaire seulement si le catalogue donne sa destination."""
-        combat = (verified_entry(self.book_event_catalogue, self.current_paragraph) or {}).get('combat', {})
+        combat = (self._combat_entry(self.current_paragraph) or {}).get('combat', {})
         if self.enemy_endurance.value() <= 0 and self.character['endurance'] > 0:
             target = combat.get('victory_target')
             if target in self.paragraphs:
@@ -391,7 +410,7 @@ class FightingFantasyActions:
 
     def _ff_meal_status(self):
         """Un repas ordinaire exige une autorisation du passage, sans exception de lieu."""
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+        entry = self._combat_entry(self.current_paragraph) or {}
         char = self.character
         useful = char['endurance'] < char.get('initial', {}).get('endurance', char['endurance'])
         taken = self._book_state(self.current_paragraph).get('care_meal_taken')
@@ -403,14 +422,14 @@ class FightingFantasyActions:
 
     def _ff_record_assault(self):
         """Compter l'assaut pour le délai de fuite, sans compteur propre à un monstre."""
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+        entry = self._combat_entry(self.current_paragraph) or {}
         if 'escape_target' in entry.get('combat', {}):
             number = self.current_paragraph
             self.book_combat_assaults[number] = self.book_combat_assaults.get(number, 0) + 1
 
     def _ff_finish_assault(self, number):
         """Rafraîchir les commandes de fuite après l'assaut, dans la transaction courante."""
-        current = verified_entry(self.book_event_catalogue, self.current_paragraph)
+        current = self._combat_entry(self.current_paragraph)
         if (current and 'escape_target' in current.get('combat', {})
                 and self.current_paragraph in self.paragraphs):
             self._render_choices_and_events(self.paragraphs[self.current_paragraph])

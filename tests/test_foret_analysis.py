@@ -38,6 +38,10 @@ class ForetAnalysisTests(unittest.TestCase):
     def test_invalid_reference_cannot_be_followed_through_text(self):
         owner = SimpleNamespace(book_event_catalogue=self.data, current_paragraph=267,
                                 paragraphs={1:'',25:'',196:''}, visited=[])
+        owner.character = {'endurance':10}
+        owner.combat_available = lambda: False
+        owner._foret_combat = lambda: None
+        owner._book_state = lambda number: {}
         owner._analysed_reading_entry = lambda: ForetController._analysed_reading_entry(owner)
         owner._reading_link_targets = lambda: ForetController._reading_link_targets(owner)
         owner.go_to = owner.visited.append

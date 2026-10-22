@@ -1,5 +1,8 @@
 # La Forêt de la Malédiction — revue des 400 paragraphes
 
+Ce document décrit l’état de l’étape 3. Les ajouts exécutables ultérieurs sont
+détaillés dans [les mécaniques particulières](../foret-mecaniques-particulieres.md).
+
 La revue couvre les 400 passages de l’édition privée identifiée par le SHA-256
 `0abac11c0e88ce244c5513bf4b1537fa46159df5606d3e3c8c28b83e6614f6e1`.
 Chaque entrée du catalogue contient un titre local, des libellés de choix,

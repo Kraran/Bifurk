@@ -99,6 +99,186 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(self.w.character, before)
         self.assertEqual(self.roll.call_count, dice)
 
+    def test_shop_purchases_are_saved_and_undoable_without_free_charges(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        self.w.paragraphs[261] = 'Les achats.'
+        self.w.go_to(261)
+        before = self.w._snapshot()
+        self.w.perform_foret_action('buy', ('Bottes à Bondir', 2))
+        self.assertEqual(self.w.character['gold'], 26)
+        self.assertEqual(rules.available(self.w.character, 'Bottes de Saut'), 2)
+        path = main.SAVES_DIR/'emplacement-1.json'
+        self.w._write_atomic(path, self.w._save_data())
+        self.w._restore(before)
+        self.assertEqual(rules.available(self.w.character, 'Bottes à Bondir'), 0)
+        self.assertTrue(self.w.load_game(path, announce=False))
+        self.assertEqual(rules.available(self.w.character, 'Bottes à Bondir'), 2)
+
+    def test_pair_can_change_target_each_round_and_popup_reads_both_enemies(self):
+        from combat_dialog import CombatDialog
+        self.open()
+        self.start()
+        self.w.paragraphs[377] = 'Deux adversaires.'
+        self.w.go_to(377)
+        with patch.object(self.w, '_assault_luck_choice', return_value=QMessageBox.No):
+            self.w.perform_foret_action('target', 1)
+            self.w.combat_round()
+            self.assertEqual([enemy['stamina'] for enemy in self.w._foret_combat()['groups'][0]], [5,4])
+            self.w.perform_foret_action('target', 0)
+            self.w.combat_round()
+        self.assertEqual([enemy['stamina'] for enemy in self.w._foret_combat()['groups'][0]], [3,4])
+        dialog = CombatDialog(self.w)
+        self.addCleanup(dialog.deleteLater)
+        self.assertEqual([enemy['stamina'] for enemy in dialog.roster], [3,4])
+        self.assertEqual(self.w._foret_combat()['assaults'], 2)
+
+    def test_rock_beast_flee_is_enabled_after_exactly_three_assaults(self):
+        self.open()
+        self.start()
+        self.w.character['habilete'] = 8
+        self.w.paragraphs.update({84:'Une bête.',245:'Le chemin.'})
+        self.w.go_to(84)
+        for index in range(3):
+            self.assertFalse(self.w.can_flee_combat())
+            self.w.combat_round()
+        self.assertTrue(self.w.can_flee_combat())
+        before = self.w.character['endurance']
+        with patch.object(self.w, '_ask_combat_question', return_value=QMessageBox.No):
+            self.w.escape_scripted_combat(84)
+        self.assertEqual(self.w.current_paragraph,245)
+        self.assertEqual(self.w.character['endurance'],before-2)
+
+    def test_ghoul_fourth_wounding_hit_ends_adventure(self):
+        self.open()
+        self.start()
+        self.w.character['habilete'] = 1
+        self.w.character['endurance'] = 20
+        self.w.paragraphs[227] = 'Une goule.'
+        self.w.go_to(227)
+        with patch.object(self.w, '_assault_luck_choice', return_value=QMessageBox.No):
+            for index in range(3):
+                self.w.combat_round()
+                self.assertGreater(self.w.character['endurance'],0)
+            self.w.combat_round()
+        self.assertEqual(self.w.character['endurance'],0)
+        self.assertFalse(self.w.combat_available())
+
+    def test_lethal_whip_stops_normal_damage_and_further_dice(self):
+        self.open()
+        self.start()
+        self.w.character['endurance'] = 1
+        self.w.paragraphs[107] = 'Un démon.'
+        self.w.go_to(107)
+        with patch.object(self.w, '_roll', side_effect=[([3,3],6),([3,3],6),([1],1)]) as roll, \
+                patch.object(self.w, '_ask_combat_question', return_value=QMessageBox.No):
+            self.w.combat_round()
+        self.assertEqual(roll.call_count,3)
+        self.assertEqual(self.w.character['endurance'],0)
+        self.assertEqual(self.w._foret_combat()['groups'][0][0]['stamina'],10)
+
+    def test_popup_does_not_declare_victory_after_only_one_pygmy_dies(self):
+        from combat_dialog import CombatDialog
+        from unittest.mock import Mock
+        self.open()
+        self.start()
+        self.w.paragraphs[377] = 'Deux adversaires.'
+        self.w.go_to(377)
+        self.w._foret_combat()['groups'][0][0]['stamina'] = 2
+        self.w._foret_sync_enemy()
+        dialog = CombatDialog(self.w)
+        self.addCleanup(dialog.deleteLater)
+        dialog.present_roll = Mock()
+        dialog.choose_luck = Mock(return_value=False)
+        self.w._combat_dialog = dialog
+        self.addCleanup(setattr, self.w, '_combat_dialog', None)
+        with patch.object(self.w, '_assault_luck_choice', return_value=QMessageBox.No):
+            dialog._run(self.w.combat_round)
+        self.assertIsNone(dialog.outcome)
+        self.assertEqual([enemy['stamina'] for enemy in dialog.roster],[0,6])
+        self.assertEqual(self.w.enemy_name.text(),'Pygmée B')
+
+    def test_flee_platform_applies_both_escape_wound_and_fall(self):
+        self.open()
+        self.start()
+        self.w.paragraphs.update({352:'Un adversaire.',156:'Une chute.'})
+        self.w.go_to(352)
+        before = self.w.character['endurance']
+        with patch.object(self.w, '_ask_combat_question', return_value=QMessageBox.No):
+            self.w.escape_scripted_combat(352)
+        self.assertEqual(self.w.character['endurance'],before-5)
+        snapshot = self.w._snapshot()
+        self.w._restore(snapshot)
+        self.assertEqual(self.w.character['endurance'],before-5)
+
+    def test_lethal_fever_does_not_roll_dice(self):
+        self.open()
+        self.start()
+        self.w.paragraphs[259] = 'La fièvre.'
+        self.w.go_to(259)
+        self.w.character['endurance'] = 3
+        dice = self.roll.call_count
+        self.w.perform_foret_action('fever')
+        self.assertEqual(self.roll.call_count,dice)
+        self.assertEqual(self.w.character['endurance'],0)
+
+    def test_popup_full_hunter_sequence_only_ends_after_last_pair(self):
+        from combat_dialog import CombatDialog
+        from unittest.mock import Mock
+        self.open()
+        self.start()
+        self.w.character['habilete'] = 20
+        self.w.paragraphs.update({96:'Les chasseurs.',62:'Après les chasseurs.'})
+        self.w.go_to(96)
+        dialog = CombatDialog(self.w)
+        self.addCleanup(dialog.deleteLater)
+        dialog.present_roll = Mock()
+        self.w._combat_dialog = dialog
+        self.addCleanup(setattr,self.w,'_combat_dialog',None)
+        with patch.object(self.w,'_assault_luck_choice',return_value=QMessageBox.No):
+            for _ in range(30):
+                if dialog.outcome:
+                    break
+                dialog._run(self.w.combat_round)
+        self.assertEqual(dialog.outcome,'Victoire')
+        self.assertEqual(self.w.current_paragraph,62)
+        self.assertTrue(all(enemy['stamina'] == 0 for enemy in dialog.roster))
+
+    def test_manual_discard_removes_purchase_charge_and_cursed_ring_stays_locked(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        self.w.paragraphs[261] = 'Les achats.'
+        self.w.go_to(261)
+        self.w.perform_foret_action('buy',('Anneau de Lumière',1))
+        row = self.w.character['inventory'].index('Anneau de Lumière')
+        self.w.inventory_list.setCurrentRow(row)
+        self.w.remove_item()
+        self.assertEqual(rules.peek(self.w.character)['charges']['Anneau de Lumière'],0)
+        self.w.paragraphs[133] = 'Un anneau.'
+        self.w.go_to(133)
+        self.w.perform_foret_action('entry')
+        row = self.w.character['inventory'].index('Anneau de Lenteur')
+        self.w.inventory_list.setCurrentRow(row)
+        self.w.remove_item()
+        self.assertIn('Anneau de Lenteur',self.w.character['inventory'])
+
+    def test_return_to_yaztromo_requires_a_new_luck_test_each_visit(self):
+        self.open()
+        self.start()
+        self.w.paragraphs[98] = 'Le retour dangereux.'
+        self.w.character['chance'] = 10
+        dice = self.roll.call_count
+        for _ in range(2):
+            self.w.go_to(98)
+            self.assertNotIn(1,self.w._reading_link_targets())
+            self.w.perform_foret_action('ambush')
+            self.assertEqual(self.w.current_paragraph,1)
+        self.assertEqual(self.roll.call_count,dice+2)
+        self.assertEqual(self.w.character['chance'],8)
+        self.assertEqual(self.w.character['gold'],30)
+
     def test_prologue_is_private_page_view_and_never_awards_resources_twice(self):
         self.open()
         before = self.w._snapshot()

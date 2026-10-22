@@ -15,7 +15,6 @@ from PySide6.QtWidgets import (QDialog, QFrame, QGridLayout, QHBoxLayout, QLabel
                                QPushButton, QTextBrowser, QVBoxLayout, QScrollArea,
                                QWidget, QSizePolicy, QLayout, QComboBox, QCheckBox)
 
-from book_events import verified_entry
 from dice_dialog import DiceCanvas
 from grimoire_ui import ChoiceCard
 from stat_feedback import STAT_LABELS, StatFeedback, monster_stat_anchor, rich_stat_anchor
@@ -206,7 +205,10 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
 
     def _initial_roster(self):
         """Afficher les seuls ennemis du combat courant, sans dévoiler d'autres lieux."""
-        entry = verified_entry(self.owner.book_event_catalogue, self.origin) or {}
+        special = self.owner._combat_roster()
+        if special is not None:
+            return special
+        entry = self.owner._combat_entry(self.origin) or {}
         combat = entry.get('combat', {})
         if combat.get('mode') == 'sequence':
             roster = copy.deepcopy(combat['enemies'])
@@ -239,10 +241,13 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
     def refresh_stats(self):
         """Lire le même état que la fiche principale ; ne pas conserver un second héros."""
         owner = self.owner
+        special = owner._combat_roster()
+        if special is not None:
+            self.roster = special
         current = owner.enemy_name.text()
         sequence_index = None
         if owner.current_paragraph in self.paragraphs and not self.outcome:
-            entry = verified_entry(owner.book_event_catalogue, owner.current_paragraph) or {}
+            entry = owner._combat_entry(owner.current_paragraph) or {}
             mode = entry.get('combat', {}).get('mode')
             if mode == 'wandering' and not self.roster:
                 monster = owner._book_state(owner.current_paragraph).get('monster')
@@ -476,7 +481,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
     def _round_available(self):
         """Respecter les préconditions du livre avant toute préparation d'assaut."""
         owner = self.owner
-        entry = verified_entry(owner.book_event_catalogue, owner.current_paragraph) or {}
+        entry = owner._combat_entry(owner.current_paragraph) or {}
         if entry.get('combat', {}).get('precombat_escape'):
             return False
         crocodile = owner.crocodile_combat
@@ -498,7 +503,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             self.actions.itemAt(index).widget().setEnabled(False)
         self._last_enemy_dead = False
         before = self.owner.current_paragraph
-        entry = verified_entry(self.owner.book_event_catalogue, before) or {}
+        entry = self.owner._combat_entry(before) or {}
         mode = entry.get('combat', {}).get('mode')
         try:
             action()
@@ -509,7 +514,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             self.primary.setEnabled(False)
         owner = self.owner
         after = owner.current_paragraph
-        next_entry = verified_entry(owner.book_event_catalogue, after) or {}
+        next_entry = owner._combat_entry(after) or {}
         continuation = mode in ('silver', 'invulnerable') and next_entry.get('combat', {}).get('mode') == 'silver'
         if continuation:
             self.paragraphs.add(after)
