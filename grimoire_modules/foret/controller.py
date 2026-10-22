@@ -33,7 +33,7 @@ class ForetController(ForetMechanicsActions):
             return set()
         if self.current_paragraph in rules.PAYMENT_PARAGRAPHS and not rules.payment_resolved(self.character, self.current_paragraph):
             return set()
-        if self.current_paragraph in (73,309,52,266,304,328,262,204,388,98,259,278,34,308,395,154,370) and not self._book_state(self.current_paragraph).get('foret_resolved'):
+        if self.current_paragraph in (73,309,52,266,304,328,262,204,388,98,259,278,34,308,395,154,370,192) and not self._book_state(self.current_paragraph).get('foret_resolved'):
             return set()
         if self.current_paragraph == 372 and not self._book_state(372).get('foret_resolved'):
             return {288} & set(self.paragraphs)

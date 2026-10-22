@@ -106,8 +106,8 @@ def _validate_payment(character, gold, items, *, magic_only=False, units=None):
     inventory = Counter(character.get('inventory', []))
     if any(not isinstance(name, str) or count > inventory[name] for name, count in selected.items()):
         raise ValueError('Objet de paiement absent ou sélectionné trop souvent.')
-    if selected.get('Anneau de Lenteur'):
-        raise ValueError('L’anneau maudit ne peut pas être retiré.')
+    if selected.get('Anneau de Lenteur') or any(selected.get(name) for name in character.get('locked_items', [])):
+        raise ValueError('Un objet verrouillé ou l’anneau maudit ne peut pas être retiré.')
     if magic_only and any(count > available(character, name) for name, count in selected.items()):
         raise ValueError('Le paiement exige des objets achetés et encore utilisables.')
     if units is not None and gold + sum(selected.values()) != units:
@@ -402,6 +402,7 @@ def advance_group(combat):
 # Les variantes partagent un identifiant physique. La table ne contient que des
 # effets relus : aucun motif de texte ne peut créer une récompense ou une charge.
 ENTRY_RULES = {
+    46:{'luck':-2},
     21:{'use':'Potion Antipoison'}, 24:{'use':'Potion Antipoison'},
     39:{'use':'Filet de Capture'},
     44:{'identity':'mushroom_filters','use':'Filtres à Nez','damage':2},
@@ -480,7 +481,7 @@ def resolve_entry(character, paragraph):
     character.update(working)
     return True
 
-PAYMENT_PARAGRAPHS = {14,32,36,218,279,297}
+PAYMENT_PARAGRAPHS = {12,14,32,36,218,279,297}
 
 
 def pay_paragraph(character, paragraph, *, gold=0, items=()):
@@ -494,7 +495,9 @@ def pay_paragraph(character, paragraph, *, gold=0, items=()):
         return False
     magic_only = False
     units = None
-    if paragraph == 32:
+    if paragraph == 12:
+        valid = (gold == 10 and not items) or (gold == 0 and len(items) == 2)
+    elif paragraph == 32:
         valid = gold == 10 and len(items) == 2
     elif paragraph == 36:
         valid = (gold == character.get('gold',0) and not items) or (gold == 0 and len(items) == 2)
@@ -513,9 +516,28 @@ def pay_paragraph(character, paragraph, *, gold=0, items=()):
     if not valid:
         raise ValueError('La sélection ne correspond pas au tarif de ce passage.')
     pay(character, gold=gold, items=items, magic_only=magic_only, units=units)
+    if paragraph == 12:
+        sword = state(character).pop('gnome_sword', None)
+        if sword is not None:
+            character.setdefault('inventory', []).append(sword)
+            character['equipped_weapon'] = sword
     if paragraph == 32:
         character['chance'] = max(0, character['chance'] - 1)
     state(character).setdefault('payments', []).append(identity)
+    return True
+
+
+def transform_gnome_sword(character):
+    """§192 : conserver l’identité de l’arme transformée jusqu’au paiement du §12."""
+    alive(character)
+    if 'gnome_sword' in peek(character) or payment_resolved(character, 12):
+        return False
+    name = character.get('equipped_weapon') or 'Épée'
+    if name not in character.get('inventory', []):
+        raise ValueError('Aucune arme équipée à transformer.')
+    pay(character, items=[name])
+    character['equipped_weapon'] = None
+    state(character)['gnome_sword'] = name
     return True
 
 

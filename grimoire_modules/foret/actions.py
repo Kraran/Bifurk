@@ -238,7 +238,8 @@ class ForetMechanicsActions(FightingFantasyActions):
                     204:('Remettre les deux parties du marteau', 'hammer'),
                     395:('Résister à l’éclair de la lanterne — Chance', 'lantern_flash'),
                     154:('Abandonner la lanterne noircie', 'discard_lantern'),
-                    370:('Choisir l’objet perdu…', 'lose_item')}
+                    370:('Choisir l’objet perdu…', 'lose_item'),
+                    192:('Constater la transformation de l’épée', 'gnome_sword')}
         if number in commands and not self._book_state(number).get('foret_resolved'):
             label, action = commands[number]
             add(label, action)
@@ -286,7 +287,8 @@ class ForetMechanicsActions(FightingFantasyActions):
         dialog = QDialog(self)
         dialog.setWindowTitle('Le prix du passage')
         layout = QVBoxLayout(dialog)
-        tariffs = {14:'3 Or, ou un objet magique si vous ne pouvez payer en or.',
+        tariffs = {12:'10 Or OU deux objets précieux de votre choix (sans conversion de leur valeur en or).',
+                   14:'3 Or, ou un objet magique si vous ne pouvez payer en or.',
                    32:'10 Or ET deux objets.',36:'Tout votre or OU deux achats magiques utilisables.',
                    218:'5 Or OU un objet magique.',279:'Cinq unités : chaque objet et chaque pièce compte pour une unité.',
                    297:'5 Or OU un objet.'}
@@ -346,7 +348,7 @@ class ForetMechanicsActions(FightingFantasyActions):
         number = self.current_paragraph
         expected = {'wish':34,'swap':308,'ambush':98,'fever':259,'spiked_pit':278,'buy':261,'door':73,'darts':309,'lift':372,'wrestle':266,'bracelet':52,
                     'convalescence':304,'cursed_meal':328,'combat_potion':262,'hammer':204,
-                    'lantern_flash':395,'discard_lantern':154,'lose_item':370}
+                    'lantern_flash':395,'discard_lantern':154,'lose_item':370,'gnome_sword':192}
         if action in expected and number != expected[action]:
             return
         if self._book_state(number).get('foret_resolved') and action in expected and action != 'buy':
@@ -391,6 +393,8 @@ class ForetMechanicsActions(FightingFantasyActions):
             elif action in ('ambush','spiked_pit'):
                 _, total = self._roll(2, context='Chance — embuscade' if action == 'ambush' else 'Chance — fosse au pieu')
                 target = rules.return_ambush(self.character, total) if action == 'ambush' else rules.spiked_pit(self.character, total)
+            elif action == 'gnome_sword':
+                rules.transform_gnome_sword(self.character)
             elif action == 'lantern_flash':
                 if 'Lanterne magique' not in self.character.get('inventory', []):
                     raise ValueError('La lanterne magique manque.')

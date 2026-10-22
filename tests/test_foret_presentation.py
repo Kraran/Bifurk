@@ -154,6 +154,47 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(w.current_paragraph,370)
         self.assertFalse(w._book_state(370).get('foret_resolved'))
 
+    def test_gnome_chain_payment_save_restore_and_undo_do_not_duplicate_sword(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({192:'La carotte.',46:'Le papillon.',12:'Le prix.',271:'La conversation.',67:'Le chemin.'})
+        w.character['chance'] = 8
+        w.go_to(192)
+        self.assertEqual(w._reading_link_targets(),set())
+        w.perform_foret_action('gnome_sword')
+        self.assertNotIn('Épée',w.character['inventory'])
+        self.assertEqual(w._reading_link_targets(),{12,46})
+        w.go_to(46)
+        w.perform_foret_action('entry')
+        self.assertEqual(w.character['chance'],6)
+        w.go_to(12)
+        self.assertEqual(w._reading_link_targets(),set())
+        path = main.SAVES_DIR/'gnome.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        self.assertEqual(rules.peek(w.character)['gnome_sword'],'Épée')
+        before = copy.deepcopy(w._snapshot())
+        w.perform_foret_action('payment',(10,['Lanterne']))
+        self.assertEqual(w._snapshot(),before)
+        gold = w.character['gold']
+        w.perform_foret_action('payment',(10,[]))
+        self.assertEqual(w.character['gold'],gold-10)
+        self.assertEqual(w.character['inventory'].count('Épée'),1)
+        self.assertEqual(w._reading_link_targets(),{271,67})
+        w.undo_action()
+        self.assertNotIn('Épée',w.character['inventory'])
+        self.assertEqual(w.character['gold'],gold)
+        w.redo_action()
+        w.perform_foret_action('payment',(10,[]))
+        self.assertEqual(w.character['gold'],gold-10)
+        self.assertEqual(w.character['inventory'].count('Épée'),1)
+        w.go_to(46)
+        w.perform_foret_action('entry')
+        self.assertEqual(w.character['chance'],6)
+
     def test_cover_title_starting_resources_and_preparation_notice(self):
         self.open()
         self.assertEqual(self.w.book_module.id, 'foret_malediction_1983')
