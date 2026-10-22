@@ -162,7 +162,32 @@ class GrimoireInterfaceTests(unittest.TestCase):
             self.assertIsNone(w.current_paragraph)
             w.creation_start_button.click()
             w.go_to(2)
-            self.assertEqual(w.scene_entry, book_cover)
+            self.assertIsNone(w.scene_entry)
+            self.assertFalse(w.scene_art.is_book_art)
+
+    def test_fixed_background_ignores_click_double_click_drag_and_wheel(self):
+        scene = self.window.scene_art
+        background = QPixmap(300, 600)
+        background.fill()
+        scene.set_background_art(background)
+        with patch.object(self.window, '_show_illustration') as popup:
+            QTest.mouseClick(scene, Qt.LeftButton)
+            QTest.mouseDClick(scene, Qt.LeftButton)
+            QTest.mousePress(scene, Qt.LeftButton, pos=QPoint(50, 60))
+            QTest.mouseMove(scene, QPoint(100, 130))
+            QTest.mouseRelease(scene, Qt.LeftButton, pos=QPoint(100, 130))
+            wheel = QWheelEvent(QPointF(80, 80), QPointF(scene.mapToGlobal(QPoint(80, 80))),
+                                QPoint(), QPoint(0, 120), Qt.NoButton, Qt.NoModifier,
+                                Qt.NoScrollPhase, False)
+            self.app.sendEvent(scene, wheel)
+            popup.assert_not_called()
+        self.assertFalse(scene.is_book_art)
+        self.assertEqual(scene.zoom, 1.0)
+        self.assertEqual(scene.pan, QPointF())
+        self.assertEqual(scene.cursor().shape(), Qt.ArrowCursor)
+        self.assertEqual(scene.toolTip(), '')
+        scene.set_theme(self.window.theme)
+        self.assertEqual(scene.picture.cacheKey(), background.cacheKey())
 
     def test_image_zoom_pan_and_click_reset(self):
         scene = self.window.scene_art

@@ -202,6 +202,7 @@ class GrimoireScene(QWidget):
         self.theme = theme or default_theme()
         self.atmosphere = QPixmap(str(image_path))
         self.picture = self.atmosphere
+        self.background_art = QPixmap()
         self.is_book_art = False
         self.zoom = 1.0
         self.pan = QPointF()
@@ -216,20 +217,32 @@ class GrimoireScene(QWidget):
         self.theme = theme
         self.atmosphere = QPixmap(str(theme.assets['scene']))
         if not self.is_book_art:
-            self.picture = self.atmosphere
+            self.picture = self.background_art if not self.background_art.isNull() else self.atmosphere
         self.update()
 
     def sizeHint(self):
         """Proposer une taille verticale de référence sans imposer de largeur fixe à la mise en page."""
         return QSize(300, 640)
 
+    def set_background_art(self, pixmap=None):
+        """Choisir un fond fixe sans lui donner les interactions d'une illustration.
+
+        Un fond fourni reste indépendant du thème et ne reçoit ni ombrage ni
+        inscription. Une image absente revient au décor du thème.
+        """
+        self.background_art = pixmap if pixmap is not None else QPixmap()
+        self.set_book_art()
+
     def set_book_art(self, pixmap=None):
         """Choisir l’illustration ou le décor et réinitialiser zoom, déplacement et aide accessible."""
         self.is_book_art = pixmap is not None and not pixmap.isNull()
-        self.picture = pixmap if self.is_book_art else self.atmosphere
+        self.picture = (pixmap if self.is_book_art else
+                        self.background_art if not self.background_art.isNull() else self.atmosphere)
         self.reset_view()
+        self._press_position = None
+        self._dragged = False
         self.setAccessibleName("Illustration du paragraphe" if self.is_book_art
-                               else "Bibliothèque du grimoire — décor d’ambiance")
+                               else "Décor fixe de la fenêtre d’illustration")
         self.setCursor(Qt.PointingHandCursor if self.is_book_art else Qt.ArrowCursor)
         self.setToolTip("Molette : zoom · Glisser : déplacer · Clic : recadrer · Double-clic : agrandir"
                         if self.is_book_art else "")
@@ -345,7 +358,7 @@ class GrimoireScene(QWidget):
             target = QRectF((self.width()-width)/2 + self.pan.x(),
                             (self.height()-height)/2 + self.pan.y(), width, height)
             painter.drawPixmap(target, self.picture, QRectF(self.picture.rect()))
-        if not self.is_book_art:
+        if not self.is_book_art and self.background_art.isNull():
             shade = QLinearGradient(0, self.height() / 2, 0, self.height())
             shade.setColorAt(0, QColor(20, 12, 8, 0))
             shade.setColorAt(1, QColor(20, 12, 8, 210))
