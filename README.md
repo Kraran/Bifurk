@@ -35,6 +35,9 @@ précédent. [Présentation et commandes](docs/design/carte-exploration.md).
 Les [fenêtres secondaires](docs/design/fenetres-secondaires.md) partagent les
 bandeaux et les couleurs du grimoire, des sauvegardes au sélecteur de PDF.
 
+Les [variations des caractéristiques](docs/design/variations-caracteristiques.md)
+s’animent près des valeurs sur la feuille et dans le combat, sans ralentir la partie.
+
 ## Démarrage
 
 ```bash

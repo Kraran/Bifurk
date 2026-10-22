@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (QDialog, QFrame, QGridLayout, QHBoxLayout, QLabel
 from book_events import combat_skill, verified_entry
 from dice_dialog import DiceCanvas
 from grimoire_ui import ChoiceCard
+from stat_feedback import STAT_LABELS, StatFeedback, rich_stat_anchor
 
 
 class CombatDialog(QDialog):
@@ -184,6 +185,10 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         controls.addWidget(self.primary)
         layout.addLayout(controls)
         self._trays = {}
+        self.stat_feedback = StatFeedback(self, {
+            key: (self.hero, lambda widget, k=key: rich_stat_anchor(widget,
+                  f'{STAT_LABELS[k]} {self.owner.character[k]}')) for key in STAT_LABELS
+        }, lambda: self.owner.theme)
         self.refresh_stats()
 
     def _card(self, heading):
@@ -286,6 +291,9 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.shield.setChecked(bool(char.get('shield_equipped')))
         self.shield.blockSignals(False)
         self._refresh_footer()
+        self.stat_feedback.observe(char,
+            enabled=self.isVisible() and not self.owner._restoring,
+            batch=self.owner._feedback_action_id)
 
     def _refresh_footer(self):
         """Stabiliser Fuir / Soins en bas, sans autoriser une action concurrente au lancer."""
