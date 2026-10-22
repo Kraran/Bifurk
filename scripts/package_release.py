@@ -42,6 +42,7 @@ arrêter l'archivage que publier un fichier privé par accident.
                 '_internal/assets/check-bronze.svg',
                 '_internal/assets/illustration-background.jpg',
                 '_internal/assets/sounds/FantasyFair.m4a',
+                '_internal/assets/video/introduction.mp4',
                 '_internal/assets/sounds/swords.wav',
                 '_internal/catalogues/modules/sorcier_montagne_feu_1982.json',
                 '_internal/catalogues/evenements_sorcier_1982.json',
