@@ -31,7 +31,7 @@ from combat_dialog import CombatDialog
 from dialog_chrome import DialogHeading, harmonize_standard_dialog
 from stat_feedback import StatFeedback
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
-from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route
+from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route, WEAPON_BONUSES
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -1753,7 +1753,7 @@ class MainWindow(QMainWindow, ModuleActions):
                                 (self.character.get('name') or 'Votre destin s’écrit ici'))
         for key, spin in self.stat_spins.items():
             spin.blockSignals(True)
-            spin.setValue(int(self.character.get(key, 0)))
+            spin.setValue(int(self._ff_stat_value(key)))
             spin.blockSignals(False)
         self.potion_combo.blockSignals(True)
         self.potion_combo.setCurrentText(self.character.get("potion", "Aucune"))
@@ -1779,7 +1779,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.shield_check.setChecked(bool(self.character.get("shield_equipped", False)))
         self.shield_check.blockSignals(False)
         self.weapon_combo.blockSignals(True)
-        weapons = [name for name in ('Épée', 'Épée magique', 'Épée trouvée dans la rivière') if name in inventory]
+        weapons = [name for name in WEAPON_BONUSES if name in inventory]
         if weapons != [self.weapon_combo.itemText(index) for index in range(self.weapon_combo.count())]:
             self.weapon_combo.clear()
             self.weapon_combo.addItems(weapons)
@@ -1789,7 +1789,7 @@ class MainWindow(QMainWindow, ModuleActions):
         initial = self.character.get("initial", {})
         for key, bar in self.stat_bars.items():
             maximum = max(1, int(initial.get(key, self.character.get(key, 1))))
-            current = max(0, int(self.character.get(key, 0)))
+            current = max(0, int(self._ff_stat_value(key)))
             bar.setValue(min(100, round(100 * current / maximum)))
             bar.setFormat(f"{current} / {maximum}")
         self.initial_label.setText("Départ  •  Habileté {habilete}  |  Endurance {endurance}  |  Chance {chance}".format(
@@ -1801,7 +1801,7 @@ class MainWindow(QMainWindow, ModuleActions):
         if self._combat_dialog is not None:
             self._combat_dialog.refresh_stats()
 
-        self.stat_feedback.observe(self.character,
+        self.stat_feedback.observe({**self.character, 'habilete': self._ff_stat_value('habilete')},
             enabled=(self.isVisible() and self.current_paragraph is not None
                      and self._adventurer_draft is None and not self._restoring),
             batch=self._feedback_action_id)
@@ -1957,7 +1957,7 @@ class MainWindow(QMainWindow, ModuleActions):
                     f"Vous ne pouvez pas retirer {item} : cet objet est ensorcelé.")
                 return
             if equipped_weapon(self.character) == item:
-                other = next((name for name in ("Épée", "Épée magique", "Épée trouvée dans la rivière")
+                other = next((name for name in WEAPON_BONUSES
                               if name != item and name in self.character["inventory"]), None)
                 if other:
                     equip_weapon(self.character, other)
@@ -2147,7 +2147,8 @@ class MainWindow(QMainWindow, ModuleActions):
     def set_stat(self, key, value):
         """Appliquer une édition manuelle de caractéristique et rafraîchir sa représentation."""
         before = self._snapshot()
-        self.character[key] = value
+        bonus = self._ff_stat_value(key) - self.character.get(key, 0)
+        self.character[key] = max(0, value - bonus)
         self._feedback_action_id += 1
         self._refresh_character()
         self._record(f"Modifier {key}", before)

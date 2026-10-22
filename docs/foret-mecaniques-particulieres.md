@@ -21,6 +21,12 @@ converties globalement en événements exécutables.
   sans changer l’Habileté initiale. L’Anneau de Lenteur inflige -2 et ne peut être
   retiré. L’Œil d’Ambre doit être porté pour questionner Arragon. Le retrait manuel
   d’un achat emporte sa charge ; le retrait d’un équipement enlève son port.
+- **Épée enchantée (§70)** : acquisition et équipement explicites, une seule fois.
+  Selon le choix confirmé par l’utilisateur, elle ajoute deux points d’Habileté
+  tant qu’elle est équipée, au-delà du total initial. Le bonus agit sur les
+  épreuves d’Habileté, les attaques et les parades, pas seulement sur la Force
+  d’Attaque. Une autre arme équipée, une perte ou la transformation du Gnome
+  désactivent immédiatement le bonus. La restitution réactive le même bonus.
 - **Épreuves** : porte comparée simultanément à H et C sans dépense de Chance,
   deux fléchettes avec deux dépenses même après un échec, bras de fer arrêté au
   premier échec, Brassard sans dés, coffre retentable avec une blessure par échec,
@@ -109,6 +115,13 @@ Sorcier :
   présents et refuse les objets verrouillés. Il ne convertit pas les bijoux en
   monnaie. Sans paiement valide, les sorties restent bloquées ; aucune issue
   gratuite n’est ajoutée au cas d’insolvabilité non décrit.
+- **Habileté et épée enchantée** : l’Habileté de base et son total initial sont
+  conservés séparément du bonus calculé. La feuille et le combat affichent la
+  valeur effective (par exemple 10 pour une base de 8). Les potions et le vœu
+  restaurent la base ; ils ne font pas perdre ni cumuler le bonus. L’échange
+  Habileté/Chance du §308 porte sur les scores de base : le bonus attaché à
+  l’arme reste sur l’Habileté. Le champ de sauvegarde `habilete` conserve la base ;
+  la sélection d’arme et la source du §70 permettent de recalculer le bonus.
 
 ## Organisation et persistance
 
@@ -133,8 +146,8 @@ existant : le Sorcier conserve son moteur et ses règles.
 `mechanics_implementation` dans le catalogue énumère les passages raccordés ;
 `automation_pending` conserve la liste des passages qui n’ont pas encore une
 intégration complète. Les autres effets ordinaires et rencontres restent à relier,
-ainsi que les illustrations. L’épée du §70 reste à intégrer après choix explicite
-de sa politique de bonus et de plafond d’Habileté.
+ainsi que les illustrations. Le §70 utilise désormais la règle de bonus confirmée
+par l’utilisateur, sans modifier les règles de l’épée magique du Sorcier.
 Les §§29/317 demandent encore de confirmer le mode des deux adversaires.
 Les corrections fournies par l’utilisateur le 22 octobre 2026 lèvent les deux
 blocages de source : §186 complété par Anguille Carnivore H5/E4 et victoire au
