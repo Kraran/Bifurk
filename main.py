@@ -325,11 +325,11 @@ class MainWindow(QMainWindow, ModuleActions):
             QTimer.singleShot(0, self._show_startup_menu)
 
     def _play_startup_intro(self):
-        """Jouer le film avant le menu ; le même lecteur musical accompagne les deux."""
+        """Jouer le film puis afficher le jeu en plein écran, avec la même musique."""
         self.intro_music.menu()
         path = ASSET_DIR / 'video' / 'introduction.mp4'
         if QApplication.platformName() in ('offscreen', 'minimal') or not path.is_file():
-            self.show()
+            self.showFullScreen()
             self._show_startup_menu()
             return
         from intro_video import IntroVideoDialog
@@ -338,7 +338,7 @@ class MainWindow(QMainWindow, ModuleActions):
 
         def continue_to_game():
             self._intro_dialog = None
-            self.show()
+            self.showFullScreen()
             dialog.deleteLater()
             # Attendre le retrait de la vidéo avant d'ouvrir le menu modal.
             QTimer.singleShot(0, self._show_startup_menu)
