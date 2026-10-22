@@ -6,6 +6,7 @@ sur une classe du registre. Les commandes sont déléguées à chaque appel, don
 changer de livre ne laisse pas de méthodes liées à l'ancien module.
 """
 from functools import wraps
+from .fighting_fantasy.controller import FightingFantasyActions
 from .sorcier.actions import BookActions
 from .sorcier.controller import SorcierCombatActions
 
@@ -37,7 +38,10 @@ def _delegate(name, original):
 
 # Les noms restent stables pour les signaux Qt, l'historique et les sauvegardes.
 # Un nouvel adaptateur implémente cette interface ou hérite d'un socle compatible.
-for _base in (BookActions, SorcierCombatActions):
-    for _name, _method in vars(_base).items():
-        if callable(_method) and not _name.startswith('__'):
-            setattr(ModuleActions, _name, _delegate(_name, _method))
+for _controller in CONTROLLERS.values():
+    # Parcourir aussi le socle hérité : le prochain module n'a pas à recopier
+    # ses commandes pour les rendre accessibles aux signaux de la fenêtre.
+    for _base in reversed(_controller.__mro__):
+        for _name, _method in vars(_base).items():
+            if callable(_method) and not _name.startswith('__'):
+                setattr(ModuleActions, _name, _delegate(_name, _method))

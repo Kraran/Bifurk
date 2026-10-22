@@ -148,3 +148,7 @@ Le [compte rendu de la partie et des corrections du 22 octobre 2026](docs/review
 Le Sorcier dispose de son manifeste et de son contrôleur de règles. La reconnaissance
 des éditions, les bases et les pages de règles sont sélectionnées par module.
 Voir [le guide d’intégration](docs/modules-grimoires.md) pour préparer un autre livre.
+
+Les règles communes (création, Chance, soins, combats et fuite) sont regroupées
+dans un [socle Défis Fantastiques](docs/socle-defis-fantastiques.md),
+réutilisable par les prochains modules sans les exceptions du Sorcier.

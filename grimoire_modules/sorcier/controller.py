@@ -11,12 +11,13 @@ from PySide6.QtWidgets import QMessageBox, QInputDialog, QPushButton, QLabel
 from navigation import choice_caption
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from grimoire_ui import ChoiceCard
-from book_events import (verified_entry, apply_effects, apply_entry, available_routes, available_options, combat_skill, escape_damage,
-                         piranha_stamina, shield_damage, SHIELD_NAME, take_moon_shield, flee_available, shared_meal,
-                         enchanted_bench_meal, trade_inventory_item, throw_diversion_item)
+from book_events import (verified_entry, apply_effects, apply_entry, available_routes, available_options, combat_skill, piranha_stamina, shield_damage, SHIELD_NAME, take_moon_shield, shared_meal, enchanted_bench_meal, trade_inventory_item, throw_diversion_item)
 
 
-class SorcierCombatActions:
+from grimoire_modules.fighting_fantasy.controller import FightingFantasyActions
+
+
+class SorcierCombatActions(FightingFantasyActions):
     """Résoudre les particularités de ce livre avec les services du contrôleur hôte."""
     def take_enchanted_meal(self):
         """§15 : une seule restauration enchantée et une seule provision."""
@@ -95,14 +96,6 @@ class SorcierCombatActions:
             self.rules_log.setText(
                 f"Objet abandonné : {discarded}. Objet récupéré : {choice['name']}.")
 
-    def _set_book_enemy(self, monster):
-        """Initialise un adversaire vérifié sans changer les données du héros."""
-        self._remember_monster(monster["name"])
-        self.enemy_name.setText(monster["name"])
-        self.enemy_skill.setValue(monster["skill"])
-        self.enemy_endurance.setValue(monster["stamina"])
-        self.combat_state.setText(
-            f"⚔ {monster['name']} · H {monster['skill']} · Endurance {monster['stamina']}")
 
     def _finish_single_book_combat(self, successful_hit=False):
         """Résout uniquement la sortie confirmée par le catalogue du livre."""
@@ -135,86 +128,6 @@ class SorcierCombatActions:
             self.rules_log.setText(
                 f"Combat du §{number} terminé : ouvrez le §{target}.")
 
-    def _advance_scripted_sequence(self):
-        """Après la victoire, prépare le suivant ; à la fin, va à la sortie prescrite."""
-        state = self.book_combat_sequence
-        if (not state or self.current_paragraph != state["paragraph"]
-                or self.enemy_endurance.value() > 0):
-            return
-        entry = verified_entry(self.book_event_catalogue, state["paragraph"])
-        if not entry:
-            return
-        combat = entry.get("combat", {})
-        if combat.get("mode") != "sequence":
-            return
-        monsters = combat["enemies"]
-        apply_effects(self.character, combat.get("stage_effects", {}).get(str(state["index"]), []))
-        self._refresh_character()
-        index = state["index"] + 1
-        if index < len(monsters):
-            state["index"] = index
-            self._set_book_enemy(monsters[index])
-            self.rules_log.setText(
-                f"Adversaire vaincu. Combat suivant : {index+1}/{len(monsters)} — {monsters[index]['name']}.")
-        else:
-            target = combat.get("victory_target")
-            self.book_combat_sequence = None
-            self.prepared_book_encounters.add(state["paragraph"])
-            if target in self.paragraphs:
-                self.rules_log.setText(f"Tous les adversaires vaincus. Destination §{target}.")
-                self.go_to(target)
-            else:
-                self.rules_log.setText(
-                    f"Tous les adversaires vaincus. Ouvrez manuellement le §{target}.")
-
-    def escape_scripted_combat(self, number):
-        """Fuite vérifiée : restriction d'assauts, blessure, Chance puis navigation."""
-        if number != self.current_paragraph:
-            return
-        entry = verified_entry(self.book_event_catalogue, number)
-        rules = entry.get("combat", {}) if entry else {}
-        target = rules.get("escape_target")
-        if (rules.get("mode") == "fire_breath"
-                and self.character.get("book_facts", {}).get(rules["victory_fact"])):
-            if target in self.paragraphs and self.character["endurance"] > 0:
-                self.go_to(target)
-            return
-        if number == 179 and self.character.get("book_facts", {}).get("minotaur_dead"):
-            if target in self.paragraphs:
-                self.go_to(target)
-            return
-        if not self.can_flee_combat():
-            return
-        if rules.get("escape_luck_interval"):
-            self._vampire_escape(rules)
-            return
-        attempt = self._ask_combat_question(
-            "Fuir le combat", "Tenter votre Chance pour la blessure de fuite ?\n"
-            "Sans Chance : -2 Endurance. Chance réussie : -1. Échec : -3.")
-        rolls = None
-        if attempt == QMessageBox.Yes:
-            rolls, total = self._roll(2)
-        else:
-            total = None
-        damage, cost = escape_damage(self.character["chance"], total)
-        self.character["chance"] = max(0, self.character["chance"] - cost)
-        self.character["endurance"] = max(0, self.character["endurance"] - damage)
-        if self.character["endurance"] > 0:
-            lost = int(rules.get("escape_provisions_lost", 0))
-            if lost > 0:
-                self.character["provisions"] = max(
-                    0, int(self.character.get("provisions", 0)) - lost)
-        if self.book_combat_sequence and self.book_combat_sequence["paragraph"] == number:
-            self.book_combat_sequence = None
-        self._refresh_character()
-        if self.character["endurance"] <= 0:
-            self.rules_log.setText("La blessure de fuite est mortelle : Endurance à zéro.")
-            self._render_choices_and_events(self.paragraphs[number])
-            return
-        self.go_to(target)
-        self.rules_log.setText(
-            f"Fuite du §{number} vers le §{target} : -{damage} Endurance"
-            + (f", test de Chance {rolls} (Chance -1)." if rolls else "."))
 
     def choose_crocodile_strategy(self, phase):
         """Enregistrer la phase choisie pour poursuivre le combat limité du Crocodile."""
@@ -304,111 +217,6 @@ class SorcierCombatActions:
         else:
             self.rules_log.setText(f"Combat terminé : ouvrez manuellement le §{target}.")
 
-    def combat_round(self):
-        """Résoudre un assaut : particularités du livre, jets, Chance éventuelle et dégâts.
-
-        L’ordre souffle / attaques / défense / blessure est significatif. Les décisions
-        modales appartiennent à la même action ; les sorties particulières sont terminées
-        par le wrapper extérieur pour conserver un seul point d’annulation."""
-        self._book_round_played = False
-        if self._complex_round_blocked():
-            return
-        state = self.crocodile_combat
-        if (state and self.current_paragraph == state["paragraph"]
-                and state["phase"] == "initial" and state["assaults"] >= 2
-                and self.enemy_endurance.value() > 0):
-            self.rules_log.setText(
-                "Après deux assauts contre le Crocodile, choisissez une stratégie dans les événements.")
-            return
-        if self.enemy_endurance.value() <= 0:
-            self.rules_log.setText("Le monstre est déjà vaincu.")
-            return
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
-        combat_rules = entry.get("combat", {}) if entry else {}
-        if combat_rules.get("mode") == "fire_breath" and not self._resolve_fire_breath():
-            return
-        enemy_rolls, enemy_total = self._roll(2, context=f'Combat — {self.enemy_name.text() or "Adversaire"}', opponent=True)
-        player_rolls, player_total = self._roll(2, context=f'Combat — {self.character.get("name") or "Votre aventurier"}')
-        enemy_attack = self.enemy_skill.value() + enemy_total
-        player_attack = combat_skill(self.character) + player_total + combat_rules.get("attack_bonus", 0)
-        self.sounds.play("swords")
-        if player_attack == enemy_attack:
-            self.rules_log.setText(f"Égalité ({player_attack} contre {enemy_attack}) : aucun dégât. Relancez l'assaut.")
-            self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, "Parade")
-            return
-        if player_attack > enemy_attack:
-            entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
-            if entry and entry.get("combat", {}).get("mode") == "invulnerable":
-                self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack,
-                                  "Arme ordinaire inefficace : aucune blessure au monstre")
-                return
-            base_damage = combat_rules.get("hit_damage", 2)
-            answer = self._assault_luck_choice("Vous touchez !",
-                f"Votre force d'attaque {player_attack} dépasse celle du monstre ({enemy_attack}).\nDégâts de base : {base_damage} Endurance au monstre.",
-                "Voulez-vous tenter votre Chance pour aggraver la blessure ?")
-            damage = base_damage
-            if answer == QMessageBox.Yes:
-                luck_rolls, luck_total = self._roll(2, context='Chance — Aggraver la blessure')
-                was_lucky = luck_total <= self.character["chance"]
-                self.character["chance"] = max(0, self.character["chance"] - 1)
-                if was_lucky:
-                    damage = base_damage + 2
-                    luck_text = f"Chance réussie ({luck_total}) : {damage} dégâts au total."
-                else:
-                    damage = max(0, base_damage - 1)
-                    luck_text = f"Chance ratée ({luck_total}) : {damage} dégât(s) au total."
-            else:
-                luck_text = ""
-            self.enemy_endurance.setValue(max(0, self.enemy_endurance.value() - damage))
-            if (self.crocodile_combat and self.current_paragraph == 86
-                    and damage > 0):
-                self.crocodile_combat["wounded"] = True
-            self._refresh_character()
-            self.rules_log.setText(f"Vous touchez ({player_attack} contre {enemy_attack}). {luck_text} {self.enemy_name.text()} : -{damage} Endurance.")
-            self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, f"Monstre -{damage} PV")
-            if self.enemy_endurance.value() == 0:
-                self._remember_monster(self.enemy_name.text(), "vaincu")
-                self.rules_log.setText(self.rules_log.text() + "  ⚑ Victoire !")
-                self._advance_scripted_sequence()
-            self._finish_single_book_combat(successful_hit=True)
-        else:
-            base_damage = 2
-            if combat_rules.get("defense_roll"):
-                _, defense_die = self._roll(1, context='Combat — Protection d’invisibilité')
-                base_damage = 2 if defense_die % 2 else 1 if defense_die in (2, 4) else 0
-                if base_damage == 0:
-                    self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack,
-                                      "Invisibilité : coup paré (6), aucun dégât")
-                    return
-            answer = self._assault_luck_choice("Le monstre vous touche !",
-                f"Force d'attaque du monstre {enemy_attack} contre la vôtre {player_attack}.\nVous perdez {base_damage} Endurance.",
-                "Voulez-vous tenter votre Chance pour minimiser la blessure ?")
-            damage = base_damage
-            if answer == QMessageBox.Yes:
-                luck_rolls, luck_total = self._roll(2, context='Chance — Réduire la blessure')
-                was_lucky = luck_total <= self.character["chance"]
-                self.character["chance"] = max(0, self.character["chance"] - 1)
-                if was_lucky:
-                    damage = max(0, base_damage - 1)
-                    luck_text = f"Chance réussie ({luck_total}) : blessure réduite à {damage}."
-                else:
-                    damage = base_damage + 1
-                    luck_text = f"Chance ratée ({luck_total}) : blessure aggravée à {damage}."
-            else:
-                luck_text = ""
-            shield_note = ""
-            if self.character.get("shield_equipped") and SHIELD_NAME in self.character.get("inventory", []):
-                shield_rolls, shield_total = self._roll(1, context='Combat — Bouclier au croissant')
-                reduced = shield_damage(damage, shield_total)
-                shield_note = f" Bouclier {shield_rolls}: -{damage - reduced} dégât."
-                damage = reduced
-            self.character["endurance"] = max(0, self.character["endurance"] - damage)
-            self._refresh_character()
-            self.rules_log.setText(f"Le monstre vous touche ({enemy_attack} contre {player_attack}). {luck_text}{shield_note} Vous : -{damage} Endurance.")
-            self._log_assault(player_rolls, enemy_rolls, player_attack, enemy_attack, f"Héros -{damage} PV")
-            if self.character['endurance'] == 0:
-                self.rules_log.setText(self.rules_log.text() + "  ☠ Votre Endurance est à zéro.")
-            self._book_wound(damage)
 
     def change_shield_use(self, active):
         """Équiper ou ranger le bouclier uniquement s’il est présent dans l’inventaire."""
@@ -439,146 +247,6 @@ class SorcierCombatActions:
             self.rules_log.setText(f"Bouclier récupéré ; objet abandonné : {item}.")
 
 
-    def combat_available(self):
-        """Exiger une rencontre réelle ici, jamais le profil caché d'un ancien adversaire.
-
-        Les rencontres vérifiées incluent les préparations spéciales (fuite avant
-        combat, Piranhas). Les rencontres détectées doivent avoir été confirmées
-        et enregistrées sur la carte à ce paragraphe.
-        """
-        if (self.current_paragraph is None or self._adventurer_draft is not None
-                or self.character['endurance'] <= 0):
-            return False
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
-        combat = entry.get('combat', {})
-        if combat.get('precombat_escape'):
-            return True
-        if combat.get('mode') == 'wandering' and not self._book_state(self.current_paragraph).get('monster'):
-            return True  # Le tirage de la rencontre se fait aussi dans la fenêtre de combat.
-        if (combat.get('mode') == 'piranhas'
-                and (self.piranha_combat or {}).get('status') == 'roll_pending'):
-            return True
-        if self.enemy_endurance.value() <= 0:
-            return False
-        if combat.get('enemies'):
-            return True
-        return any(monster['name'] == self.enemy_name.text() and monster['status'] == 'rencontré'
-                   for monster in self.encounter_history.get(str(self.current_paragraph), []))
-
-    def care_options(self, *, in_combat=False):
-        """Décrire les soins disponibles sans les appliquer : potion et repas autorisé par le livre.
-
-        Les potions fonctionnent pendant un combat. Un repas exige un passage
-        explicitement autorisé, une provision et une autorisation non consommée.
-        La Potion de Bonne Fortune reste utile au maximum puisqu'elle augmente
-        aussi le total initial de Chance.
-        """
-        char = self.character
-        alive = char['endurance'] > 0 and self._adventurer_draft is None
-        potion = char.get('potion', 'Aucune')
-        doses = char.get('potion_doses', 0)
-        key = {"Potion d'Adresse": 'habilete', 'Potion de Vigueur': 'endurance',
-               'Potion de Bonne Fortune': 'chance'}.get(potion)
-        useful = key and (key == 'chance' or char[key] < char.get('initial', {}).get(key, char[key]))
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
-        meal = (entry.get('optional_meal') or entry.get('optional_meal_restore') == 2 or entry.get('enchanted_meal'))
-        meal = meal or (self.current_paragraph == 7 and self.piranha_combat
-                        and self.piranha_combat.get('status') == 'victory')
-        meal_useful = char['endurance'] < char.get('initial', {}).get('endurance', char['endurance'])
-        if entry.get('enchanted_meal'):
-            meal_useful = meal_useful or char['habilete'] < char.get('initial', {}).get('habilete', char['habilete'])
-        taken = self._book_state(self.current_paragraph).get('care_meal_taken')
-        if entry.get('enchanted_meal') and self.current_paragraph in self.completed_book_events:
-            taken = True
-        return [
-            {'id': 'potion', 'label': f'{potion} — {doses} dose(s)',
-             'enabled': bool(alive and useful and doses > 0),
-             'reason': 'Aucune dose utile disponible.'},
-            {'id': 'meal', 'label': 'Prendre un repas',
-             'enabled': bool(alive and not in_combat and meal and meal_useful and not taken and char.get('provisions', 0) > 0),
-             'reason': 'Repas interdit pendant le combat, non autorisé ici, déjà pris ou provisions épuisées.'},
-        ]
-
-    def can_flee_combat(self):
-        """Partager les restrictions de fuite entre le lecteur et le bouton permanent du combat."""
-        return self.combat_flee_status()[0]
-
-    def combat_flee_status(self):
-        """Expliquer la disponibilité sans résoudre de jet ni modifier la partie.
-
-        Le compteur représente les assauts terminés, parades comprises. Le
-        Vampire remplace son seuil initial par la prochaine tentative autorisée
-        après un échec. Toutes ses destinations doivent être chargées : sinon
-        le bouton serait actif alors que le moteur refuse de résoudre le jet.
-        """
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
-        combat = entry.get('combat', {})
-        target = combat.get('escape_target')
-        if target is None:
-            return False, 'Le livre ne permet pas de fuir ce combat.'
-        if self.character['endurance'] <= 0:
-            return False, 'Votre aventurier est mort.'
-        if not combat.get('precombat_escape') and self.enemy_endurance.value() <= 0:
-            return False, 'Ce combat est terminé.'
-        destinations = [target]
-        if combat.get('escape_luck_interval'):
-            destinations.append(combat['hypnosis_target'])
-        if any(number not in self.paragraphs for number in destinations):
-            return False, 'Une destination nécessaire à la fuite est absente du livre chargé.'
-        assaults = self.book_combat_assaults.get(self.current_paragraph, 0)
-        threshold = combat.get('escape_after_assaults', 0)
-        if combat.get('escape_luck_interval'):
-            threshold = max(threshold, self._book_state(self.current_paragraph).get('escape_after', threshold))
-        if assaults < threshold:
-            remaining = threshold - assaults
-            return False, f'Fuite possible après encore {remaining} assaut(s) terminé(s).'
-        permitted = flee_available(combat, assaults,
-            1 if combat.get('precombat_escape') else self.enemy_endurance.value(), self.character['endurance'])
-        return bool(permitted), ('Tenter votre Chance pour fuir ; une blessure de fuite reste due.'
-                                 if combat.get('escape_luck_interval') else
-                                 'Fuir avec la blessure de fuite prévue par les règles.')
-
-    def _roll_adventurer(self):
-        """Tirer les valeurs initiales selon les règles : H=1d6+6, E=2d6+12, C=1d6+6."""
-        _, skill_roll = self._roll(1, context='Création — Habileté : 1d6 + 6')
-        _, endurance_roll = self._roll(2, context='Création — Endurance : 2d6 + 12')
-        _, luck_roll = self._roll(1, context='Création — Chance : 1d6 + 6')
-        return {'habilete': skill_roll + 6, 'endurance': endurance_roll + 12, 'chance': luck_roll + 6}
-
-    def change_potion(self, value):
-        """Choisir la fiole avant le départ uniquement ; aucun remplissage en cours de jeu."""
-        if (self._adventurer_draft is None or self.current_paragraph is not None
-                or value not in ("Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune")):
-            return
-        self.character["potion"] = value
-        self.character["potion_doses"] = 2
-        self._refresh_character()
-
-    def test_luck(self):
-        """Comparer 2d6 à la Chance avant de dépenser un point, puis afficher le résultat."""
-        rolls, total = self._roll(2, context='Tentez votre Chance')
-        lucky = total <= self.character["chance"]
-        self.character["chance"] = max(0, self.character["chance"] - 1)
-        self._refresh_character()
-        verdict = "chanceux" if lucky else "malchanceux"
-        self.rules_log.setText(f"Test de Chance : {rolls[0]} + {rolls[1]} = {total}. Vous êtes {verdict}. Chance -1.")
-
-    def eat_meal(self):
-        """Consommer une provision et restaurer l’Endurance dans la limite autorisée."""
-        if self.character.get("provisions", 0) <= 0:
-            self.rules_log.setText("Vous n'avez plus de provisions.")
-            return
-        current = self.character["endurance"]
-        cap = self.character.get("initial", {}).get("endurance", current)
-        self.character["endurance"] = min(cap, current + 4)
-        self.character["provisions"] -= 1
-        self._refresh_character()
-        self.rules_log.setText(f"Repas consommé : Endurance {current} → {self.character['endurance']} (maximum {cap}). Provisions -1.")
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
-        if (entry and entry.get("optional_meal")
-                and self.current_paragraph in self.paragraphs):
-            self._render_choices_and_events(self.paragraphs[self.current_paragraph])
-
     def eat_shared_meal(self):
         """§131 : le repas se partage, la restauration n'est que de deux points."""
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
@@ -590,36 +258,6 @@ class SorcierCombatActions:
         self._refresh_character()
         self.rules_log.setText("Repas partagé : Endurance +2 (plafonnée), Provisions -1.")
         self._render_choices_and_events(self.paragraphs[self.current_paragraph])
-
-    def drink_potion(self):
-        """Appliquer la potion choisie et consommer une dose selon les règles de la caractéristique."""
-        # Revérifier aussi les appels directs : pas de dose après la mort,
-        # pendant la création, à fiole vide ou sans effet utile.
-        if not self.care_options()[0]['enabled']:
-            self.rules_log.setText("Aucune dose de potion utilisable.")
-            return
-        potion = self.character.get("potion", "Aucune")
-        doses = self.character.get("potion_doses", 0)
-        if potion == "Aucune" or doses <= 0:
-            self.rules_log.setText("Aucune dose de potion disponible.")
-            return
-        initial = self.character.get("initial", {})
-        if potion == "Potion d'Adresse":
-            key, label = "habilete", "Habileté"
-            target = initial.get(key, self.character[key])
-        elif potion == "Potion de Vigueur":
-            key, label = "endurance", "Endurance"
-            target = initial.get(key, self.character[key])
-        else:
-            key, label = "chance", "Chance"
-            target = initial.get(key, self.character[key]) + 1
-            initial[key] = target
-            self.character["initial"] = initial
-        old = self.character[key]
-        self.character[key] = target
-        self.character["potion_doses"] = doses - 1
-        self._refresh_character()
-        self.rules_log.setText(f"Potion utilisée : {label} {old} → {target}. Doses restantes : {doses-1}.")
 
 
     def _render_choices_and_events(self, text):
@@ -995,3 +633,128 @@ class SorcierCombatActions:
             self.follow_catalogue_choice(target)
             return
         self.go_to(target)
+
+    def _ff_before_assault(self):
+        """Préambules du Sorcier : rencontres complexes, choix du Crocodile et souffle."""
+        if self._complex_round_blocked():
+            return False
+        state = self.crocodile_combat
+        if (state and self.current_paragraph == state['paragraph']
+                and state['phase'] == 'initial' and state['assaults'] >= 2
+                and self.enemy_endurance.value() > 0):
+            self.rules_log.setText('Après deux assauts contre le Crocodile, choisissez une stratégie dans les événements.')
+            return False
+        return True
+
+    def _ff_before_attack(self):
+        """Le souffle précède les dés d'attaque, seulement tant que le Chien vit."""
+        combat = (verified_entry(self.book_event_catalogue, self.current_paragraph) or {}).get('combat', {})
+        return combat.get('mode') != 'fire_breath' or self._resolve_fire_breath()
+
+    def _ff_combat_profile(self):
+        """Appliquer les armes, le casque et les particularités vérifiées de ce livre."""
+        combat = (verified_entry(self.book_event_catalogue, self.current_paragraph) or {}).get('combat', {})
+        return {'skill': combat_skill(self.character), 'attack_bonus': combat.get('attack_bonus', 0),
+                'hit_damage': combat.get('hit_damage', 2), 'can_wound': combat.get('mode') != 'invulnerable'}
+
+    def _ff_defend_hit(self):
+        """La potion d'invisibilité peut réduire ou annuler le coup avant la Chance."""
+        combat = (verified_entry(self.book_event_catalogue, self.current_paragraph) or {}).get('combat', {})
+        if combat.get('defense_roll'):
+            _, die = self._roll(1, context='Combat — Protection d’invisibilité')
+            return (2 if die % 2 else 1 if die in (2, 4) else 0,
+                    'Invisibilité : coup paré (6), aucun dégât')
+        return 2, ''
+
+    def _ff_reduce_damage(self, damage):
+        """Le bouclier au croissant est un objet du Sorcier, pas une protection universelle."""
+        if self.character.get('shield_equipped') and SHIELD_NAME in self.character.get('inventory', []):
+            rolls, total = self._roll(1, context='Combat — Bouclier au croissant')
+            reduced = shield_damage(damage, total)
+            return reduced, f' Bouclier {rolls}: -{damage - reduced} dégât.'
+        return damage, ''
+
+    def _ff_after_enemy_damage(self, damage):
+        """Conserver la blessure du Crocodile pour la rencontre des Piranhas."""
+        if self.crocodile_combat and self.current_paragraph == 86 and damage > 0:
+            self.crocodile_combat['wounded'] = True
+
+    def _ff_after_hit(self):
+        """Résoudre les sorties spéciales : premier coup, Chien et combat ordinaire."""
+        self._finish_single_book_combat(successful_hit=True)
+
+    def _ff_after_player_damage(self, damage):
+        """Appliquer les compteurs de blessures de la Goule et du Loup-Garou."""
+        self._book_wound(damage)
+
+    def _ff_pending_combat(self, combat):
+        """Le Sorcier possède des rencontres errantes et un tirage initial de Piranhas."""
+        return bool((combat.get('mode') == 'wandering' and not self._book_state(self.current_paragraph).get('monster'))
+                    or (combat.get('mode') == 'piranhas' and (self.piranha_combat or {}).get('status') == 'roll_pending'))
+
+    def _ff_escape_details(self, combat):
+        """Le Vampire exige une autre destination et un délai renouvelé après un échec."""
+        destinations = [combat['escape_target']]
+        threshold = combat.get('escape_after_assaults', 0)
+        hint = 'Fuir avec la blessure de fuite prévue par les règles.'
+        if combat.get('escape_luck_interval'):
+            destinations.append(combat['hypnosis_target'])
+            threshold = max(threshold, self._book_state(self.current_paragraph).get('escape_after', threshold))
+            hint = 'Tenter votre Chance pour fuir ; une blessure de fuite reste due.'
+        return destinations, threshold, hint
+
+    def _ff_escape_override(self, number, rules):
+        """Traiter les sorties après victoire et la fuite particulière du Vampire."""
+        target = rules.get('escape_target')
+        if (rules.get('mode') == 'fire_breath'
+                and self.character.get('book_facts', {}).get(rules['victory_fact'])):
+            if target in self.paragraphs and self.character['endurance'] > 0:
+                self.go_to(target)
+            return True
+        if number == 179 and self.character.get('book_facts', {}).get('minotaur_dead'):
+            if target in self.paragraphs:
+                self.go_to(target)
+            return True
+        if rules.get('escape_luck_interval'):
+            if self.can_flee_combat():
+                self._vampire_escape(rules)
+            return True
+        return False
+
+    def _ff_meal_status(self):
+        """Étendre les repas ordinaires : partage, banc enchanté et retour des Piranhas."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+        char = self.character
+        meal = entry.get('optional_meal') or entry.get('optional_meal_restore') == 2 or entry.get('enchanted_meal')
+        meal = meal or (self.current_paragraph == 7 and self.piranha_combat and self.piranha_combat.get('status') == 'victory')
+        useful = char['endurance'] < char.get('initial', {}).get('endurance', char['endurance'])
+        if entry.get('enchanted_meal'):
+            useful = useful or char['habilete'] < char.get('initial', {}).get('habilete', char['habilete'])
+        taken = self._book_state(self.current_paragraph).get('care_meal_taken')
+        if entry.get('enchanted_meal') and self.current_paragraph in self.completed_book_events:
+            taken = True
+        return bool(meal), useful, taken
+
+    def _ff_take_meal(self):
+        """Conserver les effets particuliers des repas du Sorcier."""
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+        if entry.get('enchanted_meal'):
+            self.take_enchanted_meal()
+        elif entry.get('optional_meal_restore') == 2:
+            self.eat_shared_meal()
+        else:
+            self.eat_meal()
+
+    def _ff_record_assault(self):
+        """Ajouter le compteur du Crocodile au compteur de fuite commun."""
+        if self.crocodile_combat and self.current_paragraph == self.crocodile_combat['paragraph']:
+            self.crocodile_combat['assaults'] += 1
+        FightingFantasyActions._ff_record_assault(self)
+
+    def _ff_finish_assault(self, number):
+        """Terminer les phases propres au Sorcier avant d'enregistrer la transaction."""
+        if self._book_round_played:
+            self._finish_complex_round(number)
+        self._finish_crocodile_round()
+        self._finish_piranha_round()
+        FightingFantasyActions._ff_finish_assault(self, number)
