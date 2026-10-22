@@ -831,7 +831,6 @@ class MainWindow(QMainWindow, BookActions):
         controls.addWidget(self.care_button, 1, 0)
         self.tools_button = QPushButton("Actions…")
         tools = QMenu(self.tools_button)
-        tools.addAction("Tenter sa Chance (2d6)", self.test_luck)
         dice = tools.addMenu("Dés libres")
         for notation in ("1d6", "2d6", "3d6", "1d20"):
             dice.addAction(notation, lambda checked=False, n=notation: self.roll_free_dice(n))
@@ -944,11 +943,9 @@ class MainWindow(QMainWindow, BookActions):
             self.go_to(number)
 
     def roll_free_dice(self, notation):
-        """Déplacer les jets libres dans Actions ; garder un résultat visible pour 3d6 et 1d20."""
+        """Présenter tous les jets libres sur le même plateau animé."""
         self.dice_combo.setCurrentText(notation)
         self.roll_dice()
-        if notation not in ('1d6', '2d6'):
-            QMessageBox.information(self, 'Dés libres', self.dice_result.text())
 
     def care_options(self, *, in_combat=False):
         """Décrire les soins disponibles sans les appliquer : potion et repas autorisé par le livre.
@@ -2225,22 +2222,22 @@ class MainWindow(QMainWindow, BookActions):
     def _roll(self, count=1, sides=6, *, context=None, opponent=False):
         """Tirer une seule fois, présenter le résultat animé puis retourner (faces, somme).
 
-        L'animation ne consomme aucun hasard. Les variantes libres 3d6 / 1d20
-        conservent leur affichage classique ; tous les jets réglementaires 1d6
-        et 2d6 passent par le même plateau, y compris les combats particuliers."""
+        L'animation ne consomme aucun hasard. Les jets 1d6, 2d6, 3d6 et 1d20
+        utilisent le même plateau, y compris les combats particuliers."""
         if self._combat_dialog is None:
             self.sounds.play("dice")
         rolls = [random.randint(1, sides) for _ in range(count)]
-        if sides == 6 and count in (1, 2):
+        if (sides == 6 and count in (1, 2, 3)) or (sides == 20 and count == 1):
             label = context or (f'Épreuve — § {self.current_paragraph}'
                                 if self.current_paragraph is not None else 'Création de l’aventurier')
             if self._combat_dialog is not None:
-                self._combat_dialog.present_roll(rolls, label, opponent=opponent)
+                self._combat_dialog.present_roll(rolls, label, opponent=opponent,
+                                                **({'sides': sides} if sides != 6 else {}))
             else:
-                self._show_dice_roll(rolls, label)
+                self._show_dice_roll(rolls, label, **({'sides': sides} if sides != 6 else {}))
         return rolls, sum(rolls)
 
-    def _show_dice_roll(self, rolls, context):
+    def _show_dice_roll(self, rolls, context, *, sides=6):
         """Présenter les faces tirées sans mutation de partie ni écriture d'historique.
 
         Les plateformes Qt de test ne lancent pas de boucle modale ; le dialogue
@@ -2248,7 +2245,7 @@ class MainWindow(QMainWindow, BookActions):
         """
         if QApplication.platformName() in ('offscreen', 'minimal'):
             return
-        dialog = DiceDialog(rolls, context, self.theme, self)
+        dialog = DiceDialog(rolls, context, self.theme, self, sides=sides)
         try:
             dialog.exec()
         finally:

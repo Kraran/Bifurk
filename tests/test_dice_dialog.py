@@ -18,7 +18,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import main
-from dice_dialog import DiceCanvas, DiceDialog, FACES, PIPS, die_angles, transformed
+from dice_dialog import DiceCanvas, DiceDialog, D20_FACES, FACES, PIPS, die_angles, transformed
 
 
 class DiceDialogTests(unittest.TestCase):
@@ -42,9 +42,9 @@ class DiceDialogTests(unittest.TestCase):
             widget.deleteLater()
         self.app.processEvents()
 
-    def dialog(self, rolls=(2, 5)):
+    def dialog(self, rolls=(2, 5), *, sides=6):
         """Construire un dialogue réel pour contrôler le cycle de révélation."""
-        dialog = DiceDialog(rolls, 'Combat — Aventurier')
+        dialog = DiceDialog(rolls, 'Combat — Aventurier', sides=sides)
         self.widgets.append(dialog)
         return dialog
 
@@ -121,7 +121,7 @@ class DiceDialogTests(unittest.TestCase):
         self.assertFalse(dialog.isVisible())
 
     def test_invalid_dice_are_rejected(self):
-        for rolls in ([], [0], [7], [True], [1, 2, 3]):
+        for rolls in ([], [0], [7], [True], [1, 2, 3, 4]):
             with self.subTest(rolls=rolls), self.assertRaises(ValueError):
                 DiceCanvas(rolls)
 
@@ -134,14 +134,64 @@ class DiceDialogTests(unittest.TestCase):
         self.assertEqual(draw.call_args_list, [call(1, 6), call(1, 6)])
         show.assert_called_once_with([2, 6], 'Chance')
 
-    def test_free_dice_variants_keep_their_existing_behavior(self):
+    def test_free_dice_variants_animate_without_drawing_extra_results(self):
         window = main.MainWindow()
         self.widgets.append(window)
         with patch.object(window, '_show_dice_roll') as show, \
-                patch('main.random.randint', return_value=3):
-            self.assertEqual(window._roll(3), ([3, 3, 3], 9))
-            self.assertEqual(window._roll(1, 20), ([3], 3))
-        show.assert_not_called()
+                patch('main.random.randint', side_effect=[1, 2, 6, 20]) as draw:
+            window.roll_free_dice('3d6')
+            window.roll_free_dice('1d20')
+        self.assertEqual(draw.call_args_list, [call(1, 6)] * 3 + [call(1, 20)])
+        self.assertEqual(show.call_args_list[0].args[0], [1, 2, 6])
+        self.assertEqual(show.call_args_list[1].args[0], [20])
+        self.assertEqual(show.call_args_list[1].kwargs, {'sides': 20})
+
+    def test_all_twenty_faces_land_on_the_requested_number(self):
+        self.assertEqual({face[0] for face in D20_FACES}, set(range(1, 21)))
+        # Un icosaèdre a 12 sommets, 30 arêtes égales et 20 faces triangulaires.
+        vertices = {point for *_, corners in D20_FACES for point in corners}
+        edges = {tuple(sorted((corners[i], corners[(i+1) % 3])))
+                 for *_, corners in D20_FACES for i in range(3)}
+        self.assertEqual((len(vertices), len(edges)), (12, 30))
+        self.assertAlmostEqual(min(math.dist(*edge) for edge in edges),
+                               max(math.dist(*edge) for edge in edges))
+        for value, center, *_ in D20_FACES:
+            with self.subTest(value=value):
+                depths = {number: transformed(origin, value, 1, sides=20)[2]
+                          for number, origin, *_ in D20_FACES}
+                self.assertEqual(max(depths, key=depths.get), value)
+                opposite = next(number for number, origin, *_ in D20_FACES
+                                if all(math.isclose(a, -b, abs_tol=1e-9)
+                                       for a, b in zip(center, origin)))
+                self.assertEqual(value + opposite, 21)
+
+    def test_extended_dice_render_and_reveal_using_the_same_dialog(self):
+        state = random.getstate()
+        for rolls, sides, result in (((1, 3, 6), 6, 'Résultat : 1 + 3 + 6 = 10'),
+                                     ((20,), 20, 'Résultat : 20')):
+            with self.subTest(sides=sides):
+                dialog = self.dialog(rolls, sides=sides)
+                dialog.show()
+                for progress in (0, .2, .6, 1):
+                    dialog.canvas.progress = progress
+                    self.assertFalse(dialog.grab().isNull())
+                dialog.proceed.click()
+                self.assertTrue(dialog.isVisible())
+                self.assertEqual(dialog.result.text(), result)
+                dialog.proceed.click()
+                self.assertFalse(dialog.isVisible())
+        self.assertEqual(random.getstate(), state)
+        for rolls, sides in (([21], 20), ([0], 20), ([1, 2], 20), ([1], 12)):
+            with self.subTest(rolls=rolls, sides=sides), self.assertRaises(ValueError):
+                DiceCanvas(rolls, sides=sides)
+
+    def test_actions_keep_free_dice_without_the_manual_luck_entry(self):
+        window = main.MainWindow()
+        self.widgets.append(window)
+        actions = window.tools_button.menu().actions()
+        self.assertFalse(any('Chance' in action.text() for action in actions))
+        dice = next(action.menu() for action in actions if action.menu())
+        self.assertEqual([action.text() for action in dice.actions()], ['1d6', '2d6', '3d6', '1d20'])
 
     def test_game_can_open_real_popup_and_return_same_faces(self):
         window = main.MainWindow()
