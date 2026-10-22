@@ -161,4 +161,6 @@ La Forêt est **en préparation** : consultation et sauvegarde sont disponibles,
 mais ses événements et combats seront intégrés après leur revue.
 Voir [le détail de cette étape](docs/foret-module-presentation.md).
 
-La revue des **400 paragraphes de la Forêt** est terminée : titres, choix et mécaniques sont catalogués. Les événements restent à programmer ; deux anomalies du PDF (§§186 et 267) nécessitent confirmation. Voir [le bilan et les contrôles](docs/reviews/foret-400-paragraphes.md).
+La revue des **400 paragraphes de la Forêt** est terminée : titres, choix et mécaniques sont catalogués. Les événements sont en cours d’intégration ; deux anomalies du PDF (§§186 et 267) nécessitent confirmation. Voir [le bilan et les contrôles](docs/reviews/foret-400-paragraphes.md).
+
+L’étape 4 ajoute la boutique, les charges, les équipements, les épreuves et les combats particuliers de la Forêt. Le module reste en préparation : [périmètre et tests](docs/foret-mecaniques-particulieres.md).

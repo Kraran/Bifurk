@@ -56,11 +56,12 @@ et aucune entrée de règle exécutable. Les titres, choix et notes de mécaniqu
 sont recensés ; leur automatisation reste en attente. L’adaptateur ne dépend
 pas du contrôleur du Sorcier. Les renvois textuels permettent la consultation et
 la sauvegarde de la position, mais n'appliquent pas de conditions ou d'effets.
-Le bouton de combat reste inactif et un appel direct ne lance aucun assaut.
+Depuis l’étape 4, les rencontres explicitement intégrées activent la fenêtre de combat.
+Les autres passages restent en consultation.
 
 L'interface le précise dès la couverture et dans les passages. Les achats chez
 Yaztromo, les objets magiques, rencontres, pertes/gains et fins d'aventure seront
-intégrés après analyse. Passer aux §§86 ou 350 n'active notamment pas les règles
+intégrés progressivement après analyse. Passer aux §§86 ou 350 n'active notamment pas les règles
 du Crocodile et des Piranhas du Sorcier.
 
 ## Fichiers et validation
@@ -79,4 +80,4 @@ l'archive Windows exige les trois ressources de catalogue du nouveau module ;
 les imports Python et le dossier catalogues sont déjà suivis par PyInstaller.
 Aucune compilation Windows n'est nécessaire pour cette étape.
 
-La revue des 400 paragraphes est documentée dans [le bilan d’analyse](reviews/foret-400-paragraphes.md). La prochaine étape est leur automatisation, après clarification des anomalies de source.
+La revue des 400 paragraphes est documentée dans [le bilan d’analyse](reviews/foret-400-paragraphes.md). Les mécaniques intégrées sont détaillées dans [le bilan de l’étape 4](foret-mecaniques-particulieres.md). Le raccordement complet des événements reste en cours.

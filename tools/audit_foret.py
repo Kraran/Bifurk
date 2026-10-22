@@ -61,7 +61,8 @@ def audit(catalogue, pdf=None):
     return {'paragraphs':len(entries), 'routes':route_count,
             'blocking_source_issues':[issue['paragraph'] for issue in catalogue['source_issues']
                                       if issue['severity'] == 'blocking'],
-            'pdf_provenance_checked': bool(pdf), 'runtime_effects_enabled':False}
+            'pdf_provenance_checked': bool(pdf), 'analysis_entries_are_executable':False,
+            'implemented_combat_passages':len(catalogue.get('mechanics_implementation', {}).get('combat_paragraphs', []))}
 
 
 if __name__ == '__main__':

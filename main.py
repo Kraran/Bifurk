@@ -1230,7 +1230,7 @@ class MainWindow(QMainWindow, ModuleActions):
         remaining = 2 - self._creation_rerolls
         instruction = (f'Vous pouvez garder ce tirage ou le relancer encore {remaining} fois.'
                        if remaining else 'Dernier tirage validé automatiquement. Inscrivez votre nom pour partir.')
-        preparation = ('<p>Aventure en préparation : couverture et prologue disponibles ; événements et combats à venir.</p>'
+        preparation = ('<p>Aventure en préparation : l’intégration des événements et des combats est en cours.</p>'
                        if getattr(self.book_module, 'status', 'ready') == 'preview' else '')
         self.reader.setHtml(
             f'<div style="text-align:center; color:{self.theme.color("accent")}; font-family:\'{self.reading_font_family}\';">'
@@ -1967,6 +1967,7 @@ class MainWindow(QMainWindow, ModuleActions):
                     self.character["habilete"] = max(0, self.character["habilete"] - 2)
                     self.character["magic_sword_bonus_active"] = False
             self.character["inventory"].pop(row)
+            self._ff_item_removed(item)
             if item == SHIELD_NAME:
                 self.character["shield_equipped"] = False
             if self.character.get("equipped_weapon") == item:
@@ -2354,6 +2355,7 @@ def _track_action(method, label):
 # publique si elle doit être annulable et autosauvegardée. Ne pas y ajouter les
 # simples rafraîchissements visuels ni Undo/Redo, qui gèrent leurs propres piles.
 for _name, _label in {
+    'perform_foret_action': 'Résoudre une mécanique de la Forêt',
     'use_care': 'Utiliser un soin',
     "go_to": "Changer de paragraphe", "apply_detected_event": "Appliquer un événement",
     "perform_book_action": "Résoudre une action du livre",
