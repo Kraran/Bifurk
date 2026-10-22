@@ -7771,6 +7771,7 @@
       186,
       193,
       227,
+      231,
       276,
       285,
       352,
@@ -7836,6 +7837,7 @@
       52,
       73,
       98,
+      154,
       204,
       259,
       262,
@@ -7845,8 +7847,10 @@
       308,
       309,
       328,
+      370,
       372,
-      388
+      388,
+      395
     ],
     "notes": "Ces services validés sont implémentés dans grimoire_modules/foret. Le statut des 400 analyses ne valide pas une automatisation complète de chaque passage."
   }

@@ -14,6 +14,38 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_lantern_flash_success_failure_and_lethal_damage(self):
+        for total, endurance, target, remaining in ((2,20,154,20),(12,20,370,17),(12,3,None,0)):
+            with self.subTest(total=total,endurance=endurance):
+                c = hero(endurance=endurance, inventory=['Lanterne magique','Lanterne'])
+                self.assertEqual(r.lantern_flash(c,total),target)
+                self.assertEqual((c['endurance'],c['chance']),(remaining,7))
+                self.assertIn('Lanterne magique',c['inventory'])
+        c = hero(inventory=['Lanterne'])
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.lantern_flash(c,2)
+        self.assertEqual(c,before)
+
+    def test_lantern_discard_and_selected_loss_preserve_other_copies_and_charges(self):
+        c = hero(inventory=['Lanterne magique','Lanterne'])
+        self.assertEqual(r.discard_lantern(c),231)
+        self.assertEqual(c['inventory'],['Lanterne'])
+        r.buy(c,'Anneau de Lumière',2)
+        self.assertEqual(r.lose_backpack_item(c,'Anneau de Lumière'),231)
+        self.assertEqual(r.available(c,'Anneau de Lumière'),1)
+        c['inventory'].append('Casque magique')
+        r.wear(c,'Casque magique')
+        r.lose_backpack_item(c,'Casque magique')
+        self.assertEqual(r.attack_bonus(c),0)
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.lose_backpack_item(c,'Absent')
+        self.assertEqual(c,before)
+        c['inventory'].append('Anneau de Lenteur')
+        r.wear(c,'Anneau de Lenteur')
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.lose_backpack_item(c,'Anneau de Lenteur')
+        self.assertEqual(c,before)
+
     def test_shop_multiple_copies_and_single_charge(self):
         c = hero()
         r.buy(c, 'Bottes de Saut', 2)

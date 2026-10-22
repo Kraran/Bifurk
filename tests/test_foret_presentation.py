@@ -67,6 +67,93 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_lantern_failure_loss_cancel_restore_and_no_repeat(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({395:'Éclair.',370:'Objet perdu.',231:'Faucons.',154:'Lanterne noircie.'})
+        w.character['inventory'] += ['Lanterne magique','Lanterne']
+        rules.buy(w.character,'Anneau de Lumière',2)
+        w.character['chance'] = 1
+        w.character['endurance'] = 20
+        w.go_to(395)
+        self.assertEqual(w._reading_link_targets(),set())
+        w.perform_foret_action('lantern_flash')
+        self.assertEqual((w.current_paragraph,w.character['endurance'],w.character['chance']),(370,17,0))
+        self.assertEqual(w._reading_link_targets(),set())
+        before = copy.deepcopy(w._snapshot())
+        with patch('grimoire_modules.foret.actions.QInputDialog.getItem',return_value=('',False)):
+            w.perform_foret_action('lose_item')
+        self.assertEqual(w._snapshot(),before)
+        with patch('grimoire_modules.foret.actions.QInputDialog.getItem',return_value=('Anneau de Lumière',True)):
+            w.perform_foret_action('lose_item')
+        self.assertEqual(w.current_paragraph,231)
+        self.assertEqual(rules.available(w.character,'Anneau de Lumière'),1)
+        self.assertIn('Lanterne magique',w.character['inventory'])
+        w.undo_action()
+        self.assertEqual(w.current_paragraph,370)
+        self.assertEqual(rules.available(w.character,'Anneau de Lumière'),2)
+        w.redo_action()
+        saved = w._save_data()
+        path = main.SAVES_DIR/'lanterne.json'
+        w._write_atomic(path,saved)
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        self.assertEqual(rules.available(w.character,'Anneau de Lumière'),1)
+        rolls = self.roll.call_count
+        w.go_to(395)
+        w.perform_foret_action('lantern_flash')
+        self.assertEqual(self.roll.call_count,rolls)
+        self.assertEqual(w._reading_link_targets(),{370})
+
+    def test_lantern_success_discard_and_hawks_sequence(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({395:'Éclair.',154:'Lanterne noircie.',231:'Faucons.',224:'Victoire.',332:'Fuite.'})
+        w.character['inventory'] += ['Lanterne magique','Lanterne']
+        w.character['chance'] = 10
+        w.character['endurance'] = 20
+        w.character['habilete'] = 20
+        w.go_to(395)
+        w.perform_foret_action('lantern_flash')
+        self.assertEqual((w.current_paragraph,w.character['chance'],w.character['endurance']),(154,9,20))
+        self.assertEqual(w._reading_link_targets(),set())
+        w.perform_foret_action('discard_lantern')
+        self.assertNotIn('Lanterne magique',w.character['inventory'])
+        self.assertIn('Lanterne',w.character['inventory'])
+        self.assertEqual(w.current_paragraph,231)
+        self.assertTrue(w.can_flee_combat())
+        self.assertEqual([e['stamina'] for e in w._combat_roster()],[4,3,4])
+        with patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No):
+            for _ in range(6):
+                w.combat_round()
+        self.assertEqual(w.current_paragraph,224)
+        w.go_to(231)
+        self.assertFalse(w.combat_available())
+        self.assertEqual(w._reading_link_targets(),{224})
+
+    def test_lantern_lethal_flash_never_asks_for_item_and_empty_bag_stays_unresolved(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({395:'Éclair.',370:'Objet perdu.',231:'Faucons.'})
+        w.character['inventory'] = ['Lanterne magique']
+        w.character['chance'] = 0
+        w.character['endurance'] = 3
+        w.go_to(395)
+        with patch('grimoire_modules.foret.actions.QInputDialog.getItem') as choose:
+            w.perform_foret_action('lantern_flash')
+        choose.assert_not_called()
+        self.assertEqual(w.character['endurance'],0)
+        w.undo_action()
+        w.character['inventory'] = []
+        w.go_to(370)
+        w.perform_foret_action('lose_item')
+        self.assertEqual(w.current_paragraph,370)
+        self.assertFalse(w._book_state(370).get('foret_resolved'))
+
     def test_cover_title_starting_resources_and_preparation_notice(self):
         self.open()
         self.assertEqual(self.w.book_module.id, 'foret_malediction_1983')

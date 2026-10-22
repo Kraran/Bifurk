@@ -235,7 +235,10 @@ class ForetMechanicsActions(FightingFantasyActions):
                     304:('Attendre la guérison — cinq rations', 'convalescence'),
                     328:('Prendre le repas sur la chaise', 'cursed_meal'),
                     262:('Boire la potion des deux combats', 'combat_potion'),
-                    204:('Remettre les deux parties du marteau', 'hammer')}
+                    204:('Remettre les deux parties du marteau', 'hammer'),
+                    395:('Résister à l’éclair de la lanterne — Chance', 'lantern_flash'),
+                    154:('Abandonner la lanterne noircie', 'discard_lantern'),
+                    370:('Choisir l’objet perdu…', 'lose_item')}
         if number in commands and not self._book_state(number).get('foret_resolved'):
             label, action = commands[number]
             add(label, action)
@@ -342,7 +345,8 @@ class ForetMechanicsActions(FightingFantasyActions):
             return
         number = self.current_paragraph
         expected = {'wish':34,'swap':308,'ambush':98,'fever':259,'spiked_pit':278,'buy':261,'door':73,'darts':309,'lift':372,'wrestle':266,'bracelet':52,
-                    'convalescence':304,'cursed_meal':328,'combat_potion':262,'hammer':204}
+                    'convalescence':304,'cursed_meal':328,'combat_potion':262,'hammer':204,
+                    'lantern_flash':395,'discard_lantern':154,'lose_item':370}
         if action in expected and number != expected[action]:
             return
         if self._book_state(number).get('foret_resolved') and action in expected and action != 'buy':
@@ -387,6 +391,24 @@ class ForetMechanicsActions(FightingFantasyActions):
             elif action in ('ambush','spiked_pit'):
                 _, total = self._roll(2, context='Chance — embuscade' if action == 'ambush' else 'Chance — fosse au pieu')
                 target = rules.return_ambush(self.character, total) if action == 'ambush' else rules.spiked_pit(self.character, total)
+            elif action == 'lantern_flash':
+                if 'Lanterne magique' not in self.character.get('inventory', []):
+                    raise ValueError('La lanterne magique manque.')
+                _, total = self._roll(2, context='Chance — éclair de la lanterne')
+                target = rules.lantern_flash(self.character, total)
+            elif action == 'discard_lantern':
+                target = rules.discard_lantern(self.character)
+            elif action == 'lose_item':
+                choices = [name for name in self.character.get('inventory', [])
+                           if name != 'Anneau de Lenteur'
+                           and name not in self.character.get('locked_items', [])]
+                if not choices:
+                    raise ValueError('Aucun objet du sac ne peut être perdu ; le livre ne décrit pas ce cas.')
+                choice, accepted = QInputDialog.getItem(self, 'L’objet perdu',
+                    'Choisir un exemplaire à retirer du sac :', choices, 0, False)
+                if not accepted:
+                    return
+                target = rules.lose_backpack_item(self.character, choice)
             elif action == 'wish':
                 labels = {'Habileté':'habilete','Endurance':'endurance','Chance':'chance'}
                 choice, accepted = QInputDialog.getItem(self,'Le vœu du génie','Caractéristique à restaurer :',list(labels),0,False)
