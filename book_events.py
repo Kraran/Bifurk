@@ -108,6 +108,7 @@ def apply_effects(character, effects):
 
 
 WEAPON_BONUSES = {
+    "Épée enchantée": 0,  # Son bonus d’Habileté relève du contrôleur de la Forêt.
     "Épée": 0,
     "Épée magique": 2,
     "Épée trouvée dans la rivière": 1,

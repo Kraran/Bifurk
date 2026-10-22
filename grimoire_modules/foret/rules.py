@@ -29,6 +29,15 @@ DURABLE = {'Anneau de Lumière','Bottes à Bondir','Corde Magique','Brassard de 
            'Gant d’Adresse au Lancer','Perche à Sonder','Bandeau de Concentration'}
 HAMMER_HEAD = 'Tête de marteau en bronze — G'
 HAMMER_HANDLE = 'Manche de marteau en ébène — G'
+ENCHANTED_SWORD = 'Épée enchantée'
+
+
+def effective_skill(character):
+    """Bonus de +2 à l’arme équipée, indépendant du total initial et des soins."""
+    active = (character.get('equipped_weapon') == ENCHANTED_SWORD
+              and ENCHANTED_SWORD in character.get('inventory', [])
+              and 'entry:70' in peek(character).get('rewards', []))
+    return character['habilete'] + (2 if active else 0)
 
 
 def canonical(name):
@@ -266,7 +275,7 @@ def combined_door(character, total):
     """§73 : un jet comparé à H ET C, sans coût de Chance."""
     alive(character)
     dice(total)
-    return 327 if total <= min(character['habilete'], character['chance']) else 112
+    return 327 if total <= min(effective_skill(character), character['chance']) else 112
 
 
 def darts(character, totals):
@@ -285,7 +294,7 @@ def lift_chest(character, total):
     """§372 : chaque tentative compte ; un échec mortel interdit le prochain essai."""
     alive(character)
     dice(total)
-    if total <= character['habilete']:
+    if total <= effective_skill(character):
         return 48
     damage_hero(character, 1)
     return 372 if character['endurance'] > 0 else None
@@ -310,7 +319,7 @@ def arm_wrestling(character, totals, *, gold=0, items=(), bracelet=False):
         raise ValueError('Un à trois jets sont nécessaires.')
     for total in totals:
         dice(total)
-    failure = next((index for index, total in enumerate(totals) if total > character['habilete']), None)
+    failure = next((index for index, total in enumerate(totals) if total > effective_skill(character)), None)
     if failure is None and len(totals) != 3 or failure is not None and failure != len(totals)-1:
         raise ValueError('Arrêter au premier échec ; sinon fournir trois réussites.')
     if failure is not None:
@@ -402,6 +411,7 @@ def advance_group(combat):
 # Les variantes partagent un identifiant physique. La table ne contient que des
 # effets relus : aucun motif de texte ne peut créer une récompense ou une charge.
 ENTRY_RULES = {
+    70:{'items':[ENCHANTED_SWORD], 'equip':ENCHANTED_SWORD},
     46:{'luck':-2},
     21:{'use':'Potion Antipoison'}, 24:{'use':'Potion Antipoison'},
     39:{'use':'Filet de Capture'},
@@ -476,6 +486,8 @@ def resolve_entry(character, paragraph):
            gold=rule.get('gold',0), items=rule.get('items',()), luck=rule.get('luck',0))
     if rule.get('wear'):
         wear(working, rule['wear'])
+    if rule.get('equip'):
+        working['equipped_weapon'] = rule['equip']
     damage_hero(working, rule.get('damage',0))
     character.clear()
     character.update(working)
