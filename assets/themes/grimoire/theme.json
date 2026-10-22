@@ -5,7 +5,8 @@
   "assets": {
     "parchment": "../../parchment.jpg",
     "leather": "../../leather.jpg",
-    "scene": "../../grimoire-library.png"
+    "scene": "../../grimoire-library.png",
+    "checkmark": "../../check-bronze.svg"
   },
   "colors": {
     "page": "#ead9b8",

@@ -7,6 +7,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel
 from grimoire_ui import IllustrationDialog, GrimoireScene
+from dialog_chrome import DialogHeading
 
 
 class RulesDialog(IllustrationDialog):
@@ -21,8 +22,12 @@ class RulesDialog(IllustrationDialog):
         if self.last_page < 3:
             raise ValueError("Ce PDF ne contient pas les pages de règles 3 à 14.")
         self.setWindowTitle("Bifurk — Règles du livre · pages PDF 3 à 14")
-        self.resize(800, 850)
+        area = self.screen().availableGeometry()
+        self.resize(min(800, area.width() - 60), min(850, area.height() - 70))
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 18, 20, 18)
+        layout.setSpacing(12)
+        layout.addWidget(DialogHeading('Les règles de l’aventure', f'Pages 3 à {self.last_page} de votre grimoire.'))
         navigation = QHBoxLayout()
         self.previous = QPushButton("← Précédente")
         self.pages = QComboBox()

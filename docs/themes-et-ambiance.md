@@ -30,6 +30,7 @@ dans un nouveau dossier et modifier :
 - `id` (identifiant unique) et `name` (nom affiché dans Ambiance) ;
 - `stylesheet`, chemin du fichier QSS relatif au manifeste ;
 - `assets.parchment`, `assets.leather`, `assets.scene`, chemins des textures et du décor ;
+- `assets.checkmark`, dessin SVG de la coche des cases du thème fourni ;
 - `colors`, palette des surfaces peintes, ornements, emblèmes et textes du lecteur ;
 - éventuellement `fonts.reading` et `fonts.ui`, noms de polices installées ou déjà embarquées.
 
