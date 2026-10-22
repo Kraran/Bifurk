@@ -2659,7 +2659,7 @@ class Reference(unittest.TestCase):
     def test_catalogue_geometry_and_render(self):
         if not self.pdf:
             self.skipTest('PDF privé absent')
-        import fitz
+        import pymupdf as fitz
         cat = catalogue_for_pdf(self.pdf)
         self.assertIsNotNone(cat)
         w = self.window
@@ -2679,11 +2679,10 @@ class Reference(unittest.TestCase):
                     if entry['type'] == 'ornement':
                         self.assertFalse(entry['paragraphes'])
 
-    @unittest.expectedFailure
     def test_known_cover_bounds(self):
         if not self.pdf:
             self.skipTest('PDF privé absent')
-        import fitz
+        import pymupdf as fitz
         cat = catalogue_for_pdf(self.pdf)
         with fitz.open(self.pdf) as doc:
             entry = cat['illustrations'][0]

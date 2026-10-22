@@ -93,7 +93,7 @@ class ExplorationRulesTests(unittest.TestCase):
         self.assertNotIn("Serpent", w._map_monsters_html(106))
 
     def test_rules_read_exact_pdf_pages_without_changing_game(self):
-        import fitz
+        import pymupdf as fitz
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "rules.pdf"
             with fitz.open() as doc:

@@ -287,21 +287,27 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             muted = f' style="color:{color}"' if status == 'Vaincu' else ''
             parts.append(f"<p><a name='enemy-{index}'></a><span{muted}><b>{html.escape(enemy['name'])}</b><br>"
                          f"Habileté {enemy['skill']}<br>Endurance {stamina}<br><small>{status}</small></span></p>")
-        previous_scroll = self.enemies.verticalScrollBar().value()
-        self.enemies.setText(''.join(parts) or 'Adversaire à déterminer selon le livre.')
-        if active_anchor:
-            self.enemies.scrollToAnchor(active_anchor)
-        else:
-            # Le dernier coup reste visible quand la cible passe à zéro :
-            # aucun ennemi vivant ne fournit alors d'ancre de recentrage.
-            self.enemies.verticalScrollBar().setValue(previous_scroll)
+        roster_html = ''.join(parts) or 'Adversaire à déterminer selon le livre.'
+        if roster_html != getattr(self, '_roster_html', None):
+            # Ne pas reconstruire le document ni déplacer sa lecture quand
+            # seul le héros change : ses badges restent indépendants de la liste.
+            previous_scroll = self.enemies.verticalScrollBar().value()
+            self.enemies.setText(roster_html)
+            if active_anchor:
+                self.enemies.scrollToAnchor(active_anchor)
+            else:
+                # Le coup mortel reste visible sans ancre d'ennemi vivant.
+                self.enemies.verticalScrollBar().setValue(previous_scroll)
+            self._roster_html = roster_html
         char = owner.character
         self.hero.setText(f"<b>{html.escape(char.get('name') or 'Votre aventurier')}</b><br>"
                           f"Habileté {char['habilete']}<br>Endurance {char['endurance']}<br>Chance {char['chance']}"
                           f"<br><small>Habileté de combat : {combat_skill(char)}</small>")
         self.weapon.blockSignals(True)
-        self.weapon.clear()
-        self.weapon.addItems([self.owner.weapon_combo.itemText(i) for i in range(self.owner.weapon_combo.count())])
+        weapons = [self.owner.weapon_combo.itemText(i) for i in range(self.owner.weapon_combo.count())]
+        if weapons != [self.weapon.itemText(i) for i in range(self.weapon.count())]:
+            self.weapon.clear()
+            self.weapon.addItems(weapons)
         self.weapon.setCurrentText(self.owner.weapon_combo.currentText())
         self.weapon.blockSignals(False)
         self.shield.blockSignals(True)

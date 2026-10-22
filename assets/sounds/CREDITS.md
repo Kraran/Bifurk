@@ -1,6 +1,6 @@
-# Sons libres — CC0 1.0
+# Effets sonores — CC0 1.0
 
-Tous les sons livrés dans ce dossier proviennent de ressources publiées sous
+Les effets WAV recensés ci-dessous proviennent de ressources publiées sous
 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/), utilisables et
 redistribuables, y compris commercialement. Aucun compte ou téléchargement n’est
 nécessaire au lancement du jeu.
@@ -33,3 +33,9 @@ effets sont à 44 100 Hz. Le son de combat est un impact métallique enregistré
 Les URL de téléchargement, fichiers exacts et empreintes SHA-256 des archives sont
 dans `sources.json`. `scripts/prepare_sounds.py` reconstruit les WAV à partir de ces
 archives avec FFmpeg. Les anciens effets synthétiques ne sont plus utilisés.
+
+## Musique d’accueil distincte des effets CC0
+
+`FantasyFair.m4a` a été fourni par l’utilisateur. Ses métadonnées indiquent
+« Tavern Loop One », Alexander Nakarada, album « Fantasy Fair ».
+Le classement CC0 des effets ci-dessus ne concerne pas ce fichier musical.

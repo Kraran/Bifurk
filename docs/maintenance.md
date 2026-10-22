@@ -1,6 +1,6 @@
 # Maintenir Bifurk
 
-Ce guide décrit le code de la version 1.1.1. Les docstrings dans les modules
+Ce guide décrit le code de la version 1.1.2. Les docstrings dans les modules
 précisent les responsabilités, les effets de bord et les contraintes locales.
 Les noms des méthodes et des tests permettent de retrouver les scénarios concernés.
 
@@ -17,10 +17,15 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 | `grimoire_ui.py` | Parchemin, cartes de choix, titres, zoom et déplacement | `GrimoireScene`, `SingleLineTitle` |
 | `dice_dialog.py` | Plateau de dés 3D, animation et révélation des jets déjà tirés | `DiceCanvas`, `DiceDialog` |
 | `combat_dialog.py` | Combat modal, plateaux intégrés et chronique de la rencontre | `CombatDialog`, `present_roll` |
+| `stat_feedback.py` | Cartouches de variations, cumul par action et placement sur les valeurs | `StatFeedback.observe`, `StatBadge` |
+| `exploration_map.py` | Graphe des lieux découverts, recherche et recentrage | `ExplorationMapDialog`, `discovered_places` |
+| `dialog_chrome.py` | Bandeaux et habillage des dialogues Qt standards | `DialogHeading`, `harmonize_standard_dialog` |
 | `rules_viewer.py` | Lecture des pages physiques 3–14 du PDF | `RulesDialog.render_page` |
 | `save_slots.py` | Validation du format et menu des cinq sauvegardes | `read_save`, `SaveSlotsDialog` |
 | `sound_effects.py` | Réglages, préchargement et demandes de sons | `SoundBank.play` |
 | `pcm_audio.py` | Mélange des voix et sortie audio continue | `Mixer.readData`, `PcmEffect` |
+| `intro_music.py`, `audio_configuration.py` | Boucle d’accueil, fondu et configuration du backend Windows | `IntroMusic`, `configure_audio_backend` |
+| `pdf_text_repairs.py` | Réparation ciblée des fragments de l’édition reconnue | `repair_misplaced_fragment` |
 | `themes.py` | Manifestes et substitution du QSS | `available_themes`, `Theme` |
 | `about_dialog.py`, `app_info.py` | Identité, version, portrait et liens | `AboutDialog` |
 | `scripts/prepare_sounds.py` | Reconstruction des WAV depuis les archives créditées | `prepare` |
@@ -70,6 +75,10 @@ la classe. Le premier appel capture l'état ; les appels imbriqués partagent sa
 transaction d'historique. À la sortie, le contrôleur termine les règles de combat
 puis `_record` compare les états, ajoute Undo, vide Redo et écrit l'autosave.
 Les limites sont 100 états annulables et 200 libellés d'historique.
+
+`_feedback_action_id` identifie uniquement les effets visuels d'une action : les
+variations successives de cette transaction se cumulent dans un cartouche. Ce
+compteur, les références d'affichage et les animations restent hors sauvegarde.
 
 Le bloc `finally` rétablit la profondeur d'appel et enregistre l'état effectivement
 atteint : il ne constitue pas une annulation automatique en cas d'exception.
@@ -161,6 +170,20 @@ Pièges déjà rencontrés :
   avant que le document ou le pixmap source ne disparaisse.
 - Les widgets retirés d'un layout sont détruits avec `deleteLater` ; Qt doit
   traiter ses événements pour achever leur nettoyage.
+- Les fenêtres modales temporaires d'import et d'illustration sont détruites
+  dans `finally`, même après annulation. Leurs minuteries et celles du filtre
+  de fenêtres sont enfants du dialogue, pour empêcher les rappels après destruction.
+
+Les rafraîchissements de caractéristiques ne reconstruisent pas un inventaire
+inchangé. Sa signature comprend les noms, l'arme équipée et les couleurs des
+icônes ; conserver ces trois critères lors d'une évolution du cache. La fenêtre
+de combat évite aussi de reconstruire un document d'adversaires identique, afin
+de préserver le défilement et le placement des cartouches.
+
+Les monstres successifs sont identifiés par leur indice dans la séquence, pas
+seulement par leur nom. Les valeurs provisoires, comme l'Endurance non tirée des
+Piranhas, ne constituent pas une référence de variation. Les adversaires vaincus
+restent gris ; la couleur facultative `defeated_enemy` personnalise ce gris.
 
 `GrimoireScene` ajuste une illustration entière avec le minimum des rapports de
 largeur / hauteur. Le décor couvre la zone avec le maximum. Le zoom relatif va
@@ -221,8 +244,8 @@ Les tests remplacent les dialogues et jets nécessaires ; utiliser une seule
 `QApplication`, fermer les fenêtres et traiter les destructions différées.
 
 Le PDF privé de référence active les contrôles d'extraction et de cadrage ;
-sans lui, ces tests sont ignorés. Un cadrage de couverture a un défaut connu
-marqué comme échec attendu. Ne pas remplacer ce statut par un succès silencieux.
+sans lui, ces tests sont ignorés. Le cadrage de couverture est borné à la page
+depuis la version 1.1.2 et son test de régression doit réussir normalement.
 Les outils d'audit ne font pas partie des tests portables et leurs captures
 peuvent contenir le livre. Ne publier ni PDF ni captures privées dans Git.
 

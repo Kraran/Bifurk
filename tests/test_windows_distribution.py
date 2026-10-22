@@ -30,6 +30,10 @@ class WindowsDistributionTests(unittest.TestCase):
         self.bundle = self.root / 'dist' / 'Bifurk'
         for relative in ('Bifurk.exe', '_internal/assets/bifurk.ico',
                          '_internal/assets/themes/grimoire/theme.json',
+                         '_internal/assets/themes/grimoire/theme.qss',
+                         '_internal/assets/check-bronze.svg',
+                         '_internal/assets/illustration-background.jpg',
+                         '_internal/assets/sounds/FantasyFair.m4a',
                          '_internal/assets/sounds/swords.wav',
                          '_internal/catalogues/evenements_sorcier_1982.json',
                          '_internal/catalogues/sorcier_montagne_feu_1982.json'):
@@ -58,6 +62,7 @@ class WindowsDistributionTests(unittest.TestCase):
             self.assertIn('Bifurk/Bifurk.exe', names)
             self.assertIn('Bifurk/_internal/assets/sounds/swords.wav', names)
             self.assertIn('Bifurk/LISEZ-MOI.txt', names)
+            self.assertIn('Bifurk/NOUVEAUTES.md', names)
             self.assertFalse(any('donnees' in n or n.endswith('.pdf') or 'sans-rapport' in n for n in names))
             manifest = json.loads(content.read('Bifurk/COMPILATION.json'))
             self.assertEqual(manifest['source_commit'], 'a' * 40)
@@ -67,6 +72,19 @@ class WindowsDistributionTests(unittest.TestCase):
         (self.bundle / '_internal/assets/sounds/swords.wav').unlink()
         with self.assertRaisesRegex(ValueError, 'incomplète'):
             self.package()
+
+    def test_new_interface_and_music_assets_are_required_for_release(self):
+        """Refuser un ancien dossier dist auquel manquent les ressources de la 1.1.2."""
+        for name in ('themes/grimoire/theme.qss', 'check-bronze.svg',
+                     'illustration-background.jpg', 'sounds/FantasyFair.m4a'):
+            with self.subTest(asset=name):
+                path = self.bundle / '_internal/assets' / name
+                path.unlink()
+                try:
+                    with self.assertRaisesRegex(ValueError, 'Compilation incomplète'):
+                        self.package()
+                finally:
+                    self.write(path)
 
     def test_game_data_is_rejected_instead_of_published(self):
         for relative in ('donnees/sauvegardes/test.json', '_internal/DONNEES/test.json',

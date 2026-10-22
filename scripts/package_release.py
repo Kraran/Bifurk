@@ -22,6 +22,7 @@ ARCHIVE_NAME = f'Bifurk-v{APP_VERSION}-windows-x64.zip'
 DOCUMENTS = {
     'LISEZ-MOI.txt': 'docs/windows/LISEZ-MOI.txt',
     'COMPOSANTS-TIERS.md': 'docs/windows/COMPOSANTS-TIERS.md',
+    'NOUVEAUTES.md': 'docs/windows/RELEASE_NOTES.md',
 }
 
 
@@ -33,8 +34,14 @@ arrêter l'archivage que publier un fichier privé par accident.
 """
     if (bundle / 'Bifurk.exe').is_symlink() or (bundle / '_internal').is_symlink():
         raise ValueError('La compilation ne doit pas rediriger vers des fichiers externes.')
+    # Contrôler aussi les ressources introduites depuis la précédente version :
+    # un vieux dossier dist ne doit pas produire un ZIP partiellement utilisable.
     required = ('Bifurk.exe', '_internal/assets/bifurk.ico',
                 '_internal/assets/themes/grimoire/theme.json',
+                '_internal/assets/themes/grimoire/theme.qss',
+                '_internal/assets/check-bronze.svg',
+                '_internal/assets/illustration-background.jpg',
+                '_internal/assets/sounds/FantasyFair.m4a',
                 '_internal/assets/sounds/swords.wav',
                 '_internal/catalogues/evenements_sorcier_1982.json',
                 '_internal/catalogues/sorcier_montagne_feu_1982.json')

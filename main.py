@@ -198,12 +198,22 @@ class DialogThemeFilter(QObject):
         """Habiller à l'affichage et différer la barre native, sans consommer l'événement."""
         if event.type() == QEvent.Show and isinstance(obj, QDialog):
             harmonize_standard_dialog(obj)
-            QTimer.singleShot(0, lambda d=obj: set_bronze_titlebar(d) if d.isVisible() else None)
             if isinstance(obj, QMessageBox):
                 # Avant la première peinture : aucun flash de l'icône bleue
                 # native, même pour les appels statiques information/question.
                 theme_message_box(obj)
-                QTimer.singleShot(0, lambda d=obj: franciser_message(d) if d.isVisible() else None)
+            # Une minuterie enfant disparaît avec la fenêtre : une fermeture
+            # immédiate ne doit jamais rappeler un objet C++ déjà détruit.
+            deferred = QTimer(obj)
+            deferred.setSingleShot(True)
+            def finish_dialog():
+                if obj.isVisible():
+                    set_bronze_titlebar(obj)
+                    if isinstance(obj, QMessageBox):
+                        franciser_message(obj)
+                deferred.deleteLater()
+            deferred.timeout.connect(finish_dialog)
+            deferred.start(0)
         return False
 
 
@@ -1975,7 +1985,10 @@ class MainWindow(QMainWindow, BookActions):
                                     min(max_height, displayed.height() + 175))
         dialog.setMinimumSize(400, 300)
         dialog.resize(dialog.default_size)
-        dialog.exec()
+        try:
+            dialog.exec()
+        finally:
+            dialog.deleteLater()
 
     def show_cover(self):
         """Afficher le cadrage de couverture s’il existe dans le catalogue associé au PDF."""
@@ -2170,27 +2183,31 @@ class MainWindow(QMainWindow, BookActions):
         doses = self.character.get('potion_doses', 0)
         self.potion_doses_label.setText(f'Doses restantes : {doses} / 2' if self.character.get('potion') != 'Aucune'
                                        else 'Aucune potion')
-        self.inventory_list.clear()
-        for name in self.character.get("inventory", []):
-            item = QListWidgetItem(inventory_icon(name, self.theme), str(name))
-            item.setToolTip(str(name) + (" — Arme équipée" if name == equipped_weapon(self.character) else ""))
-            self.inventory_list.addItem(item)
+        # Un assaut ne modifie généralement pas le sac : conserver ses items,
+        # leur sélection et leur défilement tant que son contenu reste identique.
+        inventory = tuple(str(name) for name in self.character.get('inventory', []))
+        weapon = equipped_weapon(self.character)
+        inventory_signature = (inventory, weapon, *(self.theme.color(key) for key in
+                               ('icon_background', 'icon_border', 'icon_ink')))
+        if inventory_signature != getattr(self, '_inventory_signature', None):
+            self.inventory_list.clear()
+            for name in inventory:
+                item = QListWidgetItem(inventory_icon(name, self.theme), name)
+                item.setToolTip(name + (' — Arme équipée' if name == weapon else ''))
+                self.inventory_list.addItem(item)
+            self._inventory_signature = inventory_signature
         self.shield_check.blockSignals(True)
         self.shield_check.setVisible(SHIELD_NAME in self.character.get("inventory", []))
         self.shield_check.setChecked(bool(self.character.get("shield_equipped", False)))
         self.shield_check.blockSignals(False)
-        weapon = equipped_weapon(self.character)
         self.weapon_combo.blockSignals(True)
-        self.weapon_combo.clear()
-        self.weapon_combo.addItems([name for name in ("Épée", "Épée magique", "Épée trouvée dans la rivière")
-                                    if name in self.character.get("inventory", [])])
+        weapons = [name for name in ('Épée', 'Épée magique', 'Épée trouvée dans la rivière') if name in inventory]
+        if weapons != [self.weapon_combo.itemText(index) for index in range(self.weapon_combo.count())]:
+            self.weapon_combo.clear()
+            self.weapon_combo.addItems(weapons)
         if weapon:
             self.weapon_combo.setCurrentText(weapon)
         self.weapon_combo.blockSignals(False)
-        self.equipment_label.setText(
-            f"⚔ Arme : {weapon or 'Aucune'}"
-            + (" (+1 en combat)" if weapon == "Épée trouvée dans la rivière" else "")
-            + "     ◈ Protection : Armure de cuir")
         initial = self.character.get("initial", {})
         for key, bar in self.stat_bars.items():
             maximum = max(1, int(initial.get(key, self.character.get(key, 1))))
@@ -2199,8 +2216,7 @@ class MainWindow(QMainWindow, BookActions):
             bar.setFormat(f"{current} / {maximum}")
         self.initial_label.setText("Départ  •  Habileté {habilete}  |  Endurance {endurance}  |  Chance {chance}".format(
             **{key: initial.get(key, "—") for key in ("habilete", "endurance", "chance")}))
-        items = [str(item).casefold() for item in self.character.get("inventory", [])]
-        weapon = equipped_weapon(self.character) or "—"
+        weapon = weapon or "—"
         armor = next((item for item in self.character.get("inventory", []) if "armure" in str(item).casefold() or "bouclier" in str(item).casefold()), "—")
         self.equipment_label.setText(f"⚔  Arme : {weapon}     ◈  Protection : {armor}")
         self._refresh_action_controls()
@@ -3041,15 +3057,20 @@ class MainWindow(QMainWindow, BookActions):
         dialog.setDirectory(str(Path(self.pdf_path).parent if self.pdf_path else BOOKS_DIR))
         area = dialog.screen().availableGeometry()
         dialog.resize(min(900, area.width() - 60), min(600, area.height() - 80))
-        # Libellés et infobulles des contrôles internes non natifs.
-        QTimer.singleShot(0, lambda: franciser_selecteur(dialog))
-        if dialog.exec() == QDialog.Accepted:
-            selected = dialog.selectedFiles()
-            if not selected:
-                return None
-            result = Path(selected[0]).resolve()
-            return str(result)
-        return None
+        # Une fermeture immédiate doit arrêter aussi le rappel de traduction.
+        translate = QTimer(dialog)
+        translate.setSingleShot(True)
+        translate.timeout.connect(lambda: franciser_selecteur(dialog))
+        translate.start(0)
+        try:
+            if dialog.exec() == QDialog.Accepted:
+                selected = dialog.selectedFiles()
+                if selected:
+                    return str(Path(selected[0]).resolve())
+            return None
+        finally:
+            translate.stop()
+            dialog.deleteLater()
 
     def _themed_save_dialog(self, saving):
         """Ouvrir le menu des emplacements et retourner le chemin choisi ou lancer une création."""

@@ -1,4 +1,4 @@
-# Bifurk 1.1.1 — Français et mode portable
+# Bifurk 1.1.2 — Français et mode portable
 
 ## Interface Le Grimoire
 
@@ -52,7 +52,7 @@ Windows 64 bits installé (3.13 recommandé). Le script prépare son environneme
 `.venv-build`, installe les dépendances et produit :
 
 - `dist/Bifurk/Bifurk.exe`, avec l'icône existante et sans console ;
-- `dist/Bifurk-v1.1.1-windows-x64.zip`, contenant le programme et ses dépendances ;
+- `dist/Bifurk-v1.1.2-windows-x64.zip`, contenant le programme et ses dépendances ;
 - l'empreinte `.zip.sha256` correspondante.
 
 Extrayez le ZIP dans un autre dossier pour le tester. Il faut distribuer **tout
@@ -103,7 +103,7 @@ $env:QT_QPA_PLATFORM = "offscreen"
 Remove-Item Env:QT_QPA_PLATFORM
 ```
 
-Le PDF privé de référence, placé à la racine du projet, active les tests d’extraction et de rendu. Sans ce fichier, ces contrôles sont ignorés. Le cadrage de la couverture possède un défaut connu signalé comme échec attendu. Le PDF ne doit pas être ajouté à Git.
+Le PDF privé de référence, placé à la racine du projet, active les tests d’extraction et de rendu. Sans ce fichier, ces contrôles sont ignorés. Le cadrage de la couverture est également vérifié. Le PDF ne doit pas être ajouté à Git.
 
 Pour tester visuellement après les tests :
 
