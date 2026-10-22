@@ -28,12 +28,14 @@ class ForetAnalysisTests(unittest.TestCase):
                          [3,2,3,2,2,3,3,2,3,3,3,2,2,3,3,3,3])
         self.assertTrue(all(item['uses_per_purchase'] == 1 for item in items))
 
-    def test_source_gaps_are_not_fabricated_routes_or_endings(self):
+    def test_source_corrections_are_confirmed_and_no_longer_blocking(self):
         entries = self.data['paragraphs']
-        self.assertEqual(entries['186']['routes'], [])
-        self.assertEqual(entries['186']['source_issues'][0]['kind'], 'incomplete_source')
-        self.assertEqual([route['target'] for route in entries['267']['routes']], [25])
-        self.assertFalse(entries['267']['source_issues'][0]['candidate_confirmed'])
+        self.assertEqual([route['target'] for route in entries['186']['routes']], [131])
+        self.assertEqual(entries['186']['source_issues'][0]['status'], 'resolved')
+        self.assertEqual([route['target'] for route in entries['267']['routes']], [196,25])
+        self.assertEqual(entries['267']['source_issues'][0]['confirmed_target'],196)
+        self.assertNotIn('unresolved_routes',entries['267'])
+        self.assertEqual(audit(self.data)['blocking_source_issues'],[])
 
     def test_invalid_reference_cannot_be_followed_through_text(self):
         owner = SimpleNamespace(book_event_catalogue=self.data, current_paragraph=267,
@@ -50,7 +52,7 @@ class ForetAnalysisTests(unittest.TestCase):
         self.assertIn('href="paragraph:25"', html)
         for target in (1,196,25):
             ForetController.follow_link(owner, QUrl(f'paragraph:{target}'))
-        self.assertEqual(owner.visited, [25])
+        self.assertEqual(owner.visited, [196,25])
 
     def test_route_conditions_remain_descriptive(self):
         route = self.data['paragraphs']['3']['routes'][0]

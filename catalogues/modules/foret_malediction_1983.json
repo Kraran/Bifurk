@@ -23,5 +23,7 @@
     "events": "evenements_foret_1983.json",
     "illustrations": "foret_malediction_1983.json"
   },
-  "text_repairs": []
+  "text_repairs": [
+    "foret-confirmed-186-267"
+  ]
 }

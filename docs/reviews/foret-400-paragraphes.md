@@ -33,7 +33,16 @@ les boutons décrivent une action, sans emprunter le titre du lieu futur.
 | 301–350 | Flûte, convalescence, double épreuve de Chance, substitution des caractéristiques, repas maudit et capsules de feu. |
 | 351–400 | Tribut de cinq unités, échanges, épreuves répétables, retours et coffres persistants, transformations et victoire. |
 
-## Anomalies de source
+## Corrections confirmées le 22 octobre 2026
+
+L’utilisateur a fourni la fin manquante du §186 : **Anguille Carnivore, H5/E4,
+victoire vers le §131**. Il a aussi confirmé que l’entrée dans la caverne au §267
+mène au **§196**, avec retour au **§25**. Les deux blocages ci-dessous sont donc
+résolus. Le registre applique ces corrections au texte de l’édition reconnue ;
+le catalogue conserve la provenance et le statut résolu. Le graphe contient
+maintenant **641 renvois**, contre 639 lors de la revue initiale.
+
+## Anomalies constatées lors de la revue initiale
 
 - **§186, page PDF 87 : blocage.** Le passage s’arrête avant les caractéristiques
   de l’Anguille et sans renvoi de sortie. Contrôle visuel effectué. Ce n’est pas
