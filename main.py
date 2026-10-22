@@ -1039,13 +1039,17 @@ class MainWindow(QMainWindow, BookActions):
 
     def _update_scene_art(self, prefer_cover=False):
         """Choisir couverture, illustration courante ou décor de repli selon l’écran affiché."""
-        self.scene_art.set_book_art()
+        # La couverture est réservée à l'introduction. Pendant la lecture, le
+        # décor fourni remplit la surface sans devenir une illustration active.
+        background = None if prefer_cover else QPixmap(str(ASSET_DIR / 'illustration-background.jpg'))
+        self.scene_art.set_background_art(background)
         self.scene_entry = None
+        self.scene_title = ''
         if self.illustration_catalogue and self.pdf_path:
             entries = images_for_paragraph(self.illustration_catalogue, self.current_paragraph)
             book_cover = cover(self.illustration_catalogue)
             entry = (book_cover if prefer_cover and book_cover else
-                     entries[0] if entries else book_cover)
+                     entries[0] if entries else None)
             if entry:
                 try:
                     self.scene_art.set_book_art(self._illustration_pixmap(entry, scale=1))
