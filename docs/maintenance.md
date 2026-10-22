@@ -10,7 +10,9 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 | --- | --- | --- |
 | `main.py` | Démarrage Qt, contrôleur, lecture, historique et persistance | `main`, `MainWindow`, `go_to`, `_track_action` |
 | `book_events.py` | Calculs déterministes et effets du catalogue | `apply_effects`, `condition_met`, `apply_entry` |
-| `book_actions.py` | Interactions particulières et combats complexes | `BookActions`, `perform_book_action` |
+| `grimoire_modules/registry.py` | Manifestes et reconnaissance des éditions | `module_for_pdf`, `available_modules` |
+| `grimoire_modules/controller.py` | Délégation vers le contrôleur du livre ouvert | `ModuleActions`, `CONTROLLERS` |
+| `grimoire_modules/sorcier/` | Interactions, navigation, création, soins et combats du Sorcier | `SorcierController`, `perform_book_action` |
 | `navigation.py` | Détection des renvois, libellés et HTML échappé | `destinations`, `render_links` |
 | `rules_engine.py` | Suggestions heuristiques pour un texte non catalogué | `encounters`, `stat_events` |
 | `illustrations.py` | Association PDF / catalogue / cadrages | `catalogue_for_pdf` |
@@ -20,7 +22,7 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 | `stat_feedback.py` | Cartouches de variations, cumul par action et placement sur les valeurs | `StatFeedback.observe`, `StatBadge` |
 | `exploration_map.py` | Graphe des lieux découverts, recherche et recentrage | `ExplorationMapDialog`, `discovered_places` |
 | `dialog_chrome.py` | Bandeaux et habillage des dialogues Qt standards | `DialogHeading`, `harmonize_standard_dialog` |
-| `rules_viewer.py` | Lecture des pages physiques 3–14 du PDF | `RulesDialog.render_page` |
+| `rules_viewer.py` | Lecture des pages physiques déclarées par le module | `RulesDialog.render_page` |
 | `save_slots.py` | Validation du format et menu des cinq sauvegardes | `read_save`, `SaveSlotsDialog` |
 | `sound_effects.py` | Réglages, préchargement et demandes de sons | `SoundBank.play` |
 | `pcm_audio.py` | Mélange des voix et sortie audio continue | `Mixer.readData`, `PcmEffect` |
@@ -32,7 +34,9 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 | `Bifurk.spec`, `scripts/package_release.py` | Exécutable Windows, ZIP et brouillon de release | `package`, `draft` |
 | `tools/audit_pdf.py`, `tools/audit_windows.py` | Audits locaux et captures privées | `run`, `scenario` |
 
-Le contrôleur hérite de `BookActions`. Ce mixin suppose les services et attributs
+Le contrôleur hérite de `ModuleActions`, qui délègue au module ouvert.
+Les interactions du Sorcier se trouvent dans `grimoire_modules/sorcier/`.
+Voir [Modules de grimoires](modules-grimoires.md). Ce mixin suppose les services et attributs
 de `MainWindow` ; il ne représente pas une partie autonome. `book_events` ne dépend
 pas de Qt : commencer par ce module pour comprendre une règle calculable.
 

@@ -1,4 +1,4 @@
-"""Consultation des pages PDF 3 à 14 du livre importé, sans contenu embarqué.
+"""Consultation des pages de règles déclarées par le module, sans contenu embarqué.
 
 La numérotation affichée est celle des pages physiques du PDF, pas des paragraphes.
 Le rendu réutilise le zoom et le déplacement d'une illustration. Les pixels sont
@@ -12,27 +12,30 @@ from dialog_chrome import DialogHeading
 
 class RulesDialog(IllustrationDialog):
     """Lecteur indépendant des pages de règles, avec navigation physique et image zoomable."""
-    def __init__(self, pdf_path, parent=None):
-        """Borner les règles aux pages 3–14 disponibles et connecter précédent / suivant / sélection."""
+    def __init__(self, pdf_path, parent=None, *, pages=(3, 14)):
+        """Borner les règles aux pages configurées disponibles et connecter précédent / suivant / sélection."""
         super().__init__(parent)
         import pymupdf as fitz
         self.pdf_path = str(pdf_path)
+        self.first_page, requested_last = pages
+        if not 1 <= self.first_page <= requested_last:
+            raise ValueError("Intervalle de pages de règles invalide.")
         with fitz.open(self.pdf_path) as document:
-            self.last_page = min(14, len(document))
-        if self.last_page < 3:
-            raise ValueError("Ce PDF ne contient pas les pages de règles 3 à 14.")
-        self.setWindowTitle("Bifurk — Règles du livre · pages PDF 3 à 14")
+            self.last_page = min(requested_last, len(document))
+        if self.last_page < self.first_page:
+            raise ValueError("Ce PDF ne contient pas les pages de règles du module.")
+        self.setWindowTitle(f"Bifurk — Règles du livre · pages PDF {self.first_page} à {self.last_page}")
         area = self.screen().availableGeometry()
         self.resize(min(800, area.width() - 60), min(850, area.height() - 70))
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 18, 20, 18)
         layout.setSpacing(12)
-        layout.addWidget(DialogHeading('Les règles de l’aventure', f'Pages 3 à {self.last_page} de votre grimoire.'))
+        layout.addWidget(DialogHeading('Les règles de l’aventure', f'Pages {self.first_page} à {self.last_page} de votre grimoire.'))
         navigation = QHBoxLayout()
         self.previous = QPushButton("← Précédente")
         self.pages = QComboBox()
         self.pages.setAccessibleName("Page PDF des règles")
-        self.pages.addItems([f"Page PDF {n}" for n in range(3, self.last_page + 1)])
+        self.pages.addItems([f"Page PDF {n}" for n in range(self.first_page, self.last_page + 1)])
         self.following = QPushButton("Suivante →")
         navigation.addWidget(self.previous)
         navigation.addWidget(self.pages, 1)
@@ -47,16 +50,16 @@ class RulesDialog(IllustrationDialog):
         self.render_page(0)
 
     def render_page(self, index):
-        """Rendre l’index de liste (base zéro) vers la page physique index+3.
+        """Rendre l’index de liste (base zéro) vers la page physique first_page+index.
 
         Copier les pixels avant fermeture du document et borner les boutons de navigation."""
         import pymupdf as fitz
         if index < 0:
             return
         with fitz.open(self.pdf_path) as document:
-            pix = document[index + 2].get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
+            pix = document[index + self.first_page - 1].get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
             image = QImage(pix.samples, pix.width, pix.height, pix.stride, QImage.Format_RGB888)
             self.viewer.set_book_art(QPixmap.fromImage(image.copy()))
         self.previous.setEnabled(index > 0)
         self.following.setEnabled(index < self.pages.count()-1)
-        self.viewer.setAccessibleName(f"Règles — page PDF {index + 3}")
+        self.viewer.setAccessibleName(f"Règles — page PDF {index + self.first_page}")

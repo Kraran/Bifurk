@@ -66,7 +66,7 @@ class SessionAmbienceTests(unittest.TestCase):
     def pdf_mocks(self):
         """Remplacer extraction et catalogues pour isoler la session de la lecture d’un vrai PDF."""
         for name, value in [('extract_paragraphs', {1:'Première salle.',2:'Deuxième salle.'}),
-                            ('catalogue_for_pdf', None), ('load_book_events', None)]:
+                            ('module_for_pdf', None)]:
             p = patch.object(main, name, return_value=value)
             p.start(); self.addCleanup(p.stop)
 

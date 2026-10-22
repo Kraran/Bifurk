@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "id": "sorcier_montagne_feu_1982",
+  "title": "Le Sorcier de la Montagne de Feu",
+  "engine": "sorcier-1982",
+  "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
+  "paragraph_count": 400,
+  "rules_pages": [
+    3,
+    14
+  ],
+  "catalogues": {
+    "events": "evenements_sorcier_1982.json",
+    "illustrations": "sorcier_montagne_feu_1982.json"
+  },
+  "text_repairs": [
+    "misplaced-fragment-253"
+  ]
+}
