@@ -79,6 +79,26 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(self.w.character['gold'], 30)
         self.assertEqual(self.w.character['inventory'].count('Carte de Yaztromo'), 1)
 
+    def test_analysed_title_routes_and_source_warning_are_presented_without_effects(self):
+        self.open()
+        self.start()
+        before = copy.deepcopy(self.w.character)
+        dice = self.roll.call_count
+        self.assertEqual(self.w.paragraph_title.text(), 'La tour de Yaztromo')
+        buttons = [self.w.choice_layout.itemAt(i).widget()
+                   for i in range(self.w.choice_layout.count())]
+        self.assertTrue(any('Suivre le mage' in button.text() for button in buttons))
+        self.w.paragraphs[267] = 'Rendez-vous au 1%. Sinon rendez-vous au 25.'
+        self.w.paragraphs[25] = 'Une bifurcation.'
+        self.w.go_to(267)
+        self.assertNotIn('href="paragraph:1"', self.w.reader.toHtml())
+        buttons = [self.w.choice_layout.itemAt(i).widget()
+                   for i in range(self.w.choice_layout.count())]
+        self.assertTrue(any(not button.isEnabled() and 'confirmer' in button.text()
+                            for button in buttons))
+        self.assertEqual(self.w.character, before)
+        self.assertEqual(self.roll.call_count, dice)
+
     def test_prologue_is_private_page_view_and_never_awards_resources_twice(self):
         self.open()
         before = self.w._snapshot()
@@ -125,7 +145,7 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(self.w.character['gold'], 12)
         self.assertEqual(self.w.character['inventory'].count('Carte de Yaztromo'), 1)
         self.assertEqual(self.w.current_paragraph, 1)
-        self.assertEqual(self.w.book_event_catalogue['reviewed_count'], 0)
+        self.assertEqual(self.w.book_event_catalogue['reviewed_count'], 400)
         self.assertEqual(self.w.preferences['last_book'], Path(self.w.pdf_path).name)
 
     def test_consultation_never_activates_sorcier_paragraph_rules(self):
@@ -201,8 +221,9 @@ class ForetEditionContractTests(unittest.TestCase):
         self.assertEqual(module.rules_pages, (4,13))
         self.assertEqual(module.intro_pages, (14,16))
         self.assertEqual(module.status, 'preview')
-        self.assertEqual(events['paragraphs'], {})
-        self.assertEqual(events['review_pending'], list(range(1,401)))
+        self.assertEqual(len(events['paragraphs']), 400)
+        self.assertEqual(events['review_pending'], [])
+        self.assertEqual(events['automation_pending'], list(range(1,401)))
 
     def test_private_pdf_is_recognized_and_cover_crop_fits_real_page(self):
         module = next(m for m in available_modules() if m.engine == 'foret-1983')

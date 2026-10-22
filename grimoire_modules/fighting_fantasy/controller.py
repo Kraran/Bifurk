@@ -13,6 +13,10 @@ from .rules import (POTION_STATS, POTION_DOSES, adventurer_stats, spend_luck,
 
 class FightingFantasyActions:
     """Fournir création, soins, assauts et fuite ; le livre étend seulement les exceptions."""
+    def _reading_link_targets(self):
+        """Limiter les liens du lecteur ; chaque module peut filtrer ses renvois."""
+        return self.paragraphs
+
     def _book_state(self, number, create=False):
         """Lire l’état local d’un paragraphe ; create=True crée les dictionnaires persistants.
 
