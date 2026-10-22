@@ -51,8 +51,9 @@ d'affichage, pas un critère de reconnaissance du livre.
 
 ## État des règles de l'aventure
 
-`catalogues/evenements_foret_1983.json` contient **zéro paragraphe marqué vérifié**
-et liste les 400 paragraphes en attente. L'adaptateur de présentation ne dépend
+`catalogues/evenements_foret_1983.json` contient **400 analyses documentaires**
+et aucune entrée de règle exécutable. Les titres, choix et notes de mécanique
+sont recensés ; leur automatisation reste en attente. L’adaptateur ne dépend
 pas du contrôleur du Sorcier. Les renvois textuels permettent la consultation et
 la sauvegarde de la position, mais n'appliquent pas de conditions ou d'effets.
 Le bouton de combat reste inactif et un appel direct ne lance aucun assaut.
@@ -66,7 +67,7 @@ du Crocodile et des Piranhas du Sorcier.
 
 - `catalogues/modules/foret_malediction_1983.json` : manifeste, pages et ressources initiales.
 - `catalogues/foret_malediction_1983.json` : association de couverture.
-- `catalogues/evenements_foret_1983.json` : suivi explicite de la revue à effectuer.
+- `catalogues/evenements_foret_1983.json` : revue documentaire des 400 paragraphes, distincte des règles exécutables.
 - `grimoire_modules/foret/controller.py` : navigation de consultation sans automatismes.
 - `grimoire_library.py` : bibliothèque, sélection et miniatures privées en mémoire.
 - `tests/test_foret_presentation.py` : ouverture, prologue, profils, sauvegardes,
@@ -78,5 +79,4 @@ l'archive Windows exige les trois ressources de catalogue du nouveau module ;
 les imports Python et le dossier catalogues sont déjà suivis par PyInstaller.
 Aucune compilation Windows n'est nécessaire pour cette étape.
 
-La prochaine étape sera la revue des 400 paragraphes par lots de 50, en recensant
-les règles particulières pour leur résolution ultérieure.
+La revue des 400 paragraphes est documentée dans [le bilan d’analyse](reviews/foret-400-paragraphes.md). La prochaine étape est leur automatisation, après clarification des anomalies de source.

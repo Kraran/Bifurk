@@ -675,7 +675,7 @@ class MainWindow(QMainWindow, ModuleActions):
 
         Ne pas rétablir line-height sur le div : Qt ne l’applique qu’au premier bloc,
         ce qui crée un espacement anormal après la première ligne (test dédié)."""
-        escaped = render_links(text, self.paragraphs).replace("#123f70", self.theme.color("link"))
+        escaped = render_links(text, self._reading_link_targets()).replace("#123f70", self.theme.color("link"))
         # Liens bleu nuit soulignés : contraste élevé sur le parchemin clair.
         content = (f'<div style="font-family: \'{self.reading_font_family}\'; '
                    f'font-size: {self.reader_font_size}pt; color: {self.theme.color("ink")};">'
@@ -1531,6 +1531,11 @@ class MainWindow(QMainWindow, ModuleActions):
     def _paragraph_name(self, number):
         """Lire le titre catalogué d’un lieu, avec repli si le livre n’est pas reconnu."""
         entry = verified_entry(self.book_event_catalogue, number)
+        if not entry:
+            candidate = (self.book_event_catalogue or {}).get('paragraphs', {}).get(str(number), {})
+            # Un titre analysé est présentable sans autoriser ses règles à s’exécuter.
+            if candidate.get('status') == 'analyse_verifiee':
+                entry = candidate
         return entry.get('title', '') if entry else ''
 
     def prepare_encounter(self, monster):

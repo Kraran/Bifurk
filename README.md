@@ -160,3 +160,5 @@ Le deuxième module propose sa couverture, son prologue et ses règles. Le bouto
 La Forêt est **en préparation** : consultation et sauvegarde sont disponibles,
 mais ses événements et combats seront intégrés après leur revue.
 Voir [le détail de cette étape](docs/foret-module-presentation.md).
+
+La revue des **400 paragraphes de la Forêt** est terminée : titres, choix et mécaniques sont catalogués. Les événements restent à programmer ; deux anomalies du PDF (§§186 et 267) nécessitent confirmation. Voir [le bilan et les contrôles](docs/reviews/foret-400-paragraphes.md).

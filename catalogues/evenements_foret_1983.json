@@ -3,8 +3,7204 @@
   "book": "La Forêt de la Malédiction",
   "pdf_sha256": "0abac11c0e88ce244c5513bf4b1537fa46159df5606d3e3c8c28b83e6614f6e1",
   "total_paragraphs": 400,
-  "reviewed_count": 0,
-  "review_pending": [
+  "reviewed_count": 400,
+  "review_pending": [],
+  "paragraphs": {
+    "1": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La tour de Yaztromo",
+      "routes": [
+        {
+          "target": 261,
+          "label": "Suivre le mage"
+        },
+        {
+          "target": 54,
+          "label": "Attaquer Yaztromo"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 19,
+        "rules": "Choix initial avant les achats."
+      }
+    },
+    "2": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le dernier repas de la Goule",
+      "routes": [],
+      "analysis": {
+        "source_page_pdf": 20,
+        "rules": "Mort après défaite contre la Goule."
+      }
+    },
+    "3": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le tronc creux",
+      "routes": [
+        {
+          "target": 322,
+          "label": "Éclairer le tronc",
+          "condition_text": "Anneau de Lumière"
+        },
+        {
+          "target": 120,
+          "label": "Explorer sans anneau",
+          "condition_text": "Pas d'Anneau de Lumière"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 20,
+        "rules": "Vérifier la possession de l'anneau, pas sa consommation. Chaque achat chez Yaztromo possède une seule utilisation magique (§261), même si l’objet est conservé."
+      }
+    },
+    "4": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La flèche dans l'épaule",
+      "routes": [
+        {
+          "target": 49,
+          "label": "Entrer dans la caverne"
+        },
+        {
+          "target": 93,
+          "label": "Revenir au croisement"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 20,
+        "rules": "Endurance -4; ne poursuivre que si vivant."
+      }
+    },
+    "5": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le trône des Clones",
+      "routes": [
+        {
+          "target": 333,
+          "label": "Essayer la couronne"
+        },
+        {
+          "target": 249,
+          "label": "Remonter les marches"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 20,
+        "rules": "La couronne n'est pas encore équipée."
+      }
+    },
+    "6": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Lutin grognon",
+      "routes": [
+        {
+          "target": 148,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 20,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "7": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les essaims d'abeilles",
+      "routes": [
+        {
+          "target": 23,
+          "label": "Continuer après la victoire",
+          "condition_text": "Trois essaims vaincus"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 21,
+        "rules": "Combat successif : essaim 1 [7/3], essaim 2 [8/4], essaim 3 [7/4]. Pas de fuite proposée."
+      }
+    },
+    "8": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La dispute sur le chemin",
+      "routes": [
+        {
+          "target": 317,
+          "label": "Rencontrer les voyageurs"
+        },
+        {
+          "target": 392,
+          "label": "Se cacher et laisser passer"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 21,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "9": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Gobelin libéré",
+      "routes": [
+        {
+          "target": 176,
+          "label": "Fouiller après la victoire",
+          "condition_text": "Gobelin vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 22,
+        "rules": "Combat : Gobelin [5/4]. Pas de fuite proposée."
+      }
+    },
+    "10": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le roc manqué",
+      "routes": [
+        {
+          "target": 290,
+          "label": "Affronter l'Ogre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 22,
+        "rules": "Le lancer de roc échoue sans jet demandé."
+      }
+    },
+    "11": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le vertige",
+      "routes": [
+        {
+          "target": 353,
+          "label": "Reprendre connaissance"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 22,
+        "rules": "Évanouissement; aucun malus chiffré ici."
+      }
+    },
+    "12": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le prix de l'épée",
+      "routes": [
+        {
+          "target": 271,
+          "label": "Reprendre la conversation"
+        },
+        {
+          "target": 67,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 22,
+        "rules": "Récupérer l'épée contre 10 Or OU deux objets précieux choisis; pas les deux. Cas d'insolvabilité non décrit, à traiter sans inventer de paiement."
+      }
+    },
+    "13": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La masure disloquée",
+      "routes": [
+        {
+          "target": 149,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 23,
+        "rules": "Chance -3 après libération de la Force Tellurique."
+      }
+    },
+    "14": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Au fond de la fosse",
+      "routes": [
+        {
+          "target": 255,
+          "label": "Reprendre la route",
+          "condition_text": "Paiement au trappeur"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 23,
+        "rules": "Payer 3 Or OU, à défaut d'or, un objet magique choisi; retirer le paiement. Absence des deux moyens non décrite."
+      }
+    },
+    "15": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Ver Piqueur souterrain",
+      "routes": [
+        {
+          "target": 217,
+          "label": "Explorer après la victoire",
+          "condition_text": "Ver vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 24,
+        "rules": "Combat : Ver Piqueur [8/7]. Pas de jet de venin supplémentaire prescrit."
+      }
+    },
+    "16": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les champignons rouges",
+      "routes": [
+        {
+          "target": 211,
+          "label": "Boire l'antipoison",
+          "condition_text": "Potion Antipoison possédée"
+        },
+        {
+          "target": 345,
+          "label": "Subir le poison",
+          "condition_text": "Pas d'antipoison"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 24,
+        "rules": "L'empoisonnement est résolu dans le passage suivant."
+      }
+    },
+    "17": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le puits et son échelle",
+      "routes": [
+        {
+          "target": 89,
+          "label": "Jeter une pièce et faire un vœu",
+          "condition_text": "Au moins 1 Or"
+        },
+        {
+          "target": 256,
+          "label": "Descendre vers le tunnel"
+        },
+        {
+          "target": 238,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 26,
+        "rules": "Offrande de 1 Or seulement si choix du vœu; ne pas doubler avec le §89."
+      }
+    },
+    "18": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La fièvre retombée",
+      "routes": [
+        {
+          "target": 198,
+          "label": "Partir au matin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 26,
+        "rules": "Guérison narrative de la lycanthropie; pas de restauration chiffrée."
+      }
+    },
+    "19": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'excision de la morsure",
+      "routes": [
+        {
+          "target": 18,
+          "label": "Attendre le matin",
+          "condition_text": "Survivre à la perte"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 26,
+        "rules": "Endurance -1; la morsure infectée est retirée."
+      }
+    },
+    "20": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La piste vers l'est",
+      "routes": [
+        {
+          "target": 277,
+          "label": "Poursuivre à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 26,
+        "rules": "Ne pas créer une sortie au sud que le texte écarte."
+      }
+    },
+    "21": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le remède au poison",
+      "routes": [
+        {
+          "target": 226,
+          "label": "Reprendre la marche"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 27,
+        "rules": "Boire et retirer la Potion Antipoison; neutraliser le poison."
+      }
+    },
+    "22": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le gaz de la boîte d'argent",
+      "routes": [
+        {
+          "target": 358,
+          "label": "Quitter la caverne",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 27,
+        "rules": "Habileté -2 puis Endurance -1d6; conserver la boîte d'argent. Un seul dé pour la perte d'Endurance."
+      }
+    },
+    "23": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le répit après les abeilles",
+      "routes": [
+        {
+          "target": 339,
+          "label": "Rejoindre le cours d'eau"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 27,
+        "rules": "Pas de repas ni de soin accordé par le repos décrit."
+      }
+    },
+    "24": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'antipoison contre les fléchettes",
+      "routes": [
+        {
+          "target": 377,
+          "label": "Poursuivre les Pygmées"
+        },
+        {
+          "target": 92,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 28,
+        "rules": "Boire et retirer la Potion Antipoison; les effets des fléchettes disparaissent."
+      }
+    },
+    "25": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation de la vallée",
+      "routes": [
+        {
+          "target": 369,
+          "label": "Continuer au nord"
+        },
+        {
+          "target": 56,
+          "label": "Prendre à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 28,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "26": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les livres de la cabane",
+      "routes": [
+        {
+          "target": 91,
+          "label": "Ramasser le livre sous la table"
+        },
+        {
+          "target": 220,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 28,
+        "rules": "Aucun objet acquis avant le choix."
+      }
+    },
+    "27": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Après l'Homme-Arbre",
+      "routes": [
+        {
+          "target": 329,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 29,
+        "rules": "Pas de bonus de victoire indiqué ici."
+      }
+    },
+    "28": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'épreuve du Brassard",
+      "routes": [
+        {
+          "target": 52,
+          "label": "Utiliser le Brassard de Force",
+          "condition_text": "Brassard possédé"
+        },
+        {
+          "target": 266,
+          "label": "Essayer sans Brassard",
+          "condition_text": "Brassard absent"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 29,
+        "rules": "Vérification d'objet sans consommation explicite."
+      }
+    },
+    "29": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le feu des Orques",
+      "routes": [
+        {
+          "target": 383,
+          "label": "Examiner le camp",
+          "condition_text": "Orques vaincus"
+        },
+        {
+          "target": 254,
+          "label": "Fuir vers le nord",
+          "condition_text": "Fuite avec blessure réglementaire"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 29,
+        "rules": "Combat de deux Orques [5/5], [5/6]; vérifier l'ordre selon les règles communes. Fuite proposée pendant le combat. Le mode de résolution des deux adversaires doit être confirmé avant automatisation ; la succession est une interprétation."
+      }
+    },
+    "30": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La coupure au front",
+      "routes": [
+        {
+          "target": 225,
+          "label": "Continuer",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 29,
+        "rules": "Endurance -2."
+      }
+    },
+    "31": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le retour hors du puits",
+      "routes": [
+        {
+          "target": 362,
+          "label": "Rejoindre le chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 30,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "32": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le tribut à Arragon",
+      "routes": [
+        {
+          "target": 150,
+          "label": "Repartir vers le nord",
+          "condition_text": "Tribut payé"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 31,
+        "rules": "Retirer 10 Or ET deux objets choisis; Chance -1. Précondition de paiement à vérifier depuis le choix précédent."
+      }
+    },
+    "33": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le moine éconduit",
+      "routes": [
+        {
+          "target": 390,
+          "label": "Reprendre le chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 31,
+        "rules": "Pas de perte de Chance annoncée pour le refus."
+      }
+    },
+    "34": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le vœu du génie",
+      "routes": [
+        {
+          "target": 231,
+          "label": "Repartir après le vœu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 31,
+        "rules": "Choisir UNE restauration à l'initial : Habileté OU Endurance OU Chance. Retirer la lanterne magique utilisée, sans confondre avec la lanterne de départ."
+      }
+    },
+    "35": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La brûlure",
+      "routes": [
+        {
+          "target": 132,
+          "label": "Continuer",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 31,
+        "rules": "Endurance -4."
+      }
+    },
+    "36": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le vol découvert",
+      "routes": [
+        {
+          "target": 187,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 32,
+        "rules": "Perdre tout l'or restant OU deux objets magiques achetés chez Yaztromo. Suivre la provenance des objets; choix et manque de moyens à préciser."
+      }
+    },
+    "37": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le fruit violet",
+      "routes": [
+        {
+          "target": 226,
+          "label": "Recracher et repartir"
+        },
+        {
+          "target": 336,
+          "label": "Manger le fruit"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 32,
+        "rules": "Ne pas appliquer les effets du fruit avant le choix de le manger."
+      }
+    },
+    "38": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "À la fenêtre de la cabane",
+      "routes": [
+        {
+          "target": 315,
+          "label": "Entrer dans la cabane"
+        },
+        {
+          "target": 220,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 32,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "39": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Troll pris au filet",
+      "routes": [
+        {
+          "target": 287,
+          "label": "Emporter le sac"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 34,
+        "rules": "Utiliser et laisser le Filet d'Enchevêtrement; récupérer le sac de cuir, contenu traité ensuite. Troll capturé, pas tué."
+      }
+    },
+    "40": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le piège abandonné",
+      "routes": [
+        {
+          "target": 274,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 34,
+        "rules": "Pas de perte chiffrée dans ce passage."
+      }
+    },
+    "41": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le carrefour du corbeau",
+      "routes": [
+        {
+          "target": 239,
+          "label": "Prendre à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 34,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "42": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La Sorcière dévoilée",
+      "routes": [
+        {
+          "target": 342,
+          "label": "Tirer l'épée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 34,
+        "rules": "Chance -1 avant le prochain passage."
+      }
+    },
+    "43": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les Hommes des Bois",
+      "routes": [
+        {
+          "target": 50,
+          "label": "Examiner les dépouilles",
+          "condition_text": "Deux adversaires vaincus"
+        },
+        {
+          "target": 188,
+          "label": "Fuir au nord",
+          "condition_text": "Fuite avec blessure réglementaire"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 35,
+        "rules": "Combat successif : Homme des Bois 1 [7/5], Homme des Bois 2 [6/4]."
+      }
+    },
+    "44": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les filtres dans le gaz",
+      "routes": [
+        {
+          "target": 293,
+          "label": "Rejoindre l'escalier",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 35,
+        "rules": "Endurance -2 avant de placer les Filtres à Nez; pas de perte récurrente après protection."
+      }
+    },
+    "45": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La blessure du détour",
+      "routes": [
+        {
+          "target": 165,
+          "label": "Continuer",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 35,
+        "rules": "Endurance -2."
+      }
+    },
+    "46": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le sort du Gnome",
+      "routes": [
+        {
+          "target": 12,
+          "label": "Présenter ses excuses"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 35,
+        "rules": "Chance -2; le projectile est transformé, pas de combat ni de jet."
+      }
+    },
+    "47": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La fuite de la Sorcière",
+      "routes": [
+        {
+          "target": 26,
+          "label": "Fouiller la cabane"
+        },
+        {
+          "target": 220,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 36,
+        "rules": "Sorcière enfuie; ne pas enregistrer une victoire mortelle."
+      }
+    },
+    "48": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'œuf explosif",
+      "routes": [
+        {
+          "target": 288,
+          "label": "Quitter la pièce",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 36,
+        "rules": "Lancer 1d6; Endurance diminuée du résultat. Pas de jet par fragment."
+      }
+    },
+    "49": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La caverne basse des Gremlins",
+      "routes": [
+        {
+          "target": 371,
+          "label": "Explorer la pièce",
+          "condition_text": "Deux Gremlins vaincus"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 36,
+        "rules": "Combat successif : Gremlin 1 [4/3], Gremlin 2 [3/2]. Force d'Attaque du héros -3 à chaque assaut; pas de fuite."
+      }
+    },
+    "50": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La petite clé d'argent",
+      "routes": [
+        {
+          "target": 188,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 38,
+        "rules": "Ajouter la petite clé d'argent prise sur un Homme des Bois."
+      }
+    },
+    "51": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation verdoyante",
+      "routes": [
+        {
+          "target": 199,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 397,
+          "label": "Continuer à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 38,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "52": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bras de fer avec Brassard",
+      "routes": [
+        {
+          "target": 78,
+          "label": "Recevoir la mise gagnée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 38,
+        "rules": "Brassard de Force : victoire sans dé. Mise de Quin : Poudre de Lévitation contre un objet OU 10 Or; aucun coût au héros gagnant."
+      }
+    },
+    "53": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le vol des Pygmées",
+      "routes": [
+        {
+          "target": 92,
+          "label": "Reprendre la route"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 38,
+        "rules": "Or ramené à zéro; conserver épée et objets. Pas de perte d'Endurance chiffrée."
+      }
+    },
+    "54": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'avertissement de Yaztromo",
+      "routes": [
+        {
+          "target": 399,
+          "label": "Persister à attaquer"
+        },
+        {
+          "target": 261,
+          "label": "Suivre le mage"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 39,
+        "rules": "Aucun combat à préparer avant confirmation du choix."
+      }
+    },
+    "55": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'Ogre assommé",
+      "routes": [
+        {
+          "target": 168,
+          "label": "Examiner la cage"
+        },
+        {
+          "target": 313,
+          "label": "Fouiller la caverne"
+        },
+        {
+          "target": 358,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 39,
+        "rules": "Utiliser le gant de soie violette pour lancer la pierre; Ogre assommé sans jet ni dépense de gant annoncée."
+      }
+    },
+    "56": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le fond de la vallée",
+      "routes": [
+        {
+          "target": 233,
+          "label": "Continuer à l'ouest"
+        },
+        {
+          "target": 163,
+          "label": "Prendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 39,
+        "rules": "Pas de sortie au sud offerte."
+      }
+    },
+    "57": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le feu de la Wyverne",
+      "routes": [
+        {
+          "target": 132,
+          "label": "Éviter les flammes",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 35,
+          "label": "Subir les flammes",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 40,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance; dégâts appliqués dans la branche, pas ici."
+      }
+    },
+    "58": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La crypte purifiée",
+      "routes": [
+        {
+          "target": 112,
+          "label": "Quitter la crypte"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 41,
+        "rules": "Consommer Eau Bénite contre la Goule; Or +25, ajouter tête de marteau en bronze marquée G. Goule neutralisée, pas de combat."
+      }
+    },
+    "59": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La route vers l'est",
+      "routes": [
+        {
+          "target": 171,
+          "label": "Poursuivre à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 41,
+        "rules": "Pas de sortie vers le sud offerte."
+      }
+    },
+    "60": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les filtres introuvables",
+      "routes": [
+        {
+          "target": 183,
+          "label": "Placer les filtres à temps",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 44,
+          "label": "Inhaler le gaz",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 41,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance. Possession préalable de Filtres à Nez requise par le parcours."
+      }
+    },
+    "61": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation souterraine",
+      "routes": [
+        {
+          "target": 398,
+          "label": "Ramper vers le puits"
+        },
+        {
+          "target": 151,
+          "label": "Ramper à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 41,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "62": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Après l'Homme Masqué",
+      "routes": [
+        {
+          "target": 208,
+          "label": "Repartir à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 42,
+        "rules": "Victoire de la rencontre multiple précédente; aucun butin annoncé."
+      }
+    },
+    "63": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La charge du Centaure",
+      "routes": [
+        {
+          "target": 178,
+          "label": "Traverser à pied"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 42,
+        "rules": "Pas de combat à résoudre; la flèche a manqué dans la branche précédente."
+      }
+    },
+    "64": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'Herbe repoussée",
+      "routes": [
+        {
+          "target": 142,
+          "label": "Fuir le passage"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 42,
+        "rules": "Boire et retirer Potion de Contrôle des Plantes; échapper à l'Herbe d'Embrouille."
+      }
+    },
+    "65": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le pont franchi",
+      "routes": [
+        {
+          "target": 330,
+          "label": "Dormir derrière les rochers"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 42,
+        "rules": "Campement; pas de repas ou restauration automatique."
+      }
+    },
+    "66": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'autre rive à gué",
+      "routes": [
+        {
+          "target": 325,
+          "label": "Dormir sous l'arbre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 43,
+        "rules": "Campement; pas de repas ou restauration automatique."
+      }
+    },
+    "67": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation occidentale",
+      "routes": [
+        {
+          "target": 113,
+          "label": "Continuer à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 43,
+        "rules": "Pas de sortie vers les collines offerte."
+      }
+    },
+    "68": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La potion de santé",
+      "routes": [
+        {
+          "target": 59,
+          "label": "Repartir à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 43,
+        "rules": "Boire le liquide de la bouteille trouvée; Endurance +3 sous plafond initial."
+      }
+    },
+    "69": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La champignonnière souterraine",
+      "routes": [
+        {
+          "target": 264,
+          "label": "Attaquer un cultivateur"
+        },
+        {
+          "target": 143,
+          "label": "Couper un champignon"
+        },
+        {
+          "target": 269,
+          "label": "Goûter un champignon vert"
+        },
+        {
+          "target": 16,
+          "label": "Goûter un champignon rouge"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 43,
+        "rules": "Quatre choix; ne pas confondre les couleurs."
+      }
+    },
+    "70": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'épée enchantée",
+      "routes": [
+        {
+          "target": 334,
+          "label": "Reprendre la marche"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 45,
+        "rules": "Ajouter et équiper l'épée enchantée; Habileté +2. Articulation au plafond initial et à la perte de l'épée à spécifier avec les règles générales, sans appliquer les mécanismes du Sorcier implicitement."
+      }
+    },
+    "71": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le chef Gremlin",
+      "routes": [
+        {
+          "target": 273,
+          "label": "Examiner la pièce",
+          "condition_text": "Chef vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 45,
+        "rules": "Combat : chef Gremlin [5/5]; Force d'Attaque du héros -3 à chaque assaut, plafond bas."
+      }
+    },
+    "72": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le chemin des collines",
+      "routes": [
+        {
+          "target": 138,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 46,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "73": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La porte forcée",
+      "routes": [
+        {
+          "target": 327,
+          "label": "Entrer",
+          "condition_text": "2d6 ≤ Chance ET ≤ Habileté"
+        },
+        {
+          "target": 112,
+          "label": "Abandonner",
+          "condition_text": "2d6 dépasse au moins un score"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 46,
+        "rules": "UN jet de 2d6 comparé aux deux caractéristiques; ce n'est pas Tenter sa Chance, ne pas dépenser de Chance. Pas de blessure chiffrée pour l'échec."
+      }
+    },
+    "74": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le sac et la clochette",
+      "routes": [
+        {
+          "target": 25,
+          "label": "Reprendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 46,
+        "rules": "Or +5 et ajouter petite cloche de cuivre; contenu du sac acquis une seule fois pour ce butin."
+      }
+    },
+    "75": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La rivière traversée",
+      "routes": [
+        {
+          "target": 330,
+          "label": "Dormir derrière les rochers"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 46,
+        "rules": "Traversée sans dégât; pas de repas automatique."
+      }
+    },
+    "76": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le virage au nord",
+      "routes": [
+        {
+          "target": 206,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 47,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "77": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les Pygmées en fuite",
+      "routes": [
+        {
+          "target": 377,
+          "label": "Les poursuivre"
+        },
+        {
+          "target": 92,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 47,
+        "rules": "Ne pas lancer un combat contre les Pygmées en fuite."
+      }
+    },
+    "78": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La récompense de Quin",
+      "routes": [
+        {
+          "target": 349,
+          "label": "Revenir à la bifurcation"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 47,
+        "rules": "Ajouter Poudre de Lévitation gagnée; ne pas la créditer aussi au §52 ou §266."
+      }
+    },
+    "79": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les Vampires de la crypte",
+      "routes": [
+        {
+          "target": 386,
+          "label": "Explorer après victoire",
+          "condition_text": "Trois ennemis vaincus"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 47,
+        "rules": "Combat successif : Vampire 1 [5/5], Vampire 2 [6/5], Vampire 3 [5/7]. Ne pas importer les règles du Vampire du Sorcier."
+      }
+    },
+    "80": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Vers l'escalier souterrain",
+      "routes": [
+        {
+          "target": 293,
+          "label": "Monter les marches"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 48,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "81": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La flèche dans le tunnel",
+      "routes": [
+        {
+          "target": 49,
+          "label": "Éviter la flèche",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 4,
+          "label": "Être touché",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 48,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance; dégâts -4 E dans le §4 seulement."
+      }
+    },
+    "82": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le flacon de Tranquillité",
+      "routes": [
+        {
+          "target": 235,
+          "label": "Boire la potion",
+          "condition_text": "Potion de Tranquillité possédée"
+        },
+        {
+          "target": 13,
+          "label": "Subir la libération",
+          "condition_text": "Potion absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 48,
+        "rules": "Vérification d'objet; consommation dans le §235."
+      }
+    },
+    "83": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La belladone contre la morsure",
+      "routes": [
+        {
+          "target": 139,
+          "label": "Attendre la guérison",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 48,
+        "rules": "Consommer la belladone; Endurance -2 pour son poison."
+      }
+    },
+    "84": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La Bête Rocheuse",
+      "routes": [
+        {
+          "target": 146,
+          "label": "Examiner les pierres",
+          "condition_text": "Bête vaincue"
+        },
+        {
+          "target": 245,
+          "label": "Fuir au nord",
+          "condition_text": "Au moins trois assauts terminés"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 48,
+        "rules": "Combat : Bête Rocheuse [8/11]. Fuite avec blessure réglementaire après trois assauts."
+      }
+    },
+    "85": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La cage du Gobelin",
+      "routes": [
+        {
+          "target": 9,
+          "label": "Ouvrir la cage"
+        },
+        {
+          "target": 358,
+          "label": "Quitter la caverne"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 49,
+        "rules": "Le bâton au cou du Gobelin n'est pas encore acquis."
+      }
+    },
+    "86": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le passage de la chasse",
+      "routes": [
+        {
+          "target": 208,
+          "label": "Rejoindre le chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 49,
+        "rules": "Aucun combat; aucune règle du Crocodile du Sorcier."
+      }
+    },
+    "87": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La corniche de la colline",
+      "routes": [
+        {
+          "target": 90,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 49,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "88": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La deuxième anfractuosité",
+      "routes": [
+        {
+          "target": 212,
+          "label": "Entrer dans l'ouverture"
+        },
+        {
+          "target": 107,
+          "label": "Monter plus haut"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 49,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "89": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le vœu au puits",
+      "routes": [
+        {
+          "target": 256,
+          "label": "Descendre explorer"
+        },
+        {
+          "target": 281,
+          "label": "Repartir à l'est"
+        },
+        {
+          "target": 238,
+          "label": "Repartir à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 50,
+        "rules": "Or -1 pour l'offrande choisie au §17; aucun gain en retour. Ne pas payer une seconde fois si la transition prélève déjà la pièce."
+      }
+    },
+    "90": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les archers des rochers",
+      "routes": [
+        {
+          "target": 210,
+          "label": "Éviter la flèche",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 348,
+          "label": "Subir la flèche",
+          "condition_text": "Chance ratée et survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 50,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance; branche malchanceuse Endurance -3."
+      }
+    },
+    "91": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'Œil d'Ambre",
+      "routes": [
+        {
+          "target": 220,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 52,
+        "rules": "Ajouter et porter le collier Œil d'Ambre; Chance +1. Inscription vérifiée visuellement page PDF 52 : porté au cou, questionner une personne suspecte la force à dire vrai. Texte porté par une image, absent de l'extraction."
+      },
+      "source_issues": [
+        {
+          "paragraph": 91,
+          "severity": "information",
+          "kind": "rule_in_image",
+          "details": "L’inscription illustrée décrit le pouvoir de vérité de l’Œil d’Ambre ; elle a été contrôlée visuellement."
+        }
+      ]
+    },
+    "92": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les abeilles au-dessus du chemin",
+      "routes": [
+        {
+          "target": 299,
+          "label": "Courir vers l'eau"
+        },
+        {
+          "target": 7,
+          "label": "Combattre les essaims"
+        },
+        {
+          "target": 100,
+          "label": "Boire la potion",
+          "condition_text": "Potion de Contrôle des Insectes possédée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 52,
+        "rules": "Consommation et issue de la potion dans le §100."
+      }
+    },
+    "93": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation retrouvée",
+      "routes": [
+        {
+          "target": 61,
+          "label": "Aller à l'est"
+        },
+        {
+          "target": 270,
+          "label": "Aller au sud"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 53,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "94": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La Corde Magique au tronc",
+      "routes": [
+        {
+          "target": 136,
+          "label": "Descendre par la corde"
+        },
+        {
+          "target": 144,
+          "label": "Revenir au sentier"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 53,
+        "rules": "Corde attachée au tronc pour la descente; suivre son état/récupération au retour, pas de destruction annoncée ici."
+      }
+    },
+    "95": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bloc de pierre",
+      "routes": [
+        {
+          "target": 173,
+          "label": "Employer la Poudre de Lévitation",
+          "condition_text": "Poudre possédée"
+        },
+        {
+          "target": 368,
+          "label": "Renoncer",
+          "condition_text": "Poudre absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 53,
+        "rules": "Vérifier l'objet; consommation dans la branche suivante."
+      }
+    },
+    "96": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les chiens et leur maître",
+      "routes": [
+        {
+          "target": 62,
+          "label": "Reprendre la route",
+          "condition_text": "Rencontre entière gagnée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 53,
+        "rules": "Combat d'abord Chien de chasse [7/6], puis paire Chiens [6/6] et [5/6], puis paire Chien [6/5] et Homme Masqué [8/7]. Cible offensive choisie À CHAQUE ASSAUT; l'autre adversaire ne peut être que paré et peut blesser. Quand un membre meurt, finir l'autre normalement. Pas de fuite annoncée."
+      }
+    },
+    "97": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La vieille chaise",
+      "routes": [
+        {
+          "target": 328,
+          "label": "S'asseoir et manger"
+        },
+        {
+          "target": 118,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 54,
+        "rules": "Repas résolu dans le §328 uniquement."
+      }
+    },
+    "98": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'embuscade du retour",
+      "routes": [
+        {
+          "target": 1,
+          "label": "S'échapper vers Yaztromo",
+          "condition_text": "Chance réussie"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 54,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance; échec = mort sans destination. Retour au §1 dans la même aventure, ne pas recréer le héros ni rendre 30 Or."
+      }
+    },
+    "99": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La cabane de Quin",
+      "routes": [
+        {
+          "target": 209,
+          "label": "Entrer"
+        },
+        {
+          "target": 349,
+          "label": "Revenir à la bifurcation"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 55,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "100": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La protection contre les abeilles",
+      "routes": [
+        {
+          "target": 339,
+          "label": "Rejoindre l'eau"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 55,
+        "rules": "Boire et retirer Potion de Contrôle des Insectes; neutraliser les abeilles sans assauts ni perte d'Endurance."
+      }
+    },
+    "101": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le sac du Troll",
+      "routes": [
+        {
+          "target": 25,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 55,
+        "rules": "Or +5 et petite cloche de cuivre; même butin physique qu'aux §§74 et 287, éviter une double acquisition lors de revisites."
+      }
+    },
+    "102": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les traces de sabots",
+      "routes": [
+        {
+          "target": 105,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 56,
+        "rules": "Ne pas suivre le cheval au sud."
+      }
+    },
+    "103": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le repaire dans la clairière",
+      "routes": [
+        {
+          "target": 57,
+          "label": "Examiner l'objet brillant"
+        },
+        {
+          "target": 360,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 56,
+        "rules": "Ne pas dévoiler la créature avant d'approcher."
+      }
+    },
+    "104": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le camp des Bandits",
+      "routes": [
+        {
+          "target": 311,
+          "label": "Fouiller le camp",
+          "condition_text": "Tous les adversaires vaincus"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 56,
+        "rules": "Combat initial : Femme Bandit [8/6]; puis paires Bandits A [7/6] et B [6/4], puis A [7/5] et B [5/6]. Choix de cible à CHAQUE assaut; autre adversaire uniquement paré; finir normalement le survivant. Pas de fuite proposée."
+      }
+    },
+    "105": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les vautours au loin",
+      "routes": [
+        {
+          "target": 384,
+          "label": "Aller voir les oiseaux"
+        },
+        {
+          "target": 394,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 57,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "106": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bouilloire de l'âtre",
+      "routes": [
+        {
+          "target": 288,
+          "label": "Quitter la pièce"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 58,
+        "rules": "Ajouter bague d'or à émeraude, valeur 15 Or; Chance +2. Valeur d'objet, pas un gain de 15 pièces."
+      }
+    },
+    "107": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'escalier du Démon",
+      "routes": [
+        {
+          "target": 152,
+          "label": "Atteindre la sortie",
+          "condition_text": "Démon vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 58,
+        "rules": "Combat : Démon de Feu [10/10]. À CHAQUE assaut, après calcul des Forces d'Attaque, 1d6 pour le fouet : 1–2 = Endurance -1, 3–6 = pas de coup. Chance facultative pour parer le fouet. Ordonner fouet, blessure et éventuelle mort sans ignorer le fouet sur un assaut gagnant."
+      }
+    },
+    "108": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les douleurs du fruit",
+      "routes": [
+        {
+          "target": 226,
+          "label": "Repartir",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 60,
+        "rules": "Endurance -3."
+      }
+    },
+    "109": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les trois pistes de la plaine",
+      "routes": [
+        {
+          "target": 124,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 72,
+          "label": "Aller à l'est"
+        },
+        {
+          "target": 309,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 60,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "110": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le sac du Gremlin",
+      "routes": [
+        {
+          "target": 257,
+          "label": "Examiner son sac"
+        },
+        {
+          "target": 31,
+          "label": "Revenir au puits"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 60,
+        "rules": "Aucun butin automatique avant choix."
+      }
+    },
+    "111": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le marché d'Arragon",
+      "routes": [
+        {
+          "target": 150,
+          "label": "Partir en gardant le secret"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 61,
+        "rules": "Or +5; accord de ne pas révéler la supercherie."
+      }
+    },
+    "112": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La piste touffue",
+      "routes": [
+        {
+          "target": 103,
+          "label": "Reprendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 61,
+        "rules": "Le chemin à l'est est volontairement écarté."
+      }
+    },
+    "113": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La cabane près de l'étang",
+      "routes": [
+        {
+          "target": 324,
+          "label": "Examiner la cabane"
+        },
+        {
+          "target": 149,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 61,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "114": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'Homme-Arbre en marche",
+      "routes": [
+        {
+          "target": 350,
+          "label": "Employer les Capsules de Feu",
+          "condition_text": "Capsules possédées"
+        },
+        {
+          "target": 123,
+          "label": "Combattre à l'épée",
+          "condition_text": "Pas de Capsules"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 61,
+        "rules": "Pas de règles de Piranhas malgré le numéro 350."
+      }
+    },
+    "115": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation est-ouest",
+      "routes": [
+        {
+          "target": 382,
+          "label": "Prendre à l'ouest"
+        },
+        {
+          "target": 277,
+          "label": "Prendre à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 62,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "116": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le collier du Loup",
+      "routes": [
+        {
+          "target": 314,
+          "label": "Repartir au matin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 62,
+        "rules": "Ajouter collier de cuir incrusté d'or, valeur 15 Or; ne pas convertir automatiquement en pièces."
+      }
+    },
+    "117": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Gobelin hors de sa cage",
+      "routes": [
+        {
+          "target": 232,
+          "label": "Fouiller après victoire",
+          "condition_text": "Gobelin vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 62,
+        "rules": "Combat : Gobelin [5/4]. Variante de libération distincte du §9, même créature et butin à suivre par état."
+      }
+    },
+    "118": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Sanglier sur le chemin",
+      "routes": [
+        {
+          "target": 174,
+          "label": "Reprendre la route",
+          "condition_text": "Sanglier vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 62,
+        "rules": "Combat : Sanglier Sauvage [6/5]; pas de fuite proposée."
+      }
+    },
+    "119": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le sommet ensoleillé",
+      "routes": [
+        {
+          "target": 90,
+          "label": "Descendre au nord"
+        },
+        {
+          "target": 216,
+          "label": "Prendre à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 63,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "120": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le puits du tronc",
+      "routes": [
+        {
+          "target": 94,
+          "label": "Employer la Corde Magique",
+          "condition_text": "Corde possédée"
+        },
+        {
+          "target": 380,
+          "label": "Choisir sans corde",
+          "condition_text": "Corde absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 63,
+        "rules": "Profondeur narrative de cinq mètres, pas un seuil de dé."
+      }
+    },
+    "121": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le retour au croisement",
+      "routes": [
+        {
+          "target": 61,
+          "label": "Ramper à l'est"
+        },
+        {
+          "target": 81,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 63,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "122": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le tunnel du puits",
+      "routes": [
+        {
+          "target": 135,
+          "label": "Ramper au nord"
+        },
+        {
+          "target": 362,
+          "label": "Remonter au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 64,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "123": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les branches de l'Homme-Arbre",
+      "routes": [
+        {
+          "target": 27,
+          "label": "Repartir après victoire",
+          "condition_text": "Deux branches vaincues"
+        },
+        {
+          "target": 234,
+          "label": "Fuir au croisement",
+          "condition_text": "Blessure réglementaire"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 64,
+        "rules": "Combat deux fois Homme-Arbre [8/8], une fois pour chaque branche; modéliser deux combats successifs, pas un simple total d'Endurance 8. Fuite proposée."
+      }
+    },
+    "124": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La piste hors de la forêt",
+      "routes": [
+        {
+          "target": 180,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 64,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "125": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La descente gluante",
+      "routes": [
+        {
+          "target": 337,
+          "label": "Ressortir"
+        },
+        {
+          "target": 15,
+          "label": "Continuer dans le trou"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 64,
+        "rules": "Aucun dégât avant le §15."
+      }
+    },
+    "126": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La boîte au gaz jaune",
+      "routes": [
+        {
+          "target": 365,
+          "label": "Employer les filtres",
+          "condition_text": "Filtres à Nez possédés"
+        },
+        {
+          "target": 22,
+          "label": "Subir le gaz",
+          "condition_text": "Filtres absents"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 65,
+        "rules": "Boîte ouverte; gaz résolu dans les branches."
+      }
+    },
+    "127": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La traversée à dos de Centaure",
+      "routes": [
+        {
+          "target": 298,
+          "label": "Dormir sous le chêne",
+          "condition_text": "Traversée payée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 65,
+        "rules": "Or -3 après traversée; ne pas prélever aussi au choix du §366."
+      }
+    },
+    "128": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Barbare libéré",
+      "routes": [
+        {
+          "target": 272,
+          "label": "Explorer après victoire",
+          "condition_text": "Barbare vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 65,
+        "rules": "Combat : Barbare [9/7]; libération sans gratitude, pas de fuite annoncée."
+      }
+    },
+    "129": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bras de fer perdu",
+      "routes": [
+        {
+          "target": 349,
+          "label": "Revenir à la bifurcation"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 66,
+        "rules": "Chance -2; mise perdue payée au §266, ne pas la prélever de nouveau."
+      }
+    },
+    "130": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La créature sur la branche",
+      "routes": [
+        {
+          "target": 153,
+          "label": "Combattre"
+        },
+        {
+          "target": 355,
+          "label": "Fuir avant le combat",
+          "condition_text": "Chance -1"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 66,
+        "rules": "La fuite immédiate coûte 1 Chance ici, pas la blessure standard d'un combat engagé."
+      }
+    },
+    "131": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le camp près de la rivière",
+      "routes": [
+        {
+          "target": 325,
+          "label": "Dormir sous l'arbre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 66,
+        "rules": "Aucun soin automatique."
+      }
+    },
+    "132": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La Vouivre à l'entrée",
+      "routes": [
+        {
+          "target": 258,
+          "label": "Jouer de la flûte",
+          "condition_text": "Flûte possédée"
+        },
+        {
+          "target": 167,
+          "label": "Affronter sans flûte",
+          "condition_text": "Flûte absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 66,
+        "rules": "Pas de combat ordinaire à préparer à ce stade."
+      }
+    },
+    "133": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'Anneau de Lenteur",
+      "routes": [
+        {
+          "target": 374,
+          "label": "Essayer le gantelet",
+          "condition_text": "Pas déjà essayé"
+        },
+        {
+          "target": 360,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 67,
+        "rules": "Anneau maudit impossible à enlever; Force d'Attaque -2 lors des combats futurs, sans réduire l'Habileté de la fiche. Suivre l'essai du gantelet pour éviter une double prise."
+      }
+    },
+    "134": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le vœu sans réponse",
+      "routes": [
+        {
+          "target": 283,
+          "label": "Essayer la boue"
+        },
+        {
+          "target": 303,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 67,
+        "rules": "Chance -1, aucun vœu exaucé."
+      }
+    },
+    "135": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le carrefour des tunnels",
+      "routes": [
+        {
+          "target": 284,
+          "label": "Ramper à l'ouest"
+        },
+        {
+          "target": 151,
+          "label": "Ramper à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 67,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "136": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Sous le tronc creux",
+      "routes": [
+        {
+          "target": 69,
+          "label": "Explorer le tunnel"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 67,
+        "rules": "Descente par Corde Magique; plafond bas, pas de malus chiffré permanent ici."
+      }
+    },
+    "137": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le gant pour lancer la pierre",
+      "routes": [
+        {
+          "target": 55,
+          "label": "Utiliser le Gant d'Adresse au Lancer",
+          "condition_text": "Gant possédé"
+        },
+        {
+          "target": 10,
+          "label": "Lancer sans gant",
+          "condition_text": "Gant absent"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 67,
+        "rules": "Vérification d'objet."
+      }
+    },
+    "138": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'Herbe d'Embrouille",
+      "routes": [
+        {
+          "target": 64,
+          "label": "Boire la potion",
+          "condition_text": "Potion de Contrôle des Plantes"
+        },
+        {
+          "target": 159,
+          "label": "Se dégager sans potion",
+          "condition_text": "Potion absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 68,
+        "rules": "Ne pas consommer une potion inexistante."
+      }
+    },
+    "139": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La fin de la lycanthropie",
+      "routes": [
+        {
+          "target": 198,
+          "label": "Repartir au matin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 68,
+        "rules": "Guérison de la morsure; perte de la belladone déjà traitée au §83, aucun soin chiffré ajouté."
+      }
+    },
+    "140": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le matin après l'Araignée",
+      "routes": [
+        {
+          "target": 25,
+          "label": "Descendre au nord"
+        },
+        {
+          "target": 267,
+          "label": "Prendre à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 68,
+        "rules": "Victoire passée; aucun butin ni gain d'Endurance."
+      }
+    },
+    "141": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'ennemi de Pont-de-Pierre",
+      "routes": [
+        {
+          "target": 347,
+          "label": "Attaquer Gayemainar"
+        },
+        {
+          "target": 59,
+          "label": "Prendre congé"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 69,
+        "rules": "Chance -1 à la révélation; aucune perte supplémentaire pour le départ."
+      }
+    },
+    "142": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Centaure sur la rive",
+      "routes": [
+        {
+          "target": 366,
+          "label": "Parler au Centaure"
+        },
+        {
+          "target": 178,
+          "label": "Traverser à pied"
+        },
+        {
+          "target": 251,
+          "label": "Attaquer le Centaure"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 69,
+        "rules": "Aucun paiement avant accord."
+      }
+    },
+    "143": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les spores du champignon",
+      "routes": [
+        {
+          "target": 80,
+          "label": "Quitter les cultures",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 71,
+        "rules": "Endurance -2; aucun jet demandé."
+      }
+    },
+    "144": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'entrée de la forêt sombre",
+      "routes": [
+        {
+          "target": 213,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 387,
+          "label": "Aller à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 71,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "145": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bateau qui sombre",
+      "routes": [
+        {
+          "target": 285,
+          "label": "Camper sur l'autre rive"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 71,
+        "rules": "Provisions ramenées à zéro; autres affaires récupérées. Pas de perte d'Endurance chiffrée."
+      }
+    },
+    "146": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les débris de la Bête Rocheuse",
+      "routes": [
+        {
+          "target": 245,
+          "label": "Reprendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 72,
+        "rules": "Prise facultative d'un morceau de pierre de la Bête; ne pas l'imposer à l'inventaire."
+      }
+    },
+    "147": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La cabane qui fume",
+      "routes": [
+        {
+          "target": 38,
+          "label": "Regarder par la fenêtre"
+        },
+        {
+          "target": 220,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 72,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "148": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le nouveau carrefour",
+      "routes": [
+        {
+          "target": 97,
+          "label": "Continuer au nord"
+        },
+        {
+          "target": 20,
+          "label": "Aller à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 72,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "149": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le retour sous les arbres",
+      "routes": [
+        {
+          "target": 130,
+          "label": "Aller à l'est"
+        },
+        {
+          "target": 306,
+          "label": "Aller au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 72,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "150": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation sous les arbres",
+      "routes": [
+        {
+          "target": 357,
+          "label": "Prendre le premier embranchement"
+        },
+        {
+          "target": 171,
+          "label": "Prendre l'autre embranchement"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 73,
+        "rules": "Anomalie du PDF : les deux choix sont décrits comme allant à l'ouest. Garder les destinations 357 et 171, sans inventer une correction de direction."
+      },
+      "source_issues": [
+        {
+          "paragraph": 150,
+          "severity": "warning",
+          "kind": "ambiguous_direction",
+          "details": "Les deux embranchements sont décrits vers l’ouest ; conserver les numéros 357 et 171 sans réinventer la direction."
+        }
+      ]
+    },
+    "151": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le rideau de la caverne",
+      "routes": [
+        {
+          "target": 71,
+          "label": "Écarter le rideau"
+        },
+        {
+          "target": 296,
+          "label": "Revenir au carrefour"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 73,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "152": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le trône du Démon vaincu",
+      "routes": [
+        {
+          "target": 333,
+          "label": "Porter la couronne"
+        },
+        {
+          "target": 5,
+          "label": "S'asseoir sur le trône"
+        },
+        {
+          "target": 249,
+          "label": "Monter vers la sortie"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 73,
+        "rules": "Couronne récupérée mais pas encore portée; ne pas accorder d'effet de couronne avant son essai. La phrase précédant les choix est incomplète dans l'extraction, choix lisibles."
+      },
+      "source_issues": [
+        {
+          "paragraph": 152,
+          "severity": "warning",
+          "kind": "truncated_sentence",
+          "details": "Phrase interrompue avant des choix qui restent lisibles."
+        }
+      ]
+    },
+    "153": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bond de la Femme Féline",
+      "routes": [
+        {
+          "target": 202,
+          "label": "Examiner les lieux",
+          "condition_text": "Ennemie vaincue"
+        },
+        {
+          "target": 355,
+          "label": "Fuir vers l'est",
+          "condition_text": "Blessure réglementaire"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 74,
+        "rules": "Combat : Femme Féline [8/5]. Distinguer cette fuite en combat du coût en Chance de l'évitement au §130."
+      }
+    },
+    "154": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La lanterne noircie",
+      "routes": [
+        {
+          "target": 231,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 74,
+        "rules": "Abandonner la lanterne magique; pas de second vœu."
+      }
+    },
+    "155": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La fièvre de la morsure",
+      "routes": [
+        {
+          "target": 83,
+          "label": "Employer la belladone",
+          "condition_text": "Belladone possédée"
+        },
+        {
+          "target": 259,
+          "label": "Chercher un autre remède",
+          "condition_text": "Belladone absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 74,
+        "rules": "Lycanthropie à résoudre; pas de soin automatique."
+      }
+    },
+    "156": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La chute de la plate-forme",
+      "routes": [
+        {
+          "target": 109,
+          "label": "Repartir",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 74,
+        "rules": "Endurance -3."
+      }
+    },
+    "157": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le grand trou",
+      "routes": [
+        {
+          "target": 125,
+          "label": "Descendre dans le trou"
+        },
+        {
+          "target": 337,
+          "label": "Rester sur le chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 75,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "158": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Bandeau contre l'illusion",
+      "routes": [
+        {
+          "target": 47,
+          "label": "Éviter la chaise",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 353,
+          "label": "Être assommé",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 75,
+        "rules": "Équiper le Bandeau de Concentration possédé puis épreuve de Chance 2d6, coût 1 Chance. Aucun dégât chiffré pour la chaise ici."
+      }
+    },
+    "159": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'Herbe qui boit le sang",
+      "routes": [
+        {
+          "target": 142,
+          "label": "Reprendre le chemin",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 75,
+        "rules": "Endurance -3; pas de combat aux dés."
+      }
+    },
+    "160": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le panneau du corbeau",
+      "routes": [
+        {
+          "target": 343,
+          "label": "Acheter le conseil",
+          "condition_text": "Au moins 1 Or"
+        },
+        {
+          "target": 8,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 239,
+          "label": "Aller à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 76,
+        "rules": "Conseil coûte 1 Or; paiement effectif au §343 pour éviter double prélèvement."
+      }
+    },
+    "161": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La main dans le vase",
+      "routes": [
+        {
+          "target": 185,
+          "label": "Retirer sa main"
+        },
+        {
+          "target": 341,
+          "label": "Continuer à chercher"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 78,
+        "rules": "Douleur non chiffrée à ce stade."
+      }
+    },
+    "162": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La sortie derrière la chute",
+      "routes": [
+        {
+          "target": 285,
+          "label": "Camper près des rochers"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 78,
+        "rules": "Pas de butin dans la caverne de l'Homme-Poisson; pas de repas automatique."
+      }
+    },
+    "163": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le nuage d'orage",
+      "routes": [
+        {
+          "target": 375,
+          "label": "Continuer",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 78,
+        "rules": "Endurance -3 par éclair; aucun jet de Chance demandé."
+      }
+    },
+    "164": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le retour à la vallée",
+      "routes": [
+        {
+          "target": 144,
+          "label": "Rejoindre le chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 78,
+        "rules": "Sortie de la champignonnière; récupération de la Corde Magique non précisée."
+      }
+    },
+    "165": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Gremlin dans le tunnel",
+      "routes": [
+        {
+          "target": 242,
+          "label": "Fouiller après victoire",
+          "condition_text": "Gremlin vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 79,
+        "rules": "Combat : Gremlin [5/3]; Force d'Attaque du héros -3 à chaque assaut."
+      }
+    },
+    "166": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bénédiction du moine",
+      "routes": [
+        {
+          "target": 390,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 79,
+        "rules": "Chance +2; don éventuel payé dans le choix précédent, pas de deuxième don."
+      }
+    },
+    "167": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La Vouivre au combat",
+      "routes": [
+        {
+          "target": 305,
+          "label": "Prendre le butin",
+          "condition_text": "Vouivre vaincue"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 79,
+        "rules": "Combat : Vouivre Volante [10/11]; aucun souffle périodique supplémentaire prescrit ici."
+      }
+    },
+    "168": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bâton dans la cage",
+      "routes": [
+        {
+          "target": 117,
+          "label": "Libérer le Gobelin"
+        },
+        {
+          "target": 358,
+          "label": "Quitter la caverne"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 80,
+        "rules": "Variante de l'approche de la cage; pas de bâton acquis avant victoire."
+      }
+    },
+    "169": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le gaz dans la caverne de l'Ogre",
+      "routes": [
+        {
+          "target": 85,
+          "label": "Examiner la cage",
+          "condition_text": "Survivre"
+        },
+        {
+          "target": 358,
+          "label": "Quitter la caverne",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 80,
+        "rules": "Habileté -2 puis Endurance -1d6; ajouter boîte d'argent. Même piège que §22, ne pas déclencher deux jets pour une ouverture."
+      }
+    },
+    "170": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La menace d'Arragon",
+      "routes": [
+        {
+          "target": 223,
+          "label": "Questionner avec le collier",
+          "condition_text": "Œil d'Ambre porté"
+        },
+        {
+          "target": 346,
+          "label": "Réagir sans collier",
+          "condition_text": "Œil non porté"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 80,
+        "rules": "Condition de PORT du collier, pas simple possession. Menace de 10 Or et deux objets, pas de paiement ici."
+      }
+    },
+    "171": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le chemin du nord sous les arbres",
+      "routes": [
+        {
+          "target": 190,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 81,
+        "rules": "Ne pas créer une sortie au sud vers la vallée."
+      }
+    },
+    "172": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le puits du côté est",
+      "routes": [
+        {
+          "target": 89,
+          "label": "Offrir une pièce",
+          "condition_text": "Au moins 1 Or"
+        },
+        {
+          "target": 256,
+          "label": "Descendre l'échelle"
+        },
+        {
+          "target": 281,
+          "label": "Retourner vers l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 81,
+        "rules": "Autre accès au même puits; pièce retirée au §89 seulement."
+      }
+    },
+    "173": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le couvercle du cercueil",
+      "routes": [
+        {
+          "target": 58,
+          "label": "Employer l'Eau Bénite",
+          "condition_text": "Eau Bénite possédée"
+        },
+        {
+          "target": 227,
+          "label": "Affronter sans eau",
+          "condition_text": "Eau Bénite absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 81,
+        "rules": "Consommer la Poudre de Lévitation en soulevant le bloc; ne pas la conserver."
+      }
+    },
+    "174": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'anneau du Sanglier",
+      "routes": [
+        {
+          "target": 323,
+          "label": "Continuer"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 82,
+        "rules": "Ajouter anneau d'or, valeur 10 Or; Chance +1. Ne pas créditer automatiquement 10 pièces."
+      }
+    },
+    "175": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le coffre verrouillé",
+      "routes": [
+        {
+          "target": 372,
+          "label": "Essayer de le briser"
+        },
+        {
+          "target": 106,
+          "label": "Fouiller la cheminée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 82,
+        "rules": "Serrure impossible à forcer; pas de choix de clé proposé."
+      }
+    },
+    "176": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le manche d'ébène",
+      "routes": [
+        {
+          "target": 358,
+          "label": "Reprendre la quête"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 82,
+        "rules": "Ajouter manche de marteau marqué G, une extrémité filetée. Même partie de quête que §232."
+      }
+    },
+    "177": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'entrée dans la Forêt",
+      "routes": [
+        {
+          "target": 289,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 160,
+          "label": "Aller à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 83,
+        "rules": "Ne pas recréer le héros à l'entrée ou lors d'une nouvelle boucle."
+      }
+    },
+    "178": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La sangsue de la rivière",
+      "routes": [
+        {
+          "target": 298,
+          "label": "Camper sous le chêne"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 83,
+        "rules": "Provisions -1 pour le sel; pas de blessure d'Endurance chiffrée. Prévoir le cas où le héros n'a plus de provisions sans valeur négative."
+      }
+    },
+    "179": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le casque enchanté",
+      "routes": [
+        {
+          "target": 115,
+          "label": "Reprendre la marche"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 84,
+        "rules": "Ajouter et équiper casque magique; Force d'Attaque +1 QUAND porté, pas Habileté +1 ni effet du Minotaure du Sorcier."
+      }
+    },
+    "180": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation dans l'herbe",
+      "routes": [
+        {
+          "target": 105,
+          "label": "Continuer au nord"
+        },
+        {
+          "target": 361,
+          "label": "Aller à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 84,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "181": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La caverne derrière l'eau",
+      "routes": [
+        {
+          "target": 162,
+          "label": "Sortir après victoire",
+          "condition_text": "Homme-Poisson vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 84,
+        "rules": "Combat : Homme-Poisson [7/6]."
+      }
+    },
+    "182": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'épée dans le rocher",
+      "routes": [
+        {
+          "target": 70,
+          "label": "Retirer l'épée",
+          "condition_text": "2d6 ≤ Habileté"
+        },
+        {
+          "target": 334,
+          "label": "Abandonner",
+          "condition_text": "2d6 > Habileté"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 86,
+        "rules": "Épreuve d'Habileté 2d6 sans coût de Chance; pas de blessure sur l'échec."
+      }
+    },
+    "183": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les filtres efficaces",
+      "routes": [
+        {
+          "target": 293,
+          "label": "Monter l'escalier"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 86,
+        "rules": "Protection contre le gaz; aucun dégât dans cette branche."
+      }
+    },
+    "184": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La cloche rendue au moine",
+      "routes": [
+        {
+          "target": 390,
+          "label": "Reprendre le chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 86,
+        "rules": "Retirer clochette de cuivre, recevoir et boire potion de guérison, Endurance +4 sous plafond. Pas de potion de départ rechargée."
+      }
+    },
+    "185": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La barrière du vase",
+      "routes": [
+        {
+          "target": 250,
+          "label": "Briser le vase"
+        },
+        {
+          "target": 149,
+          "label": "Le reposer et repartir"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 87,
+        "rules": "La barrière interdit de remettre la main dedans; ne pas reproposer §161."
+      }
+    },
+    "186": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La morsure dans la rivière",
+      "routes": [],
+      "analysis": {
+        "source_page_pdf": 87,
+        "rules": "SOURCE INCOMPLÈTE : page PDF 87 contrôlée visuellement, récit de l'Anguille Carnivore mais aucune caractéristique, règle de combat ou destination, puis §187. Ne pas inventer de statistiques ni de sortie; édition complémentaire nécessaire avant automatisation."
+      },
+      "source_issues": [
+        {
+          "paragraph": 186,
+          "severity": "blocking",
+          "kind": "incomplete_source",
+          "details": "Le passage se termine avant les caractéristiques de l’Anguille et sans issue. Ne pas le traiter comme une fin d’aventure."
+        }
+      ]
+    },
+    "187": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La créature au bâton noir",
+      "routes": [
+        {
+          "target": 286,
+          "label": "Attaquer"
+        },
+        {
+          "target": 203,
+          "label": "Parler"
+        },
+        {
+          "target": 6,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 87,
+        "rules": "Le bâton n'est pas encore acquis; identité réelle à révéler dans la suite."
+      }
+    },
+    "188": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation de la vallée",
+      "routes": [
+        {
+          "target": 221,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 359,
+          "label": "Aller à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 88,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "189": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les champignons verts",
+      "routes": [
+        {
+          "target": 269,
+          "label": "Goûter le champignon"
+        },
+        {
+          "target": 293,
+          "label": "Quitter la caverne"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 88,
+        "rules": "Aucun gain avant de manger."
+      }
+    },
+    "190": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les pas dans la forêt",
+      "routes": [
+        {
+          "target": 265,
+          "label": "Attendre la créature"
+        },
+        {
+          "target": 318,
+          "label": "Se cacher"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 88,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "191": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La cloche du moine",
+      "routes": [
+        {
+          "target": 184,
+          "label": "Rendre la cloche",
+          "condition_text": "Cloche de cuivre possédée"
+        },
+        {
+          "target": 243,
+          "label": "Répondre sans cloche",
+          "condition_text": "Cloche absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 88,
+        "rules": "Promesse d'une potion, échange dans la branche seulement."
+      }
+    },
+    "192": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'épée changée en carotte",
+      "routes": [
+        {
+          "target": 12,
+          "label": "S'excuser"
+        },
+        {
+          "target": 46,
+          "label": "Lancer la carotte"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 89,
+        "rules": "L'épée est temporairement indisponible; conserver son identité pour la restitution et non créer une seconde épée."
+      }
+    },
+    "193": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Gremlin près de l'échelle",
+      "routes": [
+        {
+          "target": 110,
+          "label": "Examiner le sac",
+          "condition_text": "Gremlin vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 89,
+        "rules": "Combat : Gremlin [4/4]; Force d'Attaque du héros -3 à chaque assaut."
+      }
+    },
+    "194": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le conseil du chasseur",
+      "routes": [
+        {
+          "target": 208,
+          "label": "Repartir à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 89,
+        "rules": "Ajouter belladone reçue du chasseur; pas de paiement."
+      }
+    },
+    "195": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La plate-forme dans l'arbre",
+      "routes": [
+        {
+          "target": 352,
+          "label": "Combattre"
+        },
+        {
+          "target": 156,
+          "label": "Sauter au sol"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 90,
+        "rules": "La hauteur de cinq mètres n'est pas un nombre de dégâts à appliquer ici."
+      }
+    },
+    "196": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Troll endormi",
+      "routes": [
+        {
+          "target": 376,
+          "label": "Voler le sac"
+        },
+        {
+          "target": 39,
+          "label": "Employer le Filet de Capture",
+          "condition_text": "Filet possédé"
+        },
+        {
+          "target": 25,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 90,
+        "rules": "Filet de Capture = objet vendu comme Filet d'Enchevêtrement, alias à normaliser."
+      }
+    },
+    "197": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le poison des Pygmées",
+      "routes": [
+        {
+          "target": 24,
+          "label": "Prendre l'antipoison",
+          "condition_text": "Potion Antipoison possédée"
+        },
+        {
+          "target": 53,
+          "label": "Subir le poison",
+          "condition_text": "Potion absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 91,
+        "rules": "Résoudre la consommation dans la branche."
+      }
+    },
+    "198": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La descente des collines",
+      "routes": [
+        {
+          "target": 278,
+          "label": "Continuer au nord"
+        },
+        {
+          "target": 87,
+          "label": "Aller à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 91,
+        "rules": "Aucun soin de sommeil automatique."
+      }
+    },
+    "199": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La mare de boue chaude",
+      "routes": [
+        {
+          "target": 134,
+          "label": "Offrir une pièce et faire un vœu",
+          "condition_text": "Au moins 1 Or"
+        },
+        {
+          "target": 283,
+          "label": "Soigner ses blessures avec la boue"
+        },
+        {
+          "target": 303,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 91,
+        "rules": "Or -1 uniquement pour le vœu; §134 n'indique pas à nouveau le paiement."
+      }
+    },
+    "200": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La porte à la clé d'argent",
+      "routes": [
+        {
+          "target": 351,
+          "label": "Descendre l'escalier"
+        },
+        {
+          "target": 112,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 92,
+        "rules": "Utiliser la petite clé d'argent; aucune consommation de clé annoncée."
+      }
+    },
+    "201": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les contenants de l'anfractuosité",
+      "routes": [
+        {
+          "target": 389,
+          "label": "Essayer le coffre",
+          "condition_text": "Pas déjà essayé"
+        },
+        {
+          "target": 88,
+          "label": "Monter les marches"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 92,
+        "rules": "Conserver l'état d'ouverture/essai du coffre partagé avec §§215 et 248."
+      }
+    },
+    "202": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les boucles de la Femme Féline",
+      "routes": [
+        {
+          "target": 355,
+          "label": "Reprendre le chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 92,
+        "rules": "Ajouter deux boucles d'oreille en or, valeur 5 Or CHACUNE; pas 10 pièces directement."
+      }
+    },
+    "203": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La métamorphose",
+      "routes": [
+        {
+          "target": 373,
+          "label": "Examiner le corps",
+          "condition_text": "Changeur vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 92,
+        "rules": "Combat : Changeur de Forme [10/10]."
+      }
+    },
+    "204": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le pont du village",
+      "routes": [
+        {
+          "target": 400,
+          "label": "Remettre le marteau",
+          "condition_text": "Tête ET manche marqués G possédés"
+        },
+        {
+          "target": 381,
+          "label": "Repartir chercher",
+          "condition_text": "Il manque au moins une partie"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 93,
+        "rules": "Condition de victoire exige les deux pièces, pas deux copies du même objet."
+      }
+    },
+    "205": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les bourses des Pygmées",
+      "routes": [
+        {
+          "target": 92,
+          "label": "Reprendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 93,
+        "rules": "Deux Pygmées du §377 ont chacun 3 Or : gain total 6 Or."
+      }
+    },
+    "206": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les appels à l'écart",
+      "routes": [
+        {
+          "target": 253,
+          "label": "Porter secours"
+        },
+        {
+          "target": 187,
+          "label": "Continuer sans s'arrêter"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 93,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "207": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La cabane de l'Homme-Singe",
+      "routes": [
+        {
+          "target": 302,
+          "label": "Essayer le bracelet"
+        },
+        {
+          "target": 109,
+          "label": "Redescendre au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 93,
+        "rules": "Bracelet pas encore porté; pas d'autres objets utiles dans la cabane."
+      }
+    },
+    "208": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le croisement de la plaine",
+      "routes": [
+        {
+          "target": 99,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 291,
+          "label": "Aller au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 94,
+        "rules": "Pas de chemin au sud offert."
+      }
+    },
+    "209": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La proposition de Quin",
+      "routes": [
+        {
+          "target": 28,
+          "label": "Accepter le bras de fer"
+        },
+        {
+          "target": 349,
+          "label": "Refuser et revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 94,
+        "rules": "Mise réglée dans la résolution suivante, pas encore retirée."
+      }
+    },
+    "210": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les archers qui se disputent",
+      "routes": [
+        {
+          "target": 43,
+          "label": "Les attaquer"
+        },
+        {
+          "target": 188,
+          "label": "Passer sans combattre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 94,
+        "rules": "Pas de combat forcé dans cette branche chanceuse."
+      }
+    },
+    "211": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le champignon neutralisé",
+      "routes": [
+        {
+          "target": 293,
+          "label": "Quitter la caverne"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 94,
+        "rules": "Boire et retirer Potion Antipoison; aucune restauration chiffrée."
+      }
+    },
+    "212": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les Guerriers Clones",
+      "routes": [
+        {
+          "target": 321,
+          "label": "Explorer après victoire",
+          "condition_text": "Quatre Clones vaincus"
+        },
+        {
+          "target": 107,
+          "label": "Fuir par les marches",
+          "condition_text": "Blessure réglementaire"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 96,
+        "rules": "Combat successif : Clone 1 [5/5], Clone 2 [6/4], Clone 3 [5/6], Clone 4 [6/5]. Fuite possible pendant le combat."
+      }
+    },
+    "213": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le sentier sinueux",
+      "routes": [
+        {
+          "target": 306,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 96,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "214": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La jambe soignée",
+      "routes": [
+        {
+          "target": 69,
+          "label": "Explorer le tunnel"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 96,
+        "rules": "Boire et retirer Potion de Guérison achetée; réparer la jambe cassée. Aucun gain numérique d'Endurance indiqué ici, ne pas confondre avec Potion de Vigueur à deux doses."
+      }
+    },
+    "215": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bouclier dans le tonneau",
+      "routes": [
+        {
+          "target": 248,
+          "label": "Emporter le bouclier"
+        },
+        {
+          "target": 201,
+          "label": "Le laisser"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 97,
+        "rules": "Prise facultative, pas d'effet avant acceptation."
+      }
+    },
+    "216": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La corniche occidentale",
+      "routes": [
+        {
+          "target": 278,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 97,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "217": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les restes des aventuriers",
+      "routes": [
+        {
+          "target": 262,
+          "label": "Boire le liquide"
+        },
+        {
+          "target": 337,
+          "label": "Emporter l'or et sortir"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 97,
+        "rules": "Or +4 lors de la fouille; bouteille sans étiquette. Ne pas appliquer ses effets avant le choix."
+      }
+    },
+    "218": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le garçon et le piège",
+      "routes": [
+        {
+          "target": 274,
+          "label": "Se libérer puis repartir",
+          "condition_text": "Paiement réglé"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 97,
+        "rules": "Payer 5 Or OU un objet magique; récupérer l'épée et couper le lien. Pas de dégât de chute chiffré. Manque des deux moyens non décrit."
+      }
+    },
+    "219": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La fléchette de l'Ours",
+      "routes": [
+        {
+          "target": 300,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 98,
+        "rules": "Prise facultative de fléchette d'argent, valeur 5 Or; Chance +1 à la trouvaille. Pas de 5 pièces automatiques."
+      }
+    },
+    "220": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le trou dans le grand arbre",
+      "routes": [
+        {
+          "target": 275,
+          "label": "Passer la main dans le trou"
+        },
+        {
+          "target": 115,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 98,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "221": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation du fond plat",
+      "routes": [
+        {
+          "target": 378,
+          "label": "Continuer à l'ouest"
+        },
+        {
+          "target": 199,
+          "label": "Aller au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 98,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "222": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le gaz sans protection",
+      "routes": [
+        {
+          "target": 293,
+          "label": "Rejoindre les marches",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 98,
+        "rules": "Endurance -1d6; contrairement à §§22/169, aucun -2 Habileté ici."
+      }
+    },
+    "223": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le collier devant Arragon",
+      "routes": [
+        {
+          "target": 150,
+          "label": "Partir avec l'accord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 99,
+        "rules": "Or +5; même révélation et récompense physique que §111, condition de l'Œil d'Ambre portée issue de §170."
+      }
+    },
+    "224": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bague des Faucons",
+      "routes": [
+        {
+          "target": 332,
+          "label": "Repartir à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 99,
+        "rules": "La bague d'argent menaçante est laissée sur place; ne pas l'ajouter."
+      }
+    },
+    "225": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le tunnel après la coupure",
+      "routes": [
+        {
+          "target": 135,
+          "label": "Ramper dans le tunnel"
+        },
+        {
+          "target": 362,
+          "label": "Remonter l'échelle"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 99,
+        "rules": "Pas de nouvelle blessure; celle du §30 ne doit pas être répétée ici."
+      }
+    },
+    "226": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les voix à travers les arbres",
+      "routes": [
+        {
+          "target": 29,
+          "label": "Aller voir les voix"
+        },
+        {
+          "target": 254,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 100,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "227": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La Goule au cercueil",
+      "routes": [
+        {
+          "target": 312,
+          "label": "Fouiller le cercueil",
+          "condition_text": "Goule vaincue"
+        },
+        {
+          "target": 2,
+          "label": "Subir la paralysie",
+          "condition_text": "Quatre blessures reçues"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 100,
+        "rules": "Combat : Goule [9/7]. Quatre coups blessants reçus paralysent; compter les blessures et non les points d'Endurance perdus. Aucun mécanisme supplémentaire du Sorcier."
+      }
+    },
+    "228": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les bottes hors de la fosse",
+      "routes": [
+        {
+          "target": 255,
+          "label": "Repartir"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 100,
+        "rules": "Utiliser et conserver Bottes de Saut; pas de coût ni de jet de saut."
+      }
+    },
+    "229": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Gremlin dans la boîte",
+      "routes": [
+        {
+          "target": 165,
+          "label": "Éviter le poignard",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 45,
+          "label": "Subir la blessure",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 100,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance; -2 Endurance dans §45 uniquement."
+      }
+    },
+    "230": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La caverne de l'Ogre",
+      "routes": [
+        {
+          "target": 137,
+          "label": "Lancer une pierre"
+        },
+        {
+          "target": 290,
+          "label": "Attaquer à l'épée"
+        },
+        {
+          "target": 358,
+          "label": "Repartir"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 102,
+        "rules": "Cage et créature à examiner plus tard."
+      }
+    },
+    "231": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les Faucons dans les feuillages",
+      "routes": [
+        {
+          "target": 224,
+          "label": "Examiner les oiseaux",
+          "condition_text": "Trois Faucons vaincus"
+        },
+        {
+          "target": 332,
+          "label": "Fuir à l'ouest",
+          "condition_text": "Blessure réglementaire"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 102,
+        "rules": "Combat successif : Faucon de la Mort 1 [4/4], Faucon 2 [4/3], Faucon 3 [5/4]."
+      }
+    },
+    "232": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le manche gravé G",
+      "routes": [
+        {
+          "target": 263,
+          "label": "Fouiller la caverne"
+        },
+        {
+          "target": 358,
+          "label": "Partir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 103,
+        "rules": "Ajouter manche d'ébène marqué G; Chance +1. Même objet de quête qu'au §176, dont le texte n'accorde PAS ce bonus."
+      }
+    },
+    "233": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le puits à margelle",
+      "routes": [
+        {
+          "target": 17,
+          "label": "Examiner le puits"
+        },
+        {
+          "target": 238,
+          "label": "Continuer à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 103,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "234": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le croisement après la fuite",
+      "routes": [
+        {
+          "target": 382,
+          "label": "Continuer à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 103,
+        "rules": "Blessure de fuite éventuellement payée dans le combat précédent seulement."
+      }
+    },
+    "235": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le calme dans la tempête",
+      "routes": [
+        {
+          "target": 149,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 103,
+        "rules": "Boire et retirer Potion de Tranquillité; Chance +1."
+      }
+    },
+    "236": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La maison d'Arragon",
+      "routes": [
+        {
+          "target": 170,
+          "label": "Entrer"
+        },
+        {
+          "target": 150,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 104,
+        "rules": "Aucun paiement sur le seuil."
+      }
+    },
+    "237": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le tibia cassé",
+      "routes": [
+        {
+          "target": 214,
+          "label": "Soigner la jambe",
+          "condition_text": "Potion de Guérison possédée"
+        },
+        {
+          "target": 304,
+          "label": "Rester sans remède",
+          "condition_text": "Potion absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 104,
+        "rules": "Chance -2; jambe cassée, sans perte chiffrée d'Endurance indiquée ici."
+      }
+    },
+    "238": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La vallée vers l'ouest",
+      "routes": [
+        {
+          "target": 221,
+          "label": "Continuer à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 104,
+        "rules": "Pas d'embranchement au sud offert."
+      }
+    },
+    "239": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'arbre fruitier",
+      "routes": [
+        {
+          "target": 37,
+          "label": "Goûter les fruits"
+        },
+        {
+          "target": 226,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 104,
+        "rules": "Aucun effet chiffré avant le choix."
+      }
+    },
+    "240": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La boîte argentée ouverte",
+      "routes": [
+        {
+          "target": 338,
+          "label": "Employer les filtres",
+          "condition_text": "Filtres à Nez possédés"
+        },
+        {
+          "target": 169,
+          "label": "Subir le gaz",
+          "condition_text": "Filtres absents"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 104,
+        "rules": "Variante d'ouverture dans la caverne de l'Ogre."
+      }
+    },
+    "241": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'Ours blessé",
+      "routes": [
+        {
+          "target": 219,
+          "label": "Examiner la fléchette",
+          "condition_text": "Ours vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 105,
+        "rules": "Combat : Ours [7/8]."
+      }
+    },
+    "242": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le lingot trop lourd",
+      "routes": [
+        {
+          "target": 121,
+          "label": "Revenir au tunnel"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 105,
+        "rules": "Prendre facultativement lingot d'or, valeur 28 Or, contre abandon d'UN objet choisi; ne pas convertir en pièces. Sortie possible sans le prendre."
+      }
+    },
+    "243": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La demande du moine",
+      "routes": [
+        {
+          "target": 166,
+          "label": "Donner une pièce",
+          "condition_text": "Au moins 1 Or"
+        },
+        {
+          "target": 33,
+          "label": "Refuser le don"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 105,
+        "rules": "Retirer 1 Or seulement si don accepté; ne pas le retirer dans la branche de refus."
+      }
+    },
+    "244": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La fièvre disparue",
+      "routes": [
+        {
+          "target": 198,
+          "label": "Partir au matin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 105,
+        "rules": "Guérison narrative; pas de restauration numérique ni de retour de provisions."
+      }
+    },
+    "245": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les trois voies de la vallée",
+      "routes": [
+        {
+          "target": 163,
+          "label": "Continuer au nord"
+        },
+        {
+          "target": 233,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 393,
+          "label": "Aller à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 106,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "246": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le péage des Bandits",
+      "routes": [
+        {
+          "target": 204,
+          "label": "Rejoindre le village"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 106,
+        "rules": "Retirer les objets convenus au §360 une seule fois; pas de nouveau prix ici. Prix de cinq unités défini au §360, chaque pièce vaut une unité selon §279."
+      }
+    },
+    "247": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La flèche jaune au sol",
+      "routes": [
+        {
+          "target": 3,
+          "label": "Suivre la flèche"
+        },
+        {
+          "target": 144,
+          "label": "Rester sur le chemin au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 106,
+        "rules": "Aucun effet chiffré de victoire."
+      }
+    },
+    "248": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bouclier d'empereur",
+      "routes": [
+        {
+          "target": 389,
+          "label": "Essayer le coffre",
+          "condition_text": "Pas déjà essayé"
+        },
+        {
+          "target": 88,
+          "label": "Monter les marches"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 106,
+        "rules": "Ajouter bouclier d'empereur; Chance +1. Quand blessé, 1d6 : 4–6 réduisent la blessure normale de 2 à 1; 1–3 ne la réduisent pas. Interaction avec Chance à préciser; ce n'est pas le bouclier au croissant du Sorcier."
+      }
+    },
+    "249": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les dernières marches",
+      "routes": [
+        {
+          "target": 164,
+          "label": "Sortir de la caverne"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 107,
+        "rules": "Pas de nouvelle rencontre avec les cultivateurs."
+      }
+    },
+    "250": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le vase fêlé",
+      "routes": [
+        {
+          "target": 82,
+          "label": "Chercher à apaiser la force",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 107,
+        "rules": "Endurance -2; poursuivre la résolution de la Force Tellurique."
+      }
+    },
+    "251": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La flèche du Centaure",
+      "routes": [
+        {
+          "target": 63,
+          "label": "Éviter la flèche",
+          "condition_text": "2d6 ≤ Habileté"
+        },
+        {
+          "target": 260,
+          "label": "Subir la flèche",
+          "condition_text": "2d6 > Habileté et survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 107,
+        "rules": "Épreuve d'Habileté 2d6, pas de coût de Chance; échec Endurance -4."
+      }
+    },
+    "252": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le carrefour de la plaine",
+      "routes": [
+        {
+          "target": 309,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 72,
+          "label": "Continuer à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 107,
+        "rules": "Autres directions non proposées malgré les quatre voies décrites."
+      }
+    },
+    "253": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'homme pris au piège",
+      "routes": [
+        {
+          "target": 344,
+          "label": "Le libérer"
+        },
+        {
+          "target": 187,
+          "label": "Le laisser et repartir"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 109,
+        "rules": "Aucun paiement ni effet avant choix."
+      }
+    },
+    "254": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le grognement près du chemin",
+      "routes": [
+        {
+          "target": 241,
+          "label": "Chercher la créature"
+        },
+        {
+          "target": 300,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 109,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "255": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La poignée dans le rocher",
+      "routes": [
+        {
+          "target": 182,
+          "label": "Tenter de retirer l'épée"
+        },
+        {
+          "target": 334,
+          "label": "Continuer vers la vallée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 109,
+        "rules": "Aucun bonus d'arme avant l'épreuve."
+      }
+    },
+    "256": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le barreau manquant",
+      "routes": [
+        {
+          "target": 122,
+          "label": "Se retenir",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 295,
+          "label": "Tomber dans le puits",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 109,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance; dégâts traités après vérification du casque."
+      }
+    },
+    "257": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le pain des elfes",
+      "routes": [
+        {
+          "target": 31,
+          "label": "Revenir au puits"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 109,
+        "rules": "Ajouter pain elfique, consommable facultativement pour +4 Endurance; Chance +1 à la trouvaille. Ne pas forcer à manger immédiatement."
+      }
+    },
+    "258": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La flûte devant la Vouivre",
+      "routes": [
+        {
+          "target": 305,
+          "label": "Examiner le repaire"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 110,
+        "rules": "Jouer de la Flûte à Endormir les Dragons; Vouivre endormie, pas tuée. Conserver la flûte physique, pas de consommation explicite de cet objet trouvé."
+      }
+    },
+    "259": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La fièvre grandissante",
+      "routes": [
+        {
+          "target": 244,
+          "label": "Attendre la guérison",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 19,
+          "label": "Retirer la morsure",
+          "condition_text": "Chance ratée et survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 110,
+        "rules": "Endurance -3 AVANT le test; si vivant, Chance 2d6 avec coût 1. Échec ajoute -2 Endurance; vérifier de nouveau la survie avant §19."
+      }
+    },
+    "260": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La retraite devant le Centaure",
+      "routes": [
+        {
+          "target": 178,
+          "label": "Traverser à pied"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 110,
+        "rules": "Pas de combat supplémentaire; la blessure de flèche est déjà appliquée au §251."
+      }
+    },
+    "261": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les achats chez Yaztromo",
+      "routes": [
+        {
+          "target": 177,
+          "label": "Quitter la tour après les achats"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 111,
+        "rules": "Boutique de 17 articles, prix exacts dans la table dédiée. Chaque article acheté ne sert QU'UNE FOIS. Paiements au choix, pas de solde négatif; suivre quantité, provenance et charges. Ce passage n'attribue pas de nouveau les 30 Or du prologue lors d'un retour depuis §98."
+      }
+    },
+    "262": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La potion des deux combats",
+      "routes": [
+        {
+          "target": 337,
+          "label": "Quitter la tanière"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 113,
+        "rules": "Boire Potion d'Adresse au Combat trouvée : Force d'Attaque +1 pendant les DEUX prochains combats, pas deux assauts ni Habileté permanente. Les 4 Or sont le même butin qu'au §217, pas un second gain. Définir précisément le décompte pour séquences/paires."
+      }
+    },
+    "263": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La petite boîte d'argent",
+      "routes": [
+        {
+          "target": 126,
+          "label": "Ouvrir la boîte"
+        },
+        {
+          "target": 358,
+          "label": "Repartir sans la boîte"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 114,
+        "rules": "Pas de gain de boîte avant décision; contexte après le Gobelin."
+      }
+    },
+    "264": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Clone et le champignon violet",
+      "routes": [
+        {
+          "target": 367,
+          "label": "Observer le violet"
+        },
+        {
+          "target": 189,
+          "label": "Approcher le vert"
+        },
+        {
+          "target": 282,
+          "label": "Approcher le rouge"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 114,
+        "rules": "Le Clone est tué sans combat aux dés puis devient un champignon; pas de victoire à récompenser."
+      }
+    },
+    "265": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Géant des Forêts",
+      "routes": [
+        {
+          "target": 356,
+          "label": "Fouiller après victoire",
+          "condition_text": "Géant vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 114,
+        "rules": "Combat : Géant des Forêts [9/9]."
+      }
+    },
+    "266": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bras de fer sans Brassard",
+      "routes": [
+        {
+          "target": 354,
+          "label": "Gagner la mise",
+          "condition_text": "Trois jets d'Habileté réussis"
+        },
+        {
+          "target": 129,
+          "label": "Perdre la mise",
+          "condition_text": "Un seul échec suffit"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 116,
+        "rules": "Choisir mise : un objet OU 10 Or. Jusqu'à TROIS jets successifs de 2d6 ≤ Habileté, arrêt au premier échec. Pas de coût de Chance. Retirer la mise seulement si perte, sans la compter deux fois au §129."
+      }
+    },
+    "267": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La caverne au bout du sentier",
+      "routes": [
+        {
+          "target": 25,
+          "label": "Revenir à la bifurcation"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 116,
+        "rules": "SOURCE INCERTAINE : page PDF 116 contrôlée, renvoi d'entrée imprimé 1%, non numérique. §196 est une hypothèse cohérente avec la caverne du Troll mais NON confirmée; ne pas convertir ce renvoi en §1 ou en §196 automatiquement."
+      },
+      "unresolved_routes": [
+        {
+          "label": "Entrer dans la caverne — renvoi à confirmer",
+          "printed_reference": "1%"
+        }
+      ],
+      "source_issues": [
+        {
+          "paragraph": 267,
+          "severity": "blocking",
+          "kind": "invalid_reference",
+          "printed_reference": "1%",
+          "candidate_target": 196,
+          "candidate_confirmed": false,
+          "details": "Référence imprimée illisible : aucune correction ni destination inventée."
+        }
+      ]
+    },
+    "268": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'ail contre les Vampires",
+      "routes": [
+        {
+          "target": 119,
+          "label": "Repartir au matin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 116,
+        "rules": "Utiliser les gousses d'ail achetées pour repousser les Chauves-Souris Vampires; marquer l'unique usage consommé même si le récit les pose au sol."
+      }
+    },
+    "269": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le champignon vert mangé",
+      "routes": [
+        {
+          "target": 293,
+          "label": "Quitter la caverne"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 117,
+        "rules": "Endurance +4 sous plafond; ce n'est pas une provision retirée."
+      }
+    },
+    "270": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La boîte dans la caverne basse",
+      "routes": [
+        {
+          "target": 229,
+          "label": "Ouvrir la boîte"
+        },
+        {
+          "target": 121,
+          "label": "Revenir à la bifurcation"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 117,
+        "rules": "Aucun effet avant l'ouverture."
+      }
+    },
+    "271": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les renseignements du Gnome",
+      "routes": [
+        {
+          "target": 297,
+          "label": "Acheter le renseignement",
+          "condition_text": "5 Or ou un objet choisi"
+        },
+        {
+          "target": 67,
+          "label": "Refuser et repartir"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 117,
+        "rules": "Tarif 5 Or OU un objet du sac; refus prévu en cas d'insolvabilité."
+      }
+    },
+    "272": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Après le Barbare",
+      "routes": [
+        {
+          "target": 394,
+          "label": "Reprendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 118,
+        "rules": "Pas de butin ni de gain de Chance annoncé."
+      }
+    },
+    "273": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le médaillon du chef Gremlin",
+      "routes": [
+        {
+          "target": 296,
+          "label": "Revenir au carrefour"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 118,
+        "rules": "Ajouter médaillon d'or, valeur 9 Or; pas de 9 pièces automatiques."
+      }
+    },
+    "274": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La liane de la cabane",
+      "routes": [
+        {
+          "target": 195,
+          "label": "Grimper à la liane"
+        },
+        {
+          "target": 109,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 118,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "275": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le casque dans le trou",
+      "routes": [
+        {
+          "target": 179,
+          "label": "Essayer le casque",
+          "condition_text": "Survivre"
+        },
+        {
+          "target": 115,
+          "label": "Le laisser",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 118,
+        "rules": "Endurance -1 à la morsure; casque disponible mais facultatif à équiper/prendre dans la branche179."
+      }
+    },
+    "276": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'attaque du cavalier",
+      "routes": [
+        {
+          "target": 62,
+          "label": "Repartir",
+          "condition_text": "Tous les ennemis vaincus"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 119,
+        "rules": "Même rencontre qu'au §96 : Chien [7/6], paire Chiens [6/6] et [5/6], puis Chien [6/5] et Homme Masqué [8/7]. Cible choisie à chaque assaut; seconde attaque parée sans pouvoir blesser; finir le survivant normalement."
+      }
+    },
+    "277": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'arbre qui frappe",
+      "routes": [
+        {
+          "target": 234,
+          "label": "Fuir avant le combat"
+        },
+        {
+          "target": 114,
+          "label": "Faire face"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 120,
+        "rules": "Endurance -1 au coup initial pour les DEUX choix. La fuite immédiate n'indique pas de blessure supplémentaire standard."
+      }
+    },
+    "278": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La fosse au pieu",
+      "routes": [
+        {
+          "target": 319,
+          "label": "Examiner la fosse",
+          "condition_text": "Survivre dans les deux branches"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 120,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance. Réussite : Endurance -2 pour la chute; échec : -4 au total (chute -2 et pieu -2). Même destination, effets distincts."
+      }
+    },
+    "279": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le calcul du tribut",
+      "routes": [
+        {
+          "target": 246,
+          "label": "Donner les biens demandés"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 121,
+        "rules": "Compter CHAQUE objet et CHAQUE pièce d'Or comme une unité; sélectionner la quantité de cinq requise par §360. Cas des lots/charges à définir sans valoriser artificiellement les trésors."
+      }
+    },
+    "280": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La longue piste occidentale",
+      "routes": [
+        {
+          "target": 306,
+          "label": "Reprendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 121,
+        "rules": "Pas de détour au sud proposé."
+      }
+    },
+    "281": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le croisement après le puits",
+      "routes": [
+        {
+          "target": 163,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 393,
+          "label": "Continuer à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 121,
+        "rules": "Pas de retour au sud offert."
+      }
+    },
+    "282": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les cultivateurs aux chapeaux rouges",
+      "routes": [
+        {
+          "target": 16,
+          "label": "Goûter un champignon rouge"
+        },
+        {
+          "target": 293,
+          "label": "Monter les marches"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 121,
+        "rules": "Aucun effet avant choix."
+      }
+    },
+    "283": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La boue guérisseuse",
+      "routes": [
+        {
+          "target": 303,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 121,
+        "rules": "Endurance +4 sous plafond; aucun retrait de provision."
+      }
+    },
+    "284": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le croisement des tunnels",
+      "routes": [
+        {
+          "target": 81,
+          "label": "Ramper au nord"
+        },
+        {
+          "target": 270,
+          "label": "Ramper au sud"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 122,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "285": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Loup-Garou nocturne",
+      "routes": [
+        {
+          "target": 388,
+          "label": "Attendre après victoire",
+          "condition_text": "Loup-Garou vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 122,
+        "rules": "Combat : Loup-Garou [8/9]. Suivre s'il a infligé au moins une blessure pour la suite, pas les règles d'arme d'argent du Sorcier."
+      }
+    },
+    "286": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le faux Gobelin attaqué",
+      "routes": [
+        {
+          "target": 373,
+          "label": "Examiner le corps",
+          "condition_text": "Changeur vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 124,
+        "rules": "Combat : Changeur de Forme [10/10]. Même créature qu'au §203 selon choix initial."
+      }
+    },
+    "287": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le contenu du sac volé",
+      "routes": [
+        {
+          "target": 25,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 124,
+        "rules": "Or +5, petite cloche de cuivre; même butin qu'aux §§74 et101, sans gain de Chance ajouté."
+      }
+    },
+    "288": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les blocs au fond de la vallée",
+      "routes": [
+        {
+          "target": 84,
+          "label": "Examiner le roc mouvant"
+        },
+        {
+          "target": 245,
+          "label": "Passer sans s'arrêter"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 124,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "289": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La première bifurcation occidentale",
+      "routes": [
+        {
+          "target": 76,
+          "label": "Continuer à l'ouest"
+        },
+        {
+          "target": 147,
+          "label": "Aller au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 125,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "290": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'Ogre à la massue",
+      "routes": [
+        {
+          "target": 385,
+          "label": "Explorer la caverne",
+          "condition_text": "Ogre vaincu"
+        },
+        {
+          "target": 358,
+          "label": "Fuir au nord",
+          "condition_text": "Blessure réglementaire"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 125,
+        "rules": "Combat : Ogre [8/12]. Fuite pendant le combat, pas de délai de deux assauts hérité du Sorcier."
+      }
+    },
+    "291": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bateau près de la cascade",
+      "routes": [
+        {
+          "target": 335,
+          "label": "Descendre près de la chute"
+        },
+        {
+          "target": 145,
+          "label": "Prendre le bateau"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 125,
+        "rules": "Aucun effet chiffré avant choix."
+      }
+    },
+    "292": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le coffre de pierre de la crypte",
+      "routes": [
+        {
+          "target": 95,
+          "label": "Soulever le couvercle"
+        },
+        {
+          "target": 112,
+          "label": "Quitter la crypte"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 126,
+        "rules": "Pas de butin accordé à la simple inspection."
+      }
+    },
+    "293": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les anfractuosités de l'escalier",
+      "routes": [
+        {
+          "target": 215,
+          "label": "Regarder dans le tonneau"
+        },
+        {
+          "target": 389,
+          "label": "Ouvrir le coffre"
+        },
+        {
+          "target": 88,
+          "label": "Monter plus haut"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 126,
+        "rules": "Suivre les objets déjà pris/essayés aux retours depuis §§201 et248."
+      }
+    },
+    "294": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'intérieur de la cabane vide",
+      "routes": [
+        {
+          "target": 106,
+          "label": "Fouiller la cheminée"
+        },
+        {
+          "target": 175,
+          "label": "Ouvrir le coffre"
+        },
+        {
+          "target": 288,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 127,
+        "rules": "Aucun effet avant choix."
+      }
+    },
+    "295": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le choc dans le puits",
+      "routes": [
+        {
+          "target": 225,
+          "label": "Être protégé",
+          "condition_text": "Casque porté"
+        },
+        {
+          "target": 30,
+          "label": "Subir la coupure",
+          "condition_text": "Pas de casque porté"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 127,
+        "rules": "Vérifier le PORT, pas uniquement l'objet dans le sac. Pas de dégât supplémentaire sur la branche protégée."
+      }
+    },
+    "296": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le carrefour après le chef Gremlin",
+      "routes": [
+        {
+          "target": 398,
+          "label": "Ramper au sud vers le puits"
+        },
+        {
+          "target": 284,
+          "label": "Ramper à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 127,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "297": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le renseignement acheté au Gnome",
+      "routes": [
+        {
+          "target": 67,
+          "label": "Repartir à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 129,
+        "rules": "Payer 5 Or OU l'objet choisi au §271 une seule fois. Information sur la crypte; aucun objet de quête donné."
+      }
+    },
+    "298": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'Araignée du campement",
+      "routes": [
+        {
+          "target": 140,
+          "label": "Repartir au matin",
+          "condition_text": "Araignée vaincue"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 129,
+        "rules": "Combat : Araignée Géante [7/8]; pas de fuite ni de venin additionnel prescrit."
+      }
+    },
+    "299": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le plongeon pour fuir les abeilles",
+      "routes": [
+        {
+          "target": 65,
+          "label": "Passer par le pont"
+        },
+        {
+          "target": 75,
+          "label": "Traverser à la nage"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 129,
+        "rules": "Provisions ramenées à zéro après immersion; abeilles évitées sans blessure de fuite ni assauts."
+      }
+    },
+    "300": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La lisière et les hautes herbes",
+      "routes": [
+        {
+          "target": 138,
+          "label": "Continuer au nord"
+        },
+        {
+          "target": 331,
+          "label": "Aller à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 130,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "301": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le butin des Lutins",
+      "routes": [
+        {
+          "target": 157,
+          "label": "Reprendre le chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 130,
+        "rules": "Prendre facultativement tout ou partie : 3 Or, petite flûte de cuivre, biscuits infestés, collier de crânes de souris. Les biscuits ne sont pas automatiquement des provisions saines."
+      }
+    },
+    "302": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Bracelet d'Habileté",
+      "routes": [
+        {
+          "target": 109,
+          "label": "Redescendre au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 130,
+        "rules": "Ajouter et porter bracelet; Force d'Attaque +1 aussi longtemps qu'il est porté, pas Habileté +1."
+      }
+    },
+    "303": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Ptérodactyle dans la vallée",
+      "routes": [
+        {
+          "target": 247,
+          "label": "Examiner le sol",
+          "condition_text": "Créature vaincue"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 131,
+        "rules": "Combat : Ptérodactyle [7/8]. Pas d'abri ou de fuite proposé."
+      }
+    },
+    "304": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La convalescence dans le tunnel",
+      "routes": [
+        {
+          "target": 69,
+          "label": "Explorer le tunnel",
+          "condition_text": "Au moins cinq provisions"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 131,
+        "rules": "Consommer CINQ rations pour guérir; pas cinq soins de +4. Si moins de cinq : mort de faim. Si survivant : Habileté -2 pour la blessure."
+      }
+    },
+    "305": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le butin de la Vouivre",
+      "routes": [
+        {
+          "target": 374,
+          "label": "Essayer le gantelet"
+        },
+        {
+          "target": 133,
+          "label": "Mettre l'anneau"
+        },
+        {
+          "target": 360,
+          "label": "Partir sans les essayer"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 131,
+        "rules": "Or +10 et couteau à lancer acquis; gantelet/anneau facultatifs. Le texte dit cadavre mais l'accès par §258 endort la Vouivre : conserver la vraie issue, ne pas imposer sa mort."
+      }
+    },
+    "306": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le petit édifice de pierre",
+      "routes": [
+        {
+          "target": 391,
+          "label": "Examiner l'édifice"
+        },
+        {
+          "target": 112,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 132,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "307": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Gnome réveillé",
+      "routes": [
+        {
+          "target": 192,
+          "label": "Attaquer le Gnome"
+        },
+        {
+          "target": 271,
+          "label": "Lui parler"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 132,
+        "rules": "Pas de combat standard à préparer contre le Gnome."
+      }
+    },
+    "308": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les Champignons Brouilleurs",
+      "routes": [
+        {
+          "target": 148,
+          "label": "Reprendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 132,
+        "rules": "Intervertir les valeurs courantes Habileté et Chance. Le texte ne demande pas d'échanger les plafonds initiaux; interaction avec les plafonds/potions à trancher explicitement."
+      }
+    },
+    "309": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les deux sarbacanes",
+      "routes": [
+        {
+          "target": 77,
+          "label": "Éviter les deux fléchettes",
+          "condition_text": "Deux Chances réussies"
+        },
+        {
+          "target": 197,
+          "label": "Subir le poison",
+          "condition_text": "Au moins un échec"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 133,
+        "rules": "DEUX tests de Chance 2d6, un par fléchette; coût total 2 Chance, même si le premier échoue. Comparer le second au score déjà diminué; pas de dégâts d'Endurance chiffrés ici."
+      }
+    },
+    "310": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Troll réveillé",
+      "routes": [
+        {
+          "target": 101,
+          "label": "Prendre le sac",
+          "condition_text": "Troll vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 133,
+        "rules": "Combat : Troll des Cavernes [8/9]."
+      }
+    },
+    "311": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les bourses des Bandits",
+      "routes": [
+        {
+          "target": 204,
+          "label": "Sortir de la Forêt"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 133,
+        "rules": "Or +2 au total, pas par Bandit."
+      }
+    },
+    "312": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le cercueil de la Goule",
+      "routes": [
+        {
+          "target": 112,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 134,
+        "rules": "Or +25 et tête de marteau en bronze gravée G; même butin qu'au §58. Pas de gain de Chance indiqué."
+      }
+    },
+    "313": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les affaires de l'Ogre",
+      "routes": [
+        {
+          "target": 240,
+          "label": "Ouvrir la boîte d'argent"
+        },
+        {
+          "target": 85,
+          "label": "Examiner la cage"
+        },
+        {
+          "target": 358,
+          "label": "Quitter la caverne"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 134,
+        "rules": "La boîte est laissée si l'on ne l'ouvre pas; ne pas l'ajouter automatiquement."
+      }
+    },
+    "314": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La cabane sur la descente",
+      "routes": [
+        {
+          "target": 294,
+          "label": "Entrer dans la cabane"
+        },
+        {
+          "target": 288,
+          "label": "Descendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 134,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "315": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'entrée de la cabane",
+      "routes": [
+        {
+          "target": 42,
+          "label": "Parler à la vieille femme"
+        },
+        {
+          "target": 342,
+          "label": "Tirer l'épée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 134,
+        "rules": "Aucun effet chiffré avant choix."
+      }
+    },
+    "316": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le sommeil agité",
+      "routes": [
+        {
+          "target": 198,
+          "label": "Repartir au matin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 135,
+        "rules": "Pas de soin ni de perte supplémentaire."
+      }
+    },
+    "317": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les Lutins sur le chemin",
+      "routes": [
+        {
+          "target": 301,
+          "label": "Prendre le butin",
+          "condition_text": "Deux Lutins vaincus"
+        },
+        {
+          "target": 41,
+          "label": "Fuir",
+          "condition_text": "Blessure réglementaire"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 135,
+        "rules": "Combat de deux Lutins : premier [6/6], deuxième [5/7]; résolution ordinaire successive selon règles communes, pas de règle de paires indiquée ici. Le mode de résolution des deux adversaires doit être confirmé avant automatisation ; la succession est une interprétation."
+      }
+    },
+    "318": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Géant évité",
+      "routes": [
+        {
+          "target": 231,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 135,
+        "rules": "Pas de combat ni de blessure de fuite; dissimulation avant rencontre."
+      }
+    },
+    "319": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La sortie de la fosse",
+      "routes": [
+        {
+          "target": 228,
+          "label": "Employer les Bottes à Bondir",
+          "condition_text": "Bottes utilisables"
+        },
+        {
+          "target": 14,
+          "label": "Attendre un secours",
+          "condition_text": "Pas de bottes utilisables"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 135,
+        "rules": "Les Bottes à Bondir sont aussi nommées Bottes de Saut au §228; un usage selon la boutique."
+      }
+    },
+    "320": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Gremlin jeté au puits",
+      "routes": [
+        {
+          "target": 362,
+          "label": "Remonter au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 137,
+        "rules": "Pas de combat ni de butin; la créature est évitée."
+      }
+    },
+    "321": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Après les Guerriers Clones",
+      "routes": [
+        {
+          "target": 107,
+          "label": "Monter les marches"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 137,
+        "rules": "Les corps se dissolvent; pas de butin annoncé."
+      }
+    },
+    "322": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le médaillon dans le tronc",
+      "routes": [
+        {
+          "target": 94,
+          "label": "Descendre avec la corde",
+          "condition_text": "Corde Magique utilisable"
+        },
+        {
+          "target": 380,
+          "label": "Choisir sans corde",
+          "condition_text": "Corde absente ou épuisée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 137,
+        "rules": "Employer l'Anneau de Lumière à usage unique; ajouter médaillon d'or, valeur 5 Or. Pas de pièces supplémentaires."
+      }
+    },
+    "323": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le carrefour après le Sanglier",
+      "routes": [
+        {
+          "target": 291,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 99,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 102,
+          "label": "Aller à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 137,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "324": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le vase bleu de la véranda",
+      "routes": [
+        {
+          "target": 250,
+          "label": "Tenter de briser le vase"
+        },
+        {
+          "target": 161,
+          "label": "Mettre la main dedans"
+        },
+        {
+          "target": 149,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 138,
+        "rules": "Pas de butin ni de perte avant choix."
+      }
+    },
+    "325": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les ailes dans la nuit",
+      "routes": [
+        {
+          "target": 268,
+          "label": "Employer l'ail",
+          "condition_text": "Gousses d'ail utilisables"
+        },
+        {
+          "target": 79,
+          "label": "Combattre sans ail",
+          "condition_text": "Ail absent ou épuisé"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 138,
+        "rules": "La possession doit tenir compte de la charge unique d'un achat déjà utilisé."
+      }
+    },
+    "326": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bateau comme seule traversée",
+      "routes": [
+        {
+          "target": 145,
+          "label": "Traverser à la rame"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 138,
+        "rules": "Aucune autre route proposée ici."
+      }
+    },
+    "327": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'escalier sous la porte",
+      "routes": [
+        {
+          "target": 351,
+          "label": "Descendre"
+        },
+        {
+          "target": 112,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 139,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "328": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La Chaise Dévoreuse de Vie",
+      "routes": [
+        {
+          "target": 118,
+          "label": "Quitter la chaise",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 139,
+        "rules": "Endurance -4 AU LIEU de la restauration du repas; ne pas annuler avec +4 E. Nourriture consommée implique une ration, mais le cas sans provisions doit être explicité, pas inventé."
+      }
+    },
+    "329": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La sortie des bois vers la plaine",
+      "routes": [
+        {
+          "target": 180,
+          "label": "Continuer au nord"
+        },
+        {
+          "target": 252,
+          "label": "Aller à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 139,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "330": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les Loups du campement",
+      "routes": [
+        {
+          "target": 116,
+          "label": "Examiner les lieux au matin",
+          "condition_text": "Trois Loups vaincus"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 140,
+        "rules": "Combat successif : Loup 1 [7/8], Loup 2 [7/7], Loup 3 [7/9]. Pas de fuite proposée."
+      }
+    },
+    "331": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation des hautes herbes",
+      "routes": [
+        {
+          "target": 124,
+          "label": "Continuer à l'ouest"
+        },
+        {
+          "target": 309,
+          "label": "Aller au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 140,
+        "rules": "Pas de retour dans la forêt au sud offert."
+      }
+    },
+    "332": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le cap vers Pont-de-Pierre",
+      "routes": [
+        {
+          "target": 103,
+          "label": "Prendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 141,
+        "rules": "Ne pas proposer le chemin occidental que le texte écarte."
+      }
+    },
+    "333": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La couronne maudite",
+      "routes": [],
+      "analysis": {
+        "source_page_pdf": 141,
+        "rules": "Fin en défaite par transformation en Démon de Feu; pas un combat ni une simple baisse d'Endurance. Aucune issue, même si le héros est encore vivant en chiffres."
+      }
+    },
+    "334": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation au pied des collines",
+      "routes": [
+        {
+          "target": 113,
+          "label": "Aller à l'ouest"
+        },
+        {
+          "target": 51,
+          "label": "Aller à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 141,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "335": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les marches de la cascade",
+      "routes": [
+        {
+          "target": 181,
+          "label": "Traverser la chute"
+        },
+        {
+          "target": 326,
+          "label": "Remonter"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 142,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "336": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le poison du fruit violet",
+      "routes": [
+        {
+          "target": 21,
+          "label": "Prendre l'antipoison",
+          "condition_text": "Potion Antipoison utilisable"
+        },
+        {
+          "target": 108,
+          "label": "Subir le poison",
+          "condition_text": "Potion absente ou épuisée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 142,
+        "rules": "Aucun jet ni dégât supplémentaire avant branche."
+      }
+    },
+    "337": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La caverne près de la lisière",
+      "routes": [
+        {
+          "target": 230,
+          "label": "Explorer la caverne"
+        },
+        {
+          "target": 358,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 142,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "338": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La boîte et les filtres",
+      "routes": [
+        {
+          "target": 85,
+          "label": "Examiner la cage"
+        },
+        {
+          "target": 358,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 143,
+        "rules": "Employer Filtres à Nez, charge d'achat consommée; ajouter boîte d'argent, aucun dégât dans cette branche."
+      }
+    },
+    "339": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le pont de bois",
+      "routes": [
+        {
+          "target": 65,
+          "label": "Passer le pont"
+        },
+        {
+          "target": 75,
+          "label": "Traverser à la nage avec le sac au sec"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 143,
+        "rules": "Contrairement au plongeon du §299, la nage choisie ici ne détruit pas les provisions."
+      }
+    },
+    "340": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Nain au bord du sentier",
+      "routes": [
+        {
+          "target": 141,
+          "label": "Parler au Nain"
+        },
+        {
+          "target": 347,
+          "label": "Attaquer"
+        },
+        {
+          "target": 59,
+          "label": "Le pousser puis fuir à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 143,
+        "rules": "Le départ avant combat ne prévoit pas de blessure de fuite."
+      }
+    },
+    "341": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le butin au fond du vase",
+      "routes": [
+        {
+          "target": 149,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 145,
+        "rules": "Or +5; ajouter dent de dragon et Potion de Force restaurant +5 Endurance QUAND bue. Chance +1. Aucune perte chiffrée due à la douleur de la main."
+      }
+    },
+    "342": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'illusion de la Sorcière",
+      "routes": [
+        {
+          "target": 158,
+          "label": "Mettre le Bandeau",
+          "condition_text": "Bandeau de Concentration utilisable"
+        },
+        {
+          "target": 11,
+          "label": "Subir le vertige",
+          "condition_text": "Bandeau absent ou épuisé"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 145,
+        "rules": "Ne pas tirer de jet de combat; sort résolu par possession/charge de l'objet."
+      }
+    },
+    "343": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le conseil du corbeau payé",
+      "routes": [
+        {
+          "target": 8,
+          "label": "Suivre son conseil au nord"
+        },
+        {
+          "target": 239,
+          "label": "Choisir l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 145,
+        "rules": "Or -1 pour l'information; les 30 Or cités sont le besoin du corbeau, PAS un gain/coût du héros."
+      }
+    },
+    "344": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le voyageur libéré",
+      "routes": [
+        {
+          "target": 36,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 146,
+        "rules": "Pas de récompense immédiate; le vol se révèle au passage suivant."
+      }
+    },
+    "345": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le champignon rouge sans remède",
+      "routes": [
+        {
+          "target": 293,
+          "label": "Quitter les cultures",
+          "condition_text": "Survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 146,
+        "rules": "Endurance -4."
+      }
+    },
+    "346": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le choix face à Arragon",
+      "routes": [
+        {
+          "target": 32,
+          "label": "Payer",
+          "condition_text": "10 Or et deux objets"
+        },
+        {
+          "target": 111,
+          "label": "Défier la menace"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 146,
+        "rules": "Pas de paiement avant le choix; pas de réelle pétrification automatique pour le refus."
+      }
+    },
+    "347": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Nain à la hache",
+      "routes": [
+        {
+          "target": 363,
+          "label": "Fouiller après victoire",
+          "condition_text": "Nain vaincu"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 146,
+        "rules": "Combat : Nain [8/5]."
+      }
+    },
+    "348": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les archers qui rient",
+      "routes": [
+        {
+          "target": 43,
+          "label": "Attaquer"
+        },
+        {
+          "target": 188,
+          "label": "Passer sans combattre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 147,
+        "rules": "La flèche a déjà coûté -3 Endurance au §90; ne pas l'appliquer de nouveau."
+      }
+    },
+    "349": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le carrefour près de Quin",
+      "routes": [
+        {
+          "target": 291,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 102,
+          "label": "Aller à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 147,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "350": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les Capsules contre l'Homme-Arbre",
+      "routes": [
+        {
+          "target": 329,
+          "label": "Passer l'obstacle"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 147,
+        "rules": "Utiliser TOUTES les cinq Capsules de Feu du sachet; contourner l'Homme-Arbre sans combat. Un achat = un sachet à usage unique, pas cinq rencontres protégées."
+      }
+    },
+    "351": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La pièce de la crypte",
+      "routes": [
+        {
+          "target": 292,
+          "label": "Allumer la chandelle"
+        },
+        {
+          "target": 112,
+          "label": "Remonter au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 150,
+        "rules": "Chandelle disponible pour éclairer; pas de paiement ni d'attaque."
+      }
+    },
+    "352": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le combat sur la plate-forme",
+      "routes": [
+        {
+          "target": 207,
+          "label": "Explorer la cabane",
+          "condition_text": "Homme-Singe vaincu"
+        },
+        {
+          "target": 156,
+          "label": "Fuir en sautant",
+          "condition_text": "Blessure réglementaire puis dégâts de chute"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 150,
+        "rules": "Combat : Homme-Singe [8/7]; Force d'Attaque du héros -2 à chaque assaut. La fuite en combat renvoie à la chute du §156 (-3 Endurance), à distinguer du saut avant combat au §195; politique de cumul de blessure de fuite à expliciter."
+      }
+    },
+    "353": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le réveil hors de la cabane",
+      "routes": [
+        {
+          "target": 26,
+          "label": "Fouiller la cabane"
+        },
+        {
+          "target": 220,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 150,
+        "rules": "Provisions ramenées à zéro; épée et autres objets conservés."
+      }
+    },
+    "354": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La fiole gagnée au bras de fer",
+      "routes": [
+        {
+          "target": 349,
+          "label": "Revenir au croisement"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 151,
+        "rules": "Ajouter Poudre de Lévitation, même récompense qu'au §78. Ne pas créditer la récompense aussi au §266."
+      }
+    },
+    "355": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La piste vers l'est",
+      "routes": [
+        {
+          "target": 340,
+          "label": "Continuer à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 151,
+        "rules": "Pas de chemin au sud proposé."
+      }
+    },
+    "356": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La lanterne du Géant",
+      "routes": [
+        {
+          "target": 34,
+          "label": "Frotter et faire un vœu"
+        },
+        {
+          "target": 395,
+          "label": "Allumer la mèche"
+        },
+        {
+          "target": 231,
+          "label": "Laisser la lampe"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 151,
+        "rules": "Lanterne magique distincte de la lanterne de voyage; acquisition/usage selon choix."
+      }
+    },
+    "357": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les détours occidentaux",
+      "routes": [
+        {
+          "target": 306,
+          "label": "Reprendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 151,
+        "rules": "Les deux embranchements au sud sont volontairement ignorés."
+      }
+    },
+    "358": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le nœud coulant",
+      "routes": [
+        {
+          "target": 40,
+          "label": "Couper la corde",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 218,
+          "label": "Attendre un secours",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 152,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance; en échec l'épée tombe et devient temporairement inaccessible, pas détruite."
+      }
+    },
+    "359": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le puits près du chemin est",
+      "routes": [
+        {
+          "target": 172,
+          "label": "Examiner le puits"
+        },
+        {
+          "target": 281,
+          "label": "Continuer à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 152,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "360": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le péage des cinq Bandits",
+      "routes": [
+        {
+          "target": 279,
+          "label": "Payer le tribut",
+          "condition_text": "Cinq unités de biens disponibles"
+        },
+        {
+          "target": 104,
+          "label": "Refuser et combattre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 152,
+        "rules": "Prix CINQ objets/unités, pas tout l'inventaire; chaque pièce d'Or peut compter pour une unité selon §279. Valider choix et paiement avant départ."
+      }
+    },
+    "361": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La chasse au renard",
+      "routes": [
+        {
+          "target": 396,
+          "label": "Faire face à la meute"
+        },
+        {
+          "target": 86,
+          "label": "Se cacher"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 154,
+        "rules": "Aucun dégât ou assaut pour le choix de se cacher."
+      }
+    },
+    "362": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le choix après le puits",
+      "routes": [
+        {
+          "target": 281,
+          "label": "Partir à l'est"
+        },
+        {
+          "target": 238,
+          "label": "Partir à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 154,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "363": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bouteille du Nain",
+      "routes": [
+        {
+          "target": 68,
+          "label": "Boire le liquide"
+        },
+        {
+          "target": 59,
+          "label": "Partir sans la bouteille"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 154,
+        "rules": "Pas de gain de soin avant choix; pas de butin en or indiqué ici."
+      }
+    },
+    "364": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le cavalier démasqué par la parole",
+      "routes": [
+        {
+          "target": 276,
+          "label": "Attaquer pour l'or"
+        },
+        {
+          "target": 194,
+          "label": "Poursuivre la conversation"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 154,
+        "rules": "Les bagues vues ne sont jamais acquises automatiquement."
+      }
+    },
+    "365": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les filtres dans la caverne",
+      "routes": [
+        {
+          "target": 358,
+          "label": "Quitter la caverne"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 155,
+        "rules": "Employer Filtres à Nez, une charge d'achat; ajouter boîte d'argent sans dégât."
+      }
+    },
+    "366": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'offre de traversée",
+      "routes": [
+        {
+          "target": 127,
+          "label": "Payer la traversée",
+          "condition_text": "Au moins 3 Or"
+        },
+        {
+          "target": 178,
+          "label": "Traverser à pied"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 155,
+        "rules": "Paiement effectif de 3 Or au §127, pas deux fois."
+      }
+    },
+    "367": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le gaz du champignon violet",
+      "routes": [
+        {
+          "target": 60,
+          "label": "Chercher les filtres",
+          "condition_text": "Filtres à Nez utilisables"
+        },
+        {
+          "target": 222,
+          "label": "Respirer sans filtres",
+          "condition_text": "Filtres absents ou épuisés"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 155,
+        "rules": "Gaz propre à cette scène; pas de -2 Habileté des boîtes d'argent."
+      }
+    },
+    "368": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La crypte abandonnée",
+      "routes": [
+        {
+          "target": 112,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 156,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "369": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le moine dans la vallée",
+      "routes": [
+        {
+          "target": 191,
+          "label": "Lui parler"
+        },
+        {
+          "target": 390,
+          "label": "Le saluer et passer"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 156,
+        "rules": "Aucun paiement avant choix."
+      }
+    },
+    "370": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La chute après l'éclair",
+      "routes": [
+        {
+          "target": 231,
+          "label": "Reprendre la route"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 156,
+        "rules": "Perdre UN objet choisi du sac, en plus des -3 Endurance déjà appliqués au §395. Cas du sac vide non décrit."
+      }
+    },
+    "371": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les mains d'argile",
+      "routes": [
+        {
+          "target": 93,
+          "label": "Revenir au carrefour"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 156,
+        "rules": "Or +3; prise facultative d'une main d'argile rouge. Ne pas remplacer les mains par des trésors vendables sans valeur donnée."
+      }
+    },
+    "372": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le coffre trop lourd",
+      "routes": [
+        {
+          "target": 48,
+          "label": "Briser le coffre",
+          "condition_text": "2d6 ≤ Habileté"
+        },
+        {
+          "target": 288,
+          "label": "Abandonner après un échec"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 157,
+        "rules": "Épreuve d'Habileté 2d6 RÉPÉTABLE. Chaque échec : Endurance -1; si vivant, recommencer OU abandonner. Pas de Chance consommée et pas de verrou une seule fois par partie."
+      }
+    },
+    "373": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bâton illusoire",
+      "routes": [
+        {
+          "target": 308,
+          "label": "Manger les champignons violets"
+        },
+        {
+          "target": 148,
+          "label": "Repartir sans goûter"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 157,
+        "rules": "Aucun manche de marteau acquis : le bâton du Changeur était une illusion."
+      }
+    },
+    "374": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Gantelet d'Adresse à Combattre",
+      "routes": [
+        {
+          "target": 133,
+          "label": "Essayer l'anneau",
+          "condition_text": "Pas déjà essayé"
+        },
+        {
+          "target": 360,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 157,
+        "rules": "Ajouter et porter gantelet : Force d'Attaque +1 aussi longtemps que porté. Suivre l'essai pour éviter de réattribuer l'objet en boucle avec §133."
+      }
+    },
+    "375": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation après l'orage",
+      "routes": [
+        {
+          "target": 150,
+          "label": "Continuer au nord"
+        },
+        {
+          "target": 236,
+          "label": "Aller à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 158,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "376": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le sac près du Troll endormi",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Prendre le sac sans réveiller",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 310,
+          "label": "Réveiller le Troll",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 158,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance."
+      }
+    },
+    "377": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les deux Pygmées",
+      "routes": [
+        {
+          "target": 205,
+          "label": "Fouiller après victoire",
+          "condition_text": "Deux Pygmées vaincus"
+        },
+        {
+          "target": 92,
+          "label": "Fuir au chemin",
+          "condition_text": "Blessure réglementaire"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 158,
+        "rules": "Combat par PAIRE : Pygmée A [5/5], Pygmée B [5/6]. Cible offensive choisie à CHAQUE assaut, l'autre peut seulement être paré; finir le survivant normalement."
+      }
+    },
+    "378": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le Gnome sur le champignon",
+      "routes": [
+        {
+          "target": 307,
+          "label": "Le réveiller"
+        },
+        {
+          "target": 67,
+          "label": "Passer discrètement à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 160,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "379": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La porte sans clé",
+      "routes": [
+        {
+          "target": 73,
+          "label": "Défoncer la porte"
+        },
+        {
+          "target": 112,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 160,
+        "rules": "Pas d'épreuve avant choix."
+      }
+    },
+    "380": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le bord du tronc creux",
+      "routes": [
+        {
+          "target": 237,
+          "label": "Sauter dans le trou"
+        },
+        {
+          "target": 144,
+          "label": "Renoncer"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 160,
+        "rules": "La blessure du saut est résolue au §237 seulement."
+      }
+    },
+    "381": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La quête inachevée",
+      "routes": [
+        {
+          "target": 98,
+          "label": "Retourner chez Yaztromo"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 160,
+        "rules": "Échec de quête, pas mort automatique. Choix de retenter par le retour dangereux au §98; conserver héros, état, trésors et parties du marteau. Pas de nouveau tirage ni de 30 Or rendus."
+      }
+    },
+    "382": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le sentier occidental vers le nord",
+      "routes": [
+        {
+          "target": 97,
+          "label": "Reprendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 161,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "383": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le butin des deux Orques",
+      "routes": [
+        {
+          "target": 254,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 161,
+        "rules": "Or +2 et sifflet de bois; lièvre rôti facultatif : Endurance +2, sans consommer de provision. Ne pas forcer le repas ni le compter deux fois."
+      }
+    },
+    "384": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le prisonnier sous les vautours",
+      "routes": [
+        {
+          "target": 128,
+          "label": "Libérer le Barbare"
+        },
+        {
+          "target": 394,
+          "label": "Le laisser"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 161,
+        "rules": "Aucun effet chiffré avant choix."
+      }
+    },
+    "385": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Après la chute de l'Ogre",
+      "routes": [
+        {
+          "target": 168,
+          "label": "Examiner la cage"
+        },
+        {
+          "target": 313,
+          "label": "Fouiller"
+        },
+        {
+          "target": 358,
+          "label": "Repartir au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 162,
+        "rules": "Ogre vaincu; pas de récompense numérique annoncée."
+      }
+    },
+    "386": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le matin après les Vampires",
+      "routes": [
+        {
+          "target": 119,
+          "label": "Reprendre au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 162,
+        "rules": "Pas de restauration de sommeil automatique."
+      }
+    },
+    "387": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La pièce sur le sentier",
+      "routes": [
+        {
+          "target": 340,
+          "label": "Continuer"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 162,
+        "rules": "Or +1 et Chance +1; ne pas oublier la pièce sous prétexte que seul le bonus de Chance est formulé numériquement."
+      }
+    },
+    "388": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le souvenir de la morsure",
+      "routes": [
+        {
+          "target": 155,
+          "label": "Soigner la morsure",
+          "condition_text": "Au moins une blessure du Loup-Garou"
+        },
+        {
+          "target": 316,
+          "label": "Dormir sans fièvre",
+          "condition_text": "Aucune blessure"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 162,
+        "rules": "Sans blessure : Chance +1; avec blessure : pas de bonus. Suivre les coups qui blessent, pas seulement l'Endurance finale après soins."
+      }
+    },
+    "389": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le coffre de l'anfractuosité",
+      "routes": [
+        {
+          "target": 215,
+          "label": "Examiner le tonneau",
+          "condition_text": "Pas déjà examiné"
+        },
+        {
+          "target": 88,
+          "label": "Monter les marches"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 163,
+        "rules": "Or +8 et Chance +1, butin unique. État partagé avec §§201/215/248/293, ne pas régénérer le coffre."
+      }
+    },
+    "390": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La bifurcation dans la Forêt",
+      "routes": [
+        {
+          "target": 190,
+          "label": "Continuer au nord"
+        },
+        {
+          "target": 280,
+          "label": "Aller à l'ouest"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 163,
+        "rules": "Aucun effet chiffré."
+      }
+    },
+    "391": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La porte de la crypte",
+      "routes": [
+        {
+          "target": 200,
+          "label": "Employer la clé",
+          "condition_text": "Petite clé d'argent possédée"
+        },
+        {
+          "target": 379,
+          "label": "Essayer sans clé",
+          "condition_text": "Clé absente"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 163,
+        "rules": "Clé physique non consommée explicitement par la serrure."
+      }
+    },
+    "392": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les Lutins évités",
+      "routes": [
+        {
+          "target": 157,
+          "label": "Revenir au chemin"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 163,
+        "rules": "Pas de combat ou de blessure de fuite."
+      }
+    },
+    "393": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La vallée paisible",
+      "routes": [
+        {
+          "target": 369,
+          "label": "Continuer au nord"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 164,
+        "rules": "Pas de retour au sud vers les collines offert."
+      }
+    },
+    "394": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La rivière peu profonde",
+      "routes": [
+        {
+          "target": 66,
+          "label": "Passer sur les pierres"
+        },
+        {
+          "target": 186,
+          "label": "Traverser dans l'eau"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 164,
+        "rules": "Le second choix aboutit au paragraphe source incomplet §186; conserver ce lien mais signaler le blocage de l'édition."
+      }
+    },
+    "395": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "L'éclair de la lanterne",
+      "routes": [
+        {
+          "target": 154,
+          "label": "Tomber sans se blesser",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 370,
+          "label": "Subir la chute",
+          "condition_text": "Chance ratée et survivre"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 165,
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance; échec Endurance -3 puis perte d'un objet au §370. Lanterne abandonnée en branche chanceuse §154; devenir de la lampe en branche370 non explicité."
+      }
+    },
+    "396": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Le cavalier et la meute",
+      "routes": [
+        {
+          "target": 364,
+          "label": "Parler au cavalier"
+        },
+        {
+          "target": 96,
+          "label": "Attaquer le premier chien"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 165,
+        "rules": "Pas de combat automatique avant choix."
+      }
+    },
+    "397": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La route orientale de la vallée",
+      "routes": [
+        {
+          "target": 163,
+          "label": "Aller au nord"
+        },
+        {
+          "target": 393,
+          "label": "Continuer à l'est"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 165,
+        "rules": "Les sentiers du sud sont écartés."
+      }
+    },
+    "398": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "Les pas sur l'échelle",
+      "routes": [
+        {
+          "target": 320,
+          "label": "Tirer la jambe"
+        },
+        {
+          "target": 193,
+          "label": "Attendre l'arrivant"
+        }
+      ],
+      "analysis": {
+        "source_page_pdf": 167,
+        "rules": "Aucun effet chiffré avant choix."
+      }
+    },
+    "399": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La punition de Yaztromo",
+      "routes": [],
+      "analysis": {
+        "source_page_pdf": 167,
+        "rules": "Fin en défaite par transformation en grenouille, pas mort biologique ni combat. Aucune issue; ne pas permettre de continuer avec les caractéristiques intactes."
+      }
+    },
+    "400": {
+      "status": "analyse_verifiee",
+      "mode": "analyse",
+      "title": "La remise du marteau",
+      "routes": [],
+      "analysis": {
+        "source_page_pdf": 168,
+        "rules": "Victoire finale après remise des DEUX parties gravées G; retirer les parties remises et marquer quête terminée. Casque ailé en or, boîte de gemmes et bijoux comme récompenses narratives; montants non chiffrés, ne pas inventer un solde. Le texte extrait contient un colophon d'imprimerie à écarter du récit."
+      },
+      "source_issues": [
+        {
+          "paragraph": 400,
+          "severity": "warning",
+          "kind": "printing_colophon",
+          "details": "Le texte extrait inclut le colophon après la victoire ; le retirer de la présentation lors de l’intégration."
+        }
+      ]
+    }
+  },
+  "automation_pending": [
     1,
     2,
     3,
@@ -406,5 +7602,145 @@
     399,
     400
   ],
-  "paragraphs": {}
+  "analysis_version": 1,
+  "source_issues": [
+    {
+      "paragraph": 186,
+      "severity": "blocking",
+      "kind": "incomplete_source",
+      "details": "Le passage se termine avant les caractéristiques de l’Anguille et sans issue. Ne pas le traiter comme une fin d’aventure."
+    },
+    {
+      "paragraph": 267,
+      "severity": "blocking",
+      "kind": "invalid_reference",
+      "printed_reference": "1%",
+      "candidate_target": 196,
+      "candidate_confirmed": false,
+      "details": "Référence imprimée illisible : aucune correction ni destination inventée."
+    },
+    {
+      "paragraph": 150,
+      "severity": "warning",
+      "kind": "ambiguous_direction",
+      "details": "Les deux embranchements sont décrits vers l’ouest ; conserver les numéros 357 et 171 sans réinventer la direction."
+    },
+    {
+      "paragraph": 152,
+      "severity": "warning",
+      "kind": "truncated_sentence",
+      "details": "Phrase interrompue avant des choix qui restent lisibles."
+    },
+    {
+      "paragraph": 91,
+      "severity": "information",
+      "kind": "rule_in_image",
+      "details": "L’inscription illustrée décrit le pouvoir de vérité de l’Œil d’Ambre ; elle a été contrôlée visuellement."
+    },
+    {
+      "paragraph": 400,
+      "severity": "warning",
+      "kind": "printing_colophon",
+      "details": "Le texte extrait inclut le colophon après la victoire ; le retirer de la présentation lors de l’intégration."
+    }
+  ],
+  "analysis_contract": {
+    "runtime_effects_enabled": false,
+    "conditions_are_executable": false,
+    "purchased_magic_item_uses": 1,
+    "purchase_rule_paragraph": 261,
+    "notes": "Les notes préparent l’implémentation ; elles ne constituent pas des effets exécutables. Une condition affichée ne signifie pas qu’elle est satisfaite."
+  },
+  "shop_analysis": {
+    "paragraph": 261,
+    "items": [
+      {
+        "name": "Potion de Guérison",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Potion de Contrôle des Plantes",
+        "gold_price": 2,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Potion de Tranquillité",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Potion de Contrôle des Insectes",
+        "gold_price": 2,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Potion Antipoison",
+        "gold_price": 2,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Eau Bénite",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Anneau de Lumière",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Bottes à Bondir",
+        "gold_price": 2,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Corde Magique",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Filet de Capture",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Brassard de Force",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Gant d’Adresse au Lancer",
+        "gold_price": 2,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Perche à Sonder",
+        "gold_price": 2,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Gousses d’Ail",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Bandeau de Concentration",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Capsules de Feu",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      },
+      {
+        "name": "Filtres à Nez",
+        "gold_price": 3,
+        "uses_per_purchase": 1
+      }
+    ],
+    "stock_limit": null,
+    "stock_limit_note": "Aucune limite de stock explicite ; ne pas inventer de gratuité ni de réinitialisation lors du retour."
+  }
 }
