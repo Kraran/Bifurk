@@ -24,3 +24,21 @@ def repair_misplaced_fragment(paragraphs):
     paragraphs[253] = before + '\n' + source[fragment.end():].lstrip()
     paragraphs[254] = (target[:seam.end()].rstrip() + ' ' + fragment.group().strip()
                        + '\n' + target[seam.end():])
+
+
+def repair_foret_confirmed_errata(paragraphs):
+    """Corriger les deux lacunes de l’édition Forêt, confirmées par l’utilisateur.
+
+    Le registre réserve cette opération au SHA-256 du PDF catalogué. Préserver
+    le récit extrait et rester idempotent : une seconde passe n’ajoute jamais une
+    seconde Anguille et un texte déjà corrigé reste inchangé.
+    """
+    text = paragraphs.get(186)
+    if text and not re.search(r'(?i)rendez\s*[-‐‑–]?\s*vous\s+au\s+131\b', text):
+        paragraphs[186] = (text.rstrip() + '\n\nANGUILLE CARNIVORE\n'
+                           'HABILETÉ : 5 — ENDURANCE : 4\n'
+                           'Si vous êtes vainqueur, rendez-vous au 131.')
+    text = paragraphs.get(267)
+    if text:
+        paragraphs[267] = re.sub(r'(?i)(rendez\s*[-‐‑–]?\s*vous\s+au\s+)1%',
+                                 r'\g<1>196', text)

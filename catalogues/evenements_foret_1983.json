@@ -3288,17 +3288,24 @@
       "status": "analyse_verifiee",
       "mode": "analyse",
       "title": "La morsure dans la rivière",
-      "routes": [],
+      "routes": [
+        {
+          "target": 131,
+          "label": "Poursuivre après la victoire"
+        }
+      ],
       "analysis": {
         "source_page_pdf": 87,
-        "rules": "SOURCE INCOMPLÈTE : page PDF 87 contrôlée visuellement, récit de l'Anguille Carnivore mais aucune caractéristique, règle de combat ou destination, puis §187. Ne pas inventer de statistiques ni de sortie; édition complémentaire nécessaire avant automatisation."
+        "rules": "Correction confirmée par l’utilisateur : Anguille Carnivore, Habileté 5, Endurance 4. Combat obligatoire, sans fuite indiquée ; victoire vers le §131."
       },
       "source_issues": [
         {
           "paragraph": 186,
-          "severity": "blocking",
+          "severity": "information",
           "kind": "incomplete_source",
-          "details": "Le passage se termine avant les caractéristiques de l’Anguille et sans issue. Ne pas le traiter comme une fin d’aventure."
+          "details": "Correction confirmée par l’utilisateur : Anguille Carnivore, Habileté 5, Endurance 4. Combat obligatoire, sans fuite indiquée ; victoire vers le §131.",
+          "status": "resolved",
+          "resolution_source": "Correction fournie par l’utilisateur le 2026-10-22"
         }
       ]
     },
@@ -4770,29 +4777,30 @@
       "title": "La caverne au bout du sentier",
       "routes": [
         {
+          "target": 196,
+          "label": "Entrer dans la caverne"
+        },
+        {
           "target": 25,
           "label": "Revenir à la bifurcation"
         }
       ],
       "analysis": {
         "source_page_pdf": 116,
-        "rules": "SOURCE INCERTAINE : page PDF 116 contrôlée, renvoi d'entrée imprimé 1%, non numérique. §196 est une hypothèse cohérente avec la caverne du Troll mais NON confirmée; ne pas convertir ce renvoi en §1 ou en §196 automatiquement."
+        "rules": "Correction confirmée par l’utilisateur : entrer dans la caverne mène au §196 ; le retour vers le nord mène au §25."
       },
-      "unresolved_routes": [
-        {
-          "label": "Entrer dans la caverne — renvoi à confirmer",
-          "printed_reference": "1%"
-        }
-      ],
       "source_issues": [
         {
           "paragraph": 267,
-          "severity": "blocking",
+          "severity": "information",
           "kind": "invalid_reference",
           "printed_reference": "1%",
           "candidate_target": 196,
-          "candidate_confirmed": false,
-          "details": "Référence imprimée illisible : aucune correction ni destination inventée."
+          "candidate_confirmed": true,
+          "details": "Correction confirmée par l’utilisateur : entrer dans la caverne mène au §196 ; le retour vers le nord mène au §25.",
+          "status": "resolved",
+          "resolution_source": "Correction fournie par l’utilisateur le 2026-10-22",
+          "confirmed_target": 196
         }
       ]
     },
@@ -7606,18 +7614,23 @@
   "source_issues": [
     {
       "paragraph": 186,
-      "severity": "blocking",
+      "severity": "information",
       "kind": "incomplete_source",
-      "details": "Le passage se termine avant les caractéristiques de l’Anguille et sans issue. Ne pas le traiter comme une fin d’aventure."
+      "details": "Correction confirmée par l’utilisateur : Anguille Carnivore, Habileté 5, Endurance 4. Combat obligatoire, sans fuite indiquée ; victoire vers le §131.",
+      "status": "resolved",
+      "resolution_source": "Correction fournie par l’utilisateur le 2026-10-22"
     },
     {
       "paragraph": 267,
-      "severity": "blocking",
+      "severity": "information",
       "kind": "invalid_reference",
       "printed_reference": "1%",
       "candidate_target": 196,
-      "candidate_confirmed": false,
-      "details": "Référence imprimée illisible : aucune correction ni destination inventée."
+      "candidate_confirmed": true,
+      "details": "Correction confirmée par l’utilisateur : entrer dans la caverne mène au §196 ; le retour vers le nord mène au §25.",
+      "status": "resolved",
+      "resolution_source": "Correction fournie par l’utilisateur le 2026-10-22",
+      "confirmed_target": 196
     },
     {
       "paragraph": 150,
@@ -7755,6 +7768,7 @@
       107,
       123,
       165,
+      186,
       193,
       227,
       276,

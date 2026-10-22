@@ -2,7 +2,8 @@
 
 Une liste de groupes décrit des adversaires simultanés. Les groupes se succèdent,
 mais le joueur change librement de cible offensive entre les assauts d’un groupe.
-Les §§29/317 et l’Anguille (§186) restent exclus tant que la source est ambiguë.
+Les §§29/317 restent exclus tant que la source est ambiguë.
+Le profil de l’Anguille (§186) a été confirmé par l’utilisateur.
 """
 
 def enemy(name, skill, stamina):
@@ -13,6 +14,7 @@ HUNTERS = [[enemy('Chien de chasse',7,6)],
            [enemy('Chien de chasse A',6,6),enemy('Chien de chasse B',5,6)],
            [enemy('Dernier chien',6,5),enemy('Homme masqué',8,7)]]
 COMBATS = {
+    186: {'groups':[[enemy('Anguille Carnivore',5,4)]], 'victory_target':131,'identity':'carnivorous_eel'},
     49: {'groups':[[enemy('Gremlin A',4,3)],[enemy('Gremlin B',3,2)]], 'victory_target':371,'identity':'low_gremlins'},
     71: {'groups':[[enemy('Chef Gremlin',5,5)]], 'victory_target':273,'identity':'gremlin_chief'},
     165: {'groups':[[enemy('Gremlin du tunnel',5,3)]], 'victory_target':242,'identity':'tunnel_gremlin'},

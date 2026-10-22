@@ -54,6 +54,7 @@ encore en consultation ne sont pas interprétées à partir de leur texte libre.
 | 123 | Deux branches successives de l’Homme-Arbre. |
 | 107 | Fouet du Démon entre les forces d’attaque et les blessures ordinaires. |
 | 227 | Quatre coups blessants de la Goule provoquent la paralysie et la fin. |
+| 186 | Anguille Carnivore H5/E4 ; victoire vers le §131, sans fuite. |
 | 285 | La blessure du Loup-Garou reste mémorisée malgré les soins (§388). |
 | 84 | Fuite après exactement trois assauts terminés, égalités comprises. |
 | 49, 71, 165 et 193 | Force d’Attaque -3 sous plafond bas. |
@@ -111,8 +112,10 @@ intégration complète. Les autres effets ordinaires et rencontres restent à re
 ainsi que les illustrations. Cela inclut notamment le tarif en objets précieux
 du §12, l’épée du §70 et les autres branches de la lanterne (§395).
 Les §§29/317 demandent encore de confirmer le mode des deux adversaires.
-Les deux anomalies de source (§186 incomplet, §267 « 1% ») restent bloquantes et
-n’ont reçu aucun profil ou renvoi inventé.
+Les corrections fournies par l’utilisateur le 22 octobre 2026 lèvent les deux
+blocages de source : §186 complété par Anguille Carnivore H5/E4 et victoire au
+§131 ; §267 corrigé vers le §196 pour entrer dans la caverne (retour au §25).
+La réparation du texte est limitée à l’édition reconnue et appliquée une seule fois.
 
 ## Vérification locale
 

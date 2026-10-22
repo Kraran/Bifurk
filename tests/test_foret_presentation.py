@@ -79,7 +79,7 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(self.w.character['gold'], 30)
         self.assertEqual(self.w.character['inventory'].count('Carte de Yaztromo'), 1)
 
-    def test_analysed_title_routes_and_source_warning_are_presented_without_effects(self):
+    def test_analysed_title_and_corrected_cave_route_are_presented_without_effects(self):
         self.open()
         self.start()
         before = copy.deepcopy(self.w.character)
@@ -88,14 +88,16 @@ class ForetPresentationTests(unittest.TestCase):
         buttons = [self.w.choice_layout.itemAt(i).widget()
                    for i in range(self.w.choice_layout.count())]
         self.assertTrue(any('Suivre le mage' in button.text() for button in buttons))
-        self.w.paragraphs[267] = 'Rendez-vous au 1%. Sinon rendez-vous au 25.'
+        self.w.paragraphs[267] = 'Rendez-vous au 196. Sinon rendez-vous au 25.'
+        self.w.paragraphs[196] = 'La caverne.'
         self.w.paragraphs[25] = 'Une bifurcation.'
         self.w.go_to(267)
         self.assertNotIn('href="paragraph:1"', self.w.reader.toHtml())
         buttons = [self.w.choice_layout.itemAt(i).widget()
                    for i in range(self.w.choice_layout.count())]
-        self.assertTrue(any(not button.isEnabled() and 'confirmer' in button.text()
-                            for button in buttons))
+        self.assertTrue(any(button.isEnabled() and '196' in button.text() for button in buttons))
+        self.assertFalse(any('confirmer' in button.text() for button in buttons))
+        self.assertIn('paragraph:196',self.w.reader.toHtml())
         self.assertEqual(self.w.character, before)
         self.assertEqual(self.roll.call_count, dice)
 
@@ -278,6 +280,22 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(self.roll.call_count,dice+2)
         self.assertEqual(self.w.character['chance'],8)
         self.assertEqual(self.w.character['gold'],30)
+
+    def test_confirmed_eel_is_playable_and_victory_goes_to_131(self):
+        self.open()
+        self.start()
+        self.w.paragraphs.update({186:'Une anguille.',131:'Après la rivière.'})
+        self.w.go_to(186)
+        self.assertTrue(self.w.combat_available())
+        self.assertEqual(self.w.enemy_name.text(),'Anguille Carnivore')
+        self.assertEqual((self.w.enemy_skill.value(),self.w.enemy_endurance.value()),(5,4))
+        self.assertFalse(self.w.can_flee_combat())
+        self.assertNotIn(131,self.w._reading_link_targets())
+        with patch.object(self.w,'_assault_luck_choice',return_value=QMessageBox.No):
+            self.w.combat_round()
+            self.assertEqual(self.w.current_paragraph,186)
+            self.w.combat_round()
+        self.assertEqual(self.w.current_paragraph,131)
 
     def test_prologue_is_private_page_view_and_never_awards_resources_twice(self):
         self.open()
