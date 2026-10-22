@@ -7,10 +7,12 @@ anciens/incomplets ne sont pas migrés. Un emplacement illisible reste supprimab
 L'autosave technique n'est pas un sixième emplacement de ce menu."""
 import json
 from datetime import datetime
-from PySide6.QtCore import Qt
-
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton,
-                               QDialogButtonBox, QMessageBox)
+                               QDialogButtonBox, QMessageBox, QScrollArea, QSizePolicy,
+                               QStyleOptionButton, QStyle)
+from dialog_chrome import DialogHeading
 
 
 def read_save(path):
@@ -38,6 +40,25 @@ def read_save(path):
     return data
 
 
+class SaveSlotButton(QPushButton):
+    """Garder les longues chroniques dans leur carte, avec le texte complet accessible."""
+    def __init__(self, text):
+        super().__init__(text)
+        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
+
+    def minimumSizeHint(self):
+        return QSize(220, 82)
+
+    def paintEvent(self, event):
+        """Écourter uniquement le dessin ; text(), lecteur d'écran et infobulle restent complets."""
+        option = QStyleOptionButton()
+        self.initStyleOption(option)
+        option.text = '\n'.join(option.fontMetrics.elidedText(line, Qt.ElideRight, max(1, self.width() - 42))
+                                for line in self.text().split('\n'))
+        painter = QPainter(self)
+        self.style().drawControl(QStyle.CE_PushButton, option, painter, self)
+
+
 class SaveSlotsDialog(QDialog):
     """Menu modal renvoyant selected_path ou new_game_requested après acceptation."""
     def __init__(self, folder, saving, parent=None, *, startup=False):
@@ -47,24 +68,40 @@ class SaveSlotsDialog(QDialog):
         self.new_game_requested = False
         self.confirm_new_game = not startup
         self.folder, self.saving = folder, saving
-        self.setWindowTitle('Commencer une aventure' if startup else
-                            'Sauvegarder l’aventure' if saving else 'Charger une aventure')
-        self.setMinimumWidth(560)
+        self.setObjectName('saveSlotsDialog')
+        self.setWindowTitle('Bifurk — ' + ('Commencer une aventure' if startup else
+                            'Sauvegarder l’aventure' if saving else 'Charger une aventure'))
+        if parent is not None:
+            self.setWindowIcon(parent.windowIcon())
+        self.setMinimumWidth(600)
+        area = self.screen().availableGeometry()
+        self.resize(min(720, area.width() - 60), min(780, area.height() - 80))
         layout = QVBoxLayout(self)
-        heading = QLabel('✦  LES CHRONIQUES DES AVENTURIERS  ✦')
-        heading.setObjectName('saveHeading')
-        heading.setAlignment(Qt.AlignCenter)
-        layout.addWidget(heading)
+        layout.setContentsMargins(20, 18, 20, 18)
+        layout.setSpacing(12)
+        layout.addWidget(DialogHeading('Les chroniques des aventuriers',
+                                      'Cinq emplacements pour conserver votre histoire.'))
         if not saving:
             new_game = QPushButton('✦  Nouvelle partie')
             new_game.setObjectName('newAdventure')
+            new_game.setProperty('dialogAction', 'primary')
             new_game.setMinimumHeight(48)
             new_game.clicked.connect(self.start_new_game)
             layout.addWidget(new_game)
         layout.addWidget(QLabel('Charger une aventure ou commencer une nouvelle partie.' if not saving
                                 else 'Choisissez un emplacement.'))
-        self.slots = QVBoxLayout()
-        layout.addLayout(self.slots)
+        # Les cinq emplacements restent accessibles sur les petits écrans ou
+        # avec une mise à l'échelle Windows élevée, sans agrandir hors écran.
+        scroll = QScrollArea()
+        scroll.setObjectName('saveSlotsScroll')
+        scroll.setWidgetResizable(True)
+        body = QWidget()
+        body.setObjectName('saveSlotsBody')
+        self.slots = QVBoxLayout(body)
+        self.slots.setContentsMargins(0, 0, 6, 0)
+        self.slots.setSpacing(10)
+        scroll.setWidget(body)
+        layout.addWidget(scroll, 1)
         self.refresh_slots()
         close = QDialogButtonBox(QDialogButtonBox.Cancel)
         close.button(QDialogButtonBox.Cancel).setText('Annuler')
@@ -113,9 +150,10 @@ class SaveSlotsDialog(QDialog):
                     valid = True
                 except (OSError, ValueError, KeyError, TypeError):
                     description = 'Sauvegarde illisible'
-            button = QPushButton(f'⚜  Emplacement {number}\n{description}')
+            button = SaveSlotButton(f'⚜  Emplacement {number}\n{description}')
             button.setObjectName(f'saveSlot{number}')
             button.setProperty('saveSlot', True)
+            button.setToolTip(description)
             button.setMinimumHeight(82)
             button.setEnabled(self.saving or valid)
             button.clicked.connect(lambda checked=False, p=path, occupied=exists:
@@ -126,6 +164,7 @@ class SaveSlotsDialog(QDialog):
             row_layout.addWidget(button, 1)
             delete = QPushButton('Supprimer')
             delete.setObjectName(f'deleteSlot{number}')
+            delete.setProperty('dialogAction', 'danger')
             delete.setAccessibleName(f'Supprimer la sauvegarde de l’emplacement {number}')
             delete.setEnabled(exists)
             delete.clicked.connect(lambda checked=False, p=path: self.delete_save(p))

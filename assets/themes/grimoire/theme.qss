@@ -159,3 +159,52 @@ QDialog QLabel#aboutAppName { color: ${gold}; font-family: '${reading_font}'; fo
 QDialog QLabel#aboutVersion, QDialog QLabel#aboutKey { color: ${ornament}; }
 QDialog QLabel#aboutNote { background-color: ${icon_background}; color: ${page};
     border-radius: 8px; padding: 12px; font-size: 12px; }
+
+/* Fenêtres secondaires : cuir, bandeaux et contrôles communs au grimoire. */
+QDialog { background-image: url('${leather}'); }
+QFrame#dialogHeading { background: ${icon_background}; border: 1px solid ${frame};
+    border-bottom: 3px double ${gold}; border-radius: 9px; }
+QDialog QLabel#dialogTitle { font-family: '${reading_font}'; font-size: 27px;
+    font-weight: bold; color: ${gold}; padding: 0; }
+QDialog QLabel#dialogSubtitle { color: ${page}; font-size: 13px; padding: 0; }
+QDialog QPushButton[dialogAction="primary"] { background: ${gold}; color: ${ink};
+    border: 1px solid ${frame}; border-radius: 6px; }
+QDialog QPushButton[dialogAction="primary"]:enabled:hover { background: ${page}; border-color: ${gold}; }
+QDialog QPushButton[dialogAction="primary"]:disabled { background: ${scene_background}; color: ${ornament}; }
+QDialog QPushButton[dialogAction="danger"] { background: ${icon_background}; color: ${page};
+    border: 1px solid ${rubric}; min-width: 74px; }
+QDialog QPushButton[dialogAction="danger"]:enabled:hover { background: ${rubric}; border-color: ${gold}; }
+QDialog QPushButton[dialogAction="danger"]:disabled { background: ${scene_background}; color: ${ornament}; border-color: ${scene_background}; }
+QDialog QPushButton:enabled:focus { border: 2px solid ${gold}; }
+QDialog QScrollArea#saveSlotsScroll, QWidget#saveSlotsBody { background: transparent; border: none; }
+QDialog QPushButton[saveSlot="true"] { background: ${page}; color: ${ink};
+    border: 3px double ${frame}; border-left: 5px solid ${accent}; border-radius: 9px;
+    text-align: left; font-size: 15px; padding: 10px 14px; }
+QDialog QPushButton[saveSlot="true"]:enabled:hover { background: ${gold}; border-color: ${rubric}; }
+QDialog QPushButton[saveSlot="true"]:disabled { background: ${scene_background}; color: ${ornament}; border-color: ${frame}; }
+QDialog QCheckBox { background: transparent; spacing: 10px; padding: 3px 0; }
+QDialog QCheckBox::indicator { width: 18px; height: 18px; border: 1px solid ${ornament};
+    border-radius: 3px; background: ${page}; }
+QDialog QCheckBox::indicator:checked { image: url('${checkmark}'); background: ${gold}; border-color: ${frame}; }
+QDialog QCheckBox::indicator:hover { border: 2px solid ${gold}; }
+QDialog QComboBox QAbstractItemView { background: ${page}; color: ${ink};
+    selection-background-color: ${ornament}; selection-color: ${ink}; border: 1px solid ${frame}; padding: 4px; }
+QMenu { background: ${scene_background}; color: ${page}; border: 1px solid ${frame}; padding: 5px; }
+QMenu::item { padding: 8px 24px 8px 12px; border-radius: 4px; }
+QMenu::item:selected { background: ${accent}; color: ${gold}; }
+QMenu::item:disabled { color: ${ornament}; }
+QMenu::separator { height: 1px; background: ${ornament}; margin: 5px 8px; }
+QDialog QScrollBar:horizontal { background: ${scene_background}; height: 12px; margin: 0; }
+QDialog QScrollBar::handle:horizontal { background: ${ornament}; min-width: 30px; border-radius: 5px; }
+QDialog QScrollBar::add-line:horizontal, QDialog QScrollBar::sub-line:horizontal { width: 0; }
+QMessageBox QLabel#qt_msgbox_label { font-size: 15px; }
+QFileDialog QTreeView, QFileDialog QListView, QFileDialog QTableView { border-radius: 7px; padding: 4px; }
+QFileDialog QToolButton { background: ${page}; border-color: ${frame}; }
+QFileDialog QToolButton:hover { background: ${gold}; }
+QSlider#musicVolume::groove:horizontal { height: 8px; background: ${scene_background};
+    border: 2px solid ${ornament}; border-radius: 2px; }
+QSlider#musicVolume::sub-page:horizontal { background: ${ornament}; }
+QSlider#musicVolume::handle:horizontal { width: 16px; margin: -7px 0;
+    background: ${gold}; border: 2px solid ${frame}; border-radius: 2px; }
+QSlider#musicVolume::handle:horizontal:hover, QSlider#musicVolume::handle:horizontal:focus {
+    background: ${page}; border-color: ${gold}; }

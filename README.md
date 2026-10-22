@@ -32,6 +32,9 @@ La **Carte d’exploration** relie les lieux visités sur un graphe zoomable :
 position actuelle, recherche, adversaires vaincus ou fuis et accès rapide au lieu
 précédent. [Présentation et commandes](docs/design/carte-exploration.md).
 
+Les [fenêtres secondaires](docs/design/fenetres-secondaires.md) partagent les
+bandeaux et les couleurs du grimoire, des sauvegardes au sélecteur de PDF.
+
 ## Démarrage
 
 ```bash

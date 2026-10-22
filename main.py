@@ -27,6 +27,7 @@ from app_info import APP_NAME, APP_VERSION
 from about_dialog import AboutDialog, BrandButton
 from dice_dialog import DiceDialog
 from combat_dialog import CombatDialog
+from dialog_chrome import DialogHeading, harmonize_standard_dialog
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
@@ -193,8 +194,9 @@ def franciser_selecteur(dialog):
 class DialogThemeFilter(QObject):
     """Habiller les fenêtres secondaires et remplacer leurs pictogrammes système."""
     def eventFilter(self, obj, event):
-        """Différer les retouches de dialogue jusqu’à son affichage natif, sans consommer l’événement."""
+        """Habiller à l'affichage et différer la barre native, sans consommer l'événement."""
         if event.type() == QEvent.Show and isinstance(obj, QDialog):
+            harmonize_standard_dialog(obj)
             QTimer.singleShot(0, lambda d=obj: set_bronze_titlebar(d) if d.isVisible() else None)
             if isinstance(obj, QMessageBox):
                 # Avant la première peinture : aucun flash de l'icône bleue
@@ -353,8 +355,20 @@ class MainWindow(QMainWindow, BookActions):
     def show_ambience(self):
         """Construire les réglages de thème et sons, avec préécoute des effets disponibles."""
         dialog = QDialog(self)
+        dialog.setObjectName('ambienceDialog')
         dialog.setWindowTitle("Bifurk — Ambiance")
+        dialog.setWindowIcon(self.windowIcon())
+        area = dialog.screen().availableGeometry()
+        dialog.resize(min(620, area.width() - 60), min(540, area.height() - 80))
         layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(20, 18, 20, 18)
+        layout.setSpacing(14)
+        layout.addWidget(DialogHeading('L’ambiance de votre aventure',
+                                        'Musique, sons et habillage du grimoire.'))
+        audio_group = QGroupBox('Le paysage sonore')
+        audio_layout = QVBoxLayout(audio_group)
+        audio_layout.setSpacing(14)
+        layout.addWidget(audio_group)
         sound = QCheckBox("Activer les effets sonores")
         sound.setChecked(self.sounds.enabled)
         def set_sound(enabled):
@@ -363,7 +377,7 @@ class MainWindow(QMainWindow, BookActions):
             self.preferences["sound_enabled"] = enabled
             self._save_preferences()
         sound.toggled.connect(set_sound)
-        layout.addWidget(sound)
+        audio_layout.addWidget(sound)
         ambient = QCheckBox("Ambiance de fond : caverne")
         ambient.setChecked(self.sounds.ambient_enabled)
         def set_ambient(enabled):
@@ -372,7 +386,7 @@ class MainWindow(QMainWindow, BookActions):
             self.preferences["ambient_enabled"] = enabled
             self._save_preferences()
         ambient.toggled.connect(set_ambient)
-        layout.addWidget(ambient)
+        audio_layout.addWidget(ambient)
         music_row = QHBoxLayout()
         music_row.addWidget(QLabel('Musique d’accueil'))
         music = QSlider(Qt.Horizontal)
@@ -386,15 +400,6 @@ class MainWindow(QMainWindow, BookActions):
         music.setMinimumWidth(220)
         # Rail de bois sombre, filet de laiton et poignée carrée : un curseur
         # rétro lisible, également utilisable au clavier (flèches, Début, Fin).
-        music.setStyleSheet("""
-            QSlider::groove:horizontal { height: 8px; background: #291a10;
-                border: 2px solid #8e6a32; border-radius: 2px; }
-            QSlider::sub-page:horizontal { background: #b88a42; }
-            QSlider::handle:horizontal { width: 16px; margin: -7px 0;
-                background: #e0ba71; border: 2px solid #64421e; border-radius: 2px; }
-            QSlider::handle:horizontal:hover, QSlider::handle:horizontal:focus {
-                background: #ffe1a0; border-color: #b88a42; }
-        """)
         music.setValue(self.intro_music.volume_percent)
         music_value = QLabel()
         music_value.setObjectName('musicVolumeValue')
@@ -410,7 +415,7 @@ class MainWindow(QMainWindow, BookActions):
         music.valueChanged.connect(set_music_volume)
         music_row.addWidget(music, 1)
         music_row.addWidget(music_value)
-        layout.addLayout(music_row)
+        audio_layout.addLayout(music_row)
         preview = QHBoxLayout()
         effects = QComboBox()
         for name, label in EFFECT_LABELS.items():
@@ -421,18 +426,26 @@ class MainWindow(QMainWindow, BookActions):
         listen.clicked.connect(lambda: self.sounds.play(effects.currentData()))
         preview.addWidget(effects, 1)
         preview.addWidget(listen)
-        layout.addLayout(preview)
-        layout.addWidget(QLabel("Thème de l’interface"))
+        audio_layout.addLayout(preview)
+        theme_group = QGroupBox('L’habillage du grimoire')
+        theme_layout = QVBoxLayout(theme_group)
+        layout.addWidget(theme_group)
         themes = QComboBox()
         for key, theme in self.themes.items():
             themes.addItem(theme.name, key)
         themes.setCurrentIndex(themes.findData(self.theme.id))
         themes.currentIndexChanged.connect(lambda index: self.apply_theme(themes.itemData(index)))
-        layout.addWidget(themes)
+        theme_layout.addWidget(themes)
+        layout.addStretch()
         close = QDialogButtonBox(QDialogButtonBox.Close)
+        close.button(QDialogButtonBox.Close).setText('Fermer')
+        close.button(QDialogButtonBox.Close).setProperty('dialogAction', 'primary')
         close.rejected.connect(dialog.reject)
         layout.addWidget(close)
-        dialog.exec()
+        try:
+            dialog.exec()
+        finally:
+            dialog.deleteLater()
 
     def apply_theme(self, theme_id):
         """Appliquer un thème disponible et mémoriser ce choix sans modifier la progression."""
@@ -3013,8 +3026,10 @@ class MainWindow(QMainWindow, BookActions):
         dialog.setLabelText(QFileDialog.Accept, "Ouvrir")
         dialog.setLabelText(QFileDialog.Reject, "Annuler")
         dialog.setNameFilter("Grimoires PDF (*.pdf)")
+        harmonize_standard_dialog(dialog)
         dialog.setDirectory(str(Path(self.pdf_path).parent if self.pdf_path else BOOKS_DIR))
-        dialog.resize(900, 600)
+        area = dialog.screen().availableGeometry()
+        dialog.resize(min(900, area.width() - 60), min(600, area.height() - 80))
         # Libellés et infobulles des contrôles internes non natifs.
         QTimer.singleShot(0, lambda: franciser_selecteur(dialog))
         if dialog.exec() == QDialog.Accepted:
