@@ -16,7 +16,7 @@ DESTINATION_RE = re.compile(
     r"|(?:en\s+)?vous\s+rendant"
     r"|en\s+allant"
     r"|(?:vous\s+)?(?:rendre|rendez|aller|allez)(?:\s+(?:alors|dans\s+ce\s+cas))?"
-    r")\s+(?:au|à|a)\s*(?:paragraphe\s*)?(?P<target>\d{1,3})\b"
+    r")\s+(?:au|à|a)\s*(?:paragraphe\s*)?(?P<target>\d{1,3})(?!\d)"
 )
 
 def destinations(text):

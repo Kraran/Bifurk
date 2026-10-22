@@ -46,8 +46,8 @@ class AdventureLifecycleTests(unittest.TestCase):
     def start(self, name='Éléanor'):
         """Valider un aventurier nommé dans le livre de test pour préparer un scénario en jeu."""
         self.w._show_book_title()
-        self.w.choice_layout.itemAt(1).widget().setText(name)
-        self.w.choice_layout.itemAt(2).widget().click()
+        self.w.creation_name_field.setText(name)
+        self.w.creation_start_button.click()
 
     def test_starting_potion_survives_reroll_and_cannot_be_refilled(self):
         """Le choix accompagne le héros, puis la fiole devient immuable pendant la partie."""
@@ -104,8 +104,8 @@ class AdventureLifecycleTests(unittest.TestCase):
 
     def test_intro_requires_nonblank_name_before_first_paragraph(self):
         self.w._show_book_title()
-        field = self.w.choice_layout.itemAt(1).widget()
-        start = self.w.choice_layout.itemAt(2).widget()
+        field = self.w.creation_name_field
+        start = self.w.creation_start_button
         self.assertFalse(start.isEnabled())
         field.setText('   ')
         self.assertFalse(start.isEnabled())
@@ -124,8 +124,8 @@ class AdventureLifecycleTests(unittest.TestCase):
             self.assertIn('Endurance 17', self.w.reader.toPlainText())
             self.w.go_to(2)
             self.assertIsNone(self.w.current_paragraph)
-            self.w.choice_layout.itemAt(1).widget().setText('Éléanor')
-            self.w.choice_layout.itemAt(2).widget().click()
+            self.w.creation_name_field.setText('Éléanor')
+            self.w.creation_start_button.click()
             self.assertEqual(dice.call_count, 4)
         self.assertEqual(self.w.character['initial'], stats)
         self.assertEqual({k: self.w.character[k] for k in stats}, stats)
@@ -138,12 +138,12 @@ class AdventureLifecycleTests(unittest.TestCase):
         w = self.w
         with patch('main.random.randint', side_effect=[1]*4 + [3]*4 + [6]*4) as dice:
             w._show_book_title()
-            w.choice_layout.itemAt(1).widget().setText('Éléanor')
-            w.choice_layout.itemAt(3).widget().click()
+            w.creation_name_field.setText('Éléanor')
+            w.creation_reroll_button.click()
             self.assertIsNone(w.current_paragraph)
             self.assertEqual(w._creation_rerolls, 1)
             self.assertEqual(w.character['initial'], {'habilete': 9, 'endurance': 18, 'chance': 9})
-            w.choice_layout.itemAt(3).widget().click()
+            w.creation_reroll_button.click()
             self.assertEqual(w.current_paragraph, 1)
             self.assertEqual(w.character['initial'], {'habilete': 12, 'endurance': 24, 'chance': 12})
             w._reroll_adventurer()
@@ -153,14 +153,14 @@ class AdventureLifecycleTests(unittest.TestCase):
         w = self.w
         with patch('main.random.randint', return_value=1) as dice:
             w._show_book_title()
-            w.choice_layout.itemAt(3).widget().click()
-            w.choice_layout.itemAt(3).widget().click()
+            w.creation_reroll_button.click()
+            w.creation_reroll_button.click()
             self.assertIsNone(w.current_paragraph)
-            self.assertFalse(w.choice_layout.itemAt(3).widget().isEnabled())
-            self.assertFalse(w.choice_layout.itemAt(2).widget().isEnabled())
+            self.assertFalse(w.creation_reroll_button.isEnabled())
+            self.assertFalse(w.creation_start_button.isEnabled())
             w._reroll_adventurer()
-            w.choice_layout.itemAt(1).widget().setText('Éléanor')
-            w.choice_layout.itemAt(2).widget().click()
+            w.creation_name_field.setText('Éléanor')
+            w.creation_start_button.click()
             self.assertEqual(w.current_paragraph, 1)
             self.assertEqual(w.character['initial'], {'habilete': 7, 'endurance': 14, 'chance': 7})
             self.assertEqual(dice.call_count, 12)
@@ -169,18 +169,18 @@ class AdventureLifecycleTests(unittest.TestCase):
         w = self.w
         with patch('main.random.randint', return_value=4) as dice:
             w._show_book_title()
-            w.choice_layout.itemAt(1).widget().setText('Éléanor')
-            w.choice_layout.itemAt(3).widget().click()
+            w.creation_name_field.setText('Éléanor')
+            w.creation_reroll_button.click()
             w.apply_theme(w.theme.id)
             w.change_reader_font_size(2)
             self.assertEqual(w._creation_rerolls, 1)
-            self.assertEqual(w.choice_layout.itemAt(1).widget().text(), 'Éléanor')
+            self.assertEqual(w.creation_name_field.text(), 'Éléanor')
             self.assertEqual(dice.call_count, 8)
-            w.choice_layout.itemAt(2).widget().click()
+            w.creation_start_button.click()
             accepted = w.character['initial'].copy()
             w.undo_action()
             self.assertIsNone(w.current_paragraph)
-            self.assertFalse(w.choice_layout.itemAt(3).widget().isEnabled())
+            self.assertFalse(w.creation_reroll_button.isEnabled())
             w._reroll_adventurer()
             self.assertEqual(w.character['initial'], accepted)
             self.assertEqual(dice.call_count, 8)
@@ -206,8 +206,8 @@ class AdventureLifecycleTests(unittest.TestCase):
         self.assertEqual(w.current_paragraph, 2)
         w.findChild(QPushButton, 'restartAdventure').click()
         self.assertIsNone(w.current_paragraph)
-        w.choice_layout.itemAt(1).widget().setText('Balthazar')
-        w.choice_layout.itemAt(2).widget().click()
+        w.creation_name_field.setText('Balthazar')
+        w.creation_start_button.click()
         self.assertEqual(w.current_paragraph, 1)
         self.assertGreater(w.character['endurance'], 0)
         self.assertNotIn('Trésor', w.character['inventory'])
@@ -343,8 +343,8 @@ class AdventureLifecycleTests(unittest.TestCase):
         self.assertIsNotNone(w._adventurer_draft)
         self.assertNotIn('Trésor', w.character['inventory'])
         self.assertEqual(path.read_bytes(), saved)
-        w.choice_layout.itemAt(1).widget().setText('Balthazar')
-        w.choice_layout.itemAt(2).widget().click()
+        w.creation_name_field.setText('Balthazar')
+        w.creation_start_button.click()
         self.assertEqual(w.current_paragraph, 1)
         self.assertEqual(w.character['name'], 'Balthazar')
         self.assertEqual(w.visited_paragraphs, [1])

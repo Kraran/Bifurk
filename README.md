@@ -130,3 +130,5 @@ Le M4A audio est diffusé en continu par Qt Multimedia
 et inclus automatiquement dans la distribution Windows avec les autres assets.
 La pochette intégrée a été retirée sans réencoder ni modifier le son, afin de ne pas
 solliciter les décodeurs vidéo. La licence des packs CC0 d’effets sonores ne s’applique pas à ce fichier musical.
+
+Le [compte rendu de la partie et des corrections du 22 octobre 2026](docs/reviews/2026-10-22-partie-et-corrections.md) détaille les règles observées, les corrections éditoriales et les limites de validation.

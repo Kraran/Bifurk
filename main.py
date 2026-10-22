@@ -13,6 +13,7 @@ import sys, re, json, random, copy, os, tempfile, hashlib, shutil
 from pathlib import Path
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from navigation import destinations, render_links, choice_caption
+from pdf_text_repairs import repair_misplaced_fragment
 from illustrations import catalogue_for_pdf, images_for_paragraph, cover
 from book_actions import BookActions
 from rules_viewer import RulesDialog
@@ -113,8 +114,8 @@ def extract_paragraphs(pdf_path):
         import pymupdf
     except ImportError as exc:
         raise RuntimeError("PyMuPDF n'est pas installé. Lancez : pip install PyMuPDF") from exc
-    doc = pymupdf.open(pdf_path)
-    text = "\n".join(page.get_text("text", sort=True) for page in doc)
+    with pymupdf.open(pdf_path) as doc:
+        text = "\n".join(page.get_text("text", sort=True) for page in doc)
     # Normalize common PDF line-break artifacts while preserving paragraph boundaries.
     text = text.replace("\u00ad", "")
     lines = [line.strip() for line in text.splitlines()]
@@ -136,6 +137,9 @@ def extract_paragraphs(pdf_path):
             buffer.append(line)
     if current is not None:
         paragraphs[current] = "\n".join(buffer).strip()
+    # Ne corriger le défaut éditorial que pour le PDF exact déjà catalogué.
+    if catalogue_for_pdf(pdf_path) is not None:
+        repair_misplaced_fragment(paragraphs)
     # Drop empty sections and likely front matter sections without content.
     return {n: t for n, t in paragraphs.items() if t}
 
@@ -717,7 +721,10 @@ class MainWindow(QMainWindow, BookActions):
             stats_grid.addWidget(bar, 2, column)
             self.stat_bars[key] = bar
         resources = QHBoxLayout()
+        resources.setSpacing(10)
         for label, key in (("Provisions", "provisions"), ("Or", "gold")):
+            if key == 'gold':
+                resources.addSpacing(12)
             resources.addWidget(QLabel(label))
             spin = QSpinBox()
             spin.setRange(0, 999)
@@ -897,9 +904,35 @@ class MainWindow(QMainWindow, BookActions):
         if not hasattr(self, 'combat_button'):
             return
         playing = self.current_paragraph is not None and self._adventurer_draft is None and self.character['endurance'] > 0
-        self.combat_button.setEnabled(playing)
+        self.combat_button.setEnabled(playing and self.combat_available())
         self.tools_button.setEnabled(playing)
         self.care_button.setEnabled(playing and any(option['enabled'] for option in self.care_options()))
+
+    def combat_available(self):
+        """Exiger une rencontre réelle ici, jamais le profil caché d'un ancien adversaire.
+
+        Les rencontres vérifiées incluent les préparations spéciales (fuite avant
+        combat, Piranhas). Les rencontres détectées doivent avoir été confirmées
+        et enregistrées sur la carte à ce paragraphe.
+        """
+        if (self.current_paragraph is None or self._adventurer_draft is not None
+                or self.character['endurance'] <= 0):
+            return False
+        entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+        combat = entry.get('combat', {})
+        if combat.get('precombat_escape'):
+            return True
+        if combat.get('mode') == 'wandering' and not self._book_state(self.current_paragraph).get('monster'):
+            return True  # Le tirage de la rencontre se fait aussi dans la fenêtre de combat.
+        if (combat.get('mode') == 'piranhas'
+                and (self.piranha_combat or {}).get('status') == 'roll_pending'):
+            return True
+        if self.enemy_endurance.value() <= 0:
+            return False
+        if combat.get('enemies'):
+            return True
+        return any(monster['name'] == self.enemy_name.text() and monster['status'] == 'rencontré'
+                   for monster in self.encounter_history.get(str(self.current_paragraph), []))
 
     def choose_paragraph(self):
         """Ouvrir la navigation manuelle depuis le menu Actions, avec les mêmes contrôles de route."""
@@ -1056,6 +1089,20 @@ class MainWindow(QMainWindow, BookActions):
         name.setMaxLength(60)
         name.setAccessibleName('Nom de l’aventurier')
         self.choice_layout.addWidget(name)
+        self.creation_name_field = name
+        self.choice_layout.addWidget(QLabel('Votre potion de départ — une fiole, deux doses'))
+        potion = QComboBox()
+        potion.setObjectName('startingPotion')
+        potion.setAccessibleName('Choisir la potion de départ')
+        potion.addItems(["Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune"])
+        potion.setCurrentText(self.character['potion'])
+        potion.currentTextChanged.connect(self.change_potion)
+        self.choice_layout.addWidget(potion)
+        description = QLabel("Adresse : restaure l’Habileté initiale. Vigueur : restaure l’Endurance initiale. "
+                             "Bonne Fortune : augmente la Chance initiale de 1 puis la restaure. "
+                             "Chaque dose peut être bue via Soins, même en combat.")
+        description.setWordWrap(True)
+        self.choice_layout.addWidget(description)
         verb = 'Commencer avec cet aventurier' if self._creation_rerolls == 2 else 'Valider cet aventurier et commencer'
         start = ChoiceCard(f'{verb}  →  §{first}')
         start.setObjectName("choiceCard")
@@ -1070,7 +1117,7 @@ class MainWindow(QMainWindow, BookActions):
         start.clicked.connect(lambda checked=False: self._begin_adventure(name.text()))
         name.returnPressed.connect(start.click)
         self.choice_group.setTitle("⚜  L’AVENTURE VOUS ATTEND")
-        self.choice_layout.addWidget(start)
+        self.creation_start_button = start
         remaining = 2 - self._creation_rerolls
         reroll_text = ('2 relances restantes' if remaining == 2 else
                        '1 relance restante' if remaining == 1 else 'aucune relance restante')
@@ -1079,19 +1126,8 @@ class MainWindow(QMainWindow, BookActions):
         reroll.setEnabled(self._creation_rerolls < 2)
         reroll.clicked.connect(self._reroll_adventurer)
         self.choice_layout.addWidget(reroll)
-        self.choice_layout.addWidget(QLabel('Votre potion de départ — une fiole, deux doses'))
-        potion = QComboBox()
-        potion.setObjectName('startingPotion')
-        potion.setAccessibleName('Choisir la potion de départ')
-        potion.addItems(["Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune"])
-        potion.setCurrentText(self.character['potion'])
-        potion.currentTextChanged.connect(self.change_potion)
-        self.choice_layout.addWidget(potion)
-        description = QLabel("Adresse : restaure l’Habileté initiale. Vigueur : restaure l’Endurance initiale. "
-                             "Bonne Fortune : augmente la Chance initiale de 1 puis la restaure. "
-                             "Chaque dose peut être bue via Soins, même en combat.")
-        description.setWordWrap(True)
-        self.choice_layout.addWidget(description)
+        self.creation_reroll_button = reroll
+        self.choice_layout.addWidget(start)
         self.choice_group.show()
         self.event_group.hide()
         self.condition_group.hide()
@@ -1443,7 +1479,9 @@ class MainWindow(QMainWindow, BookActions):
                 button.clicked.connect(lambda checked=False, n=self.current_paragraph, oid=option["id"]: self.apply_optional_book_event(n, oid))
                 self.event_layout.addWidget(button)
             if scripted["mode"] in ("des", "des_optionnel") and "roll" in scripted:
-                button = QPushButton("🎲 Lancer le dé et appliquer le résultat vérifié")
+                count = scripted['roll'].get('dice', 1)
+                label = 'Lancer le dé' if count == 1 else f'Lancer les {count} dés'
+                button = QPushButton(f'🎲 {label}')
                 button.setEnabled(self.current_paragraph not in self.completed_book_events)
                 button.clicked.connect(lambda checked=False, n=self.current_paragraph: self.resolve_book_roll(n))
                 self.event_layout.addWidget(button)
@@ -1548,7 +1586,12 @@ class MainWindow(QMainWindow, BookActions):
         """Show hints, never automatically block a path based on uncertain prose."""
         self._clear_dynamic_layout(self.condition_layout)
         pattern = re.compile(r"(?i)\bsi vous (?:êtes )?(?:en possession d[eu'’]|possédez|avez|disposez d[eu'’])\s+([^,.\n;:]{2,90})")
-        matches = pattern.findall(text)
+        # Le catalogue vérifié gère déjà objets, faits et victoires : ne pas
+        # lui superposer des hypothèses (« avez vaincu » n'est pas un objet).
+        if verified_entry(self.book_event_catalogue, self.current_paragraph):
+            return
+        matches = [raw for raw in pattern.findall(text)
+                   if not re.match(r"(?i)(?:(?:déjà|encore|bien)\s+)*(?:vaincu|tué|eu|réussi|perdu|gagné|visité|trouvé|été)\b", raw)]
         if not matches:
             return
         inventory = [x.casefold() for x in self.character.get("inventory", [])]
@@ -1628,11 +1671,15 @@ class MainWindow(QMainWindow, BookActions):
         import html
         rows = []
         for number in self.visited_paragraphs:
-            targets = [c['target'] for c in self._paragraph_choices(self.paragraphs.get(number, ''))]
+            entry = verified_entry(self.book_event_catalogue, number) or {}
+            # Les renvois éditoriaux rétablis (ex. §289) n'existent pas dans le texte PDF.
+            targets = list(dict.fromkeys(route['target'] for route in entry['routes'])) if 'routes' in entry else [
+                c['target'] for c in self._paragraph_choices(self.paragraphs.get(number, ''))]
             target_text = ', '.join(('✓ ' if n in self.visited_paragraphs else '○ ') + str(n) for n in targets) or 'aucune sortie détectée'
             title = self._paragraph_name(number)
             heading = f'§ {number}' + (f' — {html.escape(title)}' if title else '')
-            rows.append(f'<p><b><a style="color: {self.theme.color("link")}; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">{heading}</a></b> → {html.escape(target_text)}{self._map_monsters_html(number)}</p>')
+            marker = '<a name="current-place"></a>▶ Vous êtes ici — ' if number == self.current_paragraph else ''
+            rows.append(f'<p>{marker}<b><a style="color: {self.theme.color("link")}; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">{heading}</a></b> → {html.escape(target_text)}{self._map_monsters_html(number)}</p>')
         # Même bleu nuit, soulignement et contraste que les liens du livre.
         view.document().setDefaultStyleSheet("a:link { color: " + self.theme.color("link") + "; text-decoration: underline; font-weight: bold; }")
         view.setHtml('<h2>Parcours découvert</h2>' + ''.join(rows))
@@ -1644,6 +1691,7 @@ class MainWindow(QMainWindow, BookActions):
                 dialog.accept()
         view.anchorClicked.connect(navigate)
         layout.addWidget(view)
+        QTimer.singleShot(0, lambda: view.scrollToAnchor('current-place'))
         close = QDialogButtonBox(QDialogButtonBox.Close)
         close.rejected.connect(dialog.reject)
         layout.addWidget(close)
@@ -1671,6 +1719,7 @@ class MainWindow(QMainWindow, BookActions):
         self.rules_log.setText(f"Rencontre préparée : {monster['name']}.")
         self.combat_state.setText(f"⚔ {monster['name']} · H {monster['skill']} · Endurance {monster['stamina']}")
         self.combat_journal.clear()
+        self._refresh_action_controls()
 
     def confirm_item(self, name):
         """Demander confirmation avant d’ajouter un objet suggéré par le texte."""
@@ -2285,6 +2334,8 @@ class MainWindow(QMainWindow, BookActions):
             return
         if self.character['endurance'] <= 0:
             self._show_death_page()
+            return
+        if not self.combat_available():
             return
         popup = self._combat_popup
         if (popup is None or popup.outcome or self.current_paragraph not in popup.paragraphs

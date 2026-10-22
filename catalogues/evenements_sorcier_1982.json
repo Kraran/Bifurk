@@ -457,7 +457,17 @@
         }
       ],
       "note": "Influence du portrait de Zagor.",
-      "title": "La galerie des portraits"
+      "title": "La galerie des portraits",
+      "routes": [
+        {
+          "target": 90,
+          "label": "Quitter la galerie par la porte nord"
+        },
+        {
+          "target": 340,
+          "label": "Chercher une arme contre le portrait"
+        }
+      ]
     },
     "26": {
       "status": "verifie",
@@ -910,7 +920,13 @@
         }
       ],
       "note": "Assommé avant de poursuivre au §122.",
-      "title": "Le seuil dans l’obscurité"
+      "title": "Le seuil dans l’obscurité",
+      "routes": [
+        {
+          "target": 122,
+          "label": "Reprendre connaissance dans la pièce"
+        }
+      ]
     },
     "50": {
       "status": "verifie",
@@ -2705,7 +2721,13 @@
         }
       ],
       "note": "La boîte contient une pièce d'or conservée ; Chance +2.",
-      "title": "La petite boîte du veilleur"
+      "title": "La petite boîte du veilleur",
+      "routes": [
+        {
+          "target": 208,
+          "label": "Poursuivre vers le nord après la découverte"
+        }
+      ]
     },
     "148": {
       "status": "verifie",
@@ -4725,7 +4747,7 @@
           "label": "Franchir la porte nord"
         }
       ],
-      "title": "La salle aux cercueils"
+      "title": "La salle aux morceaux de bois"
     },
     "254": {
       "status": "verifie",
@@ -4806,7 +4828,7 @@
     "258": {
       "status": "verifie",
       "mode": "automatique",
-      "note": "Après le Minotaure : Chance +2, 8 PO et clé rouge 111 facultatives ; cette clé est distincte de la clé 111 de la statue. Repas facultatif puis §54.",
+      "note": "Après le Minotaure : Chance +2, 8 PO et clé rouge 111 facultatives. Repas facultatif puis §54.",
       "effects": [
         {
           "kind": "stat",
@@ -5481,7 +5503,7 @@
     "289": {
       "status": "verifie",
       "mode": "combat",
-      "note": "Après destruction des cartes : Sorcier H7/E12. Le PDF ne donne pas de renvoi explicite après ce combat ; aucune destination inventée.",
+      "note": "Sorcier affaibli H7/E12 ; après victoire, rejoindre la porte aux deux serrures (§396).",
       "combat": {
         "enemies": [
           {
@@ -5490,9 +5512,20 @@
             "stamina": 12
           }
         ],
-        "victory_target": null
+        "victory_target": 396
       },
-      "title": "La table aux cartes"
+      "title": "La table aux cartes",
+      "routes": [
+        {
+          "target": 396,
+          "label": "Franchir la pièce après la défaite du Sorcier"
+        }
+      ],
+      "editorial_correction": {
+        "kind": "missing_reference",
+        "target": 396,
+        "basis": "Renvoi absent du PDF au §289 ; issue rétablie par recoupement du duel alternatif §142 et de la porte décrite au §358, reprise au §396."
+      }
     },
     "290": {
       "status": "verifie",
