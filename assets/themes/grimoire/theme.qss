@@ -1,5 +1,6 @@
 
-            QMainWindow, QWidget { background-color: #241d18; color: #e9d6b3; font-family: '${ui_font}'; font-size: 13px; }
+            /* 9.75 pt = 13 px à 96 dpi ; conserver une taille en points valide pour la fenêtre Windows. */
+            QMainWindow, QWidget { background-color: #241d18; color: #e9d6b3; font-family: '${ui_font}'; font-size: 9.75pt; }
             QMainWindow { background-image: url('${leather}'); }
             QLabel { background: transparent; }
             QLabel#appTitle { color: #edcb87; font-family: ${ui_font}; font-size: 29px; font-weight: bold; }
