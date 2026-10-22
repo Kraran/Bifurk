@@ -7,6 +7,7 @@ changer de livre ne laisse pas de méthodes liées à l'ancien module.
 """
 from functools import wraps
 from .fighting_fantasy.controller import FightingFantasyActions
+from .foret.controller import ForetController
 from .sorcier.actions import BookActions
 from .sorcier.controller import SorcierCombatActions
 
@@ -15,7 +16,7 @@ class SorcierController(BookActions, SorcierCombatActions):
     """Adaptateur du Sorcier : interactions spéciales, combats et objets de l'édition."""
 
 
-CONTROLLERS = {'sorcier-1982': SorcierController}
+CONTROLLERS = {'sorcier-1982': SorcierController, 'foret-1983': ForetController}
 
 
 class ModuleActions:

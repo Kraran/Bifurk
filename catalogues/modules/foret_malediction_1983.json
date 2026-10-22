@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "id": "foret_malediction_1983",
+  "title": "La Forêt de la Malédiction",
+  "engine": "foret-1983",
+  "pdf_sha256": "0abac11c0e88ce244c5513bf4b1537fa46159df5606d3e3c8c28b83e6614f6e1",
+  "paragraph_count": 400,
+  "rules_pages": [
+    4,
+    13
+  ],
+  "intro_pages": [
+    14,
+    16
+  ],
+  "intro_title": "Un Marteau pour Gillibran",
+  "status": "preview",
+  "starting_gold": 30,
+  "starting_items": [
+    "Carte de Yaztromo"
+  ],
+  "catalogues": {
+    "events": "evenements_foret_1983.json",
+    "illustrations": "foret_malediction_1983.json"
+  },
+  "text_repairs": []
+}

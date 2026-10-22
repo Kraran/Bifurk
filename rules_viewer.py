@@ -12,11 +12,12 @@ from dialog_chrome import DialogHeading
 
 class RulesDialog(IllustrationDialog):
     """Lecteur indépendant des pages de règles, avec navigation physique et image zoomable."""
-    def __init__(self, pdf_path, parent=None, *, pages=(3, 14)):
+    def __init__(self, pdf_path, parent=None, *, pages=(3, 14), title='Les règles de l’aventure', section='Règles'):
         """Borner les règles aux pages configurées disponibles et connecter précédent / suivant / sélection."""
         super().__init__(parent)
         import pymupdf as fitz
         self.pdf_path = str(pdf_path)
+        self.section = section
         self.first_page, requested_last = pages
         if not 1 <= self.first_page <= requested_last:
             raise ValueError("Intervalle de pages de règles invalide.")
@@ -24,13 +25,13 @@ class RulesDialog(IllustrationDialog):
             self.last_page = min(requested_last, len(document))
         if self.last_page < self.first_page:
             raise ValueError("Ce PDF ne contient pas les pages de règles du module.")
-        self.setWindowTitle(f"Bifurk — Règles du livre · pages PDF {self.first_page} à {self.last_page}")
+        self.setWindowTitle(f"Bifurk — {section} du livre · pages PDF {self.first_page} à {self.last_page}")
         area = self.screen().availableGeometry()
         self.resize(min(800, area.width() - 60), min(850, area.height() - 70))
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 18, 20, 18)
         layout.setSpacing(12)
-        layout.addWidget(DialogHeading('Les règles de l’aventure', f'Pages {self.first_page} à {self.last_page} de votre grimoire.'))
+        layout.addWidget(DialogHeading(title, f'Pages {self.first_page} à {self.last_page} de votre grimoire.'))
         navigation = QHBoxLayout()
         self.previous = QPushButton("← Précédente")
         self.pages = QComboBox()
@@ -62,4 +63,4 @@ class RulesDialog(IllustrationDialog):
             self.viewer.set_book_art(QPixmap.fromImage(image.copy()))
         self.previous.setEnabled(index > 0)
         self.following.setEnabled(index < self.pages.count()-1)
-        self.viewer.setAccessibleName(f"Règles — page PDF {index + self.first_page}")
+        self.viewer.setAccessibleName(f"{self.section} — page PDF {index + self.first_page}")
