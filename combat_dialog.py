@@ -506,7 +506,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.action_scroll.setVisible(self.actions.count() > 0)
         self._refresh_footer()
 
-    def present_roll(self, rolls, context, *, opponent=False):
+    def present_roll(self, rolls, context, *, opponent=False, sides=6):
         """Attendre le clic du joueur ou démarrer le dé rouge automatiquement, sans relancer."""
         layout = self.enemy_tray_layout if opponent else self.hero_tray_layout
         placeholder = self.enemy_placeholder if opponent else self.hero_placeholder
@@ -518,7 +518,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             previous.deleteLater()
         canvas = DiceCanvas(rolls, self.owner.theme, self,
                             color='#b52c39' if opponent else None,
-                            pip_color='#fff1d4' if opponent else None, caption=False)
+                            pip_color='#fff1d4' if opponent else None, caption=False, sides=sides)
         canvas.setMinimumSize(160, 125)
         canvas.hide()
         layout.addWidget(canvas, 1)

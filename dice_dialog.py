@@ -1,14 +1,15 @@
-"""Lancers de D6 en perspective, sans OpenGL ni moteur web.
+"""Lancers de D6 et D20 en perspective, sans OpenGL ni moteur web.
 
 Le contrôleur fournit des faces déjà tirées : ce module ne consomme aucun hasard
-et ne décide jamais d'une règle. Les cubes et leurs points sont des coordonnées
+et ne décide jamais d'une règle. Les solides et leurs marques sont des coordonnées
 3D projetées par QPainter ; la trajectoire interpolée se termine sur la face reçue.
 Ce rendu logiciel fonctionne aussi dans la distribution PyInstaller et sans GPU.
 """
 import math
+from itertools import combinations
 
 from PySide6.QtCore import QElapsedTimer, QPointF, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QFont, QPainter, QPen, QPolygonF, QRadialGradient
+from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen, QPolygonF, QRadialGradient
 from PySide6.QtWidgets import QDialog, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from themes import default_theme
@@ -37,6 +38,45 @@ LANDING = {1: (0, 0), 2: (-math.pi / 2, 0), 3: (0, -math.pi / 2),
            4: (0, math.pi / 2), 5: (math.pi / 2, 0), 6: (0, math.pi)}
 
 
+def icosahedron_faces():
+    """Construire les vingt triangles d'un véritable dé icosaédrique régulier.
+
+    Les trois arêtes d'une face relient les sommets les plus proches. Chaque
+    triangle conserve son centre et deux axes tangents pour projeter son numéro
+    sur le même plan que sa surface. Les faces opposées totalisent vingt et un.
+    Cette géométrie fixe est calculée une seule fois, sans tirage aléatoire.
+    """
+    phi = (1 + math.sqrt(5)) / 2
+    scale = 1.55 / math.sqrt(1 + phi * phi)
+    vertices = [tuple(c * scale for c in point)
+                for a in (-1, 1) for b in (-phi, phi)
+                for point in ((0, a, b), (a, b, 0), (b, 0, a))]
+    triangles = [points for points in combinations(vertices, 3)
+                 if all(math.isclose(math.dist(a, b), 2 * scale)
+                        for a, b in combinations(points, 2))]
+    faces = []
+    while triangles:
+        points = triangles.pop(0)
+        opposite = tuple(tuple(-c for c in point) for point in points)
+        other = next(t for t in triangles if set(t) == set(opposite))
+        triangles.remove(other)
+        value = len(faces) // 2 + 1
+        for number, corners in ((value, points), (21 - value, other)):
+            center = tuple(sum(p[k] for p in corners) / 3 for k in range(3))
+            length = math.sqrt(sum(c * c for c in center))
+            normal = tuple(c / length for c in center)
+            edge = tuple(corners[1][k] - corners[0][k] for k in range(3))
+            u = tuple(c / math.dist(corners[0], corners[1]) for c in edge)
+            v = (normal[1]*u[2] - normal[2]*u[1],
+                 normal[2]*u[0] - normal[0]*u[2],
+                 normal[0]*u[1] - normal[1]*u[0])
+            faces.append((number, center, u, v, corners))
+    return tuple(faces)
+
+
+D20_FACES = icosahedron_faces()
+
+
 def rotate(point, angles):
     """Appliquer les rotations X, Y puis Z, sans dépendance à une bibliothèque 3D."""
     x, y, z = point
@@ -46,18 +86,27 @@ def rotate(point, angles):
     return x * math.cos(az) - y * math.sin(az), x * math.sin(az) + y * math.cos(az), z
 
 
-def die_angles(value, progress, index=0):
+def die_angles(value, progress, index=0, sides=6):
     """Décélérer la rotation jusqu'à la face demandée ; aucun résultat intermédiaire n'est un jet."""
     remaining = (1 - max(0, min(1, progress))) ** 3
-    ax, ay = LANDING[value]
+    az = 0
+    if sides == 20:
+        _, normal, u, _, _ = next(face for face in D20_FACES if face[0] == value)
+        ax = math.atan2(normal[1], normal[2])
+        ay = math.atan2(-normal[0], math.hypot(normal[1], normal[2]))
+        ux, uy, _ = rotate(u, (ax, ay, 0))
+        az = -math.atan2(uy, ux)
+    else:
+        ax, ay = LANDING[value]
     direction = 1 if index % 2 == 0 else -1
     return (ax + direction * 5 * math.pi * remaining,
-            ay + 4 * math.pi * remaining, direction * 3 * math.pi * remaining)
+            ay + 4 * math.pi * remaining, az + direction * 3 * math.pi * remaining)
 
 
-def transformed(point, value, progress, index=0):
+def transformed(point, value, progress, index=0, sides=6):
     """Orienter le cube puis incliner le plateau pour voir aussi les faces latérales."""
-    return rotate(rotate(point, die_angles(value, progress, index)), (-.32, .38, -.10))
+    tilt = (-.15, .18, -.10) if sides == 20 else (-.32, .38, -.10)
+    return rotate(rotate(point, die_angles(value, progress, index, sides)), tilt)
 
 
 class DiceCanvas(QWidget):
@@ -66,12 +115,15 @@ class DiceCanvas(QWidget):
     finished = Signal()
     DURATION_MS = 1250
 
-    def __init__(self, rolls, theme=None, parent=None, *, color=None, pip_color=None, caption=True):
-        """Recevoir une copie immuable des faces pour un ou deux D6."""
+    def __init__(self, rolls, theme=None, parent=None, *, color=None, pip_color=None, caption=True, sides=6):
+        """Recevoir une copie immuable des faces pour 1–3 D6 ou un D20."""
         super().__init__(parent)
-        if len(rolls) not in (1, 2) or any(type(n) is not int or not 1 <= n <= 6 for n in rolls):
-            raise ValueError('Un lancer animé utilise un ou deux dés à six faces.')
+        if (type(sides) is not int or sides not in (6, 20)
+                or len(rolls) not in ((1, 2, 3) if sides == 6 else (1,))
+                or any(type(n) is not int or not 1 <= n <= sides for n in rolls)):
+            raise ValueError('Un lancer animé utilise un à trois D6 ou un D20.')
         self.rolls = tuple(rolls)
+        self.sides = sides
         self.theme = theme or default_theme()
         # Le combat réutilise exactement la même géométrie : seuls les dés
         # adverses changent de matière, sans toucher aux valeurs reçues.
@@ -163,8 +215,49 @@ class DiceCanvas(QWidget):
                 painter.setBrush(QColor(self.pip_color))
                 painter.drawPolygon(QPolygonF(pip))
 
+    def _draw_d20(self, painter, value, index, center, size):
+        """Dessiner les facettes et leurs chiffres dans le même repère 3D.
+
+        Le texte est un contour vectoriel : ses points subissent la projection
+        perspective de la face, au lieu de flotter à plat devant le dé.
+        """
+        def project(point):
+            x, y, z = transformed(point, value, self.progress, index, 20)
+            perspective = 6 / (6 - z)
+            return QPointF(center.x() + x * size * perspective,
+                           center.y() + y * size * perspective)
+
+        visible = []
+        for number, origin, u, v, corners in D20_FACES:
+            x, y, z = transformed(origin, value, self.progress, index, 20)
+            if -x*x - y*y + z*(6-z) > 0:
+                visible.append((z, number, origin, u, v, corners))
+        font = QFont(self.font().family())
+        font.setPixelSize(100)
+        font.setBold(True)
+        for depth, number, origin, u, v, corners in sorted(visible):
+            painter.setPen(QPen(QColor(self.theme.color('ornament')).darker(140), 1.4))
+            painter.setBrush(QColor(self.color).darker(max(100, int(150 - depth * 30))))
+            painter.drawPolygon(QPolygonF([project(p) for p in corners]))
+            path = QPainterPath()
+            path.addText(0, 0, font, str(number))
+            bounds = path.boundingRect()
+            factor = min(.64 / bounds.width(), .43 / bounds.height())
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QColor(self.pip_color))
+            # Le remplissage pair-impair conserve les trous des chiffres 6, 8, 9…
+            projected = QPainterPath()
+            for contour in path.toSubpathPolygons():
+                points = []
+                for point in contour:
+                    px = (point.x() - bounds.center().x()) * factor
+                    py = (point.y() - bounds.center().y()) * factor
+                    points.append(project(tuple(origin[k] + u[k]*px + v[k]*py for k in range(3))))
+                projected.addPolygon(QPolygonF(points))
+            painter.drawPath(projected)
+
     def paintEvent(self, event):
-        """Dessiner velours, filets dorés, ombres et cubes qui rebondissent sur le plateau."""
+        """Dessiner velours, filets dorés, ombres et dés rebondissant sur le plateau."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         rect = self.rect().adjusted(3, 3, -3, -3)
@@ -191,7 +284,8 @@ class DiceCanvas(QWidget):
                 painter.setBrush(QColor(0, 0, 0, 12))
                 painter.drawEllipse(QPointF(x, self.height() * .52 + size * 1.05),
                                     size * (1.1 + radius * .09), size * (.17 + radius * .04))
-            self._draw_die(painter, value, index, QPointF(x, y), size)
+            draw = self._draw_d20 if self.sides == 20 else self._draw_die
+            draw(painter, value, index, QPointF(x, y), size)
         painter.setPen(QColor(self.theme.color('gold')))
         painter.setFont(QFont(self.font().family(), 10))
         if self.caption:
@@ -206,7 +300,7 @@ Fermer ou Échap pendant le mouvement révèle les faces ; une seconde fermeture
 continue avec ce résultat. Il n'existe ni annulation du tirage ni bouton relancer.
 """
 
-    def __init__(self, rolls, context, theme=None, parent=None):
+    def __init__(self, rolls, context, theme=None, parent=None, *, sides=6):
         """Construire le plateau et les textes avec la palette du thème courant."""
         super().__init__(parent)
         self.setObjectName('diceDialog')
@@ -231,7 +325,7 @@ continue avec ce résultat. Il n'existe ni annulation du tirage ni bouton relanc
         font.setBold(True)
         self.context.setFont(font)
         layout.addWidget(self.context)
-        self.canvas = DiceCanvas(rolls, theme, self)
+        self.canvas = DiceCanvas(rolls, theme, self, sides=sides)
         layout.addWidget(self.canvas, 1)
         self.result = QLabel('Les dés roulent…')
         self.result.setObjectName('diceResult')

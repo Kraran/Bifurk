@@ -16,7 +16,7 @@ version, auteur, présentation et liens GitHub.
 Le bouton **Ambiance** permet de couper les effets sonores et de choisir le thème.
 [Reprise, sons et préparation de thèmes](docs/themes-et-ambiance.md).
 
-Hors combat, les jets réglementaires de **1d6 et 2d6** ouvrent un plateau de dés en 3D animés,
+Hors combat, les jets de **1d6, 2d6, 3d6 et 1d20** ouvrent un plateau de dés en 3D animés,
 y compris pendant la création de l'aventurier. Les faces et leur
 total restent visibles jusqu'à **Continuer**. **Passer l'animation** révèle
 immédiatement le résultat déjà tiré. [Présentation et contrôles](docs/design/des-animes.md).
