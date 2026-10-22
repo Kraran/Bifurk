@@ -8,7 +8,65 @@ natifs malgré le dessin personnalisé."""
 from themes import default_theme
 from PySide6.QtCore import Qt, QRectF, QSize, Signal, QPointF
 from PySide6.QtGui import QColor, QFont, QFontMetrics, QPalette, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen, QShortcut, QKeySequence
-from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle, QDialog
+from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle, QDialog, QMessageBox
+
+
+def message_icon(kind, theme, device_pixel_ratio=1):
+    """Dessiner un petit blason à la place des pictogrammes système colorés.
+
+    Le symbole conserve le sens du message (information, question, avertissement
+    ou erreur). Le thème fournit toutes les couleurs et le dessin est calculé
+    à la résolution de l'écran pour rester net sous Windows avec mise à l'échelle.
+    """
+    size = 36
+    pixmap = QPixmap(round(size * device_pixel_ratio), round(size * device_pixel_ratio))
+    pixmap.setDevicePixelRatio(device_pixel_ratio)
+    pixmap.fill(Qt.transparent)
+    painter = QPainter(pixmap)
+    painter.setRenderHint(QPainter.Antialiasing)
+    shield = QPainterPath()
+    shield.moveTo(18, 2)
+    shield.lineTo(32, 7)
+    shield.lineTo(31, 21)
+    shield.cubicTo(30, 27, 24, 31, 18, 34)
+    shield.cubicTo(12, 31, 6, 27, 5, 21)
+    shield.lineTo(4, 7)
+    shield.closeSubpath()
+    painter.setPen(QPen(QColor(theme.color('icon_border')), 1.5))
+    painter.setBrush(QColor(theme.color('rubric') if kind == QMessageBox.Critical
+                            else theme.color('icon_background')))
+    painter.drawPath(shield)
+    painter.setPen(QPen(QColor(theme.color('gold')), .7))
+    painter.drawLine(QPointF(8, 9), QPointF(18, 5))
+    painter.drawLine(QPointF(18, 5), QPointF(28, 9))
+    symbols = {QMessageBox.Information: 'i', QMessageBox.Question: '?',
+               QMessageBox.Warning: '!', QMessageBox.Critical: '×'}
+    font = QFont('serif')
+    font.setPixelSize(25)
+    font.setBold(True)
+    painter.setFont(font)
+    painter.setPen(QColor(theme.color('icon_ink')))
+    painter.drawText(QRectF(5, 4, 26, 26), Qt.AlignCenter, symbols[kind])
+    painter.end()
+    return pixmap
+
+
+def theme_message_box(dialog):
+    """Habiller les icônes standard sans modifier boutons, texte ni résultat.
+
+    Les messages statiques de Qt et les fenêtres construites explicitement passent
+    par le même filtre d'affichage. Une icône personnalisée ou absente est
+    conservée ; le type d'origine est mémorisé pour un éventuel réaffichage.
+    """
+    kind = getattr(dialog, '_bifurk_message_kind', dialog.icon())
+    if kind == QMessageBox.NoIcon:
+        return
+    dialog._bifurk_message_kind = kind
+    owner = dialog.parentWidget()
+    while owner is not None and not hasattr(owner, 'theme'):
+        owner = owner.parentWidget()
+    theme = owner.theme if owner is not None else default_theme()
+    dialog.setIconPixmap(message_icon(kind, theme, dialog.devicePixelRatioF()))
 
 
 class SingleLineTitle(QLabel):
