@@ -20,6 +20,18 @@ La création, le chargement et les restaurations de l’historique synchronisent
 les valeurs silencieusement. Rafraîchir une fenêtre ou changer le thème ne
 rejoue pas une variation déjà affichée.
 
+## Monstres
+
+![Perte d’Endurance du monstre](variations-monstres.png)
+
+Les mêmes cartouches accompagnent les variations d’**Habileté** et
+d’**Endurance** de chaque monstre, à gauche de la fenêtre de combat. Ils suivent
+la ligne concernée quand la liste défile et restent contenus dans son cadre.
+Chaque adversaire possède sa propre référence, même en cas de noms identiques :
+l’arrivée du suivant ou le tirage initial de l’Endurance des Piranhas ne produit
+pas de faux soin. Le coup mortel affiche les points effectivement perdus jusqu’à
+zéro, avec le même délai et les mêmes couleurs que pour le héros.
+
 ## Maintenance
 
 `stat_feedback.py` observe les valeurs déjà appliquées par le moteur. Ses badges
