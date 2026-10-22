@@ -27,7 +27,7 @@ from app_info import APP_NAME, APP_VERSION
 from about_dialog import AboutDialog, BrandButton
 from dice_dialog import DiceDialog
 from combat_dialog import CombatDialog
-from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle
+from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
@@ -191,12 +191,15 @@ def franciser_selecteur(dialog):
 
 
 class DialogThemeFilter(QObject):
-    """Applique la barre bronze aux fenêtres secondaires Windows dès leur ouverture."""
+    """Habiller les fenêtres secondaires et remplacer leurs pictogrammes système."""
     def eventFilter(self, obj, event):
         """Différer les retouches de dialogue jusqu’à son affichage natif, sans consommer l’événement."""
         if event.type() == QEvent.Show and isinstance(obj, QDialog):
             QTimer.singleShot(0, lambda d=obj: set_bronze_titlebar(d) if d.isVisible() else None)
             if isinstance(obj, QMessageBox):
+                # Avant la première peinture : aucun flash de l'icône bleue
+                # native, même pour les appels statiques information/question.
+                theme_message_box(obj)
                 QTimer.singleShot(0, lambda d=obj: franciser_message(d) if d.isVisible() else None)
         return False
 
