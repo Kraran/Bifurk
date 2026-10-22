@@ -20,6 +20,7 @@ from rules_viewer import RulesDialog
 from themes import available_themes
 from sound_effects import SoundBank, EFFECT_LABELS
 from intro_music import IntroMusic
+from audio_configuration import configure_audio_backend
 from save_slots import SaveSlotsDialog, read_save
 from datetime import datetime
 from app_info import APP_NAME, APP_VERSION
@@ -238,6 +239,7 @@ class MainWindow(QMainWindow, BookActions):
             self.preferences = {}
         self.themes = available_themes(ASSET_DIR / "themes")
         self.theme = self.themes.get(self.preferences.get("theme"), self.themes["grimoire"])
+        configure_audio_backend()
         self.sounds = SoundBank(ASSET_DIR / "sounds", self.preferences.get("sound_enabled", True), self,
                             ambient_enabled=self.preferences.get("ambient_enabled", False),
                             diagnostic_path=SETTINGS_DIR / "audio.log")

@@ -6,6 +6,7 @@ Le service possède son animation Qt : un retour au menu annule le fondu précé
 """
 from PySide6.QtCore import QAbstractAnimation, QObject, QPropertyAnimation, QUrl
 from PySide6.QtGui import QGuiApplication
+from audio_configuration import configure_audio_backend
 
 
 class IntroMusic(QObject):
@@ -27,6 +28,7 @@ class IntroMusic(QObject):
         """Désactiver la sortie dans les tests sans écran ; Qt décode le M4A en production."""
         if QGuiApplication.platformName() in ('offscreen', 'minimal') or not self.path.is_file():
             return False
+        configure_audio_backend()
         from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
         self.output = QAudioOutput(self)
         self.player = QMediaPlayer(self)
