@@ -28,6 +28,7 @@ from about_dialog import AboutDialog, BrandButton
 from dice_dialog import DiceDialog
 from combat_dialog import CombatDialog
 from dialog_chrome import DialogHeading, harmonize_standard_dialog
+from stat_feedback import StatFeedback
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import load_book_events, apply_entry, apply_option, verified_entry, apply_effects, resolve_roll, available_routes, flee_available, escape_damage, available_options, equipped_weapon, equip_weapon, combat_skill, take_moon_shield, shield_damage, SHIELD_NAME, piranha_stamina, trade_inventory_item, follow_catalogue_route, enchanted_bench_meal, shared_meal, throw_diversion_item
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
@@ -296,12 +297,15 @@ class MainWindow(QMainWindow, BookActions):
         self.redo_stack = []
         self.action_history = []
         self._restoring = False
+        self._feedback_action_id = 0  # Identifiant visuel, hors sauvegardes et règles.
         self.reader_font_size = 20
         self._load_fonts()
         self._default_fonts = (self.reading_font_family, self.ui_font_family)
         self.reading_font_family = self.theme.data.get("fonts", {}).get("reading", self.reading_font_family)
         self.ui_font_family = self.theme.data.get("fonts", {}).get("ui", self.ui_font_family)
         self._build_ui()
+        self.stat_feedback = StatFeedback(self, {key: (bar, None) for key, bar in self.stat_bars.items()},
+                                          lambda: self.theme)
         self._set_theme()
         QShortcut(QKeySequence("F11"), self, activated=self.toggle_fullscreen)
         self._refresh_character()
@@ -2203,6 +2207,11 @@ class MainWindow(QMainWindow, BookActions):
         if self._combat_dialog is not None:
             self._combat_dialog.refresh_stats()
 
+        self.stat_feedback.observe(self.character,
+            enabled=(self.isVisible() and self.current_paragraph is not None
+                     and self._adventurer_draft is None and not self._restoring),
+            batch=self._feedback_action_id)
+
 
     def _roll(self, count=1, sides=6, *, context=None, opponent=False):
         """Tirer une seule fois, présenter le résultat animé puis retourner (faces, somme).
@@ -2958,6 +2967,8 @@ class MainWindow(QMainWindow, BookActions):
         """Appliquer une édition manuelle de caractéristique et rafraîchir sa représentation."""
         before = self._snapshot()
         self.character[key] = value
+        self._feedback_action_id += 1
+        self._refresh_character()
         self._record(f"Modifier {key}", before)
 
     def _save_data(self):
@@ -3129,6 +3140,8 @@ def _track_action(method, label):
         if self._restoring:
             return method(self, *args, **kwargs)
         depth = getattr(self, "_action_depth", 0)
+        if depth == 0:
+            self._feedback_action_id += 1
         before = self._snapshot() if depth == 0 else None
         combat_paragraph = self.current_paragraph
         self._action_depth = depth + 1
