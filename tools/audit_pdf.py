@@ -11,7 +11,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-import fitz
+import pymupdf as fitz
 import main as b
 from illustrations import catalogue_for_pdf, images_for_paragraph
 from navigation import destinations

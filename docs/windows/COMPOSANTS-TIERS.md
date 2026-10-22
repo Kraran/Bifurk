@@ -15,8 +15,11 @@ Les plugins Qt peuvent inclure des bibliothèques multimédias supplémentaires.
   <https://pyinstaller.org/en/stable/license.html>.
 
 Les crédits et licences du portrait, des polices et des sons accompagnent les
-assets sous `_internal/assets`. Les sons livrés sont CC0 ; le portrait reprend
+assets sous `_internal/assets`. Les effets sonores Kenney sont CC0 ; le portrait reprend
 une ressource du dépôt Gamelist Media Editor, dont la licence MIT est conservée.
+La musique d’accueil `FantasyFair.m4a` fournie par l’utilisateur porte les
+métadonnées « Tavern Loop One », Alexander Nakarada, album « Fantasy Fair ».
+La licence CC0 des effets Kenney ne s’applique pas à cette musique.
 Ces licences d'assets ne définissent pas la licence du code de Bifurk.
 
 Les sources du projet sont sur <https://github.com/Kraran/Bifurk>. La révision
