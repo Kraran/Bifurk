@@ -292,9 +292,20 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         if not hasattr(self, 'flee'):
             return
         can_act = not self.busy and not self.outcome
-        self.flee.setEnabled(can_act and self.owner.can_flee_combat())
-        self.flee.setToolTip('Fuir avec la pénalité du livre.' if self.flee.isEnabled()
-                             else 'Fuite non autorisée ici, assauts requis ou assaut en cours.')
+        permitted, reason = self.owner.combat_flee_status()
+        self.flee.setEnabled(can_act and permitted)
+        if self.outcome:
+            reason = 'Ce combat est terminé.'
+        elif self.busy:
+            reason = 'Terminez l’assaut ou l’action en cours avant de fuir.'
+        self.flee.setToolTip(reason)
+        # Le lecteur existe derrière cette fenêtre modale. Garder son bouton
+        # cohérent aussi lors des pauses imbriquées (dés, Chance et soins).
+        for index in range(self.owner.event_layout.count()):
+            source = self.owner.event_layout.itemAt(index).widget()
+            if source is not None and source.property('combatEscape'):
+                source.setEnabled(self.flee.isEnabled())
+                source.setToolTip(reason)
         # Une potion peut être bue dans les pauses de décision de l'assaut. Elle
         # appartient alors à la même transaction que cet assaut, sans second jet.
         care_pause = not self.busy or self.phase in ('player', 'luck')

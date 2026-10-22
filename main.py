@@ -1018,15 +1018,42 @@ class MainWindow(QMainWindow, BookActions):
 
     def can_flee_combat(self):
         """Partager les restrictions de fuite entre le lecteur et le bouton permanent du combat."""
+        return self.combat_flee_status()[0]
+
+    def combat_flee_status(self):
+        """Expliquer la disponibilité sans résoudre de jet ni modifier la partie.
+
+        Le compteur représente les assauts terminés, parades comprises. Le
+        Vampire remplace son seuil initial par la prochaine tentative autorisée
+        après un échec. Toutes ses destinations doivent être chargées : sinon
+        le bouton serait actif alors que le moteur refuse de résoudre le jet.
+        """
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
         combat = entry.get('combat', {})
         target = combat.get('escape_target')
+        if target is None:
+            return False, 'Le livre ne permet pas de fuir ce combat.'
+        if self.character['endurance'] <= 0:
+            return False, 'Votre aventurier est mort.'
+        if not combat.get('precombat_escape') and self.enemy_endurance.value() <= 0:
+            return False, 'Ce combat est terminé.'
+        destinations = [target]
+        if combat.get('escape_luck_interval'):
+            destinations.append(combat['hypnosis_target'])
+        if any(number not in self.paragraphs for number in destinations):
+            return False, 'Une destination nécessaire à la fuite est absente du livre chargé.'
         assaults = self.book_combat_assaults.get(self.current_paragraph, 0)
+        threshold = combat.get('escape_after_assaults', 0)
+        if combat.get('escape_luck_interval'):
+            threshold = max(threshold, self._book_state(self.current_paragraph).get('escape_after', threshold))
+        if assaults < threshold:
+            remaining = threshold - assaults
+            return False, f'Fuite possible après encore {remaining} assaut(s) terminé(s).'
         permitted = flee_available(combat, assaults,
             1 if combat.get('precombat_escape') else self.enemy_endurance.value(), self.character['endurance'])
-        if combat.get('escape_luck_interval'):
-            permitted = permitted and assaults >= self._book_state(self.current_paragraph).get('escape_after', 6)
-        return bool(permitted and target in self.paragraphs)
+        return bool(permitted), ('Tenter votre Chance pour fuir ; une blessure de fuite reste due.'
+                                 if combat.get('escape_luck_interval') else
+                                 'Fuir avec la blessure de fuite prévue par les règles.')
 
     def _set_theme(self):
         """Distribuer le QSS, les polices et les surfaces dessinées aux widgets existants."""
@@ -1518,7 +1545,11 @@ class MainWindow(QMainWindow, BookActions):
             btn = QPushButton(f"{escape_label} → §{escape_target}")
             btn.setProperty('combatAction', True)
             btn.setProperty('combatEscape', True)
-            btn.setEnabled(permitted and escape_target in self.paragraphs)
+            popup = self._combat_dialog
+            can_act = popup is None or (not popup.busy and not popup.outcome)
+            btn.setEnabled(permitted and can_act)
+            btn.setToolTip(self.combat_flee_status()[1] if can_act else
+                           'Terminez l’assaut ou l’action en cours avant de fuir.')
             btn.clicked.connect(lambda checked=False, n=self.current_paragraph: self.escape_scripted_combat(n))
             self.event_layout.addWidget(btn)
         if self.current_paragraph == 350 and self.piranha_combat:
@@ -2469,9 +2500,7 @@ class MainWindow(QMainWindow, BookActions):
             if target in self.paragraphs:
                 self.go_to(target)
             return
-        if (target not in self.paragraphs or not flee_available(
-                rules, self.book_combat_assaults.get(number, 0),
-                1 if rules.get("precombat_escape") else self.enemy_endurance.value(), self.character["endurance"])):
+        if not self.can_flee_combat():
             return
         if rules.get("escape_luck_interval"):
             self._vampire_escape(rules)
