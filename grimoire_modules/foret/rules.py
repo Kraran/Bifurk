@@ -128,6 +128,8 @@ def pay(character, *, gold=0, items=(), magic_only=False, units=None):
             data['charges'][name] = max(0, data['charges'][name] - count)
         if name in data.get('worn', []):
             data['worn'].remove(name)
+        if character.get('equipped_weapon') == name and name not in character['inventory']:
+            character['equipped_weapon'] = None
 
 
 def reward(character, identity, *, gold=0, items=(), luck=0):
@@ -147,7 +149,10 @@ def reward(character, identity, *, gold=0, items=(), luck=0):
     character['gold'] = character.get('gold', 0) + gold
     character.setdefault('inventory', []).extend(items)
     cap = character.get('initial', {}).get('chance', character['chance'])
-    character['chance'] = min(cap, max(0, character['chance'] + luck))
+    if luck > 0:
+        character['chance'] = max(character['chance'],min(cap,character['chance']+luck))
+    elif luck < 0:
+        character['chance'] = max(0,character['chance']+luck)
     state(character).setdefault('rewards', []).append(identity)
     return True
 
@@ -431,6 +436,13 @@ ENTRY_RULES = {
     232:{'identity':'hammer_handle','items':[HAMMER_HANDLE],'luck':1},
     217:{'identity':'cave_four_gold','gold':4},
     262:{'identity':'cave_four_gold','gold':4},
+    154:{'remove':['Lanterne magique']},
+    106:{'items':['Bague d’or à émeraude (valeur 15 Or)'],'luck':2},
+    116:{'items':['Collier de cuir incrusté d’or (valeur 15 Or)']},
+    174:{'items':['Anneau d’or (valeur 10 Or)'],'luck':1},
+    202:{'items':['Boucle d’oreille en or (valeur 5 Or)']*2},
+    219:{'luck':1,'label':'Découvrir la fléchette — Chance +1'},
+    273:{'items':['Médaillon d’or (valeur 9 Or)']},
     356:{'items':['Lanterne magique'],'optional':True},
     389:{'gold':8,'luck':1},
     205:{'gold':6},
@@ -480,7 +492,7 @@ def resolve_entry(character, paragraph):
     character.update(working)
     return True
 
-PAYMENT_PARAGRAPHS = {14,32,36,218,279,297}
+PAYMENT_PARAGRAPHS = {12,14,32,36,218,279,297}
 
 
 def pay_paragraph(character, paragraph, *, gold=0, items=()):
@@ -494,7 +506,11 @@ def pay_paragraph(character, paragraph, *, gold=0, items=()):
         return False
     magic_only = False
     units = None
-    if paragraph == 32:
+    if paragraph == 12:
+        if not peek(character).get('gnome_sword'):
+            raise ValueError('Résoudre d’abord la métamorphose de l’épée au §192.')
+        valid = (gold == 10 and not items) or (gold == 0 and len(items) == 2 and all(name in VALUABLES for name in items))
+    elif paragraph == 32:
         valid = gold == 10 and len(items) == 2
     elif paragraph == 36:
         valid = (gold == character.get('gold',0) and not items) or (gold == 0 and len(items) == 2)
@@ -513,6 +529,10 @@ def pay_paragraph(character, paragraph, *, gold=0, items=()):
     if not valid:
         raise ValueError('La sélection ne correspond pas au tarif de ce passage.')
     pay(character, gold=gold, items=items, magic_only=magic_only, units=units)
+    if paragraph == 12:
+        weapon = peek(character)['gnome_sword']
+        character.setdefault('inventory', []).append(weapon)
+        equip_forest_weapon(character,weapon)
     if paragraph == 32:
         character['chance'] = max(0, character['chance'] - 1)
     state(character).setdefault('payments', []).append(identity)
@@ -542,7 +562,7 @@ OPTIONAL_ITEM_ROUTES = {(92,100):'Potion de Contrôle des Insectes', (196,39):'F
 def route_available(character, paragraph, target):
     """Autoriser les seules conditions intégrées ; ne jamais renouveler une charge épuisée."""
     if paragraph == 356 and target in (34,395):
-        return 'Lanterne magique' in character.get('inventory', [])
+        return 'Lanterne magique' in character.get('inventory', []) and not peek(character).get('lantern_used')
     if paragraph in ITEM_BRANCHES:
         name, present, absent = ITEM_BRANCHES[paragraph]
         has_item = available(character,name) > 0
@@ -597,9 +617,10 @@ def make_wish(character, stat):
     alive(character)
     if stat not in ('habilete','endurance','chance'):
         raise ValueError('Choisir Habileté, Endurance ou Chance.')
-    if 'Lanterne magique' not in character.get('inventory', []):
+    if 'Lanterne magique' not in character.get('inventory', []) or peek(character).get('lantern_used'):
         raise ValueError('La lanterne magique manque (la lanterne de voyage ne convient pas).')
     character['inventory'].remove('Lanterne magique')
+    state(character)['lantern_used'] = True
     character[stat] = character['initial'][stat]
 
 
@@ -607,3 +628,102 @@ def swap_skill_luck(character):
     """§308 : échanger seulement les scores courants ; les plafonds ne sont pas échangés."""
     alive(character)
     character['habilete'], character['chance'] = character['chance'], character['habilete']
+
+# Noms propres à la Forêt : ne pas employer « Épée magique », dont le moteur du
+# Sorcier augmente le plafond initial. Ici le plafond du livre reste inchangé.
+ENCHANTED_SWORD = 'Épée enchantée de la Forêt'
+FOREST_WEAPONS = ('Épée', ENCHANTED_SWORD)
+VALUABLES = {
+    'Bague d’or à émeraude (valeur 15 Or)', 'Collier de cuir incrusté d’or (valeur 15 Or)',
+    'Anneau d’or (valeur 10 Or)', 'Boucle d’oreille en or (valeur 5 Or)',
+    'Fléchette d’argent (valeur 5 Or)', 'Lingot d’or (valeur 28 Or)',
+    'Médaillon d’or (valeur 9 Or)', 'Médaillon d’or (valeur 5 Or)',
+} | set(PRICES) | set(EQUIPMENT) | {'Poudre de Lévitation','Potion de Force',HAMMER_HEAD,HAMMER_HANDLE}
+
+
+def forest_weapon(character):
+    """Lire l’arme disponible sans recréer celle confisquée par le Gnome."""
+    inventory = character.get('inventory', [])
+    selected = character.get('equipped_weapon')
+    if selected in FOREST_WEAPONS and selected in inventory:
+        return selected
+    return next((name for name in FOREST_WEAPONS if name in inventory), None)
+
+
+def equip_forest_weapon(character, name):
+    """Changer une sélection, jamais les scores ou plafonds ; une seule lame donne son bonus."""
+    if name not in FOREST_WEAPONS or name not in character.get('inventory', []):
+        return False
+    changed = character.get('equipped_weapon') != name
+    character['equipped_weapon'] = name
+    return changed
+
+
+def forest_combat_skill(character):
+    """§70 : +2 H pour l’arme utilisée, dans la limite initiale (règles page PDF 9).
+
+    Garder l’Habileté nue dans la fiche évite les soins artificiels en changeant
+    d’arme. Un score déjà supérieur au plafond après échange H/C n’est pas abaissé.
+    """
+    skill = character['habilete']
+    if forest_weapon(character) == ENCHANTED_SWORD:
+        return max(skill,min(character['initial']['habilete'],skill+2))
+    return skill
+
+
+def take_enchanted_sword(character):
+    """Prendre et équiper la lame une fois ; abandonner l’objet ne permet pas de le recréer."""
+    if reward(character,'enchanted_sword',items=[ENCHANTED_SWORD]):
+        equip_forest_weapon(character,ENCHANTED_SWORD)
+        return True
+    return False
+
+
+def confiscate_sword(character):
+    """§192 : mémoriser la vraie arme métamorphosée pour que le paiement la restitue."""
+    alive(character)
+    if peek(character).get('gnome_sword'):
+        return False
+    weapon = forest_weapon(character)
+    if weapon is None:
+        raise ValueError('Aucune épée disponible pour cette métamorphose.')
+    character['inventory'].remove(weapon)
+    character['equipped_weapon'] = None
+    state(character)['gnome_sword'] = weapon
+    return True
+
+
+def light_lantern(character, total):
+    """§395 : dépenser la Chance une fois, puis vérifier la survie avant le choix de perte."""
+    alive(character)
+    dice(total)
+    if 'Lanterne magique' not in character.get('inventory', []) or peek(character).get('lantern_used'):
+        raise ValueError('La lanterne magique n’est plus utilisable.')
+    state(character)['lantern_used'] = True
+    if spend_luck(character,total):
+        return 154
+    damage_hero(character,3)
+    return 370 if character['endurance'] > 0 else None
+
+
+def lose_backpack_item(character, name):
+    """§370 : perdre un exemplaire choisi, avec ses charges/bonus de port éventuels."""
+    alive(character)
+    if peek(character).get('lantern_loss_resolved'):
+        return False
+    pay(character,items=[name])
+    state(character)['lantern_loss_resolved'] = True
+    return True
+
+
+def take_ingot(character, discarded):
+    """§242 : un objet choisi contre le lingot, jamais 28 pièces créées."""
+    alive(character)
+    if 'heavy_ingot' in peek(character).get('rewards', []):
+        return False
+    working = deepcopy(character)
+    pay(working,items=[discarded])
+    reward(working,'heavy_ingot',items=['Lingot d’or (valeur 28 Or)'])
+    character.clear()
+    character.update(working)
+    return True

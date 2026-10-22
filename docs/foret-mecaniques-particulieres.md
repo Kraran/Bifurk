@@ -13,7 +13,7 @@ converties globalement en événements exécutables.
   et « Filet d’Enchevêtrement » retrouvent le même achat. Les cinq capsules du
   sachet constituent un usage, pas cinq rencontres. Un objet durable épuisé reste
   visible avec la mention « magie épuisée ». Un ajout manuel ne crée pas de charge.
-- **Objets et butins** : 45 passages disposent d’un bouton d’effet vérifié. Les
+- **Objets et butins** : 52 passages disposent d’un bouton d’effet vérifié. Les
   variantes d’un même butin utilisent une identité commune : bourse du Troll,
   tête du marteau, manche, poudre de Quin, boîte d’argent, quatre pièces de la
   tanière. Un retour ne rend ni les pièces ni les charges déjà dépensées.
@@ -30,7 +30,7 @@ converties globalement en événements exécutables.
   de Force trouvée (+5 E) distincte de la fiole initiale à deux doses ; vœu du génie
   sur une seule caractéristique ; échange des valeurs courantes H/C sans échange
   des plafonds. La lanterne magique ne consomme pas la lanterne de voyage.
-- **Paiements** : choix des exemplaires et des pièces aux §§14, 32, 36, 218,
+- **Paiements** : choix des exemplaires et des pièces aux §§12, 14, 32, 36, 218,
   279 et 297. Le tribut représente exactement cinq unités ; chaque pièce et chaque
   objet compte pour une unité. La valeur estimée d’un bijou ne crée pas des pièces.
   Annuler ou proposer un tarif invalide ne modifie rien. Le paiement de deux objets
@@ -104,13 +104,46 @@ Le dialogue de combat lit les profils via `_combat_entry` et les adversaires via
 `_combat_roster`. Par défaut ces extensions reprennent le catalogue vérifié
 existant : le Sorcier conserve son moteur et ses règles.
 
+## Suite des mécaniques : échanges et lanterne
+
+- **Gnome (§§192, 46, 12)** : la métamorphose retire l’épée utilisée et mémorise
+  son identité. Jeter la carotte coûte deux points de Chance. Le règlement de
+  dix pièces ou de deux objets précieux restitue cette même arme, une seule fois.
+  La sélection compte les exemplaires : deux boucles d’oreille peuvent payer,
+  alors qu’un bijou sélectionné deux fois sans en posséder deux est refusé.
+- **Épée enchantée (§70)** : arme propre à la Forêt, visible dans le sélecteur
+  principal et celui du combat. Son bonus de deux points s’applique à l’Habileté
+  de combat dans la limite initiale, conformément au plafond des règles page PDF 9.
+  Le score nu et son plafond ne changent pas ; changer d’arme ne soigne pas.
+  Un score déjà supérieur au plafond après échange H/C n’est pas abaissé.
+  Cette interprétation isole le bonus d’arme de l’augmentation initiale du Sorcier.
+- **Lanterne (§§356, 395, 154, 370)** : l’épreuve est unique pour cette lampe.
+  Succès : abandon de la lampe noircie. Échec : perte de trois points d’Endurance,
+  puis choix d’un objet perdu seulement si le héros survit. Annuler la sélection
+  n’efface pas la blessure et laisse le choix en attente, sans nouveau jet.
+  Une lampe utilisée ou jetée n’autorise plus de vœu ; la lanterne de voyage
+  n’est jamais assimilée à la lampe magique.
+- **Trésors** : bagues, collier, boucles et médaillon restent des objets portant
+  leur valeur. Le lingot du §242 peut être laissé ou pris en abandonnant un objet,
+  jamais converti automatiquement en 28 pièces. La découverte de la fléchette
+  du §219 donne sa Chance même si le joueur choisit de ne pas emporter l’objet.
+- **Repas** : les règles de la Forêt autorisent plusieurs repas hors combat,
+  chacun pour une ration et quatre points d’Endurance dans la limite initiale.
+  Un combat engagé interdit le repas même si sa fenêtre est fermée. La chaise
+  maudite et la convalescence continuent à imposer leur propre mécanisme.
+
+Les sélections d’arme utilisent des hooks par module : aucun nom ou bonus de la
+Forêt ne passe par les règles d’épée du Sorcier. Les gains ordinaires ne diminuent
+plus une Chance déjà au-dessus de son plafond à la suite de l’échange H/C.
+
 ## Périmètre restant
 
 `mechanics_implementation` dans le catalogue énumère les passages raccordés ;
 `automation_pending` conserve la liste des passages qui n’ont pas encore une
 intégration complète. Les autres effets ordinaires et rencontres restent à relier,
-ainsi que les illustrations. Cela inclut notamment le tarif en objets précieux
-du §12, l’épée du §70 et les autres branches de la lanterne (§395).
+ainsi que les illustrations. Les échanges du Gnome, l’épée et les branches de
+la lanterne sont désormais raccordés ; le module n’annonce pas encore une partie
+complète validée.
 Les §§29/317 demandent encore de confirmer le mode des deux adversaires.
 Les corrections fournies par l’utilisateur le 22 octobre 2026 lèvent les deux
 blocages de source : §186 complété par Anguille Carnivore H5/E4 et victoire au

@@ -206,7 +206,7 @@
       ],
       "analysis": {
         "source_page_pdf": 22,
-        "rules": "Récupérer l'épée contre 10 Or OU deux objets précieux choisis; pas les deux. Cas d'insolvabilité non décrit, à traiter sans inventer de paiement."
+        "rules": "Paiement : 10 Or OU deux objets précieux choisis, sans cumul. Restituer l’arme exacte métamorphosée au §192. Aucun paiement ni retour d’arme en cas de sélection invalide ; règlement unique."
       }
     },
     "13": {
@@ -1192,7 +1192,7 @@
       ],
       "analysis": {
         "source_page_pdf": 45,
-        "rules": "Ajouter et équiper l'épée enchantée; Habileté +2. Articulation au plafond initial et à la perte de l'épée à spécifier avec les règles générales, sans appliquer les mécanismes du Sorcier implicitement."
+        "rules": "Ajouter et équiper l’épée enchantée de la Forêt une fois. Bonus +2 à l’Habileté utilisée en combat dans la limite initiale (règles page PDF 9), sans changer le score nu ni le plafond ; un changement d’arme ne restaure aucun point."
       }
     },
     "71": {
@@ -3426,7 +3426,7 @@
       ],
       "analysis": {
         "source_page_pdf": 89,
-        "rules": "L'épée est temporairement indisponible; conserver son identité pour la restitution et non créer une seconde épée."
+        "rules": "Retirer temporairement l’arme utilisée et mémoriser son identité pendant la métamorphose en carotte. Elle est restituée après paiement du §12."
       }
     },
     "193": {
@@ -3915,7 +3915,7 @@
       ],
       "analysis": {
         "source_page_pdf": 98,
-        "rules": "Prise facultative de fléchette d'argent, valeur 5 Or; Chance +1 à la trouvaille. Pas de 5 pièces automatiques."
+        "rules": "Chance +1 à la découverte, même si la fléchette est laissée. Prise facultative d’une fléchette d’argent valant 5 Or ; aucune pièce supplémentaire."
       }
     },
     "220": {
@@ -4332,7 +4332,7 @@
       ],
       "analysis": {
         "source_page_pdf": 105,
-        "rules": "Prendre facultativement lingot d'or, valeur 28 Or, contre abandon d'UN objet choisi; ne pas convertir en pièces. Sortie possible sans le prendre."
+        "rules": "Prise facultative du lingot valant 28 Or contre un objet réellement choisi et retiré du sac, une seule fois. Ne pas convertir la valeur en pièces."
       }
     },
     "243": {
@@ -6659,7 +6659,7 @@
       ],
       "analysis": {
         "source_page_pdf": 156,
-        "rules": "Perdre UN objet choisi du sac, en plus des -3 Endurance déjà appliqués au §395. Cas du sac vide non décrit."
+        "rules": "Choisir un objet du sac à perdre, avec ses charges et bonus de port éventuels. Les -3 Endurance appartiennent au §395 et ne sont pas répétés. Annuler laisse la perte en attente. Sac vide : aucune résolution inventée."
       }
     },
     "371": {
@@ -7119,7 +7119,7 @@
       ],
       "analysis": {
         "source_page_pdf": 165,
-        "rules": "Épreuve de Chance 2d6, coût 1 Chance; échec Endurance -3 puis perte d'un objet au §370. Lanterne abandonnée en branche chanceuse §154; devenir de la lampe en branche370 non explicité."
+        "rules": "Lanterne magique utilisable requise ; épreuve de Chance unique. Réussite vers §154. Échec : Endurance -3, puis §370 seulement si vivant. Ne pas rejouer l’épreuve en revenant ou en chargeant."
       }
     },
     "396": {
@@ -7791,18 +7791,24 @@
       94,
       100,
       101,
+      106,
       111,
+      116,
       133,
+      154,
       158,
       173,
+      174,
       176,
       179,
       183,
       194,
+      202,
       205,
       211,
       214,
       217,
+      219,
       223,
       228,
       232,
@@ -7810,6 +7816,7 @@
       248,
       262,
       268,
+      273,
       287,
       302,
       312,
@@ -7824,6 +7831,7 @@
       389
     ],
     "payment_paragraphs": [
+      12,
       14,
       32,
       36,
@@ -7833,10 +7841,15 @@
     ],
     "special_action_paragraphs": [
       34,
+      46,
       52,
+      70,
       73,
       98,
+      192,
       204,
+      219,
+      242,
       259,
       262,
       266,
@@ -7845,8 +7858,10 @@
       308,
       309,
       328,
+      370,
       372,
-      388
+      388,
+      395
     ],
     "notes": "Ces services validés sont implémentés dans grimoire_modules/foret. Le statut des 400 analyses ne valide pas une automatisation complète de chaque passage."
   }

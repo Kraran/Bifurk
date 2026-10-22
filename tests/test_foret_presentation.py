@@ -297,6 +297,112 @@ class ForetPresentationTests(unittest.TestCase):
             self.w.combat_round()
         self.assertEqual(self.w.current_paragraph,131)
 
+    def test_enchanted_weapon_in_selector_and_removal_never_changes_initial_skill(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        self.w.character['habilete'] = 6
+        self.w.character['initial']['habilete'] = 10
+        self.w.paragraphs.update({70:'La lame.',334:'Le chemin.'})
+        self.w.go_to(70)
+        self.w.perform_foret_action('enchanted_sword')
+        self.assertEqual(self.w._ff_combat_profile()['skill'],8)
+        self.assertEqual(self.w.weapon_combo.currentText(),rules.ENCHANTED_SWORD)
+        self.w.change_weapon('Épée')
+        self.assertEqual(self.w._ff_combat_profile()['skill'],6)
+        self.w.change_weapon(rules.ENCHANTED_SWORD)
+        row = self.w.character['inventory'].index(rules.ENCHANTED_SWORD)
+        self.w.inventory_list.setCurrentRow(row)
+        self.w.remove_item()
+        self.assertEqual(self.w._ff_combat_profile()['skill'],6)
+        self.assertEqual(self.w.character['initial']['habilete'],10)
+        self.assertFalse(self.w.character.get('magic_sword_bonus_active',False))
+
+    def test_gnome_payment_returns_weapon_and_loading_keeps_payment(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        self.w.paragraphs.update({192:'Le gnome.',12:'Le tarif.'})
+        self.w.go_to(192)
+        self.w.perform_foret_action('gnome_sword')
+        self.assertNotIn('Épée',self.w.character['inventory'])
+        self.w.go_to(12)
+        self.assertEqual(self.w._reading_link_targets(),set())
+        self.w.perform_foret_action('payment',(10,[]))
+        self.assertIn('Épée',self.w.character['inventory'])
+        self.assertEqual(self.w.character['gold'],20)
+        path = main.SAVES_DIR/'emplacement-1.json'
+        self.w._write_atomic(path,self.w._save_data())
+        self.assertTrue(self.w.load_game(path,announce=False))
+        self.assertTrue(rules.payment_resolved(self.w.character,12))
+        self.w.perform_foret_action('payment',(10,[]))
+        self.assertEqual(self.w.character['gold'],20)
+
+    def test_lantern_luck_failure_requires_item_choice_and_cannot_be_replayed(self):
+        self.open()
+        self.start()
+        self.w.paragraphs.update({356:'La lampe.',395:'Un éclair.',370:'Une perte.',231:'Le chemin.'})
+        self.w.go_to(356)
+        self.w.perform_foret_action('entry')
+        self.w.character['chance'] = 1
+        before = self.w.character['endurance']
+        self.w.go_to(395)
+        self.w.perform_foret_action('lantern')
+        self.assertEqual(self.w.current_paragraph,370)
+        self.assertEqual(self.w.character['endurance'],before-3)
+        self.assertEqual(self.w._reading_link_targets(),set())
+        with patch('grimoire_modules.foret.actions.QInputDialog.getItem',return_value=('Lanterne',False)):
+            self.w.perform_foret_action('lost_item')
+        self.assertEqual(self.w.current_paragraph,370)
+        self.assertIn('Lanterne',self.w.character['inventory'])
+        with patch('grimoire_modules.foret.actions.QInputDialog.getItem',return_value=('Lanterne',True)):
+            self.w.perform_foret_action('lost_item')
+        self.assertEqual(self.w.current_paragraph,231)
+        self.assertNotIn('Lanterne',self.w.character['inventory'])
+        snapshot = self.w._snapshot()
+        self.w._restore(snapshot)
+        self.assertEqual(self.w.character['endurance'],before-3)
+
+    def test_leaving_lantern_behind_does_not_keep_a_free_wish(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        self.w.paragraphs.update({356:'La lampe.',231:'Le chemin.',34:'Le génie.'})
+        self.w.go_to(356)
+        self.w.perform_foret_action('entry')
+        self.w.go_to(231)
+        self.assertNotIn('Lanterne magique',self.w.character['inventory'])
+        self.w.go_to(356)
+        self.assertNotIn(34,self.w._reading_link_targets())
+        self.assertTrue(rules.entry_resolved(self.w.character,356))
+
+    def test_repeat_meals_allowed_outside_combat_but_not_in_pending_combat(self):
+        self.open()
+        self.start()
+        self.w.character['initial']['endurance'] = 24
+        self.w.character['endurance'] = 5
+        self.w.character['provisions'] = 10
+        self.w.use_care('meal')
+        self.w.use_care('meal')
+        self.assertEqual((self.w.character['endurance'],self.w.character['provisions']),(13,8))
+        self.w.paragraphs[377] = 'Deux adversaires.'
+        self.w.go_to(377)
+        self.assertFalse(self.w.care_options()[1]['enabled'])
+        self.w.use_care('meal')
+        self.assertEqual(self.w.character['provisions'],8)
+
+    def test_dart_luck_is_awarded_even_when_optional_treasure_is_left(self):
+        self.open()
+        self.start()
+        self.w.paragraphs.update({219:'Une fléchette.',300:'Le chemin.'})
+        self.w.character['chance'] -= 2
+        before = self.w.character['chance']
+        self.w.go_to(219)
+        self.w.perform_foret_action('entry')
+        self.assertEqual(self.w.character['chance'],before+1)
+        self.assertNotIn('Fléchette d’argent (valeur 5 Or)',self.w.character['inventory'])
+        self.assertIn(300,self.w._reading_link_targets())
+
     def test_prologue_is_private_page_view_and_never_awards_resources_twice(self):
         self.open()
         before = self.w._snapshot()

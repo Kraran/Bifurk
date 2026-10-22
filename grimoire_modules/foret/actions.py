@@ -14,6 +14,25 @@ from ..fighting_fantasy.rules import spend_luck, combat_damage, escape_damage
 
 
 class ForetMechanicsActions(FightingFantasyActions):
+    def _ff_weapon_choices(self):
+        return [name for name in rules.FOREST_WEAPONS if name in self.character.get('inventory', [])]
+
+    def _ff_equipped_weapon(self):
+        return rules.forest_weapon(self.character)
+
+    def _ff_equip_weapon(self, name):
+        return rules.equip_forest_weapon(self.character,name)
+
+    def _ff_meal_status(self):
+        """Règles page PDF 9 : repas répétés permis hors combat, sans autorisation de lieu.
+
+        Les repas imposés par la chaise/convalescence passent par leur action
+        spécifique ; les remplacer par un repas ordinaire contournerait leur effet.
+        """
+        useful = self.character['endurance'] < self.character['initial']['endurance']
+        forced = self.current_paragraph in (304,328) and not self._book_state(self.current_paragraph).get('foret_resolved')
+        return not self.combat_available() and not forced, useful, False
+
     def _ff_item_removed(self, name):
         """Un retrait manuel emporte sa charge et son bonus de port, sans charge fantôme."""
         data = rules.state(self.character)
@@ -21,6 +40,8 @@ class ForetMechanicsActions(FightingFantasyActions):
             data['charges'][name] = max(0,data['charges'][name]-1)
         if name in data.get('worn', []):
             data['worn'].remove(name)
+        if self.character.get('equipped_weapon') == name:
+            self.character['equipped_weapon'] = None
 
     def _combat_entry(self, number):
         """Valider les seuls profils intégrés, sans valider toutes les règles du passage."""
@@ -82,7 +103,8 @@ class ForetMechanicsActions(FightingFantasyActions):
 
     def _ff_combat_profile(self):
         profile = COMBATS.get(self.current_paragraph, {})
-        return {'skill':self.character['habilete'], 'hit_damage':2, 'can_wound':True,
+        return {'skill':rules.forest_combat_skill(self.character), 'hit_damage':2,
+                'can_wound':rules.forest_weapon(self.character) is not None,
                 'attack_bonus':rules.attack_bonus(self.character, self.current_paragraph, profile.get('identity'))}
 
     def _ff_defend_hit(self):
@@ -139,7 +161,7 @@ class ForetMechanicsActions(FightingFantasyActions):
                 break
             enemy_rolls, enemy_total = self._roll(2, context='Combat — ' + defender['name'], opponent=True)
             hero_rolls, hero_total = self._roll(2, context='Combat — parade contre ' + defender['name'])
-            hero_attack = self.character['habilete'] + hero_total + self._ff_combat_profile()['attack_bonus']
+            hero_attack = self._ff_combat_profile()['skill'] + hero_total + self._ff_combat_profile()['attack_bonus']
             enemy_attack = defender['skill'] + enemy_total
             damage = 0
             if enemy_attack > hero_attack:
@@ -204,6 +226,7 @@ class ForetMechanicsActions(FightingFantasyActions):
             rule = rules.ENTRY_RULES[number]
             label = ('Utiliser ' + rule['use'] if rule.get('use') else
                      'Employer ' + ', '.join(rule['remove']) if rule.get('remove') else 'Recueillir la trouvaille')
+            label = rule.get('label',label)
             add(label, 'entry', enabled=(not rule.get('use') or rules.available(self.character, rule['use']) > 0)
                 and all(name in self.character.get('inventory', []) for name in rule.get('remove', [])))
         if number in rules.PAYMENT_PARAGRAPHS and not rules.payment_resolved(self.character, number):
@@ -227,7 +250,15 @@ class ForetMechanicsActions(FightingFantasyActions):
                 add('Porter ' + name, 'wear', name)
         if 'Potion de Force' in self.character.get('inventory', []):
             add('Boire la Potion de Force (+5 Endurance)', 'force_potion')
-        commands = {34:('Choisir le vœu du génie…', 'wish'),308:('Intervertir Habileté et Chance', 'swap'),98:('Échapper à l’embuscade — Chance', 'ambush'),
+        if number == 219 and 'silver_dart' not in rules.peek(self.character).get('rewards', []):
+            add('Emporter la fléchette d’argent', 'take_dart')
+        if number == 242 and 'heavy_ingot' not in rules.peek(self.character).get('rewards', []):
+            add('Prendre le lingot contre un objet…', 'ingot')
+        commands = {70:('Prendre et utiliser l’épée enchantée', 'enchanted_sword'),
+                    192:('Résoudre la métamorphose de l’épée', 'gnome_sword'),
+                    46:('Jeter la carotte (Chance −2)', 'carrot'),
+                    395:('Allumer la lanterne — Chance', 'lantern'),
+                    370:('Choisir l’objet perdu…', 'lost_item'),34:('Choisir le vœu du génie…', 'wish'),308:('Intervertir Habileté et Chance', 'swap'),98:('Échapper à l’embuscade — Chance', 'ambush'),
                     259:('Affronter la fièvre — perte de 3 Endurance puis Chance', 'fever'),
                     278:('Tomber dans la fosse — Chance', 'spiked_pit'),73:('Éprouver la porte (2d6)', 'door'),309:('Éviter les deux fléchettes', 'darts'),
                     372:('Soulever le coffre (2d6)', 'lift'),266:('Choisir la mise du bras de fer…', 'wrestle'),
@@ -283,7 +314,7 @@ class ForetMechanicsActions(FightingFantasyActions):
         dialog = QDialog(self)
         dialog.setWindowTitle('Le prix du passage')
         layout = QVBoxLayout(dialog)
-        tariffs = {14:'3 Or, ou un objet magique si vous ne pouvez payer en or.',
+        tariffs = {12:'10 Or OU deux objets précieux (bijoux, trésors ou objets magiques).',14:'3 Or, ou un objet magique si vous ne pouvez payer en or.',
                    32:'10 Or ET deux objets.',36:'Tout votre or OU deux achats magiques utilisables.',
                    218:'5 Or OU un objet magique.',279:'Cinq unités : chaque objet et chaque pièce compte pour une unité.',
                    297:'5 Or OU un objet.'}
@@ -341,7 +372,7 @@ class ForetMechanicsActions(FightingFantasyActions):
         if self.character['endurance'] <= 0:
             return
         number = self.current_paragraph
-        expected = {'wish':34,'swap':308,'ambush':98,'fever':259,'spiked_pit':278,'buy':261,'door':73,'darts':309,'lift':372,'wrestle':266,'bracelet':52,
+        expected = {'take_dart':219,'enchanted_sword':70,'gnome_sword':192,'carrot':46,'lantern':395,'lost_item':370,'ingot':242,'wish':34,'swap':308,'ambush':98,'fever':259,'spiked_pit':278,'buy':261,'door':73,'darts':309,'lift':372,'wrestle':266,'bracelet':52,
                     'convalescence':304,'cursed_meal':328,'combat_potion':262,'hammer':204}
         if action in expected and number != expected[action]:
             return
@@ -361,6 +392,33 @@ class ForetMechanicsActions(FightingFantasyActions):
                 if not wounded:
                     rules.reward(self.character, 'werewolf_unharmed', luck=1)
                 self._book_state(number,True)['foret_resolved'] = True
+            elif action == 'take_dart':
+                rules.reward(self.character,'silver_dart',items=['Fléchette d’argent (valeur 5 Or)'])
+            elif action == 'enchanted_sword':
+                rules.take_enchanted_sword(self.character)
+                target = 334
+            elif action == 'gnome_sword':
+                rules.confiscate_sword(self.character)
+            elif action == 'carrot':
+                self.character['chance'] = max(0,self.character['chance']-2)
+                target = 12
+            elif action == 'lantern':
+                if 'Lanterne magique' not in self.character.get('inventory', []) or rules.peek(self.character).get('lantern_used'):
+                    raise ValueError('La lanterne magique n’est plus utilisable.')
+                _, total = self._roll(2,context='Chance — éclair de la lanterne')
+                target = rules.light_lantern(self.character,total)
+            elif action in ('lost_item','ingot'):
+                choices = [name for name in self.character.get('inventory', []) if name not in self.character.get('locked_items', [])]
+                if not choices:
+                    raise ValueError('Aucun objet du sac ne peut être retiré pour ce choix.')
+                choice, accepted = QInputDialog.getItem(self,'Choisir un objet','Objet à abandonner :',choices,0,False)
+                if not accepted:
+                    return
+                if action == 'lost_item':
+                    rules.lose_backpack_item(self.character,choice)
+                    target = 231
+                else:
+                    rules.take_ingot(self.character,choice)
             elif action == 'entry':
                 rules.resolve_entry(self.character, number)
             elif action == 'buy':

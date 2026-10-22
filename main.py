@@ -1764,7 +1764,7 @@ class MainWindow(QMainWindow, ModuleActions):
         # Un assaut ne modifie généralement pas le sac : conserver ses items,
         # leur sélection et leur défilement tant que son contenu reste identique.
         inventory = tuple(str(name) for name in self.character.get('inventory', []))
-        weapon = equipped_weapon(self.character)
+        weapon = self._ff_equipped_weapon()
         inventory_signature = (inventory, weapon, *(self.theme.color(key) for key in
                                ('icon_background', 'icon_border', 'icon_ink')))
         if inventory_signature != getattr(self, '_inventory_signature', None):
@@ -1779,7 +1779,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.shield_check.setChecked(bool(self.character.get("shield_equipped", False)))
         self.shield_check.blockSignals(False)
         self.weapon_combo.blockSignals(True)
-        weapons = [name for name in ('Épée', 'Épée magique', 'Épée trouvée dans la rivière') if name in inventory]
+        weapons = self._ff_weapon_choices()
         if weapons != [self.weapon_combo.itemText(index) for index in range(self.weapon_combo.count())]:
             self.weapon_combo.clear()
             self.weapon_combo.addItems(weapons)
@@ -1930,7 +1930,7 @@ class MainWindow(QMainWindow, ModuleActions):
         """Équiper une arme présente dans le sac ; opération annulable."""
         if not name:
             return
-        if equip_weapon(self.character, name):
+        if self._ff_equip_weapon(name):
             self._refresh_character()
             self.rules_log.setText(
                 f"Arme équipée : {name}. Habileté de combat : {self._ff_combat_profile()['skill']}.")
@@ -1956,11 +1956,11 @@ class MainWindow(QMainWindow, ModuleActions):
                     self, "Objet maudit",
                     f"Vous ne pouvez pas retirer {item} : cet objet est ensorcelé.")
                 return
-            if equipped_weapon(self.character) == item:
-                other = next((name for name in ("Épée", "Épée magique", "Épée trouvée dans la rivière")
+            if self._ff_equipped_weapon() == item:
+                other = next((name for name in self._ff_weapon_choices()
                               if name != item and name in self.character["inventory"]), None)
                 if other:
-                    equip_weapon(self.character, other)
+                    self._ff_equip_weapon(other)
                 elif item == "Épée magique" and self.character.get("magic_sword_bonus_active"):
                     self.character["initial"]["habilete"] = max(
                         0, self.character["initial"]["habilete"] - 2)
