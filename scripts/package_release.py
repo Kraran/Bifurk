@@ -43,6 +43,7 @@ arrêter l'archivage que publier un fichier privé par accident.
                 '_internal/assets/illustration-background.jpg',
                 '_internal/assets/sounds/FantasyFair.m4a',
                 '_internal/assets/sounds/swords.wav',
+                '_internal/catalogues/modules/sorcier_montagne_feu_1982.json',
                 '_internal/catalogues/evenements_sorcier_1982.json',
                 '_internal/catalogues/sorcier_montagne_feu_1982.json')
     for name in required:

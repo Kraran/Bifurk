@@ -6,8 +6,6 @@ et calculs retournent un résultat sans lancer de dés. L'appelant fournit les j
 et regroupe les mutations avec l'historique. Un catalogue absent ou une entrée
 non vérifiée ne doit jamais devenir une règle automatique par déduction du texte.
 Voir catalogues/README_evenements.md pour le vocabulaire des données."""
-import hashlib
-import json
 import re
 from pathlib import Path
 
@@ -16,14 +14,9 @@ DATA_PATH = Path(__file__).resolve().parent / "catalogues" / "evenements_sorcier
 
 def load_book_events(pdf_path):
     """Ne jamais appliquer des événements à une édition différente."""
-    if not pdf_path or not Path(pdf_path).is_file() or not DATA_PATH.is_file():
-        return None
-    data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
-    digest = hashlib.sha256()
-    with Path(pdf_path).open("rb") as book:
-        for block in iter(lambda: book.read(1024 * 1024), b""):
-            digest.update(block)
-    return data if digest.hexdigest() == data["pdf_sha256"] else None
+    from grimoire_modules.registry import module_for_pdf
+    module = module_for_pdf(pdf_path)
+    return module.catalogue('events') if module else None
 
 
 def verified_entry(catalogue, paragraph):

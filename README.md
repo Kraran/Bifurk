@@ -142,3 +142,9 @@ La pochette intégrée a été retirée sans réencoder ni modifier le son, afin
 solliciter les décodeurs vidéo. La licence des packs CC0 d’effets sonores ne s’applique pas à ce fichier musical.
 
 Le [compte rendu de la partie et des corrections du 22 octobre 2026](docs/reviews/2026-10-22-partie-et-corrections.md) détaille les règles observées, les corrections éditoriales et les limites de validation.
+
+### Modules de grimoires
+
+Le Sorcier dispose de son manifeste et de son contrôleur de règles. La reconnaissance
+des éditions, les bases et les pages de règles sont sélectionnées par module.
+Voir [le guide d’intégration](docs/modules-grimoires.md) pour préparer un autre livre.

@@ -7,6 +7,7 @@ Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarq
 son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
 import unittest
 from unittest.mock import patch
+from types import SimpleNamespace
 
 from PySide6.QtGui import QPixmap, QWheelEvent
 from PySide6.QtCore import Qt, QPoint, QPointF
@@ -134,8 +135,9 @@ class GrimoireInterfaceTests(unittest.TestCase):
         with patch.object(w, "_themed_file_dialog", return_value="/tmp/ui-book.pdf"), \
                 patch("main.extract_paragraphs", return_value=w.paragraphs), \
                 patch("main.import_book", return_value="/tmp/ui-book.pdf"), \
-                patch("main.catalogue_for_pdf", return_value=catalogue), \
-                patch("main.load_book_events", return_value=None), \
+                patch("main.module_for_pdf", return_value=SimpleNamespace(
+                    id='test', engine='sorcier-1982', rules_pages=(3, 14),
+                    catalogue=lambda kind: catalogue if kind == 'illustrations' else None)), \
                 patch.object(w, "_illustration_pixmap", return_value=image), \
                 patch.object(w, "_show_illustration") as popup:
             w.open_pdf()
