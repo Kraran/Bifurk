@@ -603,6 +603,36 @@ def make_wish(character, stat):
     character[stat] = character['initial'][stat]
 
 
+def lantern_flash(character, total):
+    """§395 : Chance obligatoire, puis trois blessures en cas d’échec seulement."""
+    alive(character)
+    dice(total)
+    if 'Lanterne magique' not in character.get('inventory', []):
+        raise ValueError('La lanterne magique manque.')
+    if spend_luck(character, total):
+        return 154
+    damage_hero(character, 3)
+    return 370 if character['endurance'] > 0 else None
+
+
+def discard_lantern(character):
+    """§154 : abandonner une lanterne magique, sans toucher à celle de voyage."""
+    alive(character)
+    if 'Lanterne magique' not in character.get('inventory', []):
+        raise ValueError('La lanterne magique manque.')
+    pay(character, items=['Lanterne magique'])
+    return 231
+
+
+def lose_backpack_item(character, name):
+    """§370 : perdre un exemplaire choisi et sa charge ou son bonus éventuel."""
+    alive(character)
+    if not isinstance(name, str) or name in character.get('locked_items', []):
+        raise ValueError('Choisir un objet du sac qui peut être retiré.')
+    pay(character, items=[name])
+    return 231
+
+
 def swap_skill_luck(character):
     """§308 : échanger seulement les scores courants ; les plafonds ne sont pas échangés."""
     alive(character)

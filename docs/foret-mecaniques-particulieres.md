@@ -38,6 +38,13 @@ converties globalement en événements exécutables.
 - **Quête** : seules la tête et le manche marqués G valident le marteau. Les
   fausses pièces ne conviennent pas. La remise retire les deux pièces authentiques
   et marque la victoire sans inventer une valeur d’or pour les récompenses finales.
+- **Lanterne magique (§§395, 154, 370)** : test obligatoire de Chance avec une
+  dépense, perte de trois points d’Endurance seulement en cas d’échec, puis choix
+  d’un exemplaire à perdre si le héros survit. Le §154 abandonne la lanterne
+  magique, sans retirer la lanterne de voyage. Les sorties attendent la résolution
+  et les marqueurs sauvegardés empêchent de rejouer l’éclair ou la perte d’objet.
+  Annuler le choix ne dépense rien. Une perte retire aussi la charge ou le bonus
+  de port de l’exemplaire choisi ; les autres exemplaires restent disponibles.
 
 Les effets sont des commandes explicites. Les boutons et les liens du lecteur
 attendent leur résolution lorsqu’elle est nécessaire ; les routes conditionnelles
@@ -55,6 +62,7 @@ encore en consultation ne sont pas interprétées à partir de leur texte libre.
 | 107 | Fouet du Démon entre les forces d’attaque et les blessures ordinaires. |
 | 227 | Quatre coups blessants de la Goule provoquent la paralysie et la fin. |
 | 186 | Anguille Carnivore H5/E4 ; victoire vers le §131, sans fuite. |
+| 231 | Trois Faucons de la Mort successifs H4/E4, H4/E3, H5/E4 ; victoire au §224, fuite réglementaire au §332. |
 | 285 | La blessure du Loup-Garou reste mémorisée malgré les soins (§388). |
 | 84 | Fuite après exactement trois assauts terminés, égalités comprises. |
 | 49, 71, 165 et 193 | Force d’Attaque -3 sous plafond bas. |
@@ -85,6 +93,11 @@ Sorcier :
   de repas imaginaire. L’erreur est expliquée sans changer les caractéristiques.
 - **Champignons Brouilleurs** : seuls les scores courants sont échangés. Les soins
   ultérieurs utilisent les plafonds initiaux conservés.
+- **Lanterne après l’échec (§370)** : la source ne précise pas son abandon.
+  Elle reste dans le sac, sauf si le joueur la choisit comme objet perdu. Le cas
+  sans objet susceptible d’être retiré n’est pas décrit : la commande explique
+  ce blocage et laisse le passage non résolu, sans inventer de paiement de remplacement.
+  L’Anneau de Lenteur et les objets verrouillés ne peuvent pas être choisis.
 
 ## Organisation et persistance
 
@@ -110,7 +123,7 @@ existant : le Sorcier conserve son moteur et ses règles.
 `automation_pending` conserve la liste des passages qui n’ont pas encore une
 intégration complète. Les autres effets ordinaires et rencontres restent à relier,
 ainsi que les illustrations. Cela inclut notamment le tarif en objets précieux
-du §12, l’épée du §70 et les autres branches de la lanterne (§395).
+du §12 et l’épée du §70.
 Les §§29/317 demandent encore de confirmer le mode des deux adversaires.
 Les corrections fournies par l’utilisateur le 22 octobre 2026 lèvent les deux
 blocages de source : §186 complété par Anguille Carnivore H5/E4 et victoire au

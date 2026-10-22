@@ -14,6 +14,10 @@ HUNTERS = [[enemy('Chien de chasse',7,6)],
            [enemy('Chien de chasse A',6,6),enemy('Chien de chasse B',5,6)],
            [enemy('Dernier chien',6,5),enemy('Homme masqué',8,7)]]
 COMBATS = {
+    231: {'groups':[[enemy('Premier Faucon de la Mort',4,4)],
+                    [enemy('Deuxième Faucon de la Mort',4,3)],
+                    [enemy('Troisième Faucon de la Mort',5,4)]],
+          'victory_target':224,'escape_target':332,'identity':'death_hawks'},
     186: {'groups':[[enemy('Anguille Carnivore',5,4)]], 'victory_target':131,'identity':'carnivorous_eel'},
     49: {'groups':[[enemy('Gremlin A',4,3)],[enemy('Gremlin B',3,2)]], 'victory_target':371,'identity':'low_gremlins'},
     71: {'groups':[[enemy('Chef Gremlin',5,5)]], 'victory_target':273,'identity':'gremlin_chief'},
