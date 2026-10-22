@@ -14,6 +14,9 @@ from ..fighting_fantasy.rules import spend_luck, combat_damage, escape_damage
 
 
 class ForetMechanicsActions(FightingFantasyActions):
+    def _ff_stat_value(self, key):
+        return rules.effective_skill(self.character) if key == 'habilete' else self.character.get(key, 0)
+
     def _ff_item_removed(self, name):
         """Un retrait manuel emporte sa charge et son bonus de port, sans charge fantôme."""
         data = rules.state(self.character)
@@ -82,7 +85,7 @@ class ForetMechanicsActions(FightingFantasyActions):
 
     def _ff_combat_profile(self):
         profile = COMBATS.get(self.current_paragraph, {})
-        return {'skill':self.character['habilete'], 'hit_damage':2, 'can_wound':True,
+        return {'skill':rules.effective_skill(self.character), 'hit_damage':2, 'can_wound':True,
                 'attack_bonus':rules.attack_bonus(self.character, self.current_paragraph, profile.get('identity'))}
 
     def _ff_defend_hit(self):
@@ -139,7 +142,7 @@ class ForetMechanicsActions(FightingFantasyActions):
                 break
             enemy_rolls, enemy_total = self._roll(2, context='Combat — ' + defender['name'], opponent=True)
             hero_rolls, hero_total = self._roll(2, context='Combat — parade contre ' + defender['name'])
-            hero_attack = self.character['habilete'] + hero_total + self._ff_combat_profile()['attack_bonus']
+            hero_attack = rules.effective_skill(self.character) + hero_total + self._ff_combat_profile()['attack_bonus']
             enemy_attack = defender['skill'] + enemy_total
             damage = 0
             if enemy_attack > hero_attack:
@@ -446,7 +449,7 @@ class ForetMechanicsActions(FightingFantasyActions):
                     for index in range(3):
                         _, total = self._roll(2, context=f'Bras de fer — épreuve {index+1}/3')
                         totals.append(total)
-                        if total > self.character['habilete']:
+                        if total > rules.effective_skill(self.character):
                             break
                 target = rules.arm_wrestling(self.character, totals, gold=gold, items=items, bracelet=action == 'bracelet')
             elif action == 'convalescence':
