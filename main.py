@@ -1696,43 +1696,12 @@ class MainWindow(QMainWindow, BookActions):
         if not self.paragraphs:
             QMessageBox.information(self, "Carte", "Importez d’abord un PDF.")
             return
-        dialog = QDialog(self)
-        dialog.setWindowIcon(self.windowIcon())
-        dialog.setWindowTitle("Bifurk — Carte d’exploration")
-        dialog.resize(680, 530)
-        layout = QVBoxLayout(dialog)
-        info = QLabel(f"{len(self.visited_paragraphs)} paragraphes visités · {len(self.transitions)} déplacements enregistrés. Cliquez sur un paragraphe visité pour y retourner.")
-        info.setWordWrap(True)
-        layout.addWidget(info)
-        view = QTextBrowser()
-        import html
-        rows = []
-        for number in self.visited_paragraphs:
-            entry = verified_entry(self.book_event_catalogue, number) or {}
-            # Les renvois éditoriaux rétablis (ex. §289) n'existent pas dans le texte PDF.
-            targets = list(dict.fromkeys(route['target'] for route in entry['routes'])) if 'routes' in entry else [
-                c['target'] for c in self._paragraph_choices(self.paragraphs.get(number, ''))]
-            target_text = ', '.join(('✓ ' if n in self.visited_paragraphs else '○ ') + str(n) for n in targets) or 'aucune sortie détectée'
-            title = self._paragraph_name(number)
-            heading = f'§ {number}' + (f' — {html.escape(title)}' if title else '')
-            marker = '<a name="current-place"></a>▶ Vous êtes ici — ' if number == self.current_paragraph else ''
-            rows.append(f'<p>{marker}<b><a style="color: {self.theme.color("link")}; text-decoration: underline; font-weight: bold;" href="paragraph:{number}">{heading}</a></b> → {html.escape(target_text)}{self._map_monsters_html(number)}</p>')
-        # Même bleu nuit, soulignement et contraste que les liens du livre.
-        view.document().setDefaultStyleSheet("a:link { color: " + self.theme.color("link") + "; text-decoration: underline; font-weight: bold; }")
-        view.setHtml('<h2>Parcours découvert</h2>' + ''.join(rows))
-        def navigate(url):
-            """Fermer la carte puis suivre le lien du lieu visité via le contrôleur."""
-            m = re.search(r'(?:paragraph:|paragraph%3A)(\d+)', url.toString(), re.I)
-            if m:
-                self.go_to(int(m.group(1)))
-                dialog.accept()
-        view.anchorClicked.connect(navigate)
-        layout.addWidget(view)
-        QTimer.singleShot(0, lambda: view.scrollToAnchor('current-place'))
-        close = QDialogButtonBox(QDialogButtonBox.Close)
-        close.rejected.connect(dialog.reject)
-        layout.addWidget(close)
-        dialog.exec()
+        from exploration_map import ExplorationMapDialog
+        dialog = ExplorationMapDialog(self)
+        try:
+            dialog.exec()
+        finally:
+            dialog.deleteLater()
 
     def _paragraph_name(self, number):
         """Lire le titre catalogué d’un lieu, avec repli si le livre n’est pas reconnu."""

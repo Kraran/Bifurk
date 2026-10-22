@@ -28,6 +28,10 @@ chronique des coups et décisions de Chance au centre. La fiche du héros se met
 les règles les interdisent ; le journal défile sans déborder de son cadre.
 [Présentation des combats](docs/design/combat-popup.md).
 
+La **Carte d’exploration** relie les lieux visités sur un graphe zoomable :
+position actuelle, recherche, adversaires vaincus ou fuis et accès rapide au lieu
+précédent. [Présentation et commandes](docs/design/carte-exploration.md).
+
 ## Démarrage
 
 ```bash
