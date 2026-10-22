@@ -112,7 +112,10 @@ QListWidget#inventoryCards::item { background: #eeddbc; color: #432d20; border: 
     border-radius: 5px; margin: 3px; padding: 12px; }
 QListWidget#inventoryCards::item:selected { background: #76343c; color: #fff0cd; border-color: #e7bf78; }
 QPushButton#combatButton { background: #7c303b; color: #fff0cd; padding: 15px; border: 2px solid #bd9154; }
-QPushButton#combatButton:hover { background: #9a414d; }
+QPushButton#combatButton:enabled:hover { background: #9a414d; }
+/* La règle spécifique doit suivre le fond bordeaux pour rendre l'inactivité visible. */
+QPushButton#combatButton:disabled { background: #3e3b38; color: #aaa39b;
+    border: 2px solid #69635c; }
 
 
 QGroupBox { margin-top: 22px; padding: 22px 10px 10px; }

@@ -1,4 +1,4 @@
-# Bifurk 1.1.0 — Français et mode portable
+# Bifurk 1.1.1 — Français et mode portable
 
 ## Interface Le Grimoire
 
@@ -42,7 +42,7 @@ Windows 64 bits installé (3.13 recommandé). Le script prépare son environneme
 `.venv-build`, installe les dépendances et produit :
 
 - `dist/Bifurk/Bifurk.exe`, avec l'icône existante et sans console ;
-- `dist/Bifurk-v1.1.0-windows-x64.zip`, contenant le programme et ses dépendances ;
+- `dist/Bifurk-v1.1.1-windows-x64.zip`, contenant le programme et ses dépendances ;
 - l'empreinte `.zip.sha256` correspondante.
 
 Extrayez le ZIP dans un autre dossier pour le tester. Il faut distribuer **tout

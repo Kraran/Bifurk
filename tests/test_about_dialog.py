@@ -93,5 +93,5 @@ class AboutDialogTests(unittest.TestCase):
             QTest.keyClick(dialog, Qt.Key_Escape)
             self.assertEqual(dialog.result(), QDialog.Rejected)
         self.assertEqual(self.w.windowTitle(), APP_NAME)
-        self.assertEqual(APP_VERSION, '1.1.0')
+        self.assertEqual(APP_VERSION, '1.1.1')
         self.assertEqual(self.w._save_data()['version'], APP_VERSION)
