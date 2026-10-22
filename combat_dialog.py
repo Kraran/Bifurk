@@ -281,8 +281,12 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
                 status = 'Jet préalable nécessaire'
             if status == 'Au combat':
                 active_anchor = f'enemy-{index}'
-            parts.append(f"<p><a name='enemy-{index}'></a><b>{html.escape(enemy['name'])}</b><br>"
-                         f"Habileté {enemy['skill']}<br>Endurance {stamina}<br><small>{status}</small></p>")
+            # Griser toute la fiche vaincue, en conservant le même paragraphe
+            # pour les ancres de défilement et les animations des derniers dégâts.
+            color = owner.theme.colors.get('defeated_enemy', '#aaa39b')
+            muted = f' style="color:{color}"' if status == 'Vaincu' else ''
+            parts.append(f"<p><a name='enemy-{index}'></a><span{muted}><b>{html.escape(enemy['name'])}</b><br>"
+                         f"Habileté {enemy['skill']}<br>Endurance {stamina}<br><small>{status}</small></span></p>")
         previous_scroll = self.enemies.verticalScrollBar().value()
         self.enemies.setText(''.join(parts) or 'Adversaire à déterminer selon le livre.')
         if active_anchor:
