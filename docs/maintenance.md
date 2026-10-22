@@ -11,6 +11,7 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 | `main.py` | Démarrage Qt, contrôleur, lecture, historique et persistance | `main`, `MainWindow`, `go_to`, `_track_action` |
 | `book_events.py` | Calculs déterministes et effets du catalogue | `apply_effects`, `condition_met`, `apply_entry` |
 | `grimoire_modules/registry.py` | Manifestes et reconnaissance des éditions | `module_for_pdf`, `available_modules` |
+| `grimoire_modules/fighting_fantasy/` | Règles et commandes partagées de Défis Fantastiques | `FightingFantasyActions`, `rules` |
 | `grimoire_modules/controller.py` | Délégation vers le contrôleur du livre ouvert | `ModuleActions`, `CONTROLLERS` |
 | `grimoire_modules/sorcier/` | Interactions, navigation, création, soins et combats du Sorcier | `SorcierController`, `perform_book_action` |
 | `navigation.py` | Détection des renvois, libellés et HTML échappé | `destinations`, `render_links` |
@@ -263,3 +264,6 @@ La version et la date publiques sont centralisées dans `app_info.py`. Une
 modification documentaire seule ne nécessite pas une nouvelle version du jeu.
 Pour produire l'exécutable et son archive, suivre le
 [parcours de compilation Windows](windows/compilation.md).
+
+Le découpage des règles communes et les points d’extension sont décrits dans
+[Socle Défis Fantastiques](socle-defis-fantastiques.md).

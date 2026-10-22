@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (QDialog, QFrame, QGridLayout, QHBoxLayout, QLabel
                                QPushButton, QTextBrowser, QVBoxLayout, QScrollArea,
                                QWidget, QSizePolicy, QLayout, QComboBox, QCheckBox)
 
-from book_events import combat_skill, verified_entry
+from book_events import verified_entry
 from dice_dialog import DiceCanvas
 from grimoire_ui import ChoiceCard
 from stat_feedback import STAT_LABELS, StatFeedback, monster_stat_anchor, rich_stat_anchor
@@ -302,7 +302,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         char = owner.character
         self.hero.setText(f"<b>{html.escape(char.get('name') or 'Votre aventurier')}</b><br>"
                           f"Habileté {char['habilete']}<br>Endurance {char['endurance']}<br>Chance {char['chance']}"
-                          f"<br><small>Habileté de combat : {combat_skill(char)}</small>")
+                          f"<br><small>Habileté de combat : {owner._ff_combat_profile()['skill']}</small>")
         self.weapon.blockSignals(True)
         weapons = [self.owner.weapon_combo.itemText(i) for i in range(self.owner.weapon_combo.count())]
         if weapons != [self.weapon.itemText(i) for i in range(self.weapon.count())]:

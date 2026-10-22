@@ -5,6 +5,9 @@ adaptateur de règles. Le PDF reste dans `donnees/grimoires`, jamais dans les
 ressources distribuées. Importer un autre livre ne constitue pas son analyse :
 les règles et associations doivent être vérifiées avant leur intégration.
 
+Le [socle commun de Défis Fantastiques](socle-defis-fantastiques.md) fournit
+désormais les règles réutilisables pour les aventures compatibles.
+
 ## Organisation actuelle
 
 - `catalogues/modules/sorcier_montagne_feu_1982.json` : identité stable, SHA-256,
@@ -13,9 +16,11 @@ les règles et associations doivent être vérifiées avant leur intégration.
 - `catalogues/sorcier_montagne_feu_1982.json` : couverture et illustrations.
 - `grimoire_modules/registry.py` : découverte et validation des manifestes,
   reconnaissance du PDF, chargement des bases et réparations propres à l'édition.
+- `grimoire_modules/fighting_fantasy/` : calculs et commandes communes, sans exceptions de livre.
 - `grimoire_modules/sorcier/actions.py` : interactions particulières de ce livre.
 - `grimoire_modules/sorcier/controller.py` : combats, fuite, création, Chance,
-  potions, soins, objets particuliers, navigation et commandes du récit.
+  extensions des combats/soins, objets particuliers, navigation et commandes du récit.
+  Création, potions et assauts ordinaires sont hérités du socle commun.
 - `grimoire_modules/controller.py` : interface `ModuleActions` déléguant chaque
   commande au contrôleur du module ouvert, sans conserver une ancienne liaison.
 - `book_actions.py` : ancien point d'import maintenu pour les outils.
@@ -39,7 +44,8 @@ n'importe quel livre jouable en ajoutant seulement un fichier JSON.
 4. Ajouter un adaptateur Python dans `grimoire_modules/<livre>/`. Implémenter les
    commandes de `ModuleActions` et ajouter les extensions de présentation requises.
    Les signatures restent compatibles avec les signaux Qt et `_track_action`.
-   Réutiliser les utilitaires de calcul compatibles, sans copier les numéros ou
+   Hériter de `FightingFantasyActions` si les règles correspondent, et ajouter
+   les seules extensions nécessaires. Réutiliser les utilitaires compatibles, sans copier les numéros ou
    exceptions du Sorcier. Les méthodes de l'adaptateur reçoivent le contrôleur
    hôte : aucun état mutable ne doit vivre sur la classe du registre.
 5. Déclarer le moteur dans `registry.SUPPORTED_ENGINES` et

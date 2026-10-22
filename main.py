@@ -14,6 +14,7 @@ from pathlib import Path
 from navigation import destinations, render_links
 from illustrations import images_for_paragraph, cover
 from grimoire_modules.controller import ModuleActions
+from grimoire_modules.fighting_fantasy.rules import POTION_STATS, POTION_DOSES
 from grimoire_modules.registry import module_for_pdf
 from rules_viewer import RulesDialog
 from themes import available_themes
@@ -29,7 +30,7 @@ from combat_dialog import CombatDialog
 from dialog_chrome import DialogHeading, harmonize_standard_dialog
 from stat_feedback import StatFeedback
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
-from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, combat_skill, SHIELD_NAME, follow_catalogue_route
+from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -792,7 +793,7 @@ class MainWindow(QMainWindow, ModuleActions):
             self.stat_spins[key] = spin
         stats_grid.addLayout(resources, 3, 0, 1, 3)
         self.potion_combo = QComboBox()
-        self.potion_combo.addItems(["Aucune", "Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune"])
+        self.potion_combo.addItems(["Aucune", *POTION_STATS])
         self.potion_combo.setAccessibleName("Potion choisie")
         # Le choix appartient à la création ; la feuille ne peut ni changer ni recharger la fiole.
         self.potion_combo.setEnabled(False)
@@ -977,26 +978,6 @@ class MainWindow(QMainWindow, ModuleActions):
         self.roll_dice()
 
 
-    def use_care(self, kind):
-        """Revérifier un soin au clic et l'appliquer dans une transaction annulable."""
-        in_combat = self._combat_dialog is not None and not self._combat_dialog.outcome
-        option = next((o for o in self.care_options(in_combat=in_combat) if o['id'] == kind), None)
-        if not option or not option['enabled']:
-            return
-        if kind == 'potion':
-            self.drink_potion()
-        else:
-            entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
-            if entry.get('enchanted_meal'):
-                self.take_enchanted_meal()
-            elif entry.get('optional_meal_restore') == 2:
-                self.eat_shared_meal()
-            else:
-                self.eat_meal()
-            self._book_state(self.current_paragraph, True)['care_meal_taken'] = True
-        self._refresh_character()
-        if self.current_paragraph in self.paragraphs:
-            self._render_choices_and_events(self.paragraphs[self.current_paragraph])
 
     def show_care_menu(self):
         """Offrir les soins hors combat sans réintroduire un onglet de commandes."""
@@ -1083,7 +1064,7 @@ class MainWindow(QMainWindow, ModuleActions):
         potion = QComboBox()
         potion.setObjectName('startingPotion')
         potion.setAccessibleName('Choisir la potion de départ')
-        potion.addItems(["Potion d'Adresse", "Potion de Vigueur", "Potion de Bonne Fortune"])
+        potion.addItems(list(POTION_STATS))
         potion.setCurrentText(self.character['potion'])
         potion.currentTextChanged.connect(self.change_potion)
         self.choice_layout.addWidget(potion)
@@ -1132,7 +1113,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self._creation_rerolls = 0
         self._adventurer_draft = self._roll_adventurer()
         self.character = copy.deepcopy(self._initial_character)
-        self.character.update(potion='Potion de Vigueur', potion_doses=2)
+        self.character.update(potion='Potion de Vigueur', potion_doses=POTION_DOSES)
         self._apply_adventurer_draft()
 
     def _apply_adventurer_draft(self):
@@ -1192,7 +1173,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self._discard_combat_popup()
         potion = self.character['potion']
         self.character = copy.deepcopy(self._initial_character)
-        self.character.update(potion=potion, potion_doses=2)
+        self.character.update(potion=potion, potion_doses=POTION_DOSES)
         self.character['name'] = name
         self.character['initial'] = copy.deepcopy(self._adventurer_draft)
         self.character.update(self._adventurer_draft)
@@ -1670,7 +1651,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.potion_combo.setCurrentText(self.character.get("potion", "Aucune"))
         self.potion_combo.blockSignals(False)
         doses = self.character.get('potion_doses', 0)
-        self.potion_doses_label.setText(f'Doses restantes : {doses} / 2' if self.character.get('potion') != 'Aucune'
+        self.potion_doses_label.setText(f'Doses restantes : {doses} / {POTION_DOSES}' if self.character.get('potion') != 'Aucune'
                                        else 'Aucune potion')
         # Un assaut ne modifie généralement pas le sac : conserver ses items,
         # leur sélection et leur défilement tant que son contenu reste identique.
@@ -1759,13 +1740,7 @@ class MainWindow(QMainWindow, ModuleActions):
     def _log_assault(self, player_rolls, enemy_rolls, player_attack, enemy_attack, outcome):
         """Ajouter au journal les dés, forces d’attaque et résultat du dernier assaut."""
         self._book_round_played = True
-        if (self.crocodile_combat
-                and self.current_paragraph == self.crocodile_combat["paragraph"]):
-            self.crocodile_combat["assaults"] += 1
-        entry = verified_entry(self.book_event_catalogue, self.current_paragraph)
-        if entry and "escape_target" in entry.get("combat", {}):
-            number = self.current_paragraph
-            self.book_combat_assaults[number] = self.book_combat_assaults.get(number, 0) + 1
+        self._ff_record_assault()
         self.combat_journal.insertItem(0, f"Vous {player_rolls} = {player_attack} | Ennemi {enemy_rolls} = {enemy_attack} | {outcome}")
         self.combat_state.setText(f"⚔  {self.enemy_name.text()} • Endurance {self.enemy_endurance.value()} | Héros {self.character['endurance']}")
         if self._combat_dialog is not None:
@@ -1850,7 +1825,7 @@ class MainWindow(QMainWindow, ModuleActions):
         if equip_weapon(self.character, name):
             self._refresh_character()
             self.rules_log.setText(
-                f"Arme équipée : {name}. Habileté de combat : {combat_skill(self.character)}.")
+                f"Arme équipée : {name}. Habileté de combat : {self._ff_combat_profile()['skill']}.")
 
     def add_item(self):
         """Ajouter le nom saisi à l’inventaire et actualiser la sacoche."""
@@ -2256,14 +2231,7 @@ def _track_action(method, label):
         try:
             result = method(self, *args, **kwargs)
             if method.__name__ == "combat_round" and depth == 0:
-                if self._book_round_played:
-                    self._finish_complex_round(combat_paragraph)
-                self._finish_crocodile_round()
-                self._finish_piranha_round()
-                current = verified_entry(self.book_event_catalogue, self.current_paragraph)
-                if (current and "escape_target" in current.get("combat", {})
-                        and self.current_paragraph in self.paragraphs):
-                    self._render_choices_and_events(self.paragraphs[self.current_paragraph])
+                self._ff_finish_assault(combat_paragraph)
             return result
         finally:
             self._action_depth -= 1

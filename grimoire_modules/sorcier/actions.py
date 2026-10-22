@@ -14,16 +14,11 @@ from book_events import (apply_effects, condition_met,
                          equipped_weapon, throw_diversion_item)
 
 
-class BookActions:
-    """Mélange de contrôleur pour les règles particulières, utilisant les services de MainWindow."""
-    def _book_state(self, number, create=False):
-        """Lire l’état local d’un paragraphe ; create=True crée les dictionnaires persistants.
+from grimoire_modules.fighting_fantasy.controller import FightingFantasyActions
 
-        Les clés sont des chaînes pour survivre au passage JSON ; sans create, une lecture
-        d’un état absent ne doit pas modifier le personnage."""
-        if create:
-            return self.character.setdefault('book_state', {}).setdefault(str(number), {})
-        return self.character.get('book_state', {}).get(str(number), {})
+
+class BookActions(FightingFantasyActions):
+    """Mélange de contrôleur pour les règles particulières, utilisant les services de MainWindow."""
 
     def _book_blocked(self, target):
         """Refuser les sorties résolues exclusivement par une action spéciale ou un combat en cours."""
