@@ -68,6 +68,40 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_forest_art_selection_popup_save_and_no_stale_image(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({91:'Œil d’Ambre.',55:'Sans illustration.'})
+        self.assertEqual(w.scene_entry['paragraphes'],[1])
+        self.assertTrue(w.prologue_action.isVisible())
+        w.prologue_action.trigger()
+        self.assertEqual(w.prologue_dialog.last_page,17)
+        w.prologue_dialog.close()
+        w.go_to(91)
+        self.assertEqual(w.scene_entry['paragraphes'],[91])
+        self.assertTrue(w.scene_art.is_book_art)
+        self.assertIn('91',w.scene_art.accessibleName())
+        before = copy.deepcopy(w._snapshot())
+        dice = self.roll.call_count
+        with patch('main.IllustrationDialog.exec',return_value=QDialog.Rejected):
+            w._enlarge_scene_art()
+        self.assertEqual(w._snapshot(),before)
+        self.assertEqual(self.roll.call_count,dice)
+        with patch.object(w,'_show_illustration') as popup:
+            w.show_cover()
+            self.assertIn('La Forêt de la Malédiction',popup.call_args.args[1])
+            self.assertNotIn('Sorcier',popup.call_args.args[1])
+        path = main.SAVES_DIR/'illustration.json'
+        w._write_atomic(path,w._save_data())
+        w.go_to(55)
+        self.assertIsNone(w.scene_entry)
+        self.assertFalse(w.scene_art.is_book_art)
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        self.assertEqual(w.scene_entry['paragraphes'],[91])
+        self.assertTrue(w.scene_art.is_book_art)
+
     def test_door_and_both_darts_outcomes_use_only_the_required_dice(self):
         self.open()
         self.start()
@@ -1697,7 +1731,7 @@ class ForetPresentationTests(unittest.TestCase):
         dice = self.roll.call_count
         self.w.show_prologue()
         dialog = self.w.prologue_dialog
-        self.assertEqual((dialog.first_page, dialog.last_page, dialog.pages.count()), (14,16,3))
+        self.assertEqual((dialog.first_page, dialog.last_page, dialog.pages.count()), (14,17,4))
         dialog.pages.setCurrentIndex(2)
         self.assertEqual(dialog.viewer.accessibleName(), 'Prologue — page PDF 16')
         self.w.show_prologue()
@@ -1807,11 +1841,30 @@ class ForetPresentationTests(unittest.TestCase):
 
 
 class ForetEditionContractTests(unittest.TestCase):
+    def test_illustrations_have_verified_associations_and_exclude_ornaments(self):
+        from illustrations import images_for_paragraph
+        module = next(m for m in available_modules() if m.engine == 'foret-1983')
+        cat = module.catalogue('illustrations')
+        expected = {1,15,29,38,49,57,69,90,91,107,142,160,181,212,230,253,
+                    265,285,294,317,340,351,360,378,396}
+        self.assertEqual(len(cat['illustrations']),75)
+        self.assertEqual(len({e['id'] for e in cat['illustrations']}),75)
+        for n in range(1,401):
+            entries = images_for_paragraph(cat,n)
+            self.assertEqual(len(entries),int(n in expected),f'§{n}')
+            for entry in entries:
+                self.assertEqual(entry['type'],'illustration')
+                self.assertIn(entry['statut'],('verifie_legende','verifie_position'))
+        ornaments = [e for e in cat['illustrations'] if e['type']=='ornement']
+        self.assertEqual(len(ornaments),47)
+        self.assertTrue(all(not e['paragraphes'] for e in ornaments))
+        self.assertEqual(next(e['page_pdf'] for e in cat['illustrations'] if e['type']=='carte'),17)
+
     def test_presentation_catalogues_are_honest_about_pending_paragraphs(self):
         module = next(m for m in available_modules() if m.engine == 'foret-1983')
         events = module.catalogue('events')
         self.assertEqual(module.rules_pages, (4,13))
-        self.assertEqual(module.intro_pages, (14,16))
+        self.assertEqual(module.intro_pages, (14,17))
         self.assertEqual(module.status, 'preview')
         self.assertEqual(len(events['paragraphs']), 400)
         self.assertEqual(events['review_pending'], [])
@@ -1828,5 +1881,14 @@ class ForetEditionContractTests(unittest.TestCase):
         self.assertEqual(module_for_pdf(path).id, module.id)
         with pymupdf.open(path) as document:
             self.assertEqual(len(document), 170)
-            rect = pymupdf.Rect(module.catalogue('illustrations')['illustrations'][0]['rect'])
-            self.assertTrue(document[0].rect.contains(rect))
+            catalogue = module.catalogue('illustrations')
+            actual = [(i+1,image) for i,page in enumerate(document) for image in page.get_image_info()]
+            self.assertEqual(len(actual),len(catalogue['illustrations']))
+            for entry in catalogue['illustrations']:
+                with self.subTest(image=entry['id']):
+                    page = document[entry['page_pdf']-1]
+                    rect = pymupdf.Rect(entry['rect'])
+                    self.assertTrue(page.rect.contains(rect))
+                    self.assertTrue(any(n==entry['page_pdf'] and max(abs(a-b) for a,b in zip(rect,im['bbox']))<3
+                                        for n,im in actual))
+                    self.assertGreater(page.get_pixmap(clip=rect).width,0)

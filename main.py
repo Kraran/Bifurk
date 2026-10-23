@@ -981,6 +981,7 @@ class MainWindow(QMainWindow, ModuleActions):
         for notation in ("1d6", "2d6", "3d6", "1d20"):
             dice.addAction(notation, lambda checked=False, n=notation: self.roll_free_dice(n))
         tools.addAction("Aller à un paragraphe…", self.choose_paragraph)
+        self.prologue_action = tools.addAction('Prologue et carte du livre', self.show_prologue)
         self.tools_button.setMenu(tools)
         controls.addWidget(self.tools_button, 1, 1)
         side_layout.insertLayout(side_layout.indexOf(self.adventure_tabs), controls)
@@ -1055,6 +1056,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.combat_button.setEnabled(playing and self.combat_available())
         self.tools_button.setEnabled(playing)
         self.care_button.setEnabled(playing and any(option['enabled'] for option in self.care_options()))
+        self.prologue_action.setVisible(bool(getattr(self.book_module, 'intro_pages', ())))
 
 
     def choose_paragraph(self):
@@ -1698,7 +1700,8 @@ class MainWindow(QMainWindow, ModuleActions):
         if self.illustration_catalogue:
             entry = cover(self.illustration_catalogue)
             if entry:
-                self._show_illustration(entry, "Couverture — Le Sorcier de la Montagne de Feu")
+                title = self.illustration_catalogue.get('title', 'Grimoire')
+                self._show_illustration(entry, 'Couverture — ' + title)
 
     def show_paragraph_illustration(self):
         """Ouvrir successivement les illustrations associées au paragraphe courant."""
