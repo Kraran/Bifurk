@@ -8,6 +8,7 @@ son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventio
 import json
 import tempfile
 import unittest
+import pymupdf
 from pathlib import Path
 from unittest.mock import patch
 
@@ -29,13 +30,18 @@ class AdventureLifecycleTests(unittest.TestCase):
         self.folder = tempfile.TemporaryDirectory()
         self.addCleanup(self.folder.cleanup)
         self.root = Path(self.folder.name)
-        for key in ('SAVES_DIR', 'SETTINGS_DIR'):
-            p = patch.object(main, key, self.root / key)
+        for key in ('APP_DIR', 'SAVES_DIR', 'SETTINGS_DIR', 'BOOKS_DIR'):
+            p = patch.object(main, key, self.root if key == 'APP_DIR' else self.root / key)
             p.start()
             self.addCleanup(p.stop)
+        main.init_portable_dirs()
+        pdf = main.BOOKS_DIR / 'livre.pdf'
+        with pymupdf.open() as document:
+            document.new_page().insert_text((72, 72), '1\nUne porte.\n2\nUne salle.')
+            document.save(pdf)
         self.w = main.MainWindow()
         self.w.paragraphs = {1: 'Une porte.', 2: 'Une salle.'}
-        self.w.pdf_path = str(self.root / 'livre.pdf')
+        self.w.pdf_path = str(pdf)
 
     def tearDown(self):
         """Libérer les ressources du scénario avant le test suivant."""

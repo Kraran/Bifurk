@@ -101,12 +101,19 @@ class DiceDialogTests(unittest.TestCase):
 
         def finish_and_continue():
             reached_end.append(dialog.canvas._finished)
-            # Toujours fermer, même si le test révèle une panne de la minuterie.
-            dialog.canvas.finish()
             dialog.proceed.click()
 
-        QTimer.singleShot(80, finish_and_continue)
-        self.assertEqual(dialog.exec(), DiceDialog.Accepted)
+        dialog.canvas.finished.connect(finish_and_continue)
+        # Attendre le signal réel plutôt que supposer l'ordre de deux timers
+        # lorsque toute la suite Qt charge la boucle événementielle.
+        watchdog = QTimer(dialog)
+        watchdog.setSingleShot(True)
+        watchdog.timeout.connect(lambda: dialog.done(DiceDialog.Rejected))
+        watchdog.start(2000)
+        try:
+            self.assertEqual(dialog.exec(), DiceDialog.Accepted)
+        finally:
+            watchdog.stop()
         self.assertEqual(reached_end, [True])
         self.assertFalse(dialog.canvas.timer.isActive())
         self.assertEqual(dialog.result.text(), 'Résultat : 2 + 5 = 7')

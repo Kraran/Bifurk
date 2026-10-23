@@ -241,7 +241,7 @@ print('native preload OK')
 
     def test_key_and_victory_cues_use_real_catalogue_actions(self):
         w = self.w
-        w.book_event_catalogue = json.loads(DATA_PATH.read_text())
+        w.book_event_catalogue = json.loads(DATA_PATH.read_text(encoding='utf-8'))
         w.paragraphs.update({383:'Porte.',80:'Hangar.',240:'Serpent.',145:'Récompense.'})
         w.character['inventory'].append('Clé du Hangar à Bateaux')
         w.go_to(383)
