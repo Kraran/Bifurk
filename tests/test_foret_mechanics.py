@@ -15,6 +15,39 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_optional_souvenir_and_hare_do_not_repeat_or_spend_rations(self):
+        for number in (371,383):
+            c = hero(endurance=19,provisions=0,gold=0)
+            before = deepcopy(c)
+            with self.assertRaises(ValueError):r.take_optional_find(c,number)
+            self.assertEqual(c,before)
+            r.resolve_entry(c,number)
+            self.assertEqual(c['endurance'],19)
+            self.assertNotIn('Main d’argile rouge',c['inventory'])
+            self.assertTrue(r.take_optional_find(c,number))
+            self.assertEqual(c['gold'],3 if number == 371 else 2)
+            self.assertEqual(c['endurance'],19 if number == 371 else 20)
+            self.assertEqual(c['provisions'],0)
+            before = deepcopy(c)
+            self.assertFalse(r.take_optional_find(c,number))
+            self.assertFalse(r.resolve_entry(c,number))
+            self.assertEqual(c,before)
+        c = hero(gold=0)
+        r.resolve_entry(c,273)
+        self.assertEqual(c['inventory'],['Médaillon d’or (valeur 9 Or)'])
+        self.assertEqual(c['gold'],0)
+
+    def test_key_and_powder_routes_recheck_possession_without_consuming(self):
+        for number,item,present,absent in ((95,'Poudre de Lévitation',173,368),(391,'Petite clé d’argent',200,379)):
+            c = hero()
+            self.assertFalse(r.route_available(c,number,present))
+            self.assertTrue(r.route_available(c,number,absent))
+            c['inventory'].append(item)
+            before = deepcopy(c)
+            self.assertTrue(r.route_available(c,number,present))
+            self.assertFalse(r.route_available(c,number,absent))
+            self.assertEqual(c,before)
+
     def test_fixed_wounds_are_lethal_bounded_and_cannot_repeat(self):
         for number,damage in ((19,1),(108,3),(143,2),(159,3),(250,2),(275,1),(277,1),(345,4)):
             for stamina in (1,20):

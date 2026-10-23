@@ -68,6 +68,35 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_optional_finds_save_undo_and_departure_without_taking(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({371:'Mains.',93:'Sortie.',383:'Orques.',254:'Nord.'})
+        w.character['endurance'] = w.character['initial']['endurance']-3
+        for number,target in ((371,93),(383,254)):
+            w.go_to(number)
+            w.perform_foret_action('entry')
+            before = copy.deepcopy(w.character)
+            self.assertEqual(w._reading_link_targets(),{target})
+            w.follow_foret_route(target)
+            self.assertEqual(w.character,before)
+            w.go_to(number)
+            w.perform_foret_action('optional_find')
+            after = copy.deepcopy(w.character)
+            self.assertNotEqual(after,before)
+            w.undo_action()
+            self.assertEqual(w.character,before)
+            w.redo_action()
+            path = main.SAVES_DIR/f'facultatif-{number}.json'
+            w._write_atomic(path,w._save_data())
+            with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                self.assertTrue(w.load_game(path,announce=False))
+            w.perform_foret_action('optional_find')
+            self.assertEqual(w.character,after)
+            self.assertFalse(rules.take_optional_find(w.character,number))
+
     def test_fixed_effects_gate_routes_and_restore_without_repeating(self):
         from grimoire_modules.foret import rules
         self.open()
