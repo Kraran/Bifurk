@@ -46,6 +46,8 @@ class ForetMechanicsActions(FightingFantasyActions):
             return
         encounters = rules.state(self.character).setdefault('combats', {})
         identity = profile['identity']
+        if identity in rules.peek(self.character).get('peaceful_encounters', []):
+            return
         if identity not in encounters:
             encounters[identity] = rules.new_group_combat(profile['groups'])
             rules.begin_encounter(self.character, identity)
@@ -75,8 +77,14 @@ class ForetMechanicsActions(FightingFantasyActions):
 
     def combat_available(self):
         combat = self._foret_combat()
+        if self._ff_encounter_pacified():
+            return False
         return bool(combat and not combat['finished'] and not combat.get('escaped')
                     and self.character['endurance'] > 0 and self._adventurer_draft is None)
+
+    def _ff_encounter_pacified(self):
+        profile = COMBATS.get(self.current_paragraph, {})
+        return profile.get('identity') in rules.peek(self.character).get('peaceful_encounters', [])
 
     def combat_flee_status(self):
         if not self.combat_available():
@@ -266,7 +274,8 @@ class ForetMechanicsActions(FightingFantasyActions):
                     60:('Chercher les Filtres à Nez — Chance', 'find_filters'),
                     182:('Dégager l’épée du rocher — Habileté', 'stone_sword'),
                     358:('Se libérer du nœud coulant — Chance', 'snare'),
-                    178:('Utiliser le sel d’une ration', 'leech_salt')}
+                    178:('Utiliser le sel d’une ration', 'leech_salt'),
+                    48:('Résoudre l’explosion de l’œuf (1d6)', 'egg_explosion')}
         if number in commands and not self._book_state(number).get('foret_resolved'):
             label, action = commands[number]
             add(label, action)
@@ -419,14 +428,17 @@ class ForetMechanicsActions(FightingFantasyActions):
         expected = {'wish':34,'swap':308,'ambush':98,'fever':259,'spiked_pit':278,'buy':261,'door':73,'darts':309,'lift':372,'wrestle':266,'bracelet':52,
                     'convalescence':304,'cursed_meal':328,'combat_potion':262,'hammer':204,
                     'lantern_flash':395,'discard_lantern':154,'lose_item':370,'gnome_sword':192,
-                    'find_filters':60,'stone_sword':182,'snare':358,'silver_dart':219,'goblin_loot':301,'leech_salt':178}
+                    'find_filters':60,'stone_sword':182,'snare':358,'silver_dart':219,'goblin_loot':301,'leech_salt':178,'egg_explosion':48}
         if action in expected and number != expected[action]:
             return
         if self._book_state(number).get('foret_resolved') and action in expected and action not in ('buy','goblin_loot'):
             return
         target = None
         try:
-            if action == 'optional_find':
+            if action == 'egg_explosion':
+                _, die = self._roll(1,context='Explosion de l’œuf — perte d’Endurance')
+                rules.egg_explosion(self.character,die)
+            elif action == 'optional_find':
                 rules.take_optional_find(self.character,number)
             elif action == 'leech_salt':
                 rules.use_leech_salt(self.character)

@@ -73,7 +73,7 @@ converties globalement en événements exécutables.
   les biscuits infestés et/ou le collier. Chaque unité prise est conservée dans
   un registre ; les autres restent disponibles, y compris après chargement.
   Annuler ne prend rien. Les biscuits ne deviennent jamais des provisions,
-  et la petite flûte ne reçoit aucun pouvoir de flûte magique.
+  et la petite flûte est reconnue au §258 comme une flûte à endormir les Dragons.
 - **Gnome (§§192, 46, 12)** : l’identité de l’arme transformée est conservée
   hors de l’inventaire jusqu’à sa restitution. Le projectile du §46 coûte deux
   points de Chance une seule fois. Le §12 exige exactement dix pièces OU deux

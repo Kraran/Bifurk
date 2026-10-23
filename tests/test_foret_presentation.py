@@ -68,6 +68,63 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_egg_roll_save_undo_and_lethal_explosion(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({48:'Œuf.',288:'Sortie.'})
+        w.go_to(48)
+        self.assertEqual(w._reading_link_targets(),set())
+        base = w._snapshot()
+        calls = self.roll.call_count
+        w.perform_foret_action('egg_explosion')
+        self.assertEqual(self.roll.call_count,calls+1)
+        self.assertEqual(w.character['endurance'],base['character']['endurance']-3)
+        w.undo_action()
+        self.assertEqual(w.character,base['character'])
+        w.redo_action()
+        path = main.SAVES_DIR/'oeuf.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        w.perform_foret_action('egg_explosion')
+        self.assertEqual(self.roll.call_count,calls+1)
+        self.assertEqual(w._reading_link_targets(),{288})
+        w._restore(base)
+        w.character['endurance'] = 2
+        w.perform_foret_action('egg_explosion')
+        self.assertEqual(w.character['endurance'],0)
+
+    def test_copper_flute_avoids_wyvern_combat_and_preserves_living_enemy(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({132:'Vouivre.',167:'Combat.',258:'Flûte.',305:'Butin.',200:'Porte.',351:'Escalier.',112:'Chemin.'})
+        w.go_to(200)
+        w.perform_foret_action('entry')
+        self.assertEqual(w._reading_link_targets(),set())
+        w.character['inventory'].append('Petite clé d’argent')
+        w.perform_foret_action('entry')
+        self.assertEqual(w._reading_link_targets(),{351,112})
+        self.assertIn('Petite clé d’argent',w.character['inventory'])
+        rules.take_goblin_loot(w.character,items=[rules.GOBLIN_LOOT[0]])
+        w.go_to(132)
+        self.assertEqual(w._reading_link_targets(),{258})
+        w.follow_foret_route(258)
+        self.assertEqual(w._reading_link_targets(),set())
+        w.perform_foret_action('entry')
+        self.assertEqual(w._reading_link_targets(),{305})
+        self.assertIn(rules.GOBLIN_LOOT[0],w.character['inventory'])
+        path = main.SAVES_DIR/'vouivre-endormie.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        w.go_to(167)
+        self.assertFalse(w.combat_available())
+        self.assertNotIn('wyvern',rules.peek(w.character).get('combats',{}))
+        self.assertEqual(w._reading_link_targets(),{305})
+
     def test_optional_finds_save_undo_and_departure_without_taking(self):
         from grimoire_modules.foret import rules
         self.open()

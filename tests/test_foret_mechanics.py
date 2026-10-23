@@ -15,6 +15,34 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_egg_explosion_validates_one_die_and_never_repeats(self):
+        c = hero(endurance=5)
+        for die in (0,7,True):
+            before = deepcopy(c)
+            with self.assertRaises(ValueError):r.egg_explosion(c,die)
+            self.assertEqual(c,before)
+        r.egg_explosion(c,4)
+        self.assertEqual((c['endurance'],c['chance']),(1,8))
+        self.assertFalse(r.egg_explosion(c,6))
+        c = hero(endurance=2)
+        r.egg_explosion(c,6)
+        self.assertEqual(c['endurance'],0)
+
+    def test_key_and_copper_flute_use_require_real_objects_without_consumption(self):
+        for number,item in ((200,'Petite clé d’argent'),(258,r.GOBLIN_LOOT[0])):
+            c = hero()
+            before = deepcopy(c)
+            with self.assertRaises(ValueError):r.resolve_entry(c,number)
+            self.assertEqual(c,before)
+            c['inventory'].append(item)
+            r.resolve_entry(c,number)
+            self.assertIn(item,c['inventory'])
+            self.assertFalse(r.resolve_entry(c,number))
+        self.assertEqual(r.peek(c)['peaceful_encounters'],['wyvern'])
+        self.assertNotIn('combats',r.peek(c))
+        self.assertTrue(r.route_available(c,132,258))
+        self.assertFalse(r.route_available(c,132,167))
+
     def test_optional_souvenir_and_hare_do_not_repeat_or_spend_rations(self):
         for number in (371,383):
             c = hero(endurance=19,provisions=0,gold=0)
