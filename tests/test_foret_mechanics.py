@@ -14,6 +14,54 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_choice_costs_are_paid_only_on_selected_route_once(self):
+        c = hero(gold=1)
+        self.assertFalse(r.pay_route(c,243,33))
+        self.assertEqual(c['gold'],1)
+        self.assertTrue(r.pay_route(c,243,166))
+        self.assertEqual(c['gold'],0)
+        self.assertFalse(r.pay_route(c,243,166))
+        self.assertTrue(r.route_available(c,243,166))
+        self.assertTrue(r.pay_route(c,130,355))
+        self.assertEqual((c['chance'],c['endurance']),(7,20))
+        self.assertFalse(r.pay_route(c,130,355))
+        c = hero(gold=0,chance=0)
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.pay_route(c,243,166)
+        self.assertEqual(c,before)
+        r.pay_route(c,130,355)
+        self.assertEqual(c['chance'],0)
+
+    def test_bandit_routes_count_only_payable_units_and_require_the_same_payment(self):
+        c = hero(gold=3,inventory=['Épée','Anneau de Lenteur'],locked_items=['Anneau de Lenteur'])
+        self.assertFalse(r.route_available(c,360,279))
+        self.assertFalse(r.route_available(c,246,204))
+        c['gold'] = 4
+        self.assertTrue(r.route_available(c,360,279))
+        r.pay_paragraph(c,279,gold=4,items=['Épée'])
+        self.assertTrue(r.route_available(c,246,204))
+        before = deepcopy(c)
+        self.assertFalse(r.pay_paragraph(c,279,gold=4,items=['Épée']))
+        self.assertEqual(c,before)
+
+    def test_goblin_loot_can_be_taken_partially_and_invalid_selections_are_atomic(self):
+        c = hero()
+        before = deepcopy(c)
+        self.assertFalse(r.take_goblin_loot(c))
+        self.assertEqual(c,before)
+        for gold,items in ((True,()),(4,()),(0,['Inconnu']),(0,[r.GOBLIN_LOOT[0]]*2)):
+            with self.assertRaises(ValueError):r.take_goblin_loot(c,gold=gold,items=items)
+            self.assertEqual(c,before)
+        r.take_goblin_loot(c,gold=1,items=[r.GOBLIN_LOOT[1]])
+        self.assertEqual((c['gold'],c['provisions'],c['chance']),(31,10,8))
+        self.assertEqual(r.remaining_goblin_loot(c),(2,[r.GOBLIN_LOOT[0],r.GOBLIN_LOOT[2]]))
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.take_goblin_loot(c,items=[r.GOBLIN_LOOT[1]])
+        self.assertEqual(c,before)
+        r.take_goblin_loot(c,gold=2,items=[r.GOBLIN_LOOT[0],r.GOBLIN_LOOT[2]])
+        self.assertEqual(r.remaining_goblin_loot(c),(0,[]))
+        self.assertEqual(c['gold'],33)
+
     def test_ordinary_luck_variations_are_bounded_and_do_not_charge_stakes_again(self):
         for number,loss in ((13,3),(42,1),(129,2),(134,1),(141,1),(237,2)):
             c = hero(chance=2)

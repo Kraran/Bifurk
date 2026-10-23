@@ -199,10 +199,16 @@ class ForetMechanicsActions(FightingFantasyActions):
                 button.clicked.connect(lambda checked=False: self._foret_shop())
             elif action == 'payment_dialog':
                 button.clicked.connect(lambda checked=False: self._foret_payment_dialog())
+            elif action == 'loot_dialog':
+                button.clicked.connect(lambda checked=False: self._foret_loot_dialog())
             else:
                 button.clicked.connect(lambda checked=False: self.perform_foret_action(action, payload))
             self.event_layout.addWidget(button)
         number = self.current_paragraph
+        if number == 301:
+            gold, items = rules.remaining_goblin_loot(self.character)
+            if gold or items:
+                add('Choisir le butin des Lutins…', 'loot_dialog')
         if (number == 219 and rules.entry_resolved(self.character,219)
                 and 'bear_silver_dart' not in rules.peek(self.character).get('rewards', [])):
             add('Prendre la fléchette d’argent (facultatif)', 'silver_dart')
@@ -335,6 +341,43 @@ class ForetMechanicsActions(FightingFantasyActions):
         dialog.exec()
         dialog.deleteLater()
 
+    def _foret_loot_dialog(self):
+        """Ne rien prendre à l’ouverture ; valider seulement la sélection confirmée."""
+        if self.current_paragraph != 301:
+            return
+        remaining_gold, remaining_items = rules.remaining_goblin_loot(self.character)
+        dialog = QDialog(self)
+        dialog.setWindowTitle('Le butin des Lutins')
+        layout = QVBoxLayout(dialog)
+        layout.addWidget(QLabel('Prenez tout ou partie du butin. Les biscuits infestés ne sont pas des provisions.'))
+        gold = QSpinBox()
+        gold.setRange(0,remaining_gold)
+        gold.setPrefix('Pièces d’or à prendre : ')
+        layout.addWidget(gold)
+        items = QListWidget()
+        items.setSelectionMode(QAbstractItemView.MultiSelection)
+        items.addItems(remaining_items)
+        layout.addWidget(items)
+        note = QLabel('Les objets laissés restent disponibles lors d’une nouvelle consultation.')
+        note.setWordWrap(True)
+        layout.addWidget(note)
+        confirm = QPushButton('Prendre la sélection')
+        layout.addWidget(confirm)
+        def collect():
+            selected = [item.text() for item in items.selectedItems()]
+            before = rules.remaining_goblin_loot(self.character)
+            self.perform_foret_action('goblin_loot',(gold.value(),selected))
+            if (not gold.value() and not selected) or rules.remaining_goblin_loot(self.character) != before:
+                dialog.accept()
+            else:
+                note.setText(self.rules_log.text())
+        confirm.clicked.connect(collect)
+        cancel = QPushButton('Annuler')
+        cancel.clicked.connect(dialog.reject)
+        layout.addWidget(cancel)
+        dialog.exec()
+        dialog.deleteLater()
+
     def care_options(self, *, in_combat=False):
         options = FightingFantasyActions.care_options(self, in_combat=in_combat)
         options.append({'id':'force_potion', 'label':'Potion de Force (+5 Endurance)',
@@ -372,14 +415,16 @@ class ForetMechanicsActions(FightingFantasyActions):
         expected = {'wish':34,'swap':308,'ambush':98,'fever':259,'spiked_pit':278,'buy':261,'door':73,'darts':309,'lift':372,'wrestle':266,'bracelet':52,
                     'convalescence':304,'cursed_meal':328,'combat_potion':262,'hammer':204,
                     'lantern_flash':395,'discard_lantern':154,'lose_item':370,'gnome_sword':192,
-                    'find_filters':60,'stone_sword':182,'snare':358,'silver_dart':219}
+                    'find_filters':60,'stone_sword':182,'snare':358,'silver_dart':219,'goblin_loot':301}
         if action in expected and number != expected[action]:
             return
-        if self._book_state(number).get('foret_resolved') and action in expected and action != 'buy':
+        if self._book_state(number).get('foret_resolved') and action in expected and action not in ('buy','goblin_loot'):
             return
         target = None
         try:
-            if action == 'silver_dart':
+            if action == 'goblin_loot':
+                rules.take_goblin_loot(self.character,gold=payload[0],items=payload[1])
+            elif action == 'silver_dart':
                 rules.take_silver_dart(self.character)
             elif action == 'snare':
                 rules.snare_weapon(self.character)
@@ -517,7 +562,7 @@ class ForetMechanicsActions(FightingFantasyActions):
         except ValueError as error:
             self.rules_log.setText(str(error))
             return
-        if action in expected and action != 'buy' and not (action == 'lift' and target == 372):
+        if action in expected and action not in ('buy','goblin_loot') and not (action == 'lift' and target == 372):
             self._book_state(number, True)['foret_resolved'] = True
         if target is not None and not (action == 'lift' and target == 372):
             self._book_state(number, True)['foret_target'] = target
