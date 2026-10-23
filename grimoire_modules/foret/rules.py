@@ -590,6 +590,9 @@ def advance_group(combat):
 # Les variantes partagent un identifiant physique. La table ne contient que des
 # effets relus : aucun motif de texte ne peut créer une récompense ou une charge.
 ENTRY_RULES = {
+    273:{'items':['Médaillon d’or (valeur 9 Or)']},
+    371:{'gold':3},
+    383:{'gold':2,'items':['Petit sifflet de bois']},
     19:{'damage':1},108:{'damage':3},143:{'damage':2},159:{'damage':3},
     250:{'damage':2},275:{'damage':1},277:{'damage':1},345:{'damage':4},
     68:{'heal':3,'label':'Boire la Potion de Santé trouvée (+3 Endurance)'},
@@ -700,6 +703,25 @@ def resolve_entry(character, paragraph):
     character.update(working)
     return True
 
+OPTIONAL_FINDS = {
+    371:{'label':'Prendre une main d’argile rouge (facultatif)', 'items':['Main d’argile rouge']},
+    383:{'label':'Manger le lièvre rôti (+2 Endurance, facultatif)', 'heal':2},
+}
+
+
+def take_optional_find(character, paragraph):
+    """Choisir séparément le souvenir ou le repas, après les trouvailles obligatoires."""
+    alive(character)
+    if paragraph not in OPTIONAL_FINDS or not entry_resolved(character,paragraph):
+        raise ValueError('Recueillir d’abord les trouvailles de ce passage.')
+    rule = OPTIONAL_FINDS[paragraph]
+    if not reward(character,'optional_find:' + str(paragraph),items=rule.get('items',())):
+        return False
+    if rule.get('heal'):
+        character['endurance'] = min(character['initial']['endurance'],character['endurance']+rule['heal'])
+    return True
+
+
 PAYMENT_PARAGRAPHS = {12,14,32,36,218,279,297}
 
 
@@ -784,6 +806,11 @@ OPTIONAL_ITEM_ROUTES = {(92,100):'Potion de Contrôle des Insectes', (196,39):'F
 
 def route_available(character, paragraph, target):
     """Autoriser les seules conditions intégrées ; ne jamais renouveler une charge épuisée."""
+    physical = {95:('Poudre de Lévitation',173,368),391:('Petite clé d’argent',200,379)}
+    if paragraph in physical:
+        name, present, absent = physical[paragraph]
+        if target in (present,absent):
+            return target == (present if name in character.get('inventory', []) else absent)
     if paragraph == 243 and target == 166:
         return route_paid(character,243,166) or character.get('gold',0) >= 1
     if paragraph == 360 and target == 279:

@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **172 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **177 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -15,10 +15,10 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | --- | ---: |
 | Boutique de Yaztromo | 1 |
 | Profils de combat | 40 |
-| Effets d’entrée et usages d’objets | 85 |
+| Effets d’entrée et usages d’objets | 88 |
 | Paiements | 7 |
 | Actions et épreuves spéciales | 35 |
-| Conditions et coûts de route recensés séparément | 6 (§§130, 191, 243, 246, 295, 360) |
+| Conditions et coûts de route recensés séparément | 8 (§§95, 130, 191, 243, 246, 295, 360, 391) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
 combats en groupes et successifs, fouet du Démon, paralysie de la Goule,
@@ -66,6 +66,12 @@ Huit blessures fixes (§§19, 108, 143, 159, 250, 275, 277, 345), trois soins
 (§§68, 269, 283), les deux boucles d’oreille du §202 et les deux pièces du §311
 sont raccordés. Les soins respectent le plafond initial sans prendre de ration.
 La blessure du §277 précède les deux choix ; le casque du §275 reste facultatif.
+
+Le médaillon du §273, les trois pièces du §371, et les deux pièces et le sifflet
+du §383 sont raccordés. La main d’argile et le lièvre rôti sont des choix
+séparés, sans répétition ; le repas rend deux points sous plafond, sans ration.
+Les §§95 et 391 vérifient la possession de la poudre et de la petite clé
+sans les consommer au moment du choix de route.
 
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,

@@ -205,6 +205,9 @@ class ForetMechanicsActions(FightingFantasyActions):
                 button.clicked.connect(lambda checked=False: self.perform_foret_action(action, payload))
             self.event_layout.addWidget(button)
         number = self.current_paragraph
+        if (number in rules.OPTIONAL_FINDS and rules.entry_resolved(self.character,number)
+                and 'optional_find:' + str(number) not in rules.peek(self.character).get('rewards', [])):
+            add(rules.OPTIONAL_FINDS[number]['label'], 'optional_find')
         if number == 301:
             gold, items = rules.remaining_goblin_loot(self.character)
             if gold or items:
@@ -423,7 +426,9 @@ class ForetMechanicsActions(FightingFantasyActions):
             return
         target = None
         try:
-            if action == 'leech_salt':
+            if action == 'optional_find':
+                rules.take_optional_find(self.character,number)
+            elif action == 'leech_salt':
                 rules.use_leech_salt(self.character)
                 target = 298
             elif action == 'goblin_loot':
