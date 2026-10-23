@@ -2,6 +2,7 @@
 from copy import deepcopy
 import json
 import unittest
+import re
 from grimoire_modules.foret import rules as r
 from grimoire_modules.foret.encounters import COMBATS
 
@@ -14,6 +15,37 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_ordinary_combat_profiles_match_reviewed_stats_and_routes(self):
+        from pathlib import Path
+        data = json.loads((Path(__file__).resolve().parents[1]/'catalogues/evenements_foret_1983.json').read_text(encoding='utf-8'))
+        numbers = (7,9,15,29,43,79,117,118,128,153,167,181,203,212,241,265,286,290,298,303,317,330,347)
+        for number in numbers:
+            with self.subTest(number=number):
+                entry = data['paragraphs'][str(number)]
+                expected = [tuple(map(int,pair)) for pair in re.findall(r'\[(\d+)/(\d+)\]',entry['analysis']['rules'])]
+                profile = COMBATS[number]
+                self.assertEqual([(e['skill'],e['stamina']) for g in profile['groups'] for e in g],expected)
+                self.assertTrue(all(len(group) == 1 for group in profile['groups']))
+                self.assertEqual(profile['victory_target'],entry['routes'][0]['target'])
+                if len(entry['routes']) > 1:
+                    self.assertEqual(profile['escape_target'],entry['routes'][1]['target'])
+                else:
+                    self.assertNotIn('escape_target',profile)
+        for number in (29,317):
+            decision = data['paragraphs'][str(number)]['analysis']['combat_mode_confirmation']
+            self.assertEqual(decision['source'],'user')
+            self.assertEqual(decision['mode'],'successive')
+
+    def test_leech_salt_costs_one_ration_once_and_empty_bag_is_not_free(self):
+        c = hero(provisions=0)
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.use_leech_salt(c)
+        self.assertEqual(c,before)
+        c['provisions'] = 1
+        self.assertTrue(r.use_leech_salt(c))
+        self.assertEqual((c['provisions'],c['endurance'],c['chance']),(0,20,8))
+        self.assertFalse(r.use_leech_salt(c))
+
     def test_choice_costs_are_paid_only_on_selected_route_once(self):
         c = hero(gold=1)
         self.assertFalse(r.pay_route(c,243,33))

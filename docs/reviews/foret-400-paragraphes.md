@@ -100,3 +100,9 @@ signalent ces interprétations plutôt que d’inventer des règles.
 Le second contrôle exige le PDF privé exact. Il vérifie l’empreinte et les 400
 en-têtes/pages sources ; il ne prétend pas vérifier automatiquement le sens des
 règles ni résoudre les anomalies imprimées. Aucun PDF ou extrait n’est exporté.
+
+## Confirmation du 23 octobre 2026
+
+L’utilisateur a choisi des combats successifs aux §§29 et 317 : un adversaire
+après l’autre. Les réserves historiques ci-dessus sur le choix du mode sont
+levées pour l’implémentation ; cette décision est consignée dans le catalogue.

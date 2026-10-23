@@ -262,7 +262,8 @@ class ForetMechanicsActions(FightingFantasyActions):
                     192:('Constater la transformation de l’épée', 'gnome_sword'),
                     60:('Chercher les Filtres à Nez — Chance', 'find_filters'),
                     182:('Dégager l’épée du rocher — Habileté', 'stone_sword'),
-                    358:('Se libérer du nœud coulant — Chance', 'snare')}
+                    358:('Se libérer du nœud coulant — Chance', 'snare'),
+                    178:('Utiliser le sel d’une ration', 'leech_salt')}
         if number in commands and not self._book_state(number).get('foret_resolved'):
             label, action = commands[number]
             add(label, action)
@@ -415,14 +416,17 @@ class ForetMechanicsActions(FightingFantasyActions):
         expected = {'wish':34,'swap':308,'ambush':98,'fever':259,'spiked_pit':278,'buy':261,'door':73,'darts':309,'lift':372,'wrestle':266,'bracelet':52,
                     'convalescence':304,'cursed_meal':328,'combat_potion':262,'hammer':204,
                     'lantern_flash':395,'discard_lantern':154,'lose_item':370,'gnome_sword':192,
-                    'find_filters':60,'stone_sword':182,'snare':358,'silver_dart':219,'goblin_loot':301}
+                    'find_filters':60,'stone_sword':182,'snare':358,'silver_dart':219,'goblin_loot':301,'leech_salt':178}
         if action in expected and number != expected[action]:
             return
         if self._book_state(number).get('foret_resolved') and action in expected and action not in ('buy','goblin_loot'):
             return
         target = None
         try:
-            if action == 'goblin_loot':
+            if action == 'leech_salt':
+                rules.use_leech_salt(self.character)
+                target = 298
+            elif action == 'goblin_loot':
                 rules.take_goblin_loot(self.character,gold=payload[0],items=payload[1])
             elif action == 'silver_dart':
                 rules.take_silver_dart(self.character)

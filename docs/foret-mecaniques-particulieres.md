@@ -56,6 +56,9 @@ converties globalement en événements exécutables.
   et sa potion est bue aussitôt (+4 Endurance sous plafond), sans recharge ni
   ajout d’une fiole ; l’échange a lieu une fois, même si le héros est déjà soigné.
   Le choix du §191 exige la présence de la clochette.
+  Au §178, le sel coûte une ration sans blessure ni repas restaurateur. La sortie
+  mène au combat de l’Araignée. Sans ration, la commande laisse l’état intact
+  et explique le cas non décrit ; les provisions ne deviennent pas négatives.
 - **Paiements** : choix des exemplaires et des pièces aux §§12, 14, 32, 36, 218,
   279 et 297. Le tribut représente exactement cinq unités ; chaque pièce et chaque
   objet compte pour une unité. La valeur estimée d’un bijou ne crée pas des pièces.
@@ -130,6 +133,25 @@ Le choix de cible revient entre chaque assaut. La chronique n’ajoute pas un no
 assaut pour la seconde attaque et le grand bandeau de victoire attend la dernière
 paire. Une blessure létale interrompt les jets et coups suivants.
 
+Les duels et successions ordinaires sont aussi raccordés :
+
+- §§29 et 317 : deux Orques et deux Lutins affrontés un après l’autre,
+  selon le choix confirmé par l’utilisateur le 23 octobre 2026. La fuite reste
+  réglementaire ; la victoire au §317 donne accès au butin partiel du §301.
+- §§7, 43, 79, 212 et 330 : essaims, Hommes des Bois, Vampires, Clones et Loups
+  affrontés un par un, conformément aux instructions explicites.
+- §§9/117 : même Gobelin persistant, avec sortie vers le butin de la branche.
+- §§203/286 : même Changeur de Forme, dont les blessures sont partagées.
+- §§15, 118, 128, 153, 167, 181, 241, 265, 290, 298, 303 et 347 : duels
+  ordinaires contre Ver, Sanglier, Barbare, Femme Féline, Vouivre, Homme-Poisson,
+  Ours, Géant, Ogre, Araignée, Ptérodactyle et Nain.
+
+La fuite réglementaire est offerte aux §§43/153/212/290, sans délai importé
+du Sorcier. La fuite engagée de la Femme Féline blesse normalement, tandis
+que son évitement au §130 coûte seulement de la Chance. Aucun venin,
+souffle périodique ou pouvoir de Vampire supplémentaire n’est inventé.
+Une séquence complète reste une seule rencontre pour la potion des deux combats.
+
 ## Interprétations explicites
 
 La source n’explicite pas toutes les interactions. Ces choix sont isolés dans
@@ -198,7 +220,7 @@ existant : le Sorcier conserve son moteur et ses règles.
 intégration complète. Les autres effets ordinaires et rencontres restent à relier,
 ainsi que les illustrations. Le §70 utilise désormais la règle de bonus confirmée
 par l’utilisateur, sans modifier les règles de l’épée magique du Sorcier.
-Les §§29/317 demandent encore de confirmer le mode des deux adversaires.
+Les §§29/317 utilisent le mode successif confirmé par l’utilisateur le 23 octobre 2026.
 Les corrections fournies par l’utilisateur le 22 octobre 2026 lèvent les deux
 blocages de source : §186 complété par Anguille Carnivore H5/E4 et victoire au
 §131 ; §267 corrigé vers le §196 pour entrer dans la caverne (retour au §25).

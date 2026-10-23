@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **132 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **156 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -14,10 +14,10 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | Catégorie du registre | Paragraphes |
 | --- | ---: |
 | Boutique de Yaztromo | 1 |
-| Profils de combat | 17 |
+| Profils de combat | 40 |
 | Effets d’entrée et usages d’objets | 69 |
 | Paiements | 7 |
-| Actions et épreuves spéciales | 34 |
+| Actions et épreuves spéciales | 35 |
 | Conditions et coûts de route recensés séparément | 6 (§§130, 191, 243, 246, 295, 360) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
@@ -51,17 +51,25 @@ sans second prélèvement. Le §301 propose un choix partiel des trois pièces e
 des objets ; le stock restant survit à la sauvegarde. Les biscuits infestés
 restent un objet et la petite flûte reste distincte de la flûte magique.
 
+Vingt et un passages de combat ordinaires sont ajoutés : duels et successions
+explicites (essaims, Hommes des Bois, Vampires, Clones, Loups). Les variantes du
+Gobelin et du Changeur de Forme partagent leurs blessures. La fuite ne s’ouvre
+que lorsqu’elle est proposée par la source. Au §178, le sel coûte une ration ;
+le cas sans ration reste explicitement non résolu.
+
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,
 l’absence de répétition, la restauration et l’annulation/rétablissement.
 
 ## Reste à faire
 
-- **Autres rencontres** : raccorder leurs profils, issues et restrictions ;
-  les 17 passages actuels ne couvrent pas tous les combats du livre.
+- **Rencontres** : vérifier les contournements de combats et les conséquences
+  des issues dans des parcours complets. Les profils chiffrés du catalogue
+  sont raccordés, avec le mode successif confirmé pour les §§29/317.
 - **Autres effets** : variations de caractéristiques et de provisions, dons et
-  trouvailles encore documentés sans commande, notamment le sel des provisions
-  au §178 et les autres effets recensés dans les analyses mais pas dans le registre.
+  trouvailles encore documentés sans commande : par exemple la clé d’argent
+  du §50, le collier du §116, les objets et choix du §305, ainsi que les autres
+  effets recensés dans les analyses mais pas dans le registre.
 - **Équipement et autres soins** : compléter les autres interactions et
   conditions encore documentaires, puis vérifier leurs combinaisons en partie.
 - **Choix et parcours** : compléter les conditions d’inventaire et de progression
@@ -73,10 +81,11 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 
 ## Points à clarifier
 
-Le mode de résolution des deux adversaires aux §§29 et 317 doit encore être
-confirmé. Aucun mode simultané ou successif n’est automatisé par supposition.
+Le mode de résolution des deux adversaires aux §§29 et 317 a été confirmé
+par l’utilisateur le 23 octobre 2026 : ils sont affrontés un après l’autre.
+La provenance de cette règle du projet figure dans chaque entrée du catalogue.
 Les cas non décrits par la source restent explicites : sac sans objet retirable
-au §370, insolvabilité aux §§12/218, absence d’épée au §358, et interprétations
+au §370, insolvabilité aux §§12/218, absence d’épée au §358, absence de ration au §178, et interprétations
 documentées de certaines interactions.
 
 Les corrections des §§186 et 267 sont confirmées et intégrées. Le choix de bonus
