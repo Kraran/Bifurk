@@ -7917,6 +7917,7 @@
       343
     ],
     "special_action_paragraphs": [
+      2,
       22,
       34,
       48,
@@ -7954,7 +7955,8 @@
       376,
       388,
       395,
-      399
+      399,
+      400
     ],
     "notes": "Ces services validés sont implémentés dans grimoire_modules/foret. Le statut des 400 analyses ne valide pas une automatisation complète de chaque passage.",
     "conditional_route_paragraphs": [

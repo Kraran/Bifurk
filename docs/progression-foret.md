@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **193 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **195 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -17,7 +17,7 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | Profils de combat | 40 |
 | Effets d’entrée et usages d’objets | 90 |
 | Paiements | 10 |
-| Actions et épreuves spéciales | 38 |
+| Actions et épreuves spéciales | 40 |
 | Conditions et coûts de route recensés séparément | 17 (§§17, 95, 130, 132, 160, 172, 191, 199, 204, 243, 246, 271, 295, 346, 360, 366, 391) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
@@ -92,6 +92,11 @@ Les transformations des §§333 et 399 terminent désormais l’aventure sans
 mettre artificiellement l’Endurance à zéro. Les actions de jeu et la navigation
 sont bloquées, tandis que sauvegarde, chargement et annulation restent possibles.
 Le colophon d’imprimerie est retiré du récit extrait au §400.
+
+La victoire du §400 clôt désormais les commandes de jeu après remise effective
+du marteau, sans inventer de prix pour les récompenses narratives. Une simple
+consultation du paragraphe ne donne pas la victoire. Le §2 applique la mort
+après défaite contre la Goule ; ces deux issues sont annulables et sauvegardées.
 
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,
