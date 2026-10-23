@@ -8,6 +8,13 @@ converties globalement en événements exécutables.
 
 ## Ce qui est intégré
 
+- **Repas ordinaires** : conformément aux règles (page PDF 9), une ration peut
+  être consommée à tout passage hors combat pour récupérer 4 points d’Endurance,
+  sans dépasser le total initial. Plusieurs repas sont possibles au même endroit,
+  y compris après rechargement. Les §§304 et 328 conservent leurs seules commandes
+  de repas spéciales. La création et les fins de partie interdisent les soins.
+  Cette permission ne s’applique pas au module du Sorcier.
+
 - **Fins par transformation (§§333, 399)** : une fin distincte est sauvegardée,
   sans mettre l’Endurance à zéro. Les actions de jeu et la navigation sont
   bloquées ; l’annulation restaure la partie jouable. Le colophon d’imprimerie

@@ -5,6 +5,8 @@
 - La Forêt de la Malédiction devient une aventure complète : mécaniques spéciales,
   boutique, équipements, combats, épreuves, fins et cas limites validés.
 - Illustrations de la Forêt et fond dédié après la couverture.
+- Repas ordinaires de la Forêt disponibles à tout passage hors combat, avec une
+  ration pour 4 points d’Endurance et respect des repas spéciaux aux §§304 et 328.
 - Carte d’exploration en deux dimensions guidée par les directions des choix,
   commune aux deux aventures, avec placement compact sans direction explicite.
 - Corrections des renvois, des coquilles du texte extrait et de l’avertissement
