@@ -15,6 +15,21 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_transformations_end_adventure_without_damage_or_fake_victory(self):
+        for number in (333,399):
+            c = hero()
+            before = deepcopy(c)
+            self.assertTrue(r.finish_transformation(c,number))
+            self.assertEqual((c['endurance'],c['habilete'],c['chance']),(20,8,8))
+            self.assertEqual(c['inventory'],before['inventory'])
+            self.assertTrue(c['book_facts']['adventure_ended'])
+            self.assertNotIn('won',r.peek(c))
+            self.assertFalse(r.finish_transformation(c,number))
+            ended = deepcopy(c)
+            with self.assertRaises(ValueError):r.resolve_entry(c,68)
+            with self.assertRaises(ValueError):r.pay_route(c,199,134)
+            self.assertEqual(c,ended)
+
     def test_gnome_and_arragon_offer_routes_require_payable_objects(self):
         c = hero(gold=0,inventory=['Anneau de Lenteur','Bijou'],locked_items=['Bijou'])
         before = deepcopy(c)

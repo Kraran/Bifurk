@@ -6,6 +6,14 @@ from pdf_text_repairs import repair_foret_confirmed_errata
 
 
 class ForetErrataTests(unittest.TestCase):
+    def test_victory_colophon_is_removed_without_truncating_story(self):
+        data = {400:"Récit final. Votre quête est terminée.\n\nAchevé d’imprimer le 12 septembre 1984\nImprimerie."}
+        repair_foret_confirmed_errata(data)
+        self.assertEqual(data[400],'Récit final. Votre quête est terminée.')
+        before = deepcopy(data)
+        repair_foret_confirmed_errata(data)
+        self.assertEqual(data,before)
+
     def test_missing_eel_ending_and_wrong_cave_reference_are_repaired_once(self):
         paragraphs = {186:'Un passage de rivière.',267:'Entrez, rendez-vous\nau 1%. Sinon rendez-vous au 25.',187:'Autre passage.'}
         repair_foret_confirmed_errata(paragraphs)

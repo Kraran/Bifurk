@@ -7213,7 +7213,8 @@
           "paragraph": 400,
           "severity": "warning",
           "kind": "printing_colophon",
-          "details": "Le texte extrait inclut le colophon après la victoire ; le retirer de la présentation lors de l’intégration."
+          "details": "Le texte extrait inclut le colophon après la victoire ; le retirer de la présentation lors de l’intégration.",
+          "status": "resolved"
         }
       ]
     }
@@ -7946,12 +7947,14 @@
       308,
       309,
       328,
+      333,
       358,
       370,
       372,
       376,
       388,
-      395
+      395,
+      399
     ],
     "notes": "Ces services validés sont implémentés dans grimoire_modules/foret. Le statut des 400 analyses ne valide pas une automatisation complète de chaque passage.",
     "conditional_route_paragraphs": [

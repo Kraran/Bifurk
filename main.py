@@ -1050,7 +1050,8 @@ class MainWindow(QMainWindow, ModuleActions):
         """Actualiser les commandes permanentes sans dépendre d'anciens onglets."""
         if not hasattr(self, 'combat_button'):
             return
-        playing = self.current_paragraph is not None and self._adventurer_draft is None and self.character['endurance'] > 0
+        playing = (self.current_paragraph is not None and self._adventurer_draft is None
+                   and self.character['endurance'] > 0 and not self.character.get('book_facts', {}).get('adventure_ended'))
         self.combat_button.setEnabled(playing and self.combat_available())
         self.tools_button.setEnabled(playing)
         self.care_button.setEnabled(playing and any(option['enabled'] for option in self.care_options()))
@@ -1752,6 +1753,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.hero_title.setText('L’AVENTURIER\n' +
                                 (self.character.get('name') or 'Votre destin s’écrit ici'))
         for key, spin in self.stat_spins.items():
+            spin.setEnabled(not self.character.get('book_facts', {}).get('adventure_ended'))
             spin.blockSignals(True)
             spin.setValue(int(self._ff_stat_value(key)))
             spin.blockSignals(False)
@@ -2146,6 +2148,8 @@ class MainWindow(QMainWindow, ModuleActions):
 
     def set_stat(self, key, value):
         """Appliquer une édition manuelle de caractéristique et rafraîchir sa représentation."""
+        if self.character.get('book_facts', {}).get('adventure_ended'):
+            return
         before = self._snapshot()
         bonus = self._ff_stat_value(key) - self.character.get(key, 0)
         self.character[key] = max(0, value - bonus)
@@ -2335,6 +2339,8 @@ def _track_action(method, label):
         effectivement atteint ; ce mécanisme est un historique, pas un rollback sur exception."""
         if self._restoring:
             return method(self, *args, **kwargs)
+        if self.character.get('book_facts', {}).get('adventure_ended'):
+            return
         depth = getattr(self, "_action_depth", 0)
         if depth == 0:
             self._feedback_action_id += 1

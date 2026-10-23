@@ -68,6 +68,43 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_transformations_block_play_preserve_stats_save_and_allow_undo(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({333:'Couronne.',399:'Grenouille.',68:'Soin.',167:'Vouivre.'})
+        base = w._snapshot()
+        for number in (333,399):
+            with self.subTest(number=number):
+                w._restore(base)
+                before = copy.deepcopy(w.character)
+                w.go_to(number)
+                self.assertEqual(w.character['endurance'],before['endurance'])
+                self.assertEqual(rules.peek(w.character)['ending'],number)
+                self.assertEqual(w._reading_link_targets(),set())
+                self.assertFalse(w.tools_button.isEnabled())
+                self.assertFalse(w.care_button.isEnabled())
+                ended = copy.deepcopy(w._snapshot())
+                w.go_to(68)
+                w.perform_foret_action('entry')
+                w.set_stat('endurance',1)
+                w.use_care('meal')
+                w.test_luck()
+                self.assertEqual(w._snapshot(),ended)
+                w.undo_action()
+                self.assertEqual(w.character,before)
+                self.assertTrue(w.tools_button.isEnabled())
+                w.redo_action()
+                path = main.SAVES_DIR/f'fin-{number}.json'
+                w._write_atomic(path,w._save_data())
+                with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                    self.assertTrue(w.load_game(path,announce=False))
+                w.go_to(167)
+                self.assertEqual(w.current_paragraph,number)
+                self.assertEqual(w.character['endurance'],before['endurance'])
+                self.assertFalse(w.stat_spins['endurance'].isEnabled())
+
     def test_village_missing_parts_opens_retry_and_handover_is_undoable(self):
         from grimoire_modules.foret import rules
         self.open()

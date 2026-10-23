@@ -8,6 +8,10 @@ converties globalement en événements exécutables.
 
 ## Ce qui est intégré
 
+- **Fins par transformation (§§333, 399)** : une fin distincte est sauvegardée,
+  sans mettre l’Endurance à zéro. Les actions de jeu et la navigation sont
+  bloquées ; l’annulation restaure la partie jouable. Le colophon d’imprimerie
+  est retiré du récit final au §400 pour cette édition.
 - **Yaztromo (§261)** : 17 articles, prix relus, quantités explicites, solde vérifié
   au clic. Un article acheté possède une charge. Les variantes « Bottes de Saut »
   et « Filet d’Enchevêtrement » retrouvent le même achat. Les cinq capsules du
