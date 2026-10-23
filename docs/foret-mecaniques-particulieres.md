@@ -135,6 +135,9 @@ paire. Une blessure létale interrompt les jets et coups suivants.
 
 Les duels et successions ordinaires sont aussi raccordés :
 
+- §§29 et 317 : deux Orques et deux Lutins affrontés un après l’autre,
+  selon le choix confirmé par l’utilisateur le 23 octobre 2026. La fuite reste
+  réglementaire ; la victoire au §317 donne accès au butin partiel du §301.
 - §§7, 43, 79, 212 et 330 : essaims, Hommes des Bois, Vampires, Clones et Loups
   affrontés un par un, conformément aux instructions explicites.
 - §§9/117 : même Gobelin persistant, avec sortie vers le butin de la branche.
@@ -217,7 +220,7 @@ existant : le Sorcier conserve son moteur et ses règles.
 intégration complète. Les autres effets ordinaires et rencontres restent à relier,
 ainsi que les illustrations. Le §70 utilise désormais la règle de bonus confirmée
 par l’utilisateur, sans modifier les règles de l’épée magique du Sorcier.
-Les §§29/317 demandent encore de confirmer le mode des deux adversaires.
+Les §§29/317 utilisent le mode successif confirmé par l’utilisateur le 23 octobre 2026.
 Les corrections fournies par l’utilisateur le 22 octobre 2026 lèvent les deux
 blocages de source : §186 complété par Anguille Carnivore H5/E4 et victoire au
 §131 ; §267 corrigé vers le §196 pour entrer dans la caverne (retour au §25).

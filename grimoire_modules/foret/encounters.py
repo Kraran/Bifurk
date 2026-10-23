@@ -2,7 +2,7 @@
 
 Une liste de groupes décrit des adversaires simultanés. Les groupes se succèdent,
 mais le joueur change librement de cible offensive entre les assauts d’un groupe.
-Les §§29/317 restent exclus tant que la source est ambiguë.
+Le mode successif des §§29/317 a été confirmé par l’utilisateur.
 Le profil de l’Anguille (§186) a été confirmé par l’utilisateur.
 """
 
@@ -23,6 +23,8 @@ HUNTERS = [[enemy('Chien de chasse',7,6)],
            [enemy('Chien de chasse A',6,6),enemy('Chien de chasse B',5,6)],
            [enemy('Dernier chien',6,5),enemy('Homme masqué',8,7)]]
 COMBATS = {
+    29: successive('two_orcs',383,[('Premier Orque',5,5),('Deuxième Orque',5,6)],escape=254),
+    317: successive('two_lutins',301,[('Premier Lutin',6,6),('Deuxième Lutin',5,7)],escape=41),
     7: successive('killer_bees',23,[('Premier essaim d’Abeilles Tueuses',7,3),
                                    ('Deuxième essaim d’Abeilles Tueuses',8,4),('Troisième essaim d’Abeilles Tueuses',7,4)]),
     9: successive('caged_goblin',176,[('Gobelin',5,4)]),

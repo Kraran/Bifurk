@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **154 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **156 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -14,7 +14,7 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | Catégorie du registre | Paragraphes |
 | --- | ---: |
 | Boutique de Yaztromo | 1 |
-| Profils de combat | 38 |
+| Profils de combat | 40 |
 | Effets d’entrée et usages d’objets | 69 |
 | Paiements | 7 |
 | Actions et épreuves spéciales | 35 |
@@ -63,9 +63,9 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 
 ## Reste à faire
 
-- **Rencontres** : clarifier les profils des §§29/317, puis vérifier les
-  contournements de combats et les conséquences des issues dans des parcours
-  complets. Les autres profils chiffrés du catalogue sont raccordés.
+- **Rencontres** : vérifier les contournements de combats et les conséquences
+  des issues dans des parcours complets. Les profils chiffrés du catalogue
+  sont raccordés, avec le mode successif confirmé pour les §§29/317.
 - **Autres effets** : variations de caractéristiques et de provisions, dons et
   trouvailles encore documentés sans commande : par exemple la clé d’argent
   du §50, le collier du §116, les objets et choix du §305, ainsi que les autres
@@ -81,8 +81,9 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 
 ## Points à clarifier
 
-Le mode de résolution des deux adversaires aux §§29 et 317 doit encore être
-confirmé. Aucun mode simultané ou successif n’est automatisé par supposition.
+Le mode de résolution des deux adversaires aux §§29 et 317 a été confirmé
+par l’utilisateur le 23 octobre 2026 : ils sont affrontés un après l’autre.
+La provenance de cette règle du projet figure dans chaque entrée du catalogue.
 Les cas non décrits par la source restent explicites : sac sans objet retirable
 au §370, insolvabilité aux §§12/218, absence d’épée au §358, absence de ration au §178, et interprétations
 documentées de certaines interactions.

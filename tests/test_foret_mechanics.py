@@ -18,7 +18,7 @@ class ForetMechanicsTests(unittest.TestCase):
     def test_ordinary_combat_profiles_match_reviewed_stats_and_routes(self):
         from pathlib import Path
         data = json.loads((Path(__file__).resolve().parents[1]/'catalogues/evenements_foret_1983.json').read_text(encoding='utf-8'))
-        numbers = (7,9,15,43,79,117,118,128,153,167,181,203,212,241,265,286,290,298,303,330,347)
+        numbers = (7,9,15,29,43,79,117,118,128,153,167,181,203,212,241,265,286,290,298,303,317,330,347)
         for number in numbers:
             with self.subTest(number=number):
                 entry = data['paragraphs'][str(number)]
@@ -31,8 +31,10 @@ class ForetMechanicsTests(unittest.TestCase):
                     self.assertEqual(profile['escape_target'],entry['routes'][1]['target'])
                 else:
                     self.assertNotIn('escape_target',profile)
-        self.assertNotIn(29,COMBATS)
-        self.assertNotIn(317,COMBATS)
+        for number in (29,317):
+            decision = data['paragraphs'][str(number)]['analysis']['combat_mode_confirmation']
+            self.assertEqual(decision['source'],'user')
+            self.assertEqual(decision['mode'],'successive')
 
     def test_leech_salt_costs_one_ration_once_and_empty_bag_is_not_free(self):
         c = hero(provisions=0)

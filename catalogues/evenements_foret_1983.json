@@ -504,7 +504,12 @@
       ],
       "analysis": {
         "source_page_pdf": 29,
-        "rules": "Combat de deux Orques [5/5], [5/6]; vérifier l'ordre selon les règles communes. Fuite proposée pendant le combat. Le mode de résolution des deux adversaires doit être confirmé avant automatisation ; la succession est une interprétation."
+        "rules": "Combat successif de deux Orques [5/5], [5/6]; fuite réglementaire vers le §254, victoire vers le §383. Mode successif confirmé par l’utilisateur le 23 octobre 2026.",
+        "combat_mode_confirmation": {
+          "source": "user",
+          "date": "2026-10-23",
+          "mode": "successive"
+        }
       }
     },
     "30": {
@@ -5694,7 +5699,12 @@
       ],
       "analysis": {
         "source_page_pdf": 135,
-        "rules": "Combat de deux Lutins : premier [6/6], deuxième [5/7]; résolution ordinaire successive selon règles communes, pas de règle de paires indiquée ici. Le mode de résolution des deux adversaires doit être confirmé avant automatisation ; la succession est une interprétation."
+        "rules": "Combat successif de deux Lutins [6/6], [5/7]; fuite réglementaire vers le §41, victoire vers le §301. Mode successif confirmé par l’utilisateur le 23 octobre 2026.",
+        "combat_mode_confirmation": {
+          "source": "user",
+          "date": "2026-10-23",
+          "mode": "successive"
+        }
       }
     },
     "318": {
@@ -7763,6 +7773,7 @@
       7,
       9,
       15,
+      29,
       43,
       49,
       71,
@@ -7794,6 +7805,7 @@
       298,
       303,
       310,
+      317,
       330,
       347,
       352,

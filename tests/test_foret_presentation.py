@@ -640,7 +640,7 @@ class ForetPresentationTests(unittest.TestCase):
         self.open()
         self.start()
         w = self.w
-        numbers = (7,9,15,43,79,117,118,128,153,167,181,203,212,241,265,286,290,298,303,330,347)
+        numbers = (7,9,15,29,43,79,117,118,128,153,167,181,203,212,241,265,286,290,298,303,317,330,347)
         w.character['habilete'] = 30
         base = w._snapshot()
         for number in numbers:
@@ -669,7 +669,7 @@ class ForetPresentationTests(unittest.TestCase):
         self.open()
         self.start()
         w = self.w
-        numbers = (7,9,15,43,79,117,118,128,153,167,181,203,212,241,265,286,290,298,303,330,347)
+        numbers = (7,9,15,29,43,79,117,118,128,153,167,181,203,212,241,265,286,290,298,303,317,330,347)
         w.character.update(habilete=1,endurance=2)
         base = w._snapshot()
         with patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No):
@@ -723,7 +723,7 @@ class ForetPresentationTests(unittest.TestCase):
         w.character.update(endurance=20,chance=8)
         base = w._snapshot()
         with patch.object(w,'_ask_combat_question',return_value=QMessageBox.No):
-            for number,target in ((43,188),(153,355),(212,107),(290,358)):
+            for number,target in ((29,254),(43,188),(153,355),(212,107),(290,358),(317,41)):
                 with self.subTest(number=number):
                     w._restore(base)
                     w.paragraphs.update({number:'Combat.',target:'Fuite.'})
@@ -760,6 +760,44 @@ class ForetPresentationTests(unittest.TestCase):
         w.perform_foret_action('leech_salt')
         self.assertEqual(w.character['provisions'],0)
         self.assertEqual(w._reading_link_targets(),{298})
+
+    def test_confirmed_orcs_and_lutins_resume_at_second_enemy_and_reach_their_loot(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.character['habilete'] = 30
+        w.paragraphs.update({29:'Orques.',317:'Lutins.',383:'Camp.',301:'Butin.'})
+        base = w._snapshot()
+        with patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No):
+            for number,stamina,target in ((29,6,383),(317,7,301)):
+                with self.subTest(number=number):
+                    w._restore(base)
+                    w.go_to(number)
+                    calls = self.roll.call_count
+                    for _ in range(3):w.combat_round()
+                    self.assertEqual(w.current_paragraph,number)
+                    self.assertEqual(self.roll.call_count-calls,6)
+                    self.assertEqual(w._foret_combat()['group'],1)
+                    self.assertEqual([e['stamina'] for e in w._combat_roster()],[0,stamina])
+                    path = main.SAVES_DIR/f'sequence-{number}.json'
+                    w._write_atomic(path,w._save_data())
+                    with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                        self.assertTrue(w.load_game(path,announce=False))
+                    self.assertEqual(w.enemy_endurance.value(),stamina)
+                    self.assertEqual([e['stamina'] for e in w._combat_roster()],[0,stamina])
+                    w.combat_round()
+                    self.assertEqual(w.enemy_endurance.value(),stamina-2)
+                    w.undo_action()
+                    self.assertEqual(w.enemy_endurance.value(),stamina)
+                    w.redo_action()
+                    for _ in range(4):
+                        if w.current_paragraph != number:break
+                        w.combat_round()
+                    self.assertEqual(w.current_paragraph,target)
+                    if number == 317:
+                        gold = w.character['gold']
+                        w.perform_foret_action('goblin_loot',(1,[]))
+                        self.assertEqual(w.character['gold'],gold+1)
 
     def test_cover_title_starting_resources_and_preparation_notice(self):
         self.open()
