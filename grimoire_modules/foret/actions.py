@@ -210,7 +210,7 @@ class ForetMechanicsActions(FightingFantasyActions):
             add('Résoudre le gaz toxique (1d6)', 'gas')
         if number in rules.ENTRY_RULES and not rules.entry_resolved(self.character, number):
             rule = rules.ENTRY_RULES[number]
-            label = ('Utiliser ' + rule['use'] if rule.get('use') else
+            label = rule.get('label') or ('Utiliser ' + rule['use'] if rule.get('use') else
                      'Employer ' + ', '.join(rule['remove']) if rule.get('remove') else 'Recueillir la trouvaille')
             add(label, 'entry', enabled=(not rule.get('use') or rules.available(self.character, rule['use']) > 0)
                 and all(name in self.character.get('inventory', []) for name in rule.get('remove', [])))
@@ -335,13 +335,19 @@ class ForetMechanicsActions(FightingFantasyActions):
                                   and 'Potion de Force' in self.character.get('inventory', [])
                                   and self.character['endurance'] < self.character['initial']['endurance'],
                         'reason':'Aucune Potion de Force utile disponible.'})
+        options.append({'id':'elven_bread', 'label':'Pain elfique (+4 Endurance)',
+                        'enabled':self.character['endurance'] > 0 and self._adventurer_draft is None
+                                  and not in_combat and not self.combat_available()
+                                  and rules.ELVEN_BREAD in self.character.get('inventory', [])
+                                  and self.character['endurance'] < self.character['initial']['endurance'],
+                        'reason':'Pain absent, sans effet utile, ou repas interdit pendant le combat.'})
         return options
 
     def use_care(self, kind):
-        if kind == 'force_potion':
-            option = self.care_options()[-1]
+        if kind in ('force_potion','elven_bread'):
+            option = next(option for option in self.care_options() if option['id'] == kind)
             if option['enabled']:
-                self.perform_foret_action('force_potion')
+                self.perform_foret_action(kind)
         else:
             FightingFantasyActions.use_care(self, kind)
 
@@ -415,6 +421,8 @@ class ForetMechanicsActions(FightingFantasyActions):
                 rules.wear(self.character, payload, enabled=action == 'wear')
             elif action == 'force_potion':
                 rules.heal_found_potion(self.character)
+            elif action == 'elven_bread':
+                rules.eat_elven_bread(self.character,in_combat=self.combat_available())
             elif action == 'fever':
                 rules.damage_hero(self.character, 3)
                 self._refresh_character()

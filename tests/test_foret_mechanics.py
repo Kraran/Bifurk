@@ -14,6 +14,41 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_elven_bread_is_found_once_and_eaten_separately_without_provisions(self):
+        c = hero(endurance=12,provisions=0,chance=8)
+        self.assertTrue(r.resolve_entry(c,257))
+        self.assertEqual((c['endurance'],c['chance']),(12,9))
+        c['inventory'].append(r.ELVEN_BREAD)
+        r.eat_elven_bread(c)
+        self.assertEqual((c['endurance'],c['provisions']),(16,0))
+        self.assertEqual(c['inventory'].count(r.ELVEN_BREAD),1)
+        r.eat_elven_bread(c)
+        self.assertEqual(c['endurance'],20)
+        self.assertFalse(r.resolve_entry(c,257))
+        self.assertNotIn(r.ELVEN_BREAD,c['inventory'])
+
+    def test_elven_bread_refuses_combat_full_health_missing_item_and_death(self):
+        for endurance,items,in_combat in ((20,[r.ELVEN_BREAD],False),(10,[r.ELVEN_BREAD],True),
+                                          (10,[],False),(0,[r.ELVEN_BREAD],False)):
+            c = hero(endurance=endurance,inventory=items)
+            before = deepcopy(c)
+            with self.assertRaises(ValueError):r.eat_elven_bread(c,in_combat=in_combat)
+            self.assertEqual(c,before)
+
+    def test_monk_bell_exchange_heals_once_without_refilling_potion(self):
+        c = hero(endurance=18,potion="Potion d'Adresse",potion_doses=1)
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.resolve_entry(c,184)
+        self.assertEqual(c,before)
+        self.assertFalse(r.route_available(c,191,184))
+        c['inventory'] += [r.BELL,r.BELL]
+        self.assertTrue(r.route_available(c,191,184))
+        r.resolve_entry(c,184)
+        self.assertEqual((c['endurance'],c['potion_doses']),(20,1))
+        self.assertEqual(c['inventory'],[r.BELL])
+        self.assertFalse(r.resolve_entry(c,184))
+        self.assertEqual(c['inventory'],[r.BELL])
+
     def test_branch_tests_all_totals_costs_and_damage_locations(self):
         for number,(stat,success,failure,damage) in r.BRANCH_TESTS.items():
             for total in range(2,13):
