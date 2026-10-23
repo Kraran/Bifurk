@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **159 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **172 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -15,7 +15,7 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | --- | ---: |
 | Boutique de Yaztromo | 1 |
 | Profils de combat | 40 |
-| Effets d’entrée et usages d’objets | 72 |
+| Effets d’entrée et usages d’objets | 85 |
 | Paiements | 7 |
 | Actions et épreuves spéciales | 35 |
 | Conditions et coûts de route recensés séparément | 6 (§§130, 191, 243, 246, 295, 360) |
@@ -61,6 +61,11 @@ Les §§50 et 116 donnent la petite clé d’argent et le collier de cuir incrus
 d’or, sans convertir sa valeur en pièces. Le §305 donne dix pièces et le couteau
 à lancer une seule fois ; essayer le gantelet ou passer l’anneau reste un choix
 séparé. Le butin ne modifie pas l’état de la Vouivre.
+
+Huit blessures fixes (§§19, 108, 143, 159, 250, 275, 277, 345), trois soins
+(§§68, 269, 283), les deux boucles d’oreille du §202 et les deux pièces du §311
+sont raccordés. Les soins respectent le plafond initial sans prendre de ration.
+La blessure du §277 précède les deux choix ; le casque du §275 reste facultatif.
 
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,
