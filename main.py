@@ -1099,9 +1099,9 @@ class MainWindow(QMainWindow, ModuleActions):
         """Choisir couverture, illustration courante ou décor de repli selon l’écran affiché."""
         # La couverture est réservée à l'introduction. Pendant la lecture, le
         # décor fourni remplit la surface sans devenir une illustration active.
-        background = None if prefer_cover else QPixmap(str(ASSET_DIR / 'illustration-background.jpg'))
-        if getattr(self.book_module, 'status', 'ready') == 'preview':
-            background = None  # Le décor du thème reste neutre avant l'association des illustrations du livre.
+        background_name = ('foret.jpg' if getattr(self.book_module, 'engine', '') == 'foret-1983'
+                           else 'illustration-background.jpg')
+        background = None if prefer_cover else QPixmap(str(ASSET_DIR / background_name))
         self.scene_art.set_background_art(background)
         self.scene_entry = None
         self.scene_title = ''

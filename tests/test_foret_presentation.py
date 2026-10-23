@@ -70,6 +70,7 @@ class ForetPresentationTests(unittest.TestCase):
 
     def test_forest_art_selection_popup_save_and_no_stale_image(self):
         self.open()
+        self.assertTrue(self.w.scene_art.background_art.isNull())
         self.start()
         w = self.w
         w.paragraphs.update({91:'Œil d’Ambre.',55:'Sans illustration.'})
@@ -97,6 +98,7 @@ class ForetPresentationTests(unittest.TestCase):
         w.go_to(55)
         self.assertIsNone(w.scene_entry)
         self.assertFalse(w.scene_art.is_book_art)
+        self.assertEqual(w.scene_art.picture.toImage(),main.QPixmap(str(main.ASSET_DIR/'foret.jpg')).toImage())
         with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
             self.assertTrue(w.load_game(path,announce=False))
         self.assertEqual(w.scene_entry['paragraphes'],[91])
@@ -1790,7 +1792,7 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(self.roll.call_count, dice)
         self.assertIsNone(self.w.scene_entry)
         self.assertFalse(self.w.scene_art.is_book_art)
-        self.assertTrue(self.w.scene_art.background_art.isNull())
+        self.assertEqual(self.w.scene_art.background_art.toImage(),main.QPixmap(str(main.ASSET_DIR/'foret.jpg')).toImage())
 
     def test_library_lists_both_covers_and_preselects_last_book(self):
         self.open('sorcier')
