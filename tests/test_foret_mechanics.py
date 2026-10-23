@@ -14,6 +14,53 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_snare_luck_success_preserves_weapon_and_spends_once(self):
+        c = hero(inventory=['Épée'],equipped_weapon='Épée')
+        self.assertEqual(r.resolve_snare(c,2),40)
+        self.assertEqual((c['chance'],c['endurance'],c['inventory']),(7,20,['Épée']))
+        before = deepcopy(c)
+        self.assertEqual(r.resolve_snare(c,12),40)
+        self.assertEqual(c,before)
+
+    def test_snare_failure_restores_same_enchanted_sword_after_gold_or_magic_payment(self):
+        for magic in (False,True):
+            c = hero(inventory=['Épée'],equipped_weapon='Épée')
+            r.resolve_entry(c,70)
+            c['inventory'].append('Casque magique')
+            r.wear(c,'Casque magique')
+            self.assertEqual(r.resolve_snare(c,12),218)
+            self.assertEqual(r.effective_skill(c),8)
+            self.assertNotIn(r.ENCHANTED_SWORD,c['inventory'])
+            self.assertEqual(r.peek(c)['snare_sword'],r.ENCHANTED_SWORD)
+            before = deepcopy(c)
+            with self.assertRaises(ValueError):r.pay_paragraph(c,218,items=[r.ENCHANTED_SWORD])
+            self.assertEqual(c,before)
+            kwargs = {'items':['Casque magique']} if magic else {'gold':5}
+            self.assertTrue(r.pay_paragraph(c,218,**kwargs))
+            self.assertEqual(r.effective_skill(c),10)
+            self.assertEqual(c['inventory'].count(r.ENCHANTED_SWORD),1)
+            self.assertEqual(c['equipped_weapon'],r.ENCHANTED_SWORD)
+            self.assertEqual(c['endurance'],20)
+            self.assertFalse(r.pay_paragraph(c,218,**kwargs))
+            self.assertEqual(c['inventory'].count(r.ENCHANTED_SWORD),1)
+
+    def test_snare_missing_weapon_invalid_dice_and_insolvency_do_not_mutate(self):
+        c = hero()
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.resolve_snare(c,2)
+        self.assertEqual(c,before)
+        c = hero(inventory=['Épée'],gold=0,equipped_weapon='Épée')
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.resolve_snare(c,True)
+        self.assertEqual(c,before)
+        r.resolve_snare(c,12)
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.pay_paragraph(c,218,gold=5)
+        self.assertEqual(c,before)
+        direct = hero()
+        r.pay_paragraph(direct,218,gold=5)
+        self.assertEqual(direct['inventory'],[])
+
     def test_elven_bread_is_found_once_and_eaten_separately_without_provisions(self):
         c = hero(endurance=12,provisions=0,chance=8)
         self.assertTrue(r.resolve_entry(c,257))
