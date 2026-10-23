@@ -1,0 +1,3426 @@
+{
+  "schema_version": 1,
+  "book_id": "foret_malediction_1983",
+  "pdf_sha256": "0abac11c0e88ce244c5513bf4b1537fa46159df5606d3e3c8c28b83e6614f6e1",
+  "review_date": "2026-10-23",
+  "scope": "Revue des 400 analyses et rapprochement avec les points d’entrée du moteur ; relecture PDF et reproduction Qt ciblées des écarts. Aucun pourcentage de complétude.",
+  "findings": [
+    {
+      "id": "F01",
+      "kind": "mecanique",
+      "priority": 1,
+      "title": "Test de Chance absent après le Bandeau",
+      "paragraphs": [
+        158
+      ],
+      "observation": "Le bouton consomme le Bandeau mais ne lance aucun dé, ne dépense aucune Chance et laisse les routes 47 et 353 ouvertes ensemble. Reproduction Qt : 0 jet, 0 Chance dépensée après le bouton d’entrée. Le PDF demande Tenter sa Chance.",
+      "next_step": "Raccorder un test unique, son coût et sa destination, atomiquement avec l’usage du Bandeau ; tester les deux issues et la sauvegarde."
+    },
+    {
+      "id": "F02",
+      "kind": "mecanique",
+      "priority": 2,
+      "title": "Trois prises d’objets sans commande",
+      "paragraphs": [
+        146,
+        152,
+        242
+      ],
+      "observation": "Aucun bouton de prise n’est proposé : morceau de pierre facultatif (§146), couronne récupérée sans la porter (§152), lingot de valeur 28 Or contre abandon d’un objet (§242). Le PDF confirme les trois prises ; le lecteur conserve actuellement l’inventaire inchangé.",
+      "next_step": "Ajouter les prises uniques, séparer possession et port de la couronne, et rendre le troc du lingot facultatif et atomique sans créditer 28 pièces."
+    },
+    {
+      "id": "F03",
+      "kind": "condition",
+      "priority": 2,
+      "title": "Historique du coffre et du tonneau incomplet",
+      "paragraphs": [
+        201,
+        215,
+        248,
+        293,
+        389
+      ],
+      "observation": "Les routes 201/248 → 389 restent ouvertes après destruction du coffre. La route 389 → 215 reste ouverte après examen du tonneau. Les gains de 389 et 248 sont déjà uniques : le défaut porte sur les choix et l’état d’examen, pas sur une duplication d’or démontrée.",
+      "next_step": "Conserver l’examen et l’ouverture séparément de la prise du bouclier, puis filtrer les routes conditionnelles. Tester tous les ordres et le refus du bouclier."
+    },
+    {
+      "id": "F04",
+      "kind": "condition",
+      "priority": 2,
+      "title": "Essais du gantelet et de l’anneau reproposés",
+      "paragraphs": [
+        133,
+        374
+      ],
+      "observation": "Après les deux essais, les routes 133 → 374 et 374 → 133 restent proposées. Le PDF réserve ces choix à un objet non encore essayé. Les objets et bonus ne sont pas réattribués grâce aux marqueurs d’entrée existants.",
+      "next_step": "Masquer chaque essai déjà effectué sans bloquer le départ vers 360 ; conserver l’interdiction après sauvegarde et annulation."
+    },
+    {
+      "id": "F05",
+      "kind": "condition",
+      "priority": 2,
+      "title": "La branche sans clochette reste ouverte avec la clochette",
+      "paragraphs": [
+        191
+      ],
+      "observation": "Avec la clochette dans le sac, le lecteur autorise à la fois 184 et 243. Le PDF distingue explicitement si oui / sinon. Seule la condition de la route vers 184 est implémentée.",
+      "next_step": "Rendre les deux branches complémentaires, avec tests de présence, absence et retrait de la clochette."
+    },
+    {
+      "id": "F06",
+      "kind": "liens_texte",
+      "priority": 2,
+      "title": "Quatre renvois non cliquables dans le texte",
+      "paragraphs": [
+        251,
+        266,
+        343
+      ],
+      "observation": "Après extraction et réparations de l’édition, le parseur ne reconnaît pas 251 → 260, 266 → 129/354 et 343 → 8. Les formulations avec ensuite et vous vous rendrez ne sont pas reconnues. Les destinations du catalogue et les commandes/cartes correspondantes sont présentes.",
+      "next_step": "Compléter le parseur de renvois avec des exemples ciblés et vérifier les faux positifs ; les 641 destinations du catalogue ne sont pas à reconstruire."
+    },
+    {
+      "id": "F07",
+      "kind": "decision_source",
+      "priority": 2,
+      "title": "Sept situations limites bloquées sans règle inventée",
+      "paragraphs": [
+        12,
+        14,
+        178,
+        218,
+        328,
+        358,
+        370
+      ],
+      "observation": "Absence de moyen de paiement (12/14/218), absence de ration (178/328), absence d’arme (358) ou absence d’objet retirable (370). Le moteur refuse l’action sans dépense partielle. Les analyses et le PDF ne donnent pas toutes une issue explicite.",
+      "next_step": "Présenter ces cas à l’utilisateur lors du point consacré aux décisions de règles ; ne pas les résoudre silencieusement dans cet audit."
+    },
+    {
+      "id": "F08",
+      "kind": "documentation",
+      "priority": 3,
+      "title": "Analyses et registre historique à harmoniser",
+      "paragraphs": [
+        70,
+        94,
+        136,
+        164,
+        248,
+        308,
+        352,
+        394,
+        400
+      ],
+      "observation": "Certaines analyses parlent encore de règles à préciser déjà décidées ou mises en œuvre : épée, bouclier, échange H/Chance, fuite et chute, correction 186 et retrait du colophon. Le devenir physique de la corde attachée et sa récupération restent peu explicites ; l’usage magique unique est déjà appliqué. Le registre omet des conditions d’objets, deux conditions explicites et la chute automatique.",
+      "next_step": "Actualiser les analyses sans les rendre exécutables en bloc, distinguer choix documentés et incertitudes de source, et réconcilier le registre avec l’inventaire réel."
+    }
+  ],
+  "paragraphs": {
+    "1": {
+      "source_page_pdf": 19,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Choix initial avant les achats.",
+      "findings": []
+    },
+    "2": {
+      "source_page_pdf": 20,
+      "status": "couvert",
+      "runtime": [
+        "automatique"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Mort après défaite contre la Goule.",
+      "findings": []
+    },
+    "3": {
+      "source_page_pdf": 20,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Vérifier la possession de l'anneau, pas sa consommation. Chaque achat chez Yaztromo possède une seule utilisation magique (§261), même si l’objet est conservé.",
+      "findings": []
+    },
+    "4": {
+      "source_page_pdf": 20,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -4; ne poursuivre que si vivant.",
+      "findings": []
+    },
+    "5": {
+      "source_page_pdf": 20,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : La couronne n'est pas encore équipée.",
+      "findings": []
+    },
+    "6": {
+      "source_page_pdf": 20,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "7": {
+      "source_page_pdf": 21,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat successif : essaim 1 [7/3], essaim 2 [8/4], essaim 3 [7/4]. Pas de fuite proposée.",
+      "findings": []
+    },
+    "8": {
+      "source_page_pdf": 21,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "9": {
+      "source_page_pdf": 22,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Gobelin [5/4]. Pas de fuite proposée.",
+      "findings": []
+    },
+    "10": {
+      "source_page_pdf": 22,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Le lancer de roc échoue sans jet demandé.",
+      "findings": []
+    },
+    "11": {
+      "source_page_pdf": 22,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Évanouissement; aucun malus chiffré ici.",
+      "findings": []
+    },
+    "12": {
+      "source_page_pdf": 22,
+      "status": "decision_source",
+      "runtime": [
+        "paiement"
+      ],
+      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Récupérer l'épée contre 10 Or OU deux objets précieux choisis; pas les deux. Cas d'insolvabilité non décrit, à traiter sans inventer de paiement.",
+      "findings": [
+        "F07"
+      ]
+    },
+    "13": {
+      "source_page_pdf": 23,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Chance -3 après libération de la Force Tellurique.",
+      "findings": []
+    },
+    "14": {
+      "source_page_pdf": 23,
+      "status": "decision_source",
+      "runtime": [
+        "paiement"
+      ],
+      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Payer 3 Or OU, à défaut d'or, un objet magique choisi; retirer le paiement. Absence des deux moyens non décrite.",
+      "findings": [
+        "F07"
+      ]
+    },
+    "15": {
+      "source_page_pdf": 24,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Ver Piqueur [8/7]. Pas de jet de venin supplémentaire prescrit.",
+      "findings": []
+    },
+    "16": {
+      "source_page_pdf": 24,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : L'empoisonnement est résolu dans le passage suivant.",
+      "findings": []
+    },
+    "17": {
+      "source_page_pdf": 26,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Offrande de 1 Or seulement si choix du vœu; ne pas doubler avec le §89.",
+      "findings": []
+    },
+    "18": {
+      "source_page_pdf": 26,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Guérison narrative de la lycanthropie; pas de restauration chiffrée.",
+      "findings": []
+    },
+    "19": {
+      "source_page_pdf": 26,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -1; la morsure infectée est retirée.",
+      "findings": []
+    },
+    "20": {
+      "source_page_pdf": 26,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Ne pas créer une sortie au sud que le texte écarte.",
+      "findings": []
+    },
+    "21": {
+      "source_page_pdf": 27,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boire et retirer la Potion Antipoison; neutraliser le poison.",
+      "findings": []
+    },
+    "22": {
+      "source_page_pdf": 27,
+      "status": "couvert",
+      "runtime": [
+        "gaz"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Habileté -2 puis Endurance -1d6; conserver la boîte d'argent. Un seul dé pour la perte d'Endurance.",
+      "findings": []
+    },
+    "23": {
+      "source_page_pdf": 27,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de repas ni de soin accordé par le repos décrit.",
+      "findings": []
+    },
+    "24": {
+      "source_page_pdf": 28,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boire et retirer la Potion Antipoison; les effets des fléchettes disparaissent.",
+      "findings": []
+    },
+    "25": {
+      "source_page_pdf": 28,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "26": {
+      "source_page_pdf": 28,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun objet acquis avant le choix.",
+      "findings": []
+    },
+    "27": {
+      "source_page_pdf": 29,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de bonus de victoire indiqué ici.",
+      "findings": []
+    },
+    "28": {
+      "source_page_pdf": 29,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Vérification d'objet sans consommation explicite.",
+      "findings": []
+    },
+    "29": {
+      "source_page_pdf": 29,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat successif de deux Orques [5/5], [5/6]; fuite réglementaire vers le §254, victoire vers le §383. Mode successif confirmé par l’utilisateur le 23 octobre 2026.",
+      "findings": []
+    },
+    "30": {
+      "source_page_pdf": 29,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -2.",
+      "findings": []
+    },
+    "31": {
+      "source_page_pdf": 30,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "32": {
+      "source_page_pdf": 31,
+      "status": "couvert",
+      "runtime": [
+        "paiement"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Retirer 10 Or ET deux objets choisis; Chance -1. Précondition de paiement à vérifier depuis le choix précédent.",
+      "findings": []
+    },
+    "33": {
+      "source_page_pdf": 31,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de perte de Chance annoncée pour le refus.",
+      "findings": []
+    },
+    "34": {
+      "source_page_pdf": 31,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Choisir UNE restauration à l'initial : Habileté OU Endurance OU Chance. Retirer la lanterne magique utilisée, sans confondre avec la lanterne de départ.",
+      "findings": []
+    },
+    "35": {
+      "source_page_pdf": 31,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -4.",
+      "findings": []
+    },
+    "36": {
+      "source_page_pdf": 32,
+      "status": "couvert",
+      "runtime": [
+        "paiement"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Perdre tout l'or restant OU deux objets magiques achetés chez Yaztromo. Suivre la provenance des objets; choix et manque de moyens à préciser.",
+      "findings": []
+    },
+    "37": {
+      "source_page_pdf": 32,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Ne pas appliquer les effets du fruit avant le choix de le manger.",
+      "findings": []
+    },
+    "38": {
+      "source_page_pdf": 32,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "39": {
+      "source_page_pdf": 34,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Utiliser et laisser le Filet d'Enchevêtrement; récupérer le sac de cuir, contenu traité ensuite. Troll capturé, pas tué.",
+      "findings": []
+    },
+    "40": {
+      "source_page_pdf": 34,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de perte chiffrée dans ce passage.",
+      "findings": []
+    },
+    "41": {
+      "source_page_pdf": 34,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "42": {
+      "source_page_pdf": 34,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Chance -1 avant le prochain passage.",
+      "findings": []
+    },
+    "43": {
+      "source_page_pdf": 35,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat successif : Homme des Bois 1 [7/5], Homme des Bois 2 [6/4].",
+      "findings": []
+    },
+    "44": {
+      "source_page_pdf": 35,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -2 avant de placer les Filtres à Nez; pas de perte récurrente après protection.",
+      "findings": []
+    },
+    "45": {
+      "source_page_pdf": 35,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -2.",
+      "findings": []
+    },
+    "46": {
+      "source_page_pdf": 35,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Chance -2; le projectile est transformé, pas de combat ni de jet.",
+      "findings": []
+    },
+    "47": {
+      "source_page_pdf": 36,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Sorcière enfuie; ne pas enregistrer une victoire mortelle.",
+      "findings": []
+    },
+    "48": {
+      "source_page_pdf": 36,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Lancer 1d6; Endurance diminuée du résultat. Pas de jet par fragment.",
+      "findings": []
+    },
+    "49": {
+      "source_page_pdf": 36,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat successif : Gremlin 1 [4/3], Gremlin 2 [3/2]. Force d'Attaque du héros -3 à chaque assaut; pas de fuite.",
+      "findings": []
+    },
+    "50": {
+      "source_page_pdf": 38,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter la petite clé d'argent prise sur un Homme des Bois.",
+      "findings": []
+    },
+    "51": {
+      "source_page_pdf": 38,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "52": {
+      "source_page_pdf": 38,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Brassard de Force : victoire sans dé. Mise de Quin : Poudre de Lévitation contre un objet OU 10 Or; aucun coût au héros gagnant.",
+      "findings": []
+    },
+    "53": {
+      "source_page_pdf": 38,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or ramené à zéro; conserver épée et objets. Pas de perte d'Endurance chiffrée.",
+      "findings": []
+    },
+    "54": {
+      "source_page_pdf": 39,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun combat à préparer avant confirmation du choix.",
+      "findings": []
+    },
+    "55": {
+      "source_page_pdf": 39,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Utiliser le gant de soie violette pour lancer la pierre; Ogre assommé sans jet ni dépense de gant annoncée.",
+      "findings": []
+    },
+    "56": {
+      "source_page_pdf": 39,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de sortie au sud offerte.",
+      "findings": []
+    },
+    "57": {
+      "source_page_pdf": 40,
+      "status": "couvert",
+      "runtime": [
+        "epreuve"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve de Chance 2d6, coût 1 Chance; dégâts appliqués dans la branche, pas ici.",
+      "findings": []
+    },
+    "58": {
+      "source_page_pdf": 41,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Consommer Eau Bénite contre la Goule; Or +25, ajouter tête de marteau en bronze marquée G. Goule neutralisée, pas de combat.",
+      "findings": []
+    },
+    "59": {
+      "source_page_pdf": 41,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de sortie vers le sud offerte.",
+      "findings": []
+    },
+    "60": {
+      "source_page_pdf": 41,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve de Chance 2d6, coût 1 Chance. Possession préalable de Filtres à Nez requise par le parcours.",
+      "findings": []
+    },
+    "61": {
+      "source_page_pdf": 41,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "62": {
+      "source_page_pdf": 42,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Victoire de la rencontre multiple précédente; aucun butin annoncé.",
+      "findings": []
+    },
+    "63": {
+      "source_page_pdf": 42,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de combat à résoudre; la flèche a manqué dans la branche précédente.",
+      "findings": []
+    },
+    "64": {
+      "source_page_pdf": 42,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boire et retirer Potion de Contrôle des Plantes; échapper à l'Herbe d'Embrouille.",
+      "findings": []
+    },
+    "65": {
+      "source_page_pdf": 42,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Campement; pas de repas ou restauration automatique.",
+      "findings": []
+    },
+    "66": {
+      "source_page_pdf": 43,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Campement; pas de repas ou restauration automatique.",
+      "findings": []
+    },
+    "67": {
+      "source_page_pdf": 43,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de sortie vers les collines offerte.",
+      "findings": []
+    },
+    "68": {
+      "source_page_pdf": 43,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boire le liquide de la bouteille trouvée; Endurance +3 sous plafond initial.",
+      "findings": []
+    },
+    "69": {
+      "source_page_pdf": 43,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Quatre choix; ne pas confondre les couleurs.",
+      "findings": []
+    },
+    "70": {
+      "source_page_pdf": 45,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter et équiper l'épée enchantée; Habileté +2. Articulation au plafond initial et à la perte de l'épée à spécifier avec les règles générales, sans appliquer les mécanismes du Sorcier implicitement.",
+      "findings": [
+        "F08"
+      ]
+    },
+    "71": {
+      "source_page_pdf": 45,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : chef Gremlin [5/5]; Force d'Attaque du héros -3 à chaque assaut, plafond bas.",
+      "findings": []
+    },
+    "72": {
+      "source_page_pdf": 46,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "73": {
+      "source_page_pdf": 46,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : UN jet de 2d6 comparé aux deux caractéristiques; ce n'est pas Tenter sa Chance, ne pas dépenser de Chance. Pas de blessure chiffrée pour l'échec.",
+      "findings": []
+    },
+    "74": {
+      "source_page_pdf": 46,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +5 et ajouter petite cloche de cuivre; contenu du sac acquis une seule fois pour ce butin.",
+      "findings": []
+    },
+    "75": {
+      "source_page_pdf": 46,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Traversée sans dégât; pas de repas automatique.",
+      "findings": []
+    },
+    "76": {
+      "source_page_pdf": 47,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "77": {
+      "source_page_pdf": 47,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Ne pas lancer un combat contre les Pygmées en fuite.",
+      "findings": []
+    },
+    "78": {
+      "source_page_pdf": 47,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter Poudre de Lévitation gagnée; ne pas la créditer aussi au §52 ou §266.",
+      "findings": []
+    },
+    "79": {
+      "source_page_pdf": 47,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat successif : Vampire 1 [5/5], Vampire 2 [6/5], Vampire 3 [5/7]. Ne pas importer les règles du Vampire du Sorcier.",
+      "findings": []
+    },
+    "80": {
+      "source_page_pdf": 48,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "81": {
+      "source_page_pdf": 48,
+      "status": "couvert",
+      "runtime": [
+        "epreuve"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve de Chance 2d6, coût 1 Chance; dégâts -4 E dans le §4 seulement.",
+      "findings": []
+    },
+    "82": {
+      "source_page_pdf": 48,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Vérification d'objet; consommation dans le §235.",
+      "findings": []
+    },
+    "83": {
+      "source_page_pdf": 48,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Consommer la belladone; Endurance -2 pour son poison.",
+      "findings": []
+    },
+    "84": {
+      "source_page_pdf": 48,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Bête Rocheuse [8/11]. Fuite avec blessure réglementaire après trois assauts.",
+      "findings": []
+    },
+    "85": {
+      "source_page_pdf": 49,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Le bâton au cou du Gobelin n'est pas encore acquis.",
+      "findings": []
+    },
+    "86": {
+      "source_page_pdf": 49,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun combat; aucune règle du Crocodile du Sorcier.",
+      "findings": []
+    },
+    "87": {
+      "source_page_pdf": 49,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "88": {
+      "source_page_pdf": 49,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "89": {
+      "source_page_pdf": 50,
+      "status": "couvert",
+      "runtime": [
+        "paiement"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or -1 pour l'offrande choisie au §17; aucun gain en retour. Ne pas payer une seconde fois si la transition prélève déjà la pièce.",
+      "findings": []
+    },
+    "90": {
+      "source_page_pdf": 50,
+      "status": "couvert",
+      "runtime": [
+        "epreuve"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve de Chance 2d6, coût 1 Chance; branche malchanceuse Endurance -3.",
+      "findings": []
+    },
+    "91": {
+      "source_page_pdf": 52,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter et porter le collier Œil d'Ambre; Chance +1. Inscription vérifiée visuellement page PDF 52 : porté au cou, questionner une personne suspecte la force à dire vrai. Texte porté par une image, absent de l'extraction.",
+      "findings": []
+    },
+    "92": {
+      "source_page_pdf": 52,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Consommation et issue de la potion dans le §100.",
+      "findings": []
+    },
+    "93": {
+      "source_page_pdf": 53,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "94": {
+      "source_page_pdf": 53,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Corde attachée au tronc pour la descente; suivre son état/récupération au retour, pas de destruction annoncée ici.",
+      "findings": [
+        "F08"
+      ]
+    },
+    "95": {
+      "source_page_pdf": 53,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Vérifier l'objet; consommation dans la branche suivante.",
+      "findings": []
+    },
+    "96": {
+      "source_page_pdf": 53,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat d'abord Chien de chasse [7/6], puis paire Chiens [6/6] et [5/6], puis paire Chien [6/5] et Homme Masqué [8/7]. Cible offensive choisie À CHAQUE ASSAUT; l'autre adversaire ne peut être que paré et peut blesser. Quand un membre meurt, finir l'autre normalement. Pas de fuite annoncée.",
+      "findings": []
+    },
+    "97": {
+      "source_page_pdf": 54,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Repas résolu dans le §328 uniquement.",
+      "findings": []
+    },
+    "98": {
+      "source_page_pdf": 54,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve de Chance 2d6, coût 1 Chance; échec = mort sans destination. Retour au §1 dans la même aventure, ne pas recréer le héros ni rendre 30 Or.",
+      "findings": []
+    },
+    "99": {
+      "source_page_pdf": 55,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "100": {
+      "source_page_pdf": 55,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boire et retirer Potion de Contrôle des Insectes; neutraliser les abeilles sans assauts ni perte d'Endurance.",
+      "findings": []
+    },
+    "101": {
+      "source_page_pdf": 55,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +5 et petite cloche de cuivre; même butin physique qu'aux §§74 et 287, éviter une double acquisition lors de revisites.",
+      "findings": []
+    },
+    "102": {
+      "source_page_pdf": 56,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Ne pas suivre le cheval au sud.",
+      "findings": []
+    },
+    "103": {
+      "source_page_pdf": 56,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Ne pas dévoiler la créature avant d'approcher.",
+      "findings": []
+    },
+    "104": {
+      "source_page_pdf": 56,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat initial : Femme Bandit [8/6]; puis paires Bandits A [7/6] et B [6/4], puis A [7/5] et B [5/6]. Choix de cible à CHAQUE assaut; autre adversaire uniquement paré; finir normalement le survivant. Pas de fuite proposée.",
+      "findings": []
+    },
+    "105": {
+      "source_page_pdf": 57,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "106": {
+      "source_page_pdf": 58,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter bague d'or à émeraude, valeur 15 Or; Chance +2. Valeur d'objet, pas un gain de 15 pièces.",
+      "findings": []
+    },
+    "107": {
+      "source_page_pdf": 58,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Démon de Feu [10/10]. À CHAQUE assaut, après calcul des Forces d'Attaque, 1d6 pour le fouet : 1–2 = Endurance -1, 3–6 = pas de coup. Chance facultative pour parer le fouet. Ordonner fouet, blessure et éventuelle mort sans ignorer le fouet sur un assaut gagnant.",
+      "findings": []
+    },
+    "108": {
+      "source_page_pdf": 60,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -3.",
+      "findings": []
+    },
+    "109": {
+      "source_page_pdf": 60,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "110": {
+      "source_page_pdf": 60,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun butin automatique avant choix.",
+      "findings": []
+    },
+    "111": {
+      "source_page_pdf": 61,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +5; accord de ne pas révéler la supercherie.",
+      "findings": []
+    },
+    "112": {
+      "source_page_pdf": 61,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Le chemin à l'est est volontairement écarté.",
+      "findings": []
+    },
+    "113": {
+      "source_page_pdf": 61,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "114": {
+      "source_page_pdf": 61,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Pas de règles de Piranhas malgré le numéro 350.",
+      "findings": []
+    },
+    "115": {
+      "source_page_pdf": 62,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "116": {
+      "source_page_pdf": 62,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter collier de cuir incrusté d'or, valeur 15 Or; ne pas convertir automatiquement en pièces.",
+      "findings": []
+    },
+    "117": {
+      "source_page_pdf": 62,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Gobelin [5/4]. Variante de libération distincte du §9, même créature et butin à suivre par état.",
+      "findings": []
+    },
+    "118": {
+      "source_page_pdf": 62,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Sanglier Sauvage [6/5]; pas de fuite proposée.",
+      "findings": []
+    },
+    "119": {
+      "source_page_pdf": 63,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "120": {
+      "source_page_pdf": 63,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Profondeur narrative de cinq mètres, pas un seuil de dé.",
+      "findings": []
+    },
+    "121": {
+      "source_page_pdf": 63,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "122": {
+      "source_page_pdf": 64,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "123": {
+      "source_page_pdf": 64,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat deux fois Homme-Arbre [8/8], une fois pour chaque branche; modéliser deux combats successifs, pas un simple total d'Endurance 8. Fuite proposée.",
+      "findings": []
+    },
+    "124": {
+      "source_page_pdf": 64,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "125": {
+      "source_page_pdf": 64,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun dégât avant le §15.",
+      "findings": []
+    },
+    "126": {
+      "source_page_pdf": 65,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boîte ouverte; gaz résolu dans les branches.",
+      "findings": []
+    },
+    "127": {
+      "source_page_pdf": 65,
+      "status": "couvert",
+      "runtime": [
+        "paiement"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or -3 après traversée; ne pas prélever aussi au choix du §366.",
+      "findings": []
+    },
+    "128": {
+      "source_page_pdf": 65,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Barbare [9/7]; libération sans gratitude, pas de fuite annoncée.",
+      "findings": []
+    },
+    "129": {
+      "source_page_pdf": 66,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Chance -2; mise perdue payée au §266, ne pas la prélever de nouveau.",
+      "findings": []
+    },
+    "130": {
+      "source_page_pdf": 66,
+      "status": "couvert",
+      "runtime": [
+        "cout_route"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : La fuite immédiate coûte 1 Chance ici, pas la blessure standard d'un combat engagé.",
+      "findings": []
+    },
+    "131": {
+      "source_page_pdf": 66,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun soin automatique.",
+      "findings": []
+    },
+    "132": {
+      "source_page_pdf": 66,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Vérifier la présence de la petite flûte de cuivre trouvée au §301 ; son pouvoir est révélé au §258. Pas de combat ordinaire à préparer à ce stade.",
+      "findings": []
+    },
+    "133": {
+      "source_page_pdf": 67,
+      "status": "partiel",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Objet unique raccordé ; essai du gantelet déjà effectué encore proposé.",
+      "findings": [
+        "F04"
+      ]
+    },
+    "134": {
+      "source_page_pdf": 67,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Chance -1, aucun vœu exaucé.",
+      "findings": []
+    },
+    "135": {
+      "source_page_pdf": 67,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "136": {
+      "source_page_pdf": 67,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Descente par Corde Magique; plafond bas, pas de malus chiffré permanent ici.",
+      "findings": [
+        "F08"
+      ]
+    },
+    "137": {
+      "source_page_pdf": 67,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Vérification d'objet.",
+      "findings": []
+    },
+    "138": {
+      "source_page_pdf": 68,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ne pas consommer une potion inexistante.",
+      "findings": []
+    },
+    "139": {
+      "source_page_pdf": 68,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Guérison de la morsure; perte de la belladone déjà traitée au §83, aucun soin chiffré ajouté.",
+      "findings": []
+    },
+    "140": {
+      "source_page_pdf": 68,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Victoire passée; aucun butin ni gain d'Endurance.",
+      "findings": []
+    },
+    "141": {
+      "source_page_pdf": 69,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Chance -1 à la révélation; aucune perte supplémentaire pour le départ.",
+      "findings": []
+    },
+    "142": {
+      "source_page_pdf": 69,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun paiement avant accord.",
+      "findings": []
+    },
+    "143": {
+      "source_page_pdf": 71,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -2; aucun jet demandé.",
+      "findings": []
+    },
+    "144": {
+      "source_page_pdf": 71,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "145": {
+      "source_page_pdf": 71,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Provisions ramenées à zéro; autres affaires récupérées. Pas de perte d'Endurance chiffrée.",
+      "findings": []
+    },
+    "146": {
+      "source_page_pdf": 72,
+      "status": "manquant",
+      "runtime": [],
+      "reason": "Prise facultative du morceau de pierre absente.",
+      "findings": [
+        "F02"
+      ]
+    },
+    "147": {
+      "source_page_pdf": 72,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "148": {
+      "source_page_pdf": 72,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "149": {
+      "source_page_pdf": 72,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "150": {
+      "source_page_pdf": 73,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Anomalie du PDF : les deux choix sont décrits comme allant à l'ouest. Garder les destinations 357 et 171, sans inventer une correction de direction.",
+      "findings": []
+    },
+    "151": {
+      "source_page_pdf": 73,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "152": {
+      "source_page_pdf": 73,
+      "status": "manquant",
+      "runtime": [],
+      "reason": "Acquisition de la couronne absente ; transformation séparée déjà raccordée.",
+      "findings": [
+        "F02"
+      ]
+    },
+    "153": {
+      "source_page_pdf": 74,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Femme Féline [8/5]. Distinguer cette fuite en combat du coût en Chance de l'évitement au §130.",
+      "findings": []
+    },
+    "154": {
+      "source_page_pdf": 74,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Abandonner la lanterne magique; pas de second vœu.",
+      "findings": []
+    },
+    "155": {
+      "source_page_pdf": 74,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Lycanthropie à résoudre; pas de soin automatique.",
+      "findings": []
+    },
+    "156": {
+      "source_page_pdf": 74,
+      "status": "couvert",
+      "runtime": [
+        "automatique"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -3.",
+      "findings": []
+    },
+    "157": {
+      "source_page_pdf": 75,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "158": {
+      "source_page_pdf": 75,
+      "status": "partiel",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Usage du Bandeau raccordé, mais test de Chance et branchement manquants.",
+      "findings": [
+        "F01"
+      ]
+    },
+    "159": {
+      "source_page_pdf": 75,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -3; pas de combat aux dés.",
+      "findings": []
+    },
+    "160": {
+      "source_page_pdf": 76,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Conseil coûte 1 Or; paiement effectif au §343 pour éviter double prélèvement.",
+      "findings": []
+    },
+    "161": {
+      "source_page_pdf": 78,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Douleur non chiffrée à ce stade.",
+      "findings": []
+    },
+    "162": {
+      "source_page_pdf": 78,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de butin dans la caverne de l'Homme-Poisson; pas de repas automatique.",
+      "findings": []
+    },
+    "163": {
+      "source_page_pdf": 78,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -3 par éclair; aucun jet de Chance demandé.",
+      "findings": []
+    },
+    "164": {
+      "source_page_pdf": 78,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Sortie de la champignonnière; récupération de la Corde Magique non précisée.",
+      "findings": [
+        "F08"
+      ]
+    },
+    "165": {
+      "source_page_pdf": 79,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Gremlin [5/3]; Force d'Attaque du héros -3 à chaque assaut.",
+      "findings": []
+    },
+    "166": {
+      "source_page_pdf": 79,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Chance +2; don éventuel payé dans le choix précédent, pas de deuxième don.",
+      "findings": []
+    },
+    "167": {
+      "source_page_pdf": 79,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Vouivre Volante [10/11]; aucun souffle périodique supplémentaire prescrit ici.",
+      "findings": []
+    },
+    "168": {
+      "source_page_pdf": 80,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Variante de l'approche de la cage; pas de bâton acquis avant victoire.",
+      "findings": []
+    },
+    "169": {
+      "source_page_pdf": 80,
+      "status": "couvert",
+      "runtime": [
+        "gaz"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Habileté -2 puis Endurance -1d6; ajouter boîte d'argent. Même piège que §22, ne pas déclencher deux jets pour une ouverture.",
+      "findings": []
+    },
+    "170": {
+      "source_page_pdf": 80,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Condition de PORT du collier, pas simple possession. Menace de 10 Or et deux objets, pas de paiement ici.",
+      "findings": []
+    },
+    "171": {
+      "source_page_pdf": 81,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Ne pas créer une sortie au sud vers la vallée.",
+      "findings": []
+    },
+    "172": {
+      "source_page_pdf": 81,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Autre accès au même puits; pièce retirée au §89 seulement.",
+      "findings": []
+    },
+    "173": {
+      "source_page_pdf": 81,
+      "status": "couvert",
+      "runtime": [
+        "condition",
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Consommer la Poudre de Lévitation en soulevant le bloc; ne pas la conserver.",
+      "findings": []
+    },
+    "174": {
+      "source_page_pdf": 82,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter anneau d'or, valeur 10 Or; Chance +1. Ne pas créditer automatiquement 10 pièces.",
+      "findings": []
+    },
+    "175": {
+      "source_page_pdf": 82,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Serrure impossible à forcer; pas de choix de clé proposé.",
+      "findings": []
+    },
+    "176": {
+      "source_page_pdf": 82,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter manche de marteau marqué G, une extrémité filetée. Même partie de quête que §232.",
+      "findings": []
+    },
+    "177": {
+      "source_page_pdf": 83,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Ne pas recréer le héros à l'entrée ou lors d'une nouvelle boucle.",
+      "findings": []
+    },
+    "178": {
+      "source_page_pdf": 83,
+      "status": "decision_source",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Provisions -1 pour le sel; pas de blessure d'Endurance chiffrée. Prévoir le cas où le héros n'a plus de provisions sans valeur négative.",
+      "findings": [
+        "F07"
+      ]
+    },
+    "179": {
+      "source_page_pdf": 84,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter et équiper casque magique; Force d'Attaque +1 QUAND porté, pas Habileté +1 ni effet du Minotaure du Sorcier.",
+      "findings": []
+    },
+    "180": {
+      "source_page_pdf": 84,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "181": {
+      "source_page_pdf": 84,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Homme-Poisson [7/6].",
+      "findings": []
+    },
+    "182": {
+      "source_page_pdf": 86,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve d'Habileté 2d6 sans coût de Chance; pas de blessure sur l'échec.",
+      "findings": []
+    },
+    "183": {
+      "source_page_pdf": 86,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Protection contre le gaz; aucun dégât dans cette branche.",
+      "findings": []
+    },
+    "184": {
+      "source_page_pdf": 86,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Retirer clochette de cuivre, recevoir et boire potion de guérison, Endurance +4 sous plafond. Pas de potion de départ rechargée.",
+      "findings": []
+    },
+    "185": {
+      "source_page_pdf": 87,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : La barrière interdit de remettre la main dedans; ne pas reproposer §161.",
+      "findings": []
+    },
+    "186": {
+      "source_page_pdf": 87,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Correction confirmée par l’utilisateur : Anguille Carnivore, Habileté 5, Endurance 4. Combat obligatoire, sans fuite indiquée ; victoire vers le §131.",
+      "findings": []
+    },
+    "187": {
+      "source_page_pdf": 87,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Le bâton n'est pas encore acquis; identité réelle à révéler dans la suite.",
+      "findings": []
+    },
+    "188": {
+      "source_page_pdf": 88,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "189": {
+      "source_page_pdf": 88,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun gain avant de manger.",
+      "findings": []
+    },
+    "190": {
+      "source_page_pdf": 88,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "191": {
+      "source_page_pdf": 88,
+      "status": "partiel",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Condition positive présente, condition négative non filtrée.",
+      "findings": [
+        "F05"
+      ]
+    },
+    "192": {
+      "source_page_pdf": 89,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : L'épée est temporairement indisponible; conserver son identité pour la restitution et non créer une seconde épée.",
+      "findings": []
+    },
+    "193": {
+      "source_page_pdf": 89,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Gremlin [4/4]; Force d'Attaque du héros -3 à chaque assaut.",
+      "findings": []
+    },
+    "194": {
+      "source_page_pdf": 89,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter belladone reçue du chasseur; pas de paiement.",
+      "findings": []
+    },
+    "195": {
+      "source_page_pdf": 90,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : La hauteur de cinq mètres n'est pas un nombre de dégâts à appliquer ici.",
+      "findings": []
+    },
+    "196": {
+      "source_page_pdf": 90,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Filet de Capture = objet vendu comme Filet d'Enchevêtrement, alias à normaliser.",
+      "findings": []
+    },
+    "197": {
+      "source_page_pdf": 91,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Résoudre la consommation dans la branche.",
+      "findings": []
+    },
+    "198": {
+      "source_page_pdf": 91,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun soin de sommeil automatique.",
+      "findings": []
+    },
+    "199": {
+      "source_page_pdf": 91,
+      "status": "couvert",
+      "runtime": [
+        "condition",
+        "cout_route"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or -1 uniquement pour le vœu; §134 n'indique pas à nouveau le paiement.",
+      "findings": []
+    },
+    "200": {
+      "source_page_pdf": 92,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Utiliser la petite clé d'argent; aucune consommation de clé annoncée.",
+      "findings": []
+    },
+    "201": {
+      "source_page_pdf": 92,
+      "status": "partiel",
+      "runtime": [],
+      "reason": "Condition de coffre déjà ouvert non filtrée.",
+      "findings": [
+        "F03"
+      ]
+    },
+    "202": {
+      "source_page_pdf": 92,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter deux boucles d'oreille en or, valeur 5 Or CHACUNE; pas 10 pièces directement.",
+      "findings": []
+    },
+    "203": {
+      "source_page_pdf": 92,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Changeur de Forme [10/10].",
+      "findings": []
+    },
+    "204": {
+      "source_page_pdf": 93,
+      "status": "couvert",
+      "runtime": [
+        "commande",
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Condition de victoire exige les deux pièces, pas deux copies du même objet.",
+      "findings": []
+    },
+    "205": {
+      "source_page_pdf": 93,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Deux Pygmées du §377 ont chacun 3 Or : gain total 6 Or.",
+      "findings": []
+    },
+    "206": {
+      "source_page_pdf": 93,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "207": {
+      "source_page_pdf": 93,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Bracelet pas encore porté; pas d'autres objets utiles dans la cabane.",
+      "findings": []
+    },
+    "208": {
+      "source_page_pdf": 94,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de chemin au sud offert.",
+      "findings": []
+    },
+    "209": {
+      "source_page_pdf": 94,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Mise réglée dans la résolution suivante, pas encore retirée.",
+      "findings": []
+    },
+    "210": {
+      "source_page_pdf": 94,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de combat forcé dans cette branche chanceuse.",
+      "findings": []
+    },
+    "211": {
+      "source_page_pdf": 94,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boire et retirer Potion Antipoison; aucune restauration chiffrée.",
+      "findings": []
+    },
+    "212": {
+      "source_page_pdf": 96,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat successif : Clone 1 [5/5], Clone 2 [6/4], Clone 3 [5/6], Clone 4 [6/5]. Fuite possible pendant le combat.",
+      "findings": []
+    },
+    "213": {
+      "source_page_pdf": 96,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "214": {
+      "source_page_pdf": 96,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boire et retirer Potion de Guérison achetée; réparer la jambe cassée. Aucun gain numérique d'Endurance indiqué ici, ne pas confondre avec Potion de Vigueur à deux doses.",
+      "findings": []
+    },
+    "215": {
+      "source_page_pdf": 97,
+      "status": "partiel",
+      "runtime": [],
+      "reason": "Examen du tonneau non conservé séparément du choix de prise.",
+      "findings": [
+        "F03"
+      ]
+    },
+    "216": {
+      "source_page_pdf": 97,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "217": {
+      "source_page_pdf": 97,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +4 lors de la fouille; bouteille sans étiquette. Ne pas appliquer ses effets avant le choix.",
+      "findings": []
+    },
+    "218": {
+      "source_page_pdf": 97,
+      "status": "decision_source",
+      "runtime": [
+        "paiement"
+      ],
+      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Payer 5 Or OU un objet magique; récupérer l'épée et couper le lien. Pas de dégât de chute chiffré. Manque des deux moyens non décrit.",
+      "findings": [
+        "F07"
+      ]
+    },
+    "219": {
+      "source_page_pdf": 98,
+      "status": "couvert",
+      "runtime": [
+        "commande",
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Prise facultative de fléchette d'argent, valeur 5 Or; Chance +1 à la trouvaille. Pas de 5 pièces automatiques.",
+      "findings": []
+    },
+    "220": {
+      "source_page_pdf": 98,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "221": {
+      "source_page_pdf": 98,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "222": {
+      "source_page_pdf": 98,
+      "status": "couvert",
+      "runtime": [
+        "gaz"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -1d6; contrairement à §§22/169, aucun -2 Habileté ici.",
+      "findings": []
+    },
+    "223": {
+      "source_page_pdf": 99,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +5; même révélation et récompense physique que §111, condition de l'Œil d'Ambre portée issue de §170.",
+      "findings": []
+    },
+    "224": {
+      "source_page_pdf": 99,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : La bague d'argent menaçante est laissée sur place; ne pas l'ajouter.",
+      "findings": []
+    },
+    "225": {
+      "source_page_pdf": 99,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de nouvelle blessure; celle du §30 ne doit pas être répétée ici.",
+      "findings": []
+    },
+    "226": {
+      "source_page_pdf": 100,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "227": {
+      "source_page_pdf": 100,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Goule [9/7]. Quatre coups blessants reçus paralysent; compter les blessures et non les points d'Endurance perdus. Aucun mécanisme supplémentaire du Sorcier.",
+      "findings": []
+    },
+    "228": {
+      "source_page_pdf": 100,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Utiliser et conserver Bottes de Saut; pas de coût ni de jet de saut.",
+      "findings": []
+    },
+    "229": {
+      "source_page_pdf": 100,
+      "status": "couvert",
+      "runtime": [
+        "epreuve"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve de Chance 2d6, coût 1 Chance; -2 Endurance dans §45 uniquement.",
+      "findings": []
+    },
+    "230": {
+      "source_page_pdf": 102,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Cage et créature à examiner plus tard.",
+      "findings": []
+    },
+    "231": {
+      "source_page_pdf": 102,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat successif : Faucon de la Mort 1 [4/4], Faucon 2 [4/3], Faucon 3 [5/4].",
+      "findings": []
+    },
+    "232": {
+      "source_page_pdf": 103,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter manche d'ébène marqué G; Chance +1. Même objet de quête qu'au §176, dont le texte n'accorde PAS ce bonus.",
+      "findings": []
+    },
+    "233": {
+      "source_page_pdf": 103,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "234": {
+      "source_page_pdf": 103,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Blessure de fuite éventuellement payée dans le combat précédent seulement.",
+      "findings": []
+    },
+    "235": {
+      "source_page_pdf": 103,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boire et retirer Potion de Tranquillité; Chance +1.",
+      "findings": []
+    },
+    "236": {
+      "source_page_pdf": 104,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun paiement sur le seuil.",
+      "findings": []
+    },
+    "237": {
+      "source_page_pdf": 104,
+      "status": "couvert",
+      "runtime": [
+        "condition",
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Chance -2; jambe cassée, sans perte chiffrée d'Endurance indiquée ici.",
+      "findings": []
+    },
+    "238": {
+      "source_page_pdf": 104,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas d'embranchement au sud offert.",
+      "findings": []
+    },
+    "239": {
+      "source_page_pdf": 104,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré avant le choix.",
+      "findings": []
+    },
+    "240": {
+      "source_page_pdf": 104,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Variante d'ouverture dans la caverne de l'Ogre.",
+      "findings": []
+    },
+    "241": {
+      "source_page_pdf": 105,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Ours [7/8].",
+      "findings": []
+    },
+    "242": {
+      "source_page_pdf": 105,
+      "status": "manquant",
+      "runtime": [],
+      "reason": "Prise facultative et échange d’un objet contre le lingot absents.",
+      "findings": [
+        "F02"
+      ]
+    },
+    "243": {
+      "source_page_pdf": 105,
+      "status": "couvert",
+      "runtime": [
+        "condition",
+        "cout_route"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Retirer 1 Or seulement si don accepté; ne pas le retirer dans la branche de refus.",
+      "findings": []
+    },
+    "244": {
+      "source_page_pdf": 105,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Guérison narrative; pas de restauration numérique ni de retour de provisions.",
+      "findings": []
+    },
+    "245": {
+      "source_page_pdf": 106,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "246": {
+      "source_page_pdf": 106,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Retirer les objets convenus au §360 une seule fois; pas de nouveau prix ici. Prix de cinq unités défini au §360, chaque pièce vaut une unité selon §279.",
+      "findings": []
+    },
+    "247": {
+      "source_page_pdf": 106,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré de victoire.",
+      "findings": []
+    },
+    "248": {
+      "source_page_pdf": 106,
+      "status": "partiel",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Gain et protection raccordés ; coffre déjà ouvert encore proposé.",
+      "findings": [
+        "F03",
+        "F08"
+      ]
+    },
+    "249": {
+      "source_page_pdf": 107,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de nouvelle rencontre avec les cultivateurs.",
+      "findings": []
+    },
+    "250": {
+      "source_page_pdf": 107,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -2; poursuivre la résolution de la Force Tellurique.",
+      "findings": []
+    },
+    "251": {
+      "source_page_pdf": 107,
+      "status": "couvert",
+      "runtime": [
+        "epreuve"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve d'Habileté 2d6, pas de coût de Chance; échec Endurance -4.",
+      "findings": [
+        "F06"
+      ]
+    },
+    "252": {
+      "source_page_pdf": 107,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Autres directions non proposées malgré les quatre voies décrites.",
+      "findings": []
+    },
+    "253": {
+      "source_page_pdf": 109,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun paiement ni effet avant choix.",
+      "findings": []
+    },
+    "254": {
+      "source_page_pdf": 109,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "255": {
+      "source_page_pdf": 109,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun bonus d'arme avant l'épreuve.",
+      "findings": []
+    },
+    "256": {
+      "source_page_pdf": 109,
+      "status": "couvert",
+      "runtime": [
+        "epreuve"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve de Chance 2d6, coût 1 Chance; dégâts traités après vérification du casque.",
+      "findings": []
+    },
+    "257": {
+      "source_page_pdf": 109,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter pain elfique, consommable facultativement pour +4 Endurance; Chance +1 à la trouvaille. Ne pas forcer à manger immédiatement.",
+      "findings": []
+    },
+    "258": {
+      "source_page_pdf": 110,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Jouer de la petite flûte de cuivre du §301, révélée comme Flûte à Endormir les Dragons ; Vouivre endormie, pas tuée. Conserver la flûte physique, sans consommation annoncée.",
+      "findings": []
+    },
+    "259": {
+      "source_page_pdf": 110,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -3 AVANT le test; si vivant, Chance 2d6 avec coût 1. Échec ajoute -2 Endurance; vérifier de nouveau la survie avant §19.",
+      "findings": []
+    },
+    "260": {
+      "source_page_pdf": 110,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de combat supplémentaire; la blessure de flèche est déjà appliquée au §251.",
+      "findings": []
+    },
+    "261": {
+      "source_page_pdf": 111,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boutique de 17 articles, prix exacts dans la table dédiée. Chaque article acheté ne sert QU'UNE FOIS. Paiements au choix, pas de solde négatif; suivre quantité, provenance et charges. Ce passage n'attribue pas de nouveau les 30 Or du prologue lors d'un retour depuis §98.",
+      "findings": []
+    },
+    "262": {
+      "source_page_pdf": 113,
+      "status": "couvert",
+      "runtime": [
+        "commande",
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Boire Potion d'Adresse au Combat trouvée : Force d'Attaque +1 pendant les DEUX prochains combats, pas deux assauts ni Habileté permanente. Les 4 Or sont le même butin qu'au §217, pas un second gain. Définir précisément le décompte pour séquences/paires.",
+      "findings": []
+    },
+    "263": {
+      "source_page_pdf": 114,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de gain de boîte avant décision; contexte après le Gobelin.",
+      "findings": []
+    },
+    "264": {
+      "source_page_pdf": 114,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Le Clone est tué sans combat aux dés puis devient un champignon; pas de victoire à récompenser.",
+      "findings": []
+    },
+    "265": {
+      "source_page_pdf": 114,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Géant des Forêts [9/9].",
+      "findings": []
+    },
+    "266": {
+      "source_page_pdf": 116,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Choisir mise : un objet OU 10 Or. Jusqu'à TROIS jets successifs de 2d6 ≤ Habileté, arrêt au premier échec. Pas de coût de Chance. Retirer la mise seulement si perte, sans la compter deux fois au §129.",
+      "findings": [
+        "F06"
+      ]
+    },
+    "267": {
+      "source_page_pdf": 116,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Correction confirmée par l’utilisateur : entrer dans la caverne mène au §196 ; le retour vers le nord mène au §25.",
+      "findings": []
+    },
+    "268": {
+      "source_page_pdf": 116,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Utiliser les gousses d'ail achetées pour repousser les Chauves-Souris Vampires; marquer l'unique usage consommé même si le récit les pose au sol.",
+      "findings": []
+    },
+    "269": {
+      "source_page_pdf": 117,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance +4 sous plafond; ce n'est pas une provision retirée.",
+      "findings": []
+    },
+    "270": {
+      "source_page_pdf": 117,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet avant l'ouverture.",
+      "findings": []
+    },
+    "271": {
+      "source_page_pdf": 117,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Tarif 5 Or OU un objet du sac; refus prévu en cas d'insolvabilité.",
+      "findings": []
+    },
+    "272": {
+      "source_page_pdf": 118,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de butin ni de gain de Chance annoncé.",
+      "findings": []
+    },
+    "273": {
+      "source_page_pdf": 118,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter médaillon d'or, valeur 9 Or; pas de 9 pièces automatiques.",
+      "findings": []
+    },
+    "274": {
+      "source_page_pdf": 118,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "275": {
+      "source_page_pdf": 118,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -1 à la morsure; casque disponible mais facultatif à équiper/prendre dans la branche179.",
+      "findings": []
+    },
+    "276": {
+      "source_page_pdf": 119,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Même rencontre qu'au §96 : Chien [7/6], paire Chiens [6/6] et [5/6], puis Chien [6/5] et Homme Masqué [8/7]. Cible choisie à chaque assaut; seconde attaque parée sans pouvoir blesser; finir le survivant normalement.",
+      "findings": []
+    },
+    "277": {
+      "source_page_pdf": 120,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -1 au coup initial pour les DEUX choix. La fuite immédiate n'indique pas de blessure supplémentaire standard.",
+      "findings": []
+    },
+    "278": {
+      "source_page_pdf": 120,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve de Chance 2d6, coût 1 Chance. Réussite : Endurance -2 pour la chute; échec : -4 au total (chute -2 et pieu -2). Même destination, effets distincts.",
+      "findings": []
+    },
+    "279": {
+      "source_page_pdf": 121,
+      "status": "couvert",
+      "runtime": [
+        "paiement"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Compter CHAQUE objet et CHAQUE pièce d'Or comme une unité; sélectionner la quantité de cinq requise par §360. Cas des lots/charges à définir sans valoriser artificiellement les trésors.",
+      "findings": []
+    },
+    "280": {
+      "source_page_pdf": 121,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de détour au sud proposé.",
+      "findings": []
+    },
+    "281": {
+      "source_page_pdf": 121,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de retour au sud offert.",
+      "findings": []
+    },
+    "282": {
+      "source_page_pdf": 121,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet avant choix.",
+      "findings": []
+    },
+    "283": {
+      "source_page_pdf": 121,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance +4 sous plafond; aucun retrait de provision.",
+      "findings": []
+    },
+    "284": {
+      "source_page_pdf": 122,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "285": {
+      "source_page_pdf": 122,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Loup-Garou [8/9]. Suivre s'il a infligé au moins une blessure pour la suite, pas les règles d'arme d'argent du Sorcier.",
+      "findings": []
+    },
+    "286": {
+      "source_page_pdf": 124,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Changeur de Forme [10/10]. Même créature qu'au §203 selon choix initial.",
+      "findings": []
+    },
+    "287": {
+      "source_page_pdf": 124,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +5, petite cloche de cuivre; même butin qu'aux §§74 et101, sans gain de Chance ajouté.",
+      "findings": []
+    },
+    "288": {
+      "source_page_pdf": 124,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "289": {
+      "source_page_pdf": 125,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "290": {
+      "source_page_pdf": 125,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Ogre [8/12]. Fuite pendant le combat, pas de délai de deux assauts hérité du Sorcier.",
+      "findings": []
+    },
+    "291": {
+      "source_page_pdf": 125,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré avant choix.",
+      "findings": []
+    },
+    "292": {
+      "source_page_pdf": 126,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de butin accordé à la simple inspection.",
+      "findings": []
+    },
+    "293": {
+      "source_page_pdf": 126,
+      "status": "partiel",
+      "runtime": [],
+      "reason": "Choix initiaux présents ; historique commun coffre/tonneau incomplet.",
+      "findings": [
+        "F03"
+      ]
+    },
+    "294": {
+      "source_page_pdf": 127,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet avant choix.",
+      "findings": []
+    },
+    "295": {
+      "source_page_pdf": 127,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Vérifier le PORT, pas uniquement l'objet dans le sac. Pas de dégât supplémentaire sur la branche protégée.",
+      "findings": []
+    },
+    "296": {
+      "source_page_pdf": 127,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "297": {
+      "source_page_pdf": 129,
+      "status": "couvert",
+      "runtime": [
+        "paiement"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Payer 5 Or OU l'objet choisi au §271 une seule fois. Information sur la crypte; aucun objet de quête donné.",
+      "findings": []
+    },
+    "298": {
+      "source_page_pdf": 129,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Araignée Géante [7/8]; pas de fuite ni de venin additionnel prescrit.",
+      "findings": []
+    },
+    "299": {
+      "source_page_pdf": 129,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Provisions ramenées à zéro après immersion; abeilles évitées sans blessure de fuite ni assauts.",
+      "findings": []
+    },
+    "300": {
+      "source_page_pdf": 130,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "301": {
+      "source_page_pdf": 130,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Prendre facultativement tout ou partie : 3 Or, petite flûte de cuivre, biscuits infestés, collier de crânes de souris. Les biscuits ne sont pas automatiquement des provisions saines.",
+      "findings": []
+    },
+    "302": {
+      "source_page_pdf": 130,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter et porter bracelet; Force d'Attaque +1 aussi longtemps qu'il est porté, pas Habileté +1.",
+      "findings": []
+    },
+    "303": {
+      "source_page_pdf": 131,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Ptérodactyle [7/8]. Pas d'abri ou de fuite proposé.",
+      "findings": []
+    },
+    "304": {
+      "source_page_pdf": 131,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Consommer CINQ rations pour guérir; pas cinq soins de +4. Si moins de cinq : mort de faim. Si survivant : Habileté -2 pour la blessure.",
+      "findings": []
+    },
+    "305": {
+      "source_page_pdf": 131,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +10 et couteau à lancer acquis; gantelet/anneau facultatifs. Le texte dit cadavre mais l'accès par §258 endort la Vouivre : conserver la vraie issue, ne pas imposer sa mort.",
+      "findings": []
+    },
+    "306": {
+      "source_page_pdf": 132,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "307": {
+      "source_page_pdf": 132,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de combat standard à préparer contre le Gnome.",
+      "findings": []
+    },
+    "308": {
+      "source_page_pdf": 132,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Intervertir les valeurs courantes Habileté et Chance. Le texte ne demande pas d'échanger les plafonds initiaux; interaction avec les plafonds/potions à trancher explicitement.",
+      "findings": [
+        "F08"
+      ]
+    },
+    "309": {
+      "source_page_pdf": 133,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : DEUX tests de Chance 2d6, un par fléchette; coût total 2 Chance, même si le premier échoue. Comparer le second au score déjà diminué; pas de dégâts d'Endurance chiffrés ici.",
+      "findings": []
+    },
+    "310": {
+      "source_page_pdf": 133,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Troll des Cavernes [8/9].",
+      "findings": []
+    },
+    "311": {
+      "source_page_pdf": 133,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +2 au total, pas par Bandit.",
+      "findings": []
+    },
+    "312": {
+      "source_page_pdf": 134,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +25 et tête de marteau en bronze gravée G; même butin qu'au §58. Pas de gain de Chance indiqué.",
+      "findings": []
+    },
+    "313": {
+      "source_page_pdf": 134,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : La boîte est laissée si l'on ne l'ouvre pas; ne pas l'ajouter automatiquement.",
+      "findings": []
+    },
+    "314": {
+      "source_page_pdf": 134,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "315": {
+      "source_page_pdf": 134,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré avant choix.",
+      "findings": []
+    },
+    "316": {
+      "source_page_pdf": 135,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de soin ni de perte supplémentaire.",
+      "findings": []
+    },
+    "317": {
+      "source_page_pdf": 135,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat successif de deux Lutins [6/6], [5/7]; fuite réglementaire vers le §41, victoire vers le §301. Mode successif confirmé par l’utilisateur le 23 octobre 2026.",
+      "findings": []
+    },
+    "318": {
+      "source_page_pdf": 135,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de combat ni de blessure de fuite; dissimulation avant rencontre.",
+      "findings": []
+    },
+    "319": {
+      "source_page_pdf": 135,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Les Bottes à Bondir sont aussi nommées Bottes de Saut au §228; un usage selon la boutique.",
+      "findings": []
+    },
+    "320": {
+      "source_page_pdf": 137,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de combat ni de butin; la créature est évitée.",
+      "findings": []
+    },
+    "321": {
+      "source_page_pdf": 137,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Les corps se dissolvent; pas de butin annoncé.",
+      "findings": []
+    },
+    "322": {
+      "source_page_pdf": 137,
+      "status": "couvert",
+      "runtime": [
+        "condition",
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Employer l'Anneau de Lumière à usage unique; ajouter médaillon d'or, valeur 5 Or. Pas de pièces supplémentaires.",
+      "findings": []
+    },
+    "323": {
+      "source_page_pdf": 137,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "324": {
+      "source_page_pdf": 138,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de butin ni de perte avant choix.",
+      "findings": []
+    },
+    "325": {
+      "source_page_pdf": 138,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : La possession doit tenir compte de la charge unique d'un achat déjà utilisé.",
+      "findings": []
+    },
+    "326": {
+      "source_page_pdf": 138,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucune autre route proposée ici.",
+      "findings": []
+    },
+    "327": {
+      "source_page_pdf": 139,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "328": {
+      "source_page_pdf": 139,
+      "status": "decision_source",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Endurance -4 AU LIEU de la restauration du repas; ne pas annuler avec +4 E. Nourriture consommée implique une ration, mais le cas sans provisions doit être explicité, pas inventé.",
+      "findings": [
+        "F07"
+      ]
+    },
+    "329": {
+      "source_page_pdf": 139,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "330": {
+      "source_page_pdf": 140,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat successif : Loup 1 [7/8], Loup 2 [7/7], Loup 3 [7/9]. Pas de fuite proposée.",
+      "findings": []
+    },
+    "331": {
+      "source_page_pdf": 140,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de retour dans la forêt au sud offert.",
+      "findings": []
+    },
+    "332": {
+      "source_page_pdf": 141,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Ne pas proposer le chemin occidental que le texte écarte.",
+      "findings": []
+    },
+    "333": {
+      "source_page_pdf": 141,
+      "status": "couvert",
+      "runtime": [
+        "automatique"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Fin en défaite par transformation en Démon de Feu; pas un combat ni une simple baisse d'Endurance. Aucune issue, même si le héros est encore vivant en chiffres.",
+      "findings": []
+    },
+    "334": {
+      "source_page_pdf": 141,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "335": {
+      "source_page_pdf": 142,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "336": {
+      "source_page_pdf": 142,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Aucun jet ni dégât supplémentaire avant branche.",
+      "findings": []
+    },
+    "337": {
+      "source_page_pdf": 142,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "338": {
+      "source_page_pdf": 143,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Employer Filtres à Nez, charge d'achat consommée; ajouter boîte d'argent, aucun dégât dans cette branche.",
+      "findings": []
+    },
+    "339": {
+      "source_page_pdf": 143,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Contrairement au plongeon du §299, la nage choisie ici ne détruit pas les provisions.",
+      "findings": []
+    },
+    "340": {
+      "source_page_pdf": 143,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Le départ avant combat ne prévoit pas de blessure de fuite.",
+      "findings": []
+    },
+    "341": {
+      "source_page_pdf": 145,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +5; ajouter dent de dragon et Potion de Force restaurant +5 Endurance QUAND bue. Chance +1. Aucune perte chiffrée due à la douleur de la main.",
+      "findings": []
+    },
+    "342": {
+      "source_page_pdf": 145,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ne pas tirer de jet de combat; sort résolu par possession/charge de l'objet.",
+      "findings": []
+    },
+    "343": {
+      "source_page_pdf": 145,
+      "status": "couvert",
+      "runtime": [
+        "paiement"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or -1 pour l'information; les 30 Or cités sont le besoin du corbeau, PAS un gain/coût du héros.",
+      "findings": [
+        "F06"
+      ]
+    },
+    "344": {
+      "source_page_pdf": 146,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de récompense immédiate; le vol se révèle au passage suivant.",
+      "findings": []
+    },
+    "345": {
+      "source_page_pdf": 146,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Endurance -4.",
+      "findings": []
+    },
+    "346": {
+      "source_page_pdf": 146,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Pas de paiement avant le choix; pas de réelle pétrification automatique pour le refus.",
+      "findings": []
+    },
+    "347": {
+      "source_page_pdf": 146,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Nain [8/5].",
+      "findings": []
+    },
+    "348": {
+      "source_page_pdf": 147,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : La flèche a déjà coûté -3 Endurance au §90; ne pas l'appliquer de nouveau.",
+      "findings": []
+    },
+    "349": {
+      "source_page_pdf": 147,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "350": {
+      "source_page_pdf": 147,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Utiliser TOUTES les cinq Capsules de Feu du sachet; contourner l'Homme-Arbre sans combat. Un achat = un sachet à usage unique, pas cinq rencontres protégées.",
+      "findings": []
+    },
+    "351": {
+      "source_page_pdf": 150,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Chandelle disponible pour éclairer; pas de paiement ni d'attaque.",
+      "findings": []
+    },
+    "352": {
+      "source_page_pdf": 150,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Homme-Singe [8/7]; Force d'Attaque du héros -2 à chaque assaut. La fuite en combat renvoie à la chute du §156 (-3 Endurance), à distinguer du saut avant combat au §195; politique de cumul de blessure de fuite à expliciter.",
+      "findings": [
+        "F08"
+      ]
+    },
+    "353": {
+      "source_page_pdf": 150,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Provisions ramenées à zéro; épée et autres objets conservés.",
+      "findings": []
+    },
+    "354": {
+      "source_page_pdf": 151,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter Poudre de Lévitation, même récompense qu'au §78. Ne pas créditer la récompense aussi au §266.",
+      "findings": []
+    },
+    "355": {
+      "source_page_pdf": 151,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de chemin au sud proposé.",
+      "findings": []
+    },
+    "356": {
+      "source_page_pdf": 151,
+      "status": "couvert",
+      "runtime": [
+        "condition",
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Lanterne magique distincte de la lanterne de voyage; acquisition/usage selon choix.",
+      "findings": []
+    },
+    "357": {
+      "source_page_pdf": 151,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Les deux embranchements au sud sont volontairement ignorés.",
+      "findings": []
+    },
+    "358": {
+      "source_page_pdf": 152,
+      "status": "decision_source",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Épreuve de Chance 2d6, coût 1 Chance; en échec l'épée tombe et devient temporairement inaccessible, pas détruite.",
+      "findings": [
+        "F07"
+      ]
+    },
+    "359": {
+      "source_page_pdf": 152,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "360": {
+      "source_page_pdf": 152,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Prix CINQ objets/unités, pas tout l'inventaire; chaque pièce d'Or peut compter pour une unité selon §279. Valider choix et paiement avant départ.",
+      "findings": []
+    },
+    "361": {
+      "source_page_pdf": 154,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun dégât ou assaut pour le choix de se cacher.",
+      "findings": []
+    },
+    "362": {
+      "source_page_pdf": 154,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "363": {
+      "source_page_pdf": 154,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de gain de soin avant choix; pas de butin en or indiqué ici.",
+      "findings": []
+    },
+    "364": {
+      "source_page_pdf": 154,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Les bagues vues ne sont jamais acquises automatiquement.",
+      "findings": []
+    },
+    "365": {
+      "source_page_pdf": 155,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Employer Filtres à Nez, une charge d'achat; ajouter boîte d'argent sans dégât.",
+      "findings": []
+    },
+    "366": {
+      "source_page_pdf": 155,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Paiement effectif de 3 Or au §127, pas deux fois.",
+      "findings": []
+    },
+    "367": {
+      "source_page_pdf": 155,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Gaz propre à cette scène; pas de -2 Habileté des boîtes d'argent.",
+      "findings": []
+    },
+    "368": {
+      "source_page_pdf": 156,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "369": {
+      "source_page_pdf": 156,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun paiement avant choix.",
+      "findings": []
+    },
+    "370": {
+      "source_page_pdf": 156,
+      "status": "decision_source",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Perdre UN objet choisi du sac, en plus des -3 Endurance déjà appliqués au §395. Cas du sac vide non décrit.",
+      "findings": [
+        "F07"
+      ]
+    },
+    "371": {
+      "source_page_pdf": 156,
+      "status": "couvert",
+      "runtime": [
+        "effet",
+        "option"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +3; prise facultative d'une main d'argile rouge. Ne pas remplacer les mains par des trésors vendables sans valeur donnée.",
+      "findings": []
+    },
+    "372": {
+      "source_page_pdf": 157,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve d'Habileté 2d6 RÉPÉTABLE. Chaque échec : Endurance -1; si vivant, recommencer OU abandonner. Pas de Chance consommée et pas de verrou une seule fois par partie.",
+      "findings": []
+    },
+    "373": {
+      "source_page_pdf": 157,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun manche de marteau acquis : le bâton du Changeur était une illusion.",
+      "findings": []
+    },
+    "374": {
+      "source_page_pdf": 157,
+      "status": "partiel",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Objet unique raccordé ; essai de l’anneau déjà effectué encore proposé.",
+      "findings": [
+        "F04"
+      ]
+    },
+    "375": {
+      "source_page_pdf": 158,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "376": {
+      "source_page_pdf": 158,
+      "status": "couvert",
+      "runtime": [
+        "epreuve"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve de Chance 2d6, coût 1 Chance.",
+      "findings": []
+    },
+    "377": {
+      "source_page_pdf": 158,
+      "status": "couvert",
+      "runtime": [
+        "combat"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat par PAIRE : Pygmée A [5/5], Pygmée B [5/6]. Cible offensive choisie à CHAQUE assaut, l'autre peut seulement être paré; finir le survivant normalement.",
+      "findings": []
+    },
+    "378": {
+      "source_page_pdf": 160,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "379": {
+      "source_page_pdf": 160,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas d'épreuve avant choix.",
+      "findings": []
+    },
+    "380": {
+      "source_page_pdf": 160,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : La blessure du saut est résolue au §237 seulement.",
+      "findings": []
+    },
+    "381": {
+      "source_page_pdf": 160,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Échec de quête, pas mort automatique. Choix de retenter par le retour dangereux au §98; conserver héros, état, trésors et parties du marteau. Pas de nouveau tirage ni de 30 Or rendus.",
+      "findings": []
+    },
+    "382": {
+      "source_page_pdf": 161,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "383": {
+      "source_page_pdf": 161,
+      "status": "couvert",
+      "runtime": [
+        "effet",
+        "option"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +2 et sifflet de bois; lièvre rôti facultatif : Endurance +2, sans consommer de provision. Ne pas forcer le repas ni le compter deux fois.",
+      "findings": []
+    },
+    "384": {
+      "source_page_pdf": 161,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré avant choix.",
+      "findings": []
+    },
+    "385": {
+      "source_page_pdf": 162,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Ogre vaincu; pas de récompense numérique annoncée.",
+      "findings": []
+    },
+    "386": {
+      "source_page_pdf": 162,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de restauration de sommeil automatique.",
+      "findings": []
+    },
+    "387": {
+      "source_page_pdf": 162,
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or +1 et Chance +1; ne pas oublier la pièce sous prétexte que seul le bonus de Chance est formulé numériquement.",
+      "findings": []
+    },
+    "388": {
+      "source_page_pdf": 162,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Sans blessure : Chance +1; avec blessure : pas de bonus. Suivre les coups qui blessent, pas seulement l'Endurance finale après soins.",
+      "findings": []
+    },
+    "389": {
+      "source_page_pdf": 163,
+      "status": "partiel",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Gain unique raccordé ; tonneau déjà examiné encore proposé.",
+      "findings": [
+        "F03"
+      ]
+    },
+    "390": {
+      "source_page_pdf": 163,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré.",
+      "findings": []
+    },
+    "391": {
+      "source_page_pdf": 163,
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Clé physique non consommée explicitement par la serrure.",
+      "findings": []
+    },
+    "392": {
+      "source_page_pdf": 163,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de combat ou de blessure de fuite.",
+      "findings": []
+    },
+    "393": {
+      "source_page_pdf": 164,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de retour au sud vers les collines offert.",
+      "findings": []
+    },
+    "394": {
+      "source_page_pdf": 164,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Le second choix aboutit au paragraphe source incomplet §186; conserver ce lien mais signaler le blocage de l'édition.",
+      "findings": [
+        "F08"
+      ]
+    },
+    "395": {
+      "source_page_pdf": 165,
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve de Chance 2d6, coût 1 Chance; échec Endurance -3 puis perte d'un objet au §370. Lanterne abandonnée en branche chanceuse §154; devenir de la lampe en branche370 non explicité.",
+      "findings": []
+    },
+    "396": {
+      "source_page_pdf": 165,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Pas de combat automatique avant choix.",
+      "findings": []
+    },
+    "397": {
+      "source_page_pdf": 165,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Les sentiers du sud sont écartés.",
+      "findings": []
+    },
+    "398": {
+      "source_page_pdf": 167,
+      "status": "narratif",
+      "runtime": [],
+      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Aucun effet chiffré avant choix.",
+      "findings": []
+    },
+    "399": {
+      "source_page_pdf": 167,
+      "status": "couvert",
+      "runtime": [
+        "automatique"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Fin en défaite par transformation en grenouille, pas mort biologique ni combat. Aucune issue; ne pas permettre de continuer avec les caractéristiques intactes.",
+      "findings": []
+    },
+    "400": {
+      "source_page_pdf": 168,
+      "status": "couvert",
+      "runtime": [
+        "automatique"
+      ],
+      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Victoire finale après remise des DEUX parties gravées G; retirer les parties remises et marquer quête terminée. Casque ailé en or, boîte de gemmes et bijoux comme récompenses narratives; montants non chiffrés, ne pas inventer un solde. Le texte extrait contient un colophon d'imprimerie à écarter du récit.",
+      "findings": [
+        "F08"
+      ]
+    }
+  }
+}

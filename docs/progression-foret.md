@@ -11,6 +11,13 @@ au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de tra
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
 
+L’[audit final des 400 paragraphes](reviews/2026-10-23-foret-audit-final.md)
+recense plus largement **216 paragraphes avec un point d’entrée réel**, dont
+certains restent partiels ou bloqués dans un cas limite. Il identifie 21 omissions
+du décompte historique de 195, pas 21 nouvelles mécaniques à programmer.
+La revue classe 203 passages couverts selon leurs analyses, 178 narratifs,
+9 partiels, 3 sans la commande attendue et 7 avec une décision de source.
+
 | Catégorie du registre | Paragraphes |
 | --- | ---: |
 | Boutique de Yaztromo | 1 |
@@ -103,6 +110,11 @@ Les tests vérifient notamment les coûts, la survie, les variantes d’un même
 l’absence de répétition, la restauration et l’annulation/rétablissement.
 
 ## Reste à faire
+
+Priorités issues de l’audit : test de Chance du §158 ; prises d’objets des
+§§146/152/242 ; historique coffre/tonneau (§§201/215/248/293/389), essais des
+§§133/374 et condition négative du §191 ; quatre liens de texte aux
+§§251/266/343. Les cas limites sont recensés séparément pour le point 2.
 
 Les illustrations sont raccordées : 24 scènes avec numéro imprimé, le mode
 d’emploi de l’Œil d’Ambre au §91 et la carte dans le prologue. Le menu Actions
