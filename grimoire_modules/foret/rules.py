@@ -32,6 +32,7 @@ HAMMER_HANDLE = 'Manche de marteau en ébène — G'
 ENCHANTED_SWORD = 'Épée enchantée'
 ELVEN_BREAD = 'Pain elfique'
 BELL = 'Petite clochette de cuivre'
+SILVER_DART = 'Fléchette d’argent (valeur 5 Or)'
 GAS_PARAGRAPHS = {22,169,222}
 # Statistique, réussite, échec, blessure immédiate de l’échec.
 BRANCH_TESTS = {57:('chance',132,35,0),81:('chance',49,4,0),
@@ -475,6 +476,14 @@ def eat_elven_bread(character, *, in_combat=False):
     character['endurance'] = min(maximum,character['endurance']+4)
 
 
+def take_silver_dart(character):
+    """§219 : prendre facultativement la fléchette après le gain de Chance de la trouvaille."""
+    alive(character)
+    if not entry_resolved(character,219):
+        raise ValueError('Résoudre la trouvaille avant de choisir la fléchette.')
+    return reward(character,'bear_silver_dart',items=[SILVER_DART])
+
+
 def hammer_complete(character):
     """Un manche quelconque, une fausse pièce ou deux têtes ne suffisent pas."""
     inventory = character.get('inventory', [])
@@ -523,6 +532,17 @@ def advance_group(combat):
 # Les variantes partagent un identifiant physique. La table ne contient que des
 # effets relus : aucun motif de texte ne peut créer une récompense ou une charge.
 ENTRY_RULES = {
+    13:{'luck':-3},42:{'luck':-1},129:{'luck':-2},134:{'luck':-1},141:{'luck':-1},
+    166:{'luck':2},237:{'luck':-2},
+    53:{'empty_resources':('gold',)},
+    145:{'empty_resources':('provisions',)},
+    299:{'empty_resources':('provisions',)},
+    353:{'empty_resources':('provisions',)},
+    163:{'damage':3},
+    106:{'items':['Bague d’or à émeraude (valeur 15 Or)'],'luck':2},
+    174:{'items':['Anneau d’or (valeur 10 Or)'],'luck':1},
+    219:{'luck':1,'label':'Constater la trouvaille (+1 Chance)'},
+    387:{'gold':1,'luck':1},
     257:{'items':[ELVEN_BREAD], 'luck':1},
     184:{'remove':[BELL], 'heal':4, 'label':'Rendre la clochette et boire la potion du moine'},
     4:{'damage':4},35:{'damage':4},45:{'damage':2},30:{'damage':2},
@@ -606,6 +626,8 @@ def resolve_entry(character, paragraph):
     damage_hero(working, rule.get('damage',0))
     if rule.get('heal'):
         working['endurance'] = min(working['initial']['endurance'],working['endurance']+rule['heal'])
+    for key in rule.get('empty_resources', ()):
+        working[key] = 0
     character.clear()
     character.update(working)
     return True

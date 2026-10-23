@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **111 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **127 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -15,9 +15,9 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | --- | ---: |
 | Boutique de Yaztromo | 1 |
 | Profils de combat | 17 |
-| Effets d’entrée et usages d’objets | 53 |
+| Effets d’entrée et usages d’objets | 69 |
 | Paiements | 7 |
-| Actions et épreuves spéciales | 32 |
+| Actions et épreuves spéciales | 33 |
 | Conditions de route recensées séparément | 2 (§§191, 295) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
@@ -40,6 +40,11 @@ Le piège du §358 est raccordé : le test de Chance conserve l’épée ou la r
 temporairement inaccessible. Le paiement du §218 restitue et rééquipe la même
 arme, sans duplication, dégât de chute ni bonus conservé pendant la perte.
 
+Un lot de seize effets ordinaires est ajouté : pertes de Chance, bénédiction,
+bijoux, pièce trouvée, pertes de provisions et d’or, éclair et fléchette d’argent.
+La fléchette reste facultative après le gain de Chance. Les valeurs des objets
+ne sont pas automatiquement converties en pièces.
+
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,
 l’absence de répétition, la restauration et l’annulation/rétablissement.
@@ -49,8 +54,9 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 - **Autres rencontres** : raccorder leurs profils, issues et restrictions ;
   les 17 passages actuels ne couvrent pas tous les combats du livre.
 - **Autres effets** : variations de caractéristiques et de provisions, dons et
-  trouvailles encore documentés sans commande. Exemples : §§13, 42, 106, 129,
-  145, 166, 174, 219, 237, 243, 299, 301, 353 et 387.
+  trouvailles encore documentés sans commande. Exemples : fuite choisie du
+  §130, sel des provisions au §178, don choisi au §243, règlement commun
+  des §§246/360/279 et sélection partielle du butin au §301.
 - **Équipement et autres soins** : compléter les autres interactions et
   conditions encore documentaires, puis vérifier leurs combinaisons en partie.
 - **Choix et parcours** : compléter les conditions d’inventaire et de progression
