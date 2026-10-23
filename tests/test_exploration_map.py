@@ -12,7 +12,7 @@ from PySide6.QtGui import QWheelEvent
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
-from exploration_map import ExplorationMapDialog, PlaceItem, place_positions
+from exploration_map import ExplorationMapDialog, PlaceItem, place_positions, route_direction
 from main import MainWindow
 
 
@@ -121,6 +121,42 @@ class ExplorationMapTests(unittest.TestCase):
             for other in rectangles[index + 1:]:
                 self.assertTrue(abs(point.x() - other.x()) >= PlaceItem.WIDTH
                                 or abs(point.y() - other.y()) >= PlaceItem.HEIGHT)
+
+    def test_cardinal_routes_cycles_and_collisions(self):
+        edges = [(1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (2, 1)]
+        directions = {(1, 2): (0, -1), (1, 3): (0, 1), (1, 4): (1, 0),
+                      (1, 5): (-1, 0), (1, 6): (0, -1), (2, 1): (1, 0)}
+        points = place_positions(range(1, 7), edges, directions)
+        self.assertLess(points[2].y(), points[1].y())
+        self.assertGreater(points[3].y(), points[1].y())
+        self.assertGreater(points[4].x(), points[1].x())
+        self.assertLess(points[5].x(), points[1].x())
+        self.assertLess(points[6].y(), points[1].y())
+        self.assertEqual(len({(p.x(), p.y()) for p in points.values()}), 6)
+        self.assertEqual(points[1], QPointF(0, 0))
+        self.assertEqual(points, place_positions(range(1, 7), edges, directions))
+
+    def test_direction_is_taken_only_from_unambiguous_movement(self):
+        self.assertEqual(route_direction('Continuer vers le nord'), (0, -1))
+        self.assertEqual(route_direction("Poursuivre à l’est"), (1, 0))
+        for label in ('Regarder vers le nord', 'Ne pas aller au sud',
+                      'Une montagne au nord', 'Aller au nord-est', 'Continuer'):
+            self.assertIsNone(route_direction(label), label)
+
+    def test_undirected_long_path_is_compact(self):
+        points = place_positions(range(1, 64), [(n, n+1) for n in range(1, 63)])
+        self.assertLess(max(p.x() for p in points.values()) - min(p.x() for p in points.values()), 330 * 16)
+        self.assertGreater(len({p.y() for p in points.values()}), 1)
+
+    def test_dialog_uses_route_labels_without_revealing_unknown_places(self):
+        self.w.book_event_catalogue['paragraphs']['1'] = {
+            'status': 'verifie', 'routes': [{'target': 2, 'label': 'Continuer vers le nord'},
+                       {'target': 99, 'label': 'Partir au sud'}]}
+        dialog = ExplorationMapDialog(self.w)
+        self.addCleanup(dialog.deleteLater)
+        self.addCleanup(dialog.close)
+        self.assertLess(dialog.nodes[2].pos().y(), dialog.nodes[1].pos().y())
+        self.assertNotIn(99, dialog.nodes)
 
     def test_large_map_keeps_all_places_and_current_position(self):
         self.w.visited_paragraphs = list(range(1, 401))
