@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **181 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **189 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -16,9 +16,9 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | Boutique de Yaztromo | 1 |
 | Profils de combat | 40 |
 | Effets d’entrée et usages d’objets | 90 |
-| Paiements | 7 |
+| Paiements | 10 |
 | Actions et épreuves spéciales | 36 |
-| Conditions et coûts de route recensés séparément | 9 (§§95, 130, 132, 191, 243, 246, 295, 360, 391) |
+| Conditions et coûts de route recensés séparément | 14 (§§17, 95, 130, 132, 160, 172, 191, 199, 243, 246, 295, 360, 366, 391) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
 combats en groupes et successifs, fouet du Démon, paralysie de la Goule,
@@ -76,6 +76,12 @@ sans les consommer au moment du choix de route.
 Le §48 applique une explosion unique de 1d6 Endurance. La clé du §200 reste
 dans le sac après ouverture ; la petite flûte de cuivre du §301 ouvre la route
 du §132 puis endort la Vouivre au §258, sans consommation ni monstre tué.
+
+Les paiements fixes du puits (§89), du corbeau (§343) et du Centaure (§127)
+sont raccordés, sans double prélèvement depuis leurs passages d’accès. Les
+§§17/172 partagent la même offrande. Le vœu du bassin (§199 → 134) coûte une
+pièce au choix de route, puis applique séparément la perte de Chance du §134.
+Les offres hors budget sont masquées, les routes gratuites restent accessibles.
 
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,

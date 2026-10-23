@@ -328,16 +328,22 @@ class ForetMechanicsActions(FightingFantasyActions):
                    32:'10 Or ET deux objets.',36:'Tout votre or OU deux achats magiques utilisables.',
                    218:'5 Or OU un objet magique.',279:'Cinq unités : chaque objet et chaque pièce compte pour une unité.',
                    297:'5 Or OU un objet.'}
+        tariffs.update({n:f'{price} pièce(s) d’or.' for n,price in rules.FIXED_PAYMENTS.items()})
         layout.addWidget(QLabel(tariffs[number]))
         gold = QSpinBox()
         gold.setRange(0,self.character.get('gold',0))
         gold.setPrefix('Pièces d’or : ')
+        if number in rules.FIXED_PAYMENTS:
+            gold.setValue(rules.FIXED_PAYMENTS[number])
         layout.addWidget(gold)
         items = QListWidget()
         items.setSelectionMode(QAbstractItemView.MultiSelection)
         items.addItems(self.character.get('inventory', []))
         layout.addWidget(items)
         note = QLabel('Sélectionnez les exemplaires que vous acceptez de donner.')
+        if number in rules.FIXED_PAYMENTS:
+            items.hide()
+            note.setText('Ce paiement se fait uniquement en pièces d’or.')
         layout.addWidget(note)
         confirm = QPushButton('Payer')
         layout.addWidget(confirm)
