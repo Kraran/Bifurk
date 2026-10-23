@@ -17,8 +17,10 @@ def audit(catalogue, pdf=None):
     expected = {str(n) for n in range(1, 401)}
     if set(entries) != expected or catalogue['reviewed_count'] != 400 or catalogue['review_pending']:
         raise ValueError('La revue doit couvrir exactement les 400 paragraphes.')
-    if catalogue['automation_pending'] != list(range(1, 401)):
-        raise ValueError('L’analyse ne doit pas annoncer une automatisation achevée.')
+    complete = catalogue.get('mechanics_implementation', {}).get('complete_adventure', False)
+    expected_pending = [] if complete else list(range(1, 401))
+    if catalogue['automation_pending'] != expected_pending:
+        raise ValueError('Le statut d’intégration et les paragraphes en attente sont incohérents.')
     route_count = 0
     for number, entry in entries.items():
         if entry['status'] != 'analyse_verifiee' or not entry['title'].strip():

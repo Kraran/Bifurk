@@ -1,4 +1,4 @@
-# Bifurk 1.1.2 — Français et mode portable
+# Bifurk 1.2.0 — Français et mode portable
 
 ## Interface Le Grimoire
 
@@ -52,7 +52,7 @@ Windows 64 bits installé (3.13 recommandé). Le script prépare son environneme
 `.venv-build`, installe les dépendances et produit :
 
 - `dist/Bifurk/Bifurk.exe`, avec l'icône existante et sans console ;
-- `dist/Bifurk-v1.1.2-windows-x64.zip`, contenant le programme et ses dépendances ;
+- `dist/Bifurk-v1.2.0-windows-x64.zip`, contenant le programme et ses dépendances ;
 - l'empreinte `.zip.sha256` correspondante.
 
 Extrayez le ZIP dans un autre dossier pour le tester. Il faut distribuer **tout
@@ -153,14 +153,13 @@ Les règles communes (création, Chance, soins, combats et fuite) sont regroupé
 dans un [socle Défis Fantastiques](docs/socle-defis-fantastiques.md),
 réutilisable par les prochains modules sans les exceptions du Sorcier.
 
-### La Forêt de la Malédiction — présentation
+### La Forêt de la Malédiction — aventure complète
 
-Le deuxième module propose sa couverture, son prologue et ses règles. Le bouton
-**Grimoires…** permet de choisir parmi les livres importés ou d'importer un PDF.
-La Forêt est **en préparation** : consultation et sauvegarde sont disponibles,
-mais ses événements et combats seront intégrés après leur revue.
-Voir [le détail de cette étape](docs/foret-module-presentation.md).
+Le deuxième module est intégré : couverture, prologue, règles, illustrations,
+boutique, équipements, épreuves, combats et fins. Le bouton **Grimoires…** permet
+de choisir parmi les PDF importés. Les sauvegardes et le format de données restent compatibles.
 
-La revue des **400 paragraphes de la Forêt** est terminée : titres, choix et mécaniques sont catalogués. Les événements sont en cours d’intégration ; les anomalies du PDF aux §§186 et 267 sont corrigées grâce aux précisions fournies. Voir [le bilan et les contrôles](docs/reviews/foret-400-paragraphes.md).
-
-L’étape 4 ajoute la boutique, les charges, les équipements, les épreuves et les combats particuliers de la Forêt. Le module reste en préparation : [périmètre et tests](docs/foret-mecaniques-particulieres.md).
+Les 400 paragraphes et 641 renvois ont été audités. Les cas limites suivent les
+règles de projet validées ; une partie interne sans triche a atteint la victoire.
+Voir le [bilan de clôture](docs/reviews/2026-10-23-foret-cloture.md) et les
+[mécaniques particulières](docs/foret-mecaniques-particulieres.md).

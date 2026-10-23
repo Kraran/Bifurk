@@ -1,8 +1,8 @@
 # La Forêt — mécaniques particulières (étape 4)
 
 Cette étape ajoute le moteur des exceptions et leur raccordement au lecteur, aux
-dés, à la fenêtre de combat et aux sauvegardes. Le module reste `preview` :
-l’automatisation complète des 400 passages n’est pas annoncée. Les analyses
+dés, à la fenêtre de combat et aux sauvegardes. Le module est `ready` depuis
+Bifurk 1.2.0 : voir le [bilan de clôture](reviews/2026-10-23-foret-cloture.md). Les analyses
 `analyse_verifiee` restent des données documentaires ; elles ne sont jamais
 converties globalement en événements exécutables.
 

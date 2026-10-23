@@ -11,11 +11,11 @@ class ForetIntegrationAuditTests(unittest.TestCase):
         self.review = json.loads(REVIEW.read_text(encoding='utf-8'))
         self.catalogue = json.loads(CATALOGUE.read_text(encoding='utf-8'))
 
-    def test_complete_review_tracks_fixes_without_automatically_enabling_adventure(self):
+    def test_complete_review_tracks_fixes_and_completed_adventure(self):
         result = audit(self.review,self.catalogue)
         self.assertEqual(sum(result['classifications'].values()),400)
         self.assertEqual(result['routes'],641)
-        self.assertFalse(self.catalogue['mechanics_implementation']['complete_adventure'])
+        self.assertTrue(self.catalogue['mechanics_implementation']['complete_adventure'])
         self.assertTrue(all(f.get('resolution') for f in self.review['findings']))
         self.assertEqual(self.review['paragraphs']['158']['status'],'couvert')
         self.assertEqual(self.review['paragraphs']['242']['status'],'couvert')

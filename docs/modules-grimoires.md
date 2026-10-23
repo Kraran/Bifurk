@@ -51,7 +51,7 @@ n'importe quel livre jouable en ajoutant seulement un fichier JSON.
 5. Déclarer le moteur dans `registry.SUPPORTED_ENGINES` et
    `controller.CONTROLLERS`, puis ajouter le manifeste dans `catalogues/modules`.
    Les adaptateurs livrés sont `sorcier-1982` et `foret-1983` ; ce dernier
-   reste en préparation avec les [mécaniques particulières intégrées](foret-mecaniques-particulieres.md).
+   est désormais complet avec les [mécaniques particulières intégrées](foret-mecaniques-particulieres.md).
 6. Tester les règles ordinaires et les exceptions avec des jets contrôlés, puis
    les changements de livre, sauvegardes, chargements et annulations. Ajouter au
    besoin les contrôles de ressources dans `scripts/package_release.py`.

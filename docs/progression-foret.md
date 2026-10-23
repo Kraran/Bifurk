@@ -1,8 +1,8 @@
 # La Forêt de la Malédiction — progression au 23 octobre 2026
 
 Les 400 paragraphes ont été analysés et leurs 641 renvois catalogués.
-Le module reste en préparation : analyse du livre, intégration d’une mécanique
-et validation d’une partie complète sont trois étapes distinctes.
+Le module est `ready` en version 1.2.0. L’intégration fonctionnelle est clôturée ;
+voir le [bilan final](reviews/2026-10-23-foret-cloture.md).
 
 ## Fait
 
@@ -135,8 +135,9 @@ Les branches alternatives des mécaniques intégrées sont également testées :
 fuites, épreuves, états de charges, essais répétés, maladies, nouvelle tentative
 de quête et transformations. Voir [le contrôle des branches alternatives](reviews/2026-10-23-foret-branches-alternatives.md).
 
-- **Partie libre** : vérifier l’usage à la souris, les sorties de secours et les
-  interactions d’équipement sans scénario de dés imposés.
+- **Partie interne sans triche** : victoire au §400 après 63 lieux visités, sans
+  dés imposés, avec sauvegarde et rechargement. Une partie ne couvre pas toutes
+  les combinaisons ; les branches et sorties de secours ont des tests ciblés.
 - **Autres affichages** : vérifier les dimensions physiques disponibles, les réglages
   du système et les configurations à plusieurs moniteurs. Les trois tailles de
   fenêtre et les échelles Qt 125 %, 150 %, 200 % sont contrôlées.

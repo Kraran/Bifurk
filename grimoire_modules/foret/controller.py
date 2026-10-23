@@ -142,10 +142,11 @@ class ForetController(ForetMechanicsActions):
                 warning = QLabel('Source à confirmer : ' + issue['details'])
                 warning.setWordWrap(True)
                 self.event_layout.addWidget(warning)
-        notice = QLabel('Aventure en préparation : les mécaniques intégrées disposent de boutons dédiés ; les autres événements restent en cours d’intégration. '
-                        'Les renvois permettent pour le moment de consulter le livre.')
-        notice.setWordWrap(True)
-        self.event_layout.addWidget(notice)
+        if getattr(getattr(self, 'book_module', None), 'status', 'ready') == 'preview':
+            notice = QLabel('Aventure en préparation : les mécaniques intégrées disposent de boutons dédiés ; les autres événements restent en cours d’intégration. '
+                            'Les renvois permettent pour le moment de consulter le livre.')
+            notice.setWordWrap(True)
+            self.event_layout.addWidget(notice)
         self.choice_group.setVisible(self.choice_layout.count() > 0)
         self.event_group.show()
         self.condition_group.hide()

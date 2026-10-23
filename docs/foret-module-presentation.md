@@ -22,8 +22,7 @@ Le décor neutre du thème est utilisé en attendant, sans reprendre celui du So
 ## Parcours dans Bifurk
 
 Le bouton **Grimoires…** ouvre une bibliothèque des PDF importés, avec miniatures,
-titres et état de chaque aventure. Le Sorcier est indiqué comme complet et la
-Forêt comme en préparation. Le bouton d'import ouvre le sélecteur PDF existant.
+titres et état de chaque aventure. Les deux aventures sont indiquées comme complètes depuis Bifurk 1.2.0. Le bouton d'import ouvre le sélecteur PDF existant.
 Annuler la bibliothèque ne modifie pas la partie ; ouvrir un autre livre pendant
 une partie demande confirmation de l'abandon de la progression non sauvegardée.
 
@@ -80,4 +79,4 @@ l'archive Windows exige les trois ressources de catalogue du nouveau module ;
 les imports Python et le dossier catalogues sont déjà suivis par PyInstaller.
 Aucune compilation Windows n'est nécessaire pour cette étape.
 
-La revue des 400 paragraphes est documentée dans [le bilan d’analyse](reviews/foret-400-paragraphes.md). Les mécaniques intégrées sont détaillées dans [le bilan de l’étape 4](foret-mecaniques-particulieres.md). Le raccordement complet des événements reste en cours.
+La revue des 400 paragraphes est documentée dans [le bilan d’analyse](reviews/foret-400-paragraphes.md). Les mécaniques intégrées sont détaillées dans [le bilan de l’étape 4](foret-mecaniques-particulieres.md). Le raccordement fonctionnel est clôturé en version 1.2.0 ; voir le [bilan final](reviews/2026-10-23-foret-cloture.md).
