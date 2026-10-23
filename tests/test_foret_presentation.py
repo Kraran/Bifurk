@@ -70,6 +70,40 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_book_announcements_on_open_not_on_creation_refresh(self):
+        for name, engine in (('foret','foret-1983'), ('sorcier','sorcier-1982')):
+            with self.subTest(book=name), patch.object(self.w.sounds, 'play_book_intro') as play:
+                self.open(name)
+                play.assert_called_once_with(engine)
+                play.reset_mock()
+                self.w._show_book_title()
+                self.w.change_reader_font_size(2)
+                play.assert_not_called()
+
+    def test_book_announcements_on_successful_load_only(self):
+        for name, engine in (('foret','foret-1983'), ('sorcier','sorcier-1982')):
+            with self.subTest(book=name):
+                self.open(name)
+                self.start()
+                path = main.SAVES_DIR/f'annonce-{name}.json'
+                self.w._write_atomic(path, self.w._save_data())
+                with patch.object(self.w.sounds, 'play_book_intro') as play, \
+                     patch('main.extract_paragraphs', return_value=dict(self.w.paragraphs)):
+                    self.assertTrue(self.w.load_game(path, announce=False))
+                    play.assert_called_once_with(engine)
+                    play.reset_mock()
+                    path.write_text('{}', encoding='utf-8')
+                    self.assertFalse(self.w.load_game(path, announce=False))
+                    play.assert_not_called()
+
+    def test_book_announcement_on_cover_popup_only(self):
+        self.open()
+        self.start()
+        with patch.object(self.w.sounds, 'play_book_intro') as play, \
+             patch.object(QDialog, 'exec', return_value=0):
+            self.w.show_cover()
+            play.assert_called_once_with('foret-1983')
+
     def test_forest_ordinary_meals_repeat_save_and_undo(self):
         self.open()
         self.start()

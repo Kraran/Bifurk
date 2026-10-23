@@ -39,3 +39,19 @@ archives avec FFmpeg. Les anciens effets synthétiques ne sont plus utilisés.
 `FantasyFair.m4a` a été fourni par l’utilisateur. Ses métadonnées indiquent
 « Tavern Loop One », Alexander Nakarada, album « Fantasy Fair ».
 Le classement CC0 des effets ci-dessus ne concerne pas ce fichier musical.
+
+
+## Annonces des livres fournies par l’utilisateur
+
+`book_sorcier.wav` et `book_foret.wav` proviennent respectivement de
+« Le Sorcier.wav » et « La foret.wav », fournis pour leur diffusion dans Bifurk.
+Leur licence n’est pas assimilée au CC0 des autres effets ; aucune autre provenance
+ou licence n’a été fournie. Les originaux ne sont ni modifiés ni inclus.
+
+Préparation : retrait du décalage continu, coupe des silences avec marges de
+60 ms avant et 120 ms après, niveau RMS cible de -21 dBFS sous un plafond de crête
+à -2 dBFS, fondus de 5 ms et 20 ms, conversion sinc en mono PCM 16 bits à 22 050 Hz.
+Les fichiers finaux durent 1,60 s et 1,86 s et pèsent environ 69 et 80 Kio.
+`scripts/prepare_book_sounds.py` permet de les reconstruire avec NumPy, requis
+uniquement pour cet outil. `book_sounds.json` contient les empreintes et mesures.
+Les annonces suivent le réglage des effets sonores, sans boucle ni superposition.

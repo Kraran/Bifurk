@@ -16,6 +16,8 @@ Le démarrage propose une nouvelle partie ou le chargement d’un des cinq empla
 Le titre **Bifurk — Chroniques d’aventure**, icône comprise, ouvre la fenêtre **À propos** :
 version, auteur, présentation et liens GitHub.
 Le bouton **Ambiance** permet de couper les effets sonores et de choisir le thème.
+Une annonce propre au livre accompagne sa couverture et le chargement d’une
+sauvegarde. Elle suit le réglage des effets sonores.
 [Reprise, sons et préparation de thèmes](docs/themes-et-ambiance.md).
 
 Hors combat, les jets de **1d6, 2d6, 3d6 et 1d20** ouvrent un plateau de dés en 3D animés,

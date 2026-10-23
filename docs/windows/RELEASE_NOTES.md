@@ -2,6 +2,9 @@
 
 ## Nouveautés depuis la 1.1.2
 
+- Annonce sonore propre à chaque livre à l’affichage de sa couverture et au
+  chargement réussi d’une sauvegarde ; fichiers fournis harmonisés pour le jeu.
+
 - Bouton « Quitter le jeu » avec confirmation et arrêt des fenêtres et de l’audio.
 
 - La Forêt de la Malédiction devient une aventure complète : mécaniques spéciales,
