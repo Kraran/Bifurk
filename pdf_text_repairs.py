@@ -33,6 +33,7 @@ def repair_foret_confirmed_errata(paragraphs):
     le récit extrait et rester idempotent : une seconde passe n’ajoute jamais une
     seconde Anguille et un texte déjà corrigé reste inchangé.
     """
+    repair_foret_typography(paragraphs)
     text = paragraphs.get(186)
     if text and not re.search(r'(?i)rendez\s*[-‐‑–]?\s*vous\s+au\s+131\b', text):
         paragraphs[186] = (text.rstrip() + '\n\nANGUILLE CARNIVORE\n'
@@ -47,3 +48,27 @@ def repair_foret_confirmed_errata(paragraphs):
         colophon = re.search(r"(?im)^\s*Achevé\s+d['’]imprimer\b",text)
         if colophon:
             paragraphs[400] = text[:colophon.start()].rstrip()
+
+
+def repair_foret_typography(paragraphs):
+    """Retoucher les coquilles repérées dans l'extraction de l'édition identifiée.
+
+    Les remplacements sont bornés aux paragraphes et contextes constatés. Ne
+    jamais remplacer globalement « Test », qui peut désigner un vrai test.
+    Aucun numéro de renvoi, prix ni caractéristique n'est modifié.
+    """
+    for number in (51, 59, 61, 109, 112, 188, 267, 349, 359, 362, 363):
+        if number in paragraphs:
+            paragraphs[number] = re.sub(
+                r'\b(vers|à|de)\s+Test\b', r"\1 l’est", paragraphs[number])
+    for number in (92, 100, 158, 288):
+        if number in paragraphs:
+            paragraphs[number] = paragraphs[number].replace(' ŕ ', ' — ')
+    if 261 in paragraphs:
+        paragraphs[261] = re.sub(
+            r'(?m)(Potion Antipoison|Eau Bénite|Corde Magique)\s+[Ŕŕ](?=\s+\d)',
+            r'\1 —', paragraphs[261])
+        paragraphs[261] = re.sub(r'(Brassard de Force)-(?=\s+3\s+pièces)',
+                                 r'\1 —', paragraphs[261])
+    if 400 in paragraphs:
+        paragraphs[400] = paragraphs[400].replace('votre coips', 'votre corps')
