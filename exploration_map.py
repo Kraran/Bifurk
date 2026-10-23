@@ -1,14 +1,14 @@
 """Carte interactive de l'exploration, construite uniquement avec les souvenirs du joueur.
 
-Le graphe représente des passages et des déplacements, pas des coordonnées
-physiques du donjon. La vue ne résout aucune règle : sélection, recherche, zoom
+Le graphe suit les directions explicites des choix quand elles sont connues,
+sans prétendre reconstruire les distances physiques du livre. La vue ne résout aucune règle : sélection, recherche, zoom
 et recentrage ne modifient jamais la partie. Seule la commande explicite de
 retour à un passage appelle la navigation existante du contrôleur.
 """
-from collections import deque
 import copy
 import html
 import math
+import re
 
 from PySide6.QtCore import QPointF, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QFontMetrics, QPainter, QPainterPath, QPen, QPixmap, QPolygonF
@@ -30,42 +30,81 @@ def discovered_places(owner):
     places = {}
     for number in owner.visited_paragraphs:
         entry = verified_entry(owner.book_event_catalogue, number) or {}
-        exits = ([route['target'] for route in entry['routes']] if 'routes' in entry
-                 else [choice['target'] for choice in owner._paragraph_choices(owner.paragraphs.get(number, ''))])
+        routes = (entry['routes'] if 'routes' in entry else
+                  owner._paragraph_choices(owner.paragraphs.get(number, '')))
+        exits = [route['target'] for route in routes]
         places[number] = {'title': owner._paragraph_name(number) or 'Passage exploré',
                           'exits': list(dict.fromkeys(exits)),
+                          'directions': {route['target']: route_direction(route.get('label', ''))
+                                         for route in routes},
                           'monsters': copy.deepcopy(owner.encounter_history.get(str(number), []))}
     return places
 
 
-def place_positions(numbers, transitions):
-    """Placer les branches par profondeur, avec un ordre stable et sans chevauchement.
+def route_direction(label):
+    """Lire uniquement une direction de déplacement dans le libellé du choix.
 
-    Un parcours en largeur ignore les cycles déjà vus. Chaque composante reste
-    affichable, même si une sauvegarde contient des lieux sans transition connue.
-    Les colonnes sont des niveaux de découverte et non des directions cardinales.
+    Ne pas déduire une orientation d'un titre ou du récit environnant. Deux
+    directions, une négation ou une orientation composée restent ambiguës.
     """
-    adjacency = {number: [] for number in numbers}
+    label = label.casefold().replace('’', "'")
+    names = re.findall(r"\b(nord|sud|est|ouest)\b", label)
+    if len(set(names)) != 1 or re.search(r"\b(ne|pas|sans|apercevoir|regarder|observer)\b", label):
+        return None
+    if not re.search(r"(?:^\s*(?:vers|au|à|direction)\b|\b(?:suivre|aller|continuer|poursuivre|partir|repartir|prendre|marcher|avancer|tourner)\b)", label):
+        return None
+    return {'nord': (0, -1), 'sud': (0, 1),
+            'est': (1, 0), 'ouest': (-1, 0)}[names[0]]
+
+
+def place_positions(numbers, transitions, directions=None):
+    """Placer les lieux sur une grille, selon les déplacements connus.
+
+    La première arrivée fixe la position d'un lieu ; les retours ne le déplacent
+    pas. Une collision décale latéralement dans le même demi-plan cardinal.
+    Sans direction, privilégier une case proche dans une surface compacte.
+    """
+    numbers = list(numbers)
+    known = set(numbers)
+    positions, occupied = {}, set()
+    directions = directions or {}
+
+    def assign(number, source=None, direction=None):
+        origin = positions.get(source, (0, 0))
+        if direction:
+            dx, dy = direction
+            radius = 1
+            while True:
+                candidates = [(origin[0] + dx * radius - dy * offset,
+                               origin[1] + dy * radius + dx * offset)
+                              for offset in range(-radius + 1, radius)]
+                candidates.sort(key=lambda point: (abs((point[0]-origin[0])*dy -
+                                                        (point[1]-origin[1])*dx), point))
+                free = [point for point in candidates if point not in occupied]
+                if free:
+                    point = free[0]
+                    break
+                radius += 1
+        else:
+            radius = math.ceil(math.sqrt(len(occupied))) + 1
+            candidates = [(x, y) for x in range(-radius, radius + 1)
+                          for y in range(-radius, radius + 1) if (x, y) not in occupied]
+            point = min(candidates, key=lambda p: ((p[0]-origin[0])**2 + (p[1]-origin[1])**2
+                                                  + 2*(p[0]**2+p[1]**2), p))
+        positions[number] = point
+        occupied.add(point)
+
     for source, target in transitions:
-        if source in adjacency and target in adjacency and target not in adjacency[source]:
-            adjacency[source].append(target)
-    depths = {}
-    for root in numbers:
-        if root in depths:
+        if source not in known or target not in known:
             continue
-        depths[root] = max(depths.values(), default=-1) + 1
-        queue = deque([root])
-        while queue:
-            source = queue.popleft()
-            for target in adjacency[source]:
-                if target not in depths:
-                    depths[target] = depths[source] + 1
-                    queue.append(target)
-    columns = {}
+        if source not in positions:
+            assign(source)
+        if target not in positions:
+            assign(target, source, directions.get((source, target)))
     for number in numbers:
-        columns.setdefault(depths[number], []).append(number)
-    return {number: QPointF(depth * 330, (row - (len(column) - 1) / 2) * 160)
-            for depth, column in columns.items() for row, number in enumerate(column)}
+        if number not in positions:
+            assign(number)
+    return {number: QPointF(x * 330, y * 180) for number, (x, y) in positions.items()}
 
 
 def encounter_summary(monsters):
@@ -268,22 +307,26 @@ class ExplorationMapDialog(QDialog):
 
     def _build_graph(self):
         """Relier seulement les lieux connus par les déplacements réellement effectués."""
-        positions = place_positions(self.places, self.transitions)
+        directions = {(source, target): direction
+                      for source, place in self.places.items()
+                      for target, direction in place['directions'].items() if direction}
+        positions = place_positions(self.places, self.transitions, directions)
         edges = list(dict.fromkeys((source, target) for source, target in self.transitions
                                    if source in positions and target in positions and source != target))
         for index, (source, target) in enumerate(edges):
-            start = positions[source] + QPointF(PlaceItem.WIDTH, PlaceItem.HEIGHT / 2)
-            end = positions[target] + QPointF(0, PlaceItem.HEIGHT / 2)
-            path = QPainterPath(start)
-            if end.x() > start.x():
-                span = max(45, (end.x() - start.x()) / 2)
-                control1, control2 = start + QPointF(span, 0), end - QPointF(span, 0)
+            delta = positions[target] - positions[source]
+            if abs(delta.x()) / 330 >= abs(delta.y()) / 180:
+                sign = 1 if delta.x() > 0 else -1
+                start = positions[source] + QPointF(PlaceItem.WIDTH if sign > 0 else 0, PlaceItem.HEIGHT / 2)
+                end = positions[target] + QPointF(0 if sign > 0 else PlaceItem.WIDTH, PlaceItem.HEIGHT / 2)
+                offset = QPointF(sign * max(45, abs(end.x() - start.x()) / 2), 0)
             else:
-                start = positions[source] + QPointF(PlaceItem.WIDTH / 2, PlaceItem.HEIGHT)
-                end = positions[target] + QPointF(PlaceItem.WIDTH / 2, PlaceItem.HEIGHT)
-                path = QPainterPath(start)
-                lane = max(start.y(), end.y()) + 70 + (index % 5) * 14
-                control1, control2 = QPointF(start.x(), lane), QPointF(end.x(), lane)
+                sign = 1 if delta.y() > 0 else -1
+                start = positions[source] + QPointF(PlaceItem.WIDTH / 2, PlaceItem.HEIGHT if sign > 0 else 0)
+                end = positions[target] + QPointF(PlaceItem.WIDTH / 2, 0 if sign > 0 else PlaceItem.HEIGHT)
+                offset = QPointF(0, sign * max(30, abs(end.y() - start.y()) / 2))
+            path = QPainterPath(start)
+            control1, control2 = start + offset, end - offset
             path.cubicTo(control1, control2, end)
             color = QColor(self.theme.color('gold' if (source, target) == (self.transitions[-1] if self.transitions else None)
                                              else 'ornament'))
