@@ -68,6 +68,44 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_fixed_payment_choices_dialog_cancel_save_and_undo(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({17:'Puits.',172:'Puits.',89:'Offrande.',256:'Tunnel.',238:'Ouest.',281:'Est.',160:'Corbeau.',343:'Conseil.',8:'Nord.',239:'Est.',366:'Centaure.',127:'Traversée.',178:'Gué.',298:'Araignée.'})
+        base = w._snapshot()
+        for source,target,price in ((17,89,1),(160,343,1),(366,127,3)):
+            with self.subTest(source=source):
+                w._restore(base)
+                w.character['gold'] = price
+                w.go_to(source)
+                self.assertIn(target,w._reading_link_targets())
+                w.follow_foret_route(target)
+                self.assertEqual(w.character['gold'],price)
+                self.assertEqual(w._reading_link_targets(),set())
+                before = copy.deepcopy(w._snapshot())
+                with patch('grimoire_modules.foret.actions.QDialog.exec',lambda dialog:dialog.reject()):
+                    w._foret_payment_dialog()
+                self.assertEqual(w._snapshot(),before)
+                w.perform_foret_action('payment',(price,[]))
+                self.assertEqual(w.character['gold'],0)
+                self.assertTrue(w._reading_link_targets())
+                w.undo_action()
+                self.assertEqual(w.character['gold'],price)
+                w.redo_action()
+                path = main.SAVES_DIR/f'paiement-{target}.json'
+                w._write_atomic(path,w._save_data())
+                with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                    self.assertTrue(w.load_game(path,announce=False))
+                w.perform_foret_action('payment',(price,[]))
+                self.assertEqual(w.character['gold'],0)
+                self.assertTrue(rules.payment_resolved(w.character,target))
+                if target == 89:
+                    w.go_to(172)
+                    w.follow_foret_route(89)
+                    self.assertEqual(w.character['gold'],0)
+
     def test_egg_roll_save_undo_and_lethal_explosion(self):
         self.open()
         self.start()

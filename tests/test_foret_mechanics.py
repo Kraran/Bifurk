@@ -15,6 +15,37 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_well_advice_and_ferry_payments_require_exact_gold_once(self):
+        for number,price in ((89,1),(343,1),(127,3)):
+            c = hero(gold=price-1,inventory=['Bijou'])
+            before = deepcopy(c)
+            with self.assertRaises(ValueError):r.pay_paragraph(c,number,gold=price)
+            with self.assertRaises(ValueError):r.pay_paragraph(c,number,items=['Bijou'])
+            self.assertEqual(c,before)
+            c['gold'] = price
+            r.pay_paragraph(c,number,gold=price)
+            self.assertEqual(c['gold'],0)
+            before = deepcopy(c)
+            self.assertFalse(r.pay_paragraph(c,number,gold=price))
+            self.assertEqual(c,before)
+        c = hero(gold=1)
+        for source in (17,172):self.assertTrue(r.route_available(c,source,89))
+        r.pay_paragraph(c,89,gold=1)
+        for source in (17,172):self.assertTrue(r.route_available(c,source,89))
+        self.assertEqual(c['gold'],0)
+
+    def test_unaffordable_offers_keep_free_routes_and_mud_wish_cost_is_separate(self):
+        c = hero(gold=0)
+        for source,target,free in ((17,89,256),(172,89,281),(160,343,8),(366,127,178),(199,134,283)):
+            self.assertFalse(r.route_available(c,source,target))
+            self.assertTrue(r.route_available(c,source,free))
+        c['gold'] = 1
+        r.pay_route(c,199,134)
+        self.assertEqual(c['gold'],0)
+        r.resolve_entry(c,134)
+        self.assertEqual((c['gold'],c['chance']),(0,7))
+        self.assertFalse(r.pay_route(c,199,134))
+
     def test_egg_explosion_validates_one_die_and_never_repeats(self):
         c = hero(endurance=5)
         for die in (0,7,True):

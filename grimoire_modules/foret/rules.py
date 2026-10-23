@@ -35,7 +35,9 @@ BELL = 'Petite clochette de cuivre'
 SILVER_DART = 'Fléchette d’argent (valeur 5 Or)'
 GOBLIN_LOOT = ('Petite flûte de cuivre','Biscuits infestés de vers','Collier de crânes de souris')
 DRAGON_FLUTES = ('Petite flûte de cuivre','Flûte à Endormir les Dragons')
-ROUTE_COSTS = {(130,355):('chance',1),(243,166):('gold',1)}
+ROUTE_COSTS = {(130,355):('chance',1),(243,166):('gold',1),(199,134):('gold',1)}
+FIXED_PAYMENTS = {89:1,343:1,127:3}
+FIXED_PAYMENT_ROUTES = {(17,89):89,(172,89):89,(160,343):343,(366,127):127}
 
 
 def route_paid(character, paragraph, target):
@@ -743,7 +745,7 @@ def take_optional_find(character, paragraph):
     return True
 
 
-PAYMENT_PARAGRAPHS = {12,14,32,36,218,279,297}
+PAYMENT_PARAGRAPHS = {12,14,32,36,89,127,218,279,297,343}
 
 
 def pay_paragraph(character, paragraph, *, gold=0, items=()):
@@ -757,7 +759,9 @@ def pay_paragraph(character, paragraph, *, gold=0, items=()):
         return False
     magic_only = False
     units = None
-    if paragraph == 12:
+    if paragraph in FIXED_PAYMENTS:
+        valid = gold == FIXED_PAYMENTS[paragraph] and not items
+    elif paragraph == 12:
         valid = (gold == 10 and not items) or (gold == 0 and len(items) == 2)
     elif paragraph == 32:
         valid = gold == 10 and len(items) == 2
@@ -827,6 +831,11 @@ OPTIONAL_ITEM_ROUTES = {(92,100):'Potion de Contrôle des Insectes', (196,39):'F
 
 def route_available(character, paragraph, target):
     """Autoriser les seules conditions intégrées ; ne jamais renouveler une charge épuisée."""
+    payment = FIXED_PAYMENT_ROUTES.get((paragraph,target))
+    if payment is not None:
+        return payment_resolved(character,payment) or character.get('gold',0) >= FIXED_PAYMENTS[payment]
+    if (paragraph,target) == (199,134):
+        return route_paid(character,199,134) or character.get('gold',0) >= 1
     physical = {95:('Poudre de Lévitation',173,368),391:('Petite clé d’argent',200,379)}
     if paragraph in physical:
         name, present, absent = physical[paragraph]
