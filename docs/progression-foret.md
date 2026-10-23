@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **177 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **181 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -15,10 +15,10 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | --- | ---: |
 | Boutique de Yaztromo | 1 |
 | Profils de combat | 40 |
-| Effets d’entrée et usages d’objets | 88 |
+| Effets d’entrée et usages d’objets | 90 |
 | Paiements | 7 |
-| Actions et épreuves spéciales | 35 |
-| Conditions et coûts de route recensés séparément | 8 (§§95, 130, 191, 243, 246, 295, 360, 391) |
+| Actions et épreuves spéciales | 36 |
+| Conditions et coûts de route recensés séparément | 9 (§§95, 130, 132, 191, 243, 246, 295, 360, 391) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
 combats en groupes et successifs, fouet du Démon, paralysie de la Goule,
@@ -49,7 +49,7 @@ Les cartes et liens du récit paient le don au moine et la fuite immédiate au
 moment du choix. Le tribut des Bandits est partagé entre ses trois passages,
 sans second prélèvement. Le §301 propose un choix partiel des trois pièces et
 des objets ; le stock restant survit à la sauvegarde. Les biscuits infestés
-restent un objet et la petite flûte reste distincte de la flûte magique.
+restent un objet et la petite flûte de cuivre est reconnue au §258 comme une flûte à endormir les Dragons.
 
 Vingt et un passages de combat ordinaires sont ajoutés : duels et successions
 explicites (essaims, Hommes des Bois, Vampires, Clones, Loups). Les variantes du
@@ -72,6 +72,10 @@ du §383 sont raccordés. La main d’argile et le lièvre rôti sont des choix
 séparés, sans répétition ; le repas rend deux points sous plafond, sans ration.
 Les §§95 et 391 vérifient la possession de la poudre et de la petite clé
 sans les consommer au moment du choix de route.
+
+Le §48 applique une explosion unique de 1d6 Endurance. La clé du §200 reste
+dans le sac après ouverture ; la petite flûte de cuivre du §301 ouvre la route
+du §132 puis endort la Vouivre au §258, sans consommation ni monstre tué.
 
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,

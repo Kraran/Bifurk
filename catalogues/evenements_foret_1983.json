@@ -2307,7 +2307,7 @@
       ],
       "analysis": {
         "source_page_pdf": 66,
-        "rules": "Pas de combat ordinaire à préparer à ce stade."
+        "rules": "Vérifier la présence de la petite flûte de cuivre trouvée au §301 ; son pouvoir est révélé au §258. Pas de combat ordinaire à préparer à ce stade."
       }
     },
     "133": {
@@ -4628,7 +4628,7 @@
       ],
       "analysis": {
         "source_page_pdf": 110,
-        "rules": "Jouer de la Flûte à Endormir les Dragons; Vouivre endormie, pas tuée. Conserver la flûte physique, pas de consommation explicite de cet objet trouvé."
+        "rules": "Jouer de la petite flûte de cuivre du §301, révélée comme Flûte à Endormir les Dragons ; Vouivre endormie, pas tuée. Conserver la flûte physique, sans consommation annoncée."
       }
     },
     "259": {
@@ -7859,6 +7859,7 @@
       183,
       184,
       194,
+      200,
       202,
       205,
       211,
@@ -7873,6 +7874,7 @@
       248,
       250,
       257,
+      258,
       262,
       268,
       269,
@@ -7913,6 +7915,7 @@
     "special_action_paragraphs": [
       22,
       34,
+      48,
       52,
       57,
       60,
@@ -7951,6 +7954,7 @@
     "conditional_route_paragraphs": [
       95,
       130,
+      132,
       191,
       243,
       246,

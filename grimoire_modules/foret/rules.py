@@ -34,6 +34,7 @@ ELVEN_BREAD = 'Pain elfique'
 BELL = 'Petite clochette de cuivre'
 SILVER_DART = 'Fléchette d’argent (valeur 5 Or)'
 GOBLIN_LOOT = ('Petite flûte de cuivre','Biscuits infestés de vers','Collier de crânes de souris')
+DRAGON_FLUTES = ('Petite flûte de cuivre','Flûte à Endormir les Dragons')
 ROUTE_COSTS = {(130,355):('chance',1),(243,166):('gold',1)}
 
 
@@ -590,6 +591,8 @@ def advance_group(combat):
 # Les variantes partagent un identifiant physique. La table ne contient que des
 # effets relus : aucun motif de texte ne peut créer une récompense ou une charge.
 ENTRY_RULES = {
+    200:{'requires':('Petite clé d’argent',),'label':'Ouvrir la porte avec la petite clé d’argent'},
+    258:{'requires_any':DRAGON_FLUTES,'pacify':'wyvern','label':'Jouer de la flûte et endormir la Vouivre'},
     273:{'items':['Médaillon d’or (valeur 9 Or)']},
     371:{'gold':3},
     383:{'gold':2,'items':['Petit sifflet de bois']},
@@ -682,6 +685,11 @@ def resolve_entry(character, paragraph):
         return False
     rule = ENTRY_RULES[paragraph]
     working = deepcopy(character)
+    for name in rule.get('requires', ()):
+        if name not in working.get('inventory', []):
+            raise ValueError('Objet nécessaire absent : ' + name)
+    if rule.get('requires_any') and not any(name in working.get('inventory', []) for name in rule['requires_any']):
+        raise ValueError('La petite flûte de cuivre manque.')
     for name in rule.get('remove', []):
         if name not in working.get('inventory', []):
             raise ValueError('Objet nécessaire absent : ' + name)
@@ -694,6 +702,8 @@ def resolve_entry(character, paragraph):
         wear(working, rule['wear'])
     if rule.get('equip'):
         working['equipped_weapon'] = rule['equip']
+    if rule.get('pacify'):
+        state(working).setdefault('peaceful_encounters', []).append(rule['pacify'])
     damage_hero(working, rule.get('damage',0))
     if rule.get('heal'):
         working['endurance'] = min(working['initial']['endurance'],working['endurance']+rule['heal'])
@@ -707,6 +717,17 @@ OPTIONAL_FINDS = {
     371:{'label':'Prendre une main d’argile rouge (facultatif)', 'items':['Main d’argile rouge']},
     383:{'label':'Manger le lièvre rôti (+2 Endurance, facultatif)', 'heal':2},
 }
+
+
+def egg_explosion(character, die):
+    """§48 : un seul dé, sans test de Chance ni blessure par fragment supplémentaire."""
+    alive(character)
+    dice(die,1,6)
+    if 'egg_explosion' in peek(character).get('rewards', []):
+        return False
+    reward(character,'egg_explosion')
+    damage_hero(character,die)
+    return True
 
 
 def take_optional_find(character, paragraph):
@@ -843,7 +864,7 @@ def route_available(character, paragraph, target):
     if paragraph == 155:
         return target == (83 if 'Belladone' in character.get('inventory', []) else 259)
     if paragraph == 132:
-        return target == (258 if 'Flûte à Endormir les Dragons' in character.get('inventory', []) else 167)
+        return target == (258 if any(name in character.get('inventory', []) for name in DRAGON_FLUTES) else 167)
     return True
 
 
