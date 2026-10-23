@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
+from copy import deepcopy
 from PySide6.QtCore import QUrl
 from book_events import verified_entry
 from grimoire_modules.foret.controller import ForetController
@@ -11,6 +12,14 @@ from tools.audit_foret import audit
 
 
 class ForetAnalysisTests(unittest.TestCase):
+    def test_completed_integration_cannot_keep_pending_automation(self):
+        catalogue = deepcopy(self.data)
+        self.assertTrue(catalogue['mechanics_implementation']['complete_adventure'])
+        self.assertEqual(catalogue['automation_pending'], [])
+        catalogue['automation_pending'] = [1]
+        with self.assertRaises(ValueError):
+            audit(catalogue)
+
     @classmethod
     def setUpClass(cls):
         cls.data = json.loads((Path(__file__).resolve().parents[1] /

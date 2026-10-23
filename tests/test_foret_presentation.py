@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pymupdf
 from PySide6.QtCore import QUrl
-from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QPushButton, QSpinBox, QListWidget
+from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QPushButton, QSpinBox, QListWidget, QLabel
 
 import main
 from grimoire_library import GrimoireLibraryDialog, imported_grimoires
@@ -56,6 +56,8 @@ class ForetPresentationTests(unittest.TestCase):
             mock.start()
             self.addCleanup(mock.stop)
         self.w = main.MainWindow()
+        # Le DeferredDelete Qt peut suivre le nettoyage du dossier temporaire.
+        self.addCleanup(self.w.sounds._close_log)
         self.addCleanup(self.w.deleteLater)
         self.addCleanup(self.w.close)
         mock = patch.object(self.w, '_roll', side_effect=lambda count, *a, **k: ([3]*count, 3*count))
@@ -1499,12 +1501,12 @@ class ForetPresentationTests(unittest.TestCase):
                         w.perform_foret_action('goblin_loot',(1,[]))
                         self.assertEqual(w.character['gold'],gold+1)
 
-    def test_cover_title_starting_resources_and_preparation_notice(self):
+    def test_cover_title_starting_resources_and_ready_notice(self):
         self.open()
         self.assertEqual(self.w.book_module.id, 'foret_malediction_1983')
         self.assertEqual(self.w.book_label.text(), 'La Forêt de la Malédiction')
         self.assertIn('La Forêt de la Malédiction', self.w.reader.toPlainText())
-        self.assertIn('préparation', self.w.reader.toPlainText())
+        self.assertNotIn('préparation', self.w.reader.toPlainText())
         self.assertEqual(self.w.scene_entry['type'], 'couverture')
         self.assertTrue(self.w.scene_art.is_book_art)
         self.assertIsNotNone(self.w.findChild(QPushButton, 'readPrologue'))
@@ -1514,6 +1516,8 @@ class ForetPresentationTests(unittest.TestCase):
     def test_analysed_title_and_corrected_cave_route_are_presented_without_effects(self):
         self.open()
         self.start()
+        self.assertFalse(any('en préparation' in label.text()
+                             for label in self.w.event_group.findChildren(QLabel)))
         before = copy.deepcopy(self.w.character)
         dice = self.roll.call_count
         self.assertEqual(self.w.paragraph_title.text(), 'La tour de Yaztromo')
@@ -1805,7 +1809,7 @@ class ForetPresentationTests(unittest.TestCase):
         try:
             self.assertIn('La Forêt', dialog.books.currentItem().text())
             self.assertFalse(dialog.books.currentItem().icon().isNull())
-            self.assertIn('préparation', dialog.books.currentItem().text())
+            self.assertIn('Aventure complète', dialog.books.currentItem().text())
             dialog.choose()
             self.assertEqual(dialog.selected_path, self.w.pdf_path)
         finally:
@@ -2053,15 +2057,15 @@ class ForetEditionContractTests(unittest.TestCase):
         self.assertTrue(all(not e['paragraphes'] for e in ornaments))
         self.assertEqual(next(e['page_pdf'] for e in cat['illustrations'] if e['type']=='carte'),17)
 
-    def test_presentation_catalogues_are_honest_about_pending_paragraphs(self):
+    def test_presentation_catalogues_mark_completed_integration(self):
         module = next(m for m in available_modules() if m.engine == 'foret-1983')
         events = module.catalogue('events')
         self.assertEqual(module.rules_pages, (4,13))
         self.assertEqual(module.intro_pages, (14,17))
-        self.assertEqual(module.status, 'preview')
+        self.assertEqual(module.status, 'ready')
         self.assertEqual(len(events['paragraphs']), 400)
         self.assertEqual(events['review_pending'], [])
-        self.assertEqual(events['automation_pending'], list(range(1,401)))
+        self.assertEqual(events['automation_pending'], [])
 
     def test_private_pdf_is_recognized_and_cover_crop_fits_real_page(self):
         module = next(m for m in available_modules() if m.engine == 'foret-1983')

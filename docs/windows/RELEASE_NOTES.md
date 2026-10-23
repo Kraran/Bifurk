@@ -1,3 +1,22 @@
+# Bifurk 1.2.0 — La Forêt de la Malédiction
+
+## Nouveautés depuis la 1.1.2
+
+- La Forêt de la Malédiction devient une aventure complète : mécaniques spéciales,
+  boutique, équipements, combats, épreuves, fins et cas limites validés.
+- Illustrations de la Forêt et fond dédié après la couverture.
+- Carte d’exploration en deux dimensions guidée par les directions des choix,
+  commune aux deux aventures, avec placement compact sans direction explicite.
+- Corrections des renvois, des coquilles du texte extrait et de l’avertissement
+  QFont au démarrage ; améliorations de l’affichage sur les petites fenêtres.
+- Sauvegardes conservées au format actuel ; importer son propre PDF de l’édition reconnue.
+
+Le [bilan de clôture](../reviews/2026-10-23-foret-cloture.md) distingue l’audit,
+les tests de branches, les contrôles Qt et la partie interne sans triche.
+Cette mise à jour des sources ne produit ni exécutable ni archive Windows.
+
+---
+
 # Bifurk 1.1.2 — Le grimoire prend vie
 
 ## Nouveautés depuis la 1.1.1
