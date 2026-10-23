@@ -23,7 +23,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QMessageBox, QDialog, QPushButton
 from book_events import DATA_PATH
 from main import MainWindow, ASSET_DIR
-from sound_effects import SoundBank, EFFECT_LABELS
+from sound_effects import SoundBank, EFFECT_LABELS, BOOK_SOUNDS
 
 
 class Signal:
@@ -70,7 +70,7 @@ class SoundFeedbackTests(unittest.TestCase):
         state = random.getstate()
         with patch.object(SoundBank, '_backend', return_value=FakeEffect):
             bank = SoundBank(ASSET_DIR/'sounds')
-            self.assertEqual(set(bank.effects), {*EFFECT_LABELS, 'ambient'})
+            self.assertEqual(set(bank.effects), {*EFFECT_LABELS, *BOOK_SOUNDS.values(), 'ambient'})
             page = bank.effects['page']
             bank.play('page')
             self.assertIs(bank.effects['page'], page)

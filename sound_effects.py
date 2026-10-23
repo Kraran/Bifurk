@@ -14,6 +14,7 @@ EFFECT_LABELS = {
     'item': 'Objet récupéré', 'coins': 'Pièces', 'key': 'Serrure',
     'potion': 'Potion', 'hit': 'Blessure', 'victory': 'Victoire', 'death': 'Défaite',
 }
+BOOK_SOUNDS = {'sorcier-1982': 'book_sorcier', 'foret-1983': 'book_foret'}
 
 
 class SoundBank(QObject):
@@ -75,13 +76,14 @@ class SoundBank(QObject):
         backend = self._backend()
         if backend is None:
             return
-        for name in [*EFFECT_LABELS, 'ambient']:
+        for name in [*EFFECT_LABELS, *BOOK_SOUNDS.values(), 'ambient']:
             path = self.folder / f'{name}.wav'
             if name in self.effects or not path.is_file():
                 continue
             effect = backend(self)
             self.effects[name] = effect
-            effect.setVolume(.10 if name == 'ambient' else .72 if name == 'swords' else .50)
+            effect.setVolume(.10 if name == 'ambient' else .80 if name in BOOK_SOUNDS.values()
+                             else .72 if name == 'swords' else .50)
             if name == 'ambient':
                 # Recent PySide6 exposes Loop as an Enum, while the setter takes int.
                 effect.setLoopCount(getattr(backend.Infinite, 'value', backend.Infinite))
@@ -92,6 +94,16 @@ class SoundBank(QObject):
     def _allowed(self, name):
         """Vérifier le réglage propre à l’ambiance ou celui des effets ponctuels."""
         return self.ambient_enabled if name == 'ambient' else self.enabled
+
+    def play_book_intro(self, engine):
+        """Une seule annonce à la fois, y compris si une demande attend le chargement."""
+        for name in BOOK_SOUNDS.values():
+            self.pending.discard(name)
+            if name in self.effects:
+                self.effects[name].stop()
+        name = BOOK_SOUNDS.get(engine)
+        if name:
+            self.play(name)
 
     def _ready(self, name):
         """Rejouer une demande en attente seulement si le fichier est prêt et toujours autorisé."""

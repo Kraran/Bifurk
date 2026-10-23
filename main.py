@@ -1165,7 +1165,11 @@ class MainWindow(QMainWindow, ModuleActions):
         self.condition_group.hide()
         self.reader.setHtml("<h1>Ouvrez le grimoire.</h1><p>Une porte oubliée. Un trésor légendaire. Et vos décisions pour seule boussole.</p><p>Choisissez votre livre avec <b>Grimoires…</b>, puis découvrez votre nouvel aventurier sur la page d’introduction.</p><p>Explorez, lancez les dés et écrivez votre propre histoire.</p>")
 
-    def _show_book_title(self):
+    def _play_book_intro(self):
+        """Identifier l’annonce par le module vérifié, jamais par le nom du PDF."""
+        self.sounds.play_book_intro(getattr(self.book_module, 'engine', None))
+
+    def _show_book_title(self, *, play_sound=False):
         """Afficher la couverture, le titre et le formulaire de création avant le §1.
 
         Un simple rafraîchissement conserve le tirage, le nom et le compteur de relances."""
@@ -1176,6 +1180,8 @@ class MainWindow(QMainWindow, ModuleActions):
         self.current_paragraph = None
         self.paragraph_title.setText("✦  Votre aventure commence ici  ✦")
         self._render_creation_preview()
+        if play_sound:
+            self._play_book_intro()
         self._clear_dynamic_layout(self.choice_layout)
         first = 1 if 1 in self.paragraphs else min(self.paragraphs)
         label = QLabel('Sous quel nom entrerez-vous dans la légende ?')
@@ -1294,7 +1300,7 @@ class MainWindow(QMainWindow, ModuleActions):
     def _restart_adventure(self):
         """Préparer une nouvelle création sur le même livre ; préserver les emplacements manuels."""
         self._adventurer_draft = None
-        self._show_book_title()
+        self._show_book_title(play_sound=True)
 
     def _begin_adventure(self, name):
         """Valider le nom et le tirage exact, réinitialiser la progression puis entrer au §1.
@@ -1425,7 +1431,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.undo_stack.clear(); self.redo_stack.clear()
         self._update_history_controls()
         self._adventurer_draft = None
-        self._show_book_title()
+        self._show_book_title(play_sound=True)
         self._remember_book()
         self._autosave()
 
@@ -1692,6 +1698,8 @@ class MainWindow(QMainWindow, ModuleActions):
         except Exception as exc:
             QMessageBox.warning(self, "Illustration", str(exc))
             return
+        if entry.get('type') == 'couverture':
+            self._play_book_intro()
         dialog = IllustrationDialog(self)
         dialog.setObjectName("illustrationDialog")
         dialog.setWindowIcon(self.windowIcon())
@@ -2350,6 +2358,7 @@ class MainWindow(QMainWindow, ModuleActions):
             self._update_history_controls()
             self._remember_book()
             self.intro_music.fade_out()
+            self._play_book_intro()
             if announce:
                 QMessageBox.information(self, "Chargement", "Partie chargée.")
             return True

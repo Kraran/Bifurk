@@ -1,0 +1,28 @@
+{
+  "provenance": "Fichiers fournis par l’utilisateur ; non couverts par les licences CC0 des autres effets.",
+  "format": "WAV mono PCM 16 bits 22050 Hz",
+  "sounds": {
+    "book_foret": {
+      "source": "La foret.wav",
+      "source_sha256": "c550b4041139f5643f4653450b4860f21d3a951e466c7d3b2bf528fe4626d2e7",
+      "output_sha256": "d27a33630c717782d87522735d5daae69f1da1989f2c977e8bd05f74ec26cd16",
+      "source_seconds": 3.0556875,
+      "output_seconds": 1.6,
+      "gain_db": -0.11040690314623265,
+      "peak_dbfs": -5.150509516175901,
+      "rms_dbfs": -21.00000029162881,
+      "bytes": 70604
+    },
+    "book_sorcier": {
+      "source": "Le Sorcier.wav",
+      "source_sha256": "e883a7bbb9c53d62e155291480c5fc39e218cd05c10f2e1a0efc71f2f0ebf745",
+      "output_sha256": "e89d3a2be14f9b5e7b450dba964d40b0f08395b0e4d29f1d8d852603e04cb2b1",
+      "source_seconds": 2.819625,
+      "output_seconds": 1.86,
+      "gain_db": -1.4775031477119227,
+      "peak_dbfs": -5.177831888603084,
+      "rms_dbfs": -21.000000364283164,
+      "bytes": 82070
+    }
+  }
+}
