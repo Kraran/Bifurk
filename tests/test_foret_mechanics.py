@@ -15,6 +15,28 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_woodsmen_wolf_and_wyvern_loot_is_unique_without_automatic_equipment(self):
+        c = hero(gold=0)
+        for number in (50,116,305):
+            self.assertTrue(r.resolve_entry(c,number))
+            # Même après dépense ou perte, consulter le passage ne recrée rien.
+            c['inventory'].clear()
+            c['gold'] = 0
+            before = deepcopy(c)
+            self.assertFalse(r.resolve_entry(c,number))
+            self.assertEqual(c,before)
+        c = hero(gold=0)
+        r.resolve_entry(c,50)
+        r.resolve_entry(c,116)
+        self.assertEqual(c['gold'],0)
+        self.assertEqual(c['inventory'],['Petite clé d’argent','Collier de cuir incrusté d’or (valeur 15 Or)'])
+        r.resolve_entry(c,305)
+        self.assertEqual(c['gold'],10)
+        self.assertIn('Couteau à lancer',c['inventory'])
+        self.assertNotIn('Gantelet d’Adresse à Combattre',c['inventory'])
+        self.assertNotIn('Anneau de Lenteur',c['inventory'])
+        self.assertNotIn('combats',r.peek(c))
+
     def test_ordinary_combat_profiles_match_reviewed_stats_and_routes(self):
         from pathlib import Path
         data = json.loads((Path(__file__).resolve().parents[1]/'catalogues/evenements_foret_1983.json').read_text(encoding='utf-8'))

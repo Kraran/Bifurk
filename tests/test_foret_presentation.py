@@ -68,6 +68,40 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_new_loot_requires_collection_and_survives_save_and_undo(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({50:'Clé.',188:'Nord.',116:'Collier.',314:'Matin.',305:'Butin.',374:'Gantelet.',133:'Anneau.',360:'Départ.'})
+        initial_gold = w.character['gold']
+        for number,targets in ((50,{188}),(116,{314}),(305,{374,133,360})):
+            w.go_to(number)
+            self.assertEqual(w._reading_link_targets(),set())
+            before = copy.deepcopy(w.character)
+            w.perform_foret_action('entry')
+            self.assertEqual(w._reading_link_targets(),targets)
+            collected = copy.deepcopy(w.character)
+            w.undo_action()
+            self.assertEqual(w.character,before)
+            w.redo_action()
+            self.assertEqual(w.character,collected)
+            w.perform_foret_action('entry')
+            self.assertEqual(w.character,collected)
+        self.assertEqual(w.character['gold'],initial_gold+10)
+        self.assertNotIn('Anneau de Lenteur',w.character['inventory'])
+        self.assertNotIn('Gantelet d’Adresse à Combattre',w.character['inventory'])
+        path = main.SAVES_DIR/'trouvailles.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        saved = copy.deepcopy(w.character)
+        for number in (50,116,305):
+            w.go_to(number)
+            w.perform_foret_action('entry')
+            self.assertTrue(rules.entry_resolved(w.character,number))
+        self.assertEqual(saved,w.character)
+
     def test_lantern_failure_loss_cancel_restore_and_no_repeat(self):
         from grimoire_modules.foret import rules
         self.open()
