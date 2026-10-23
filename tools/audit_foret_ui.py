@@ -1,7 +1,8 @@
 """Captures privées du lecteur Qt avec le PDF exact, sans utiliser les données du joueur.
 
 Les fenêtres utilisent le moteur natif mais ne sont pas affichées sur le bureau.
-Ce contrôle de rendu et de parcours déterministe ne simule pas les entrées de la souris.
+Les actions principales reçoivent des événements souris Qt. Les parcours restent
+déterministes et ne constituent pas une partie libre pilotée sur le bureau.
 """
 import argparse
 from contextlib import ExitStack
@@ -23,11 +24,12 @@ def fingerprints(folder):
             for p in folder.rglob('*') if p.is_file()}
 
 
-def run(pdf, output, platform):
+def run(pdf, output, platform, *, display_only=False):
     os.environ['QT_QPA_PLATFORM'] = platform
     from PySide6.QtCore import (QEvent, QObject, Qt, QLocale, QTimer, QTranslator,
                                QLibraryInfo, qInstallMessageHandler)
-    from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QScrollArea
+    from PySide6.QtWidgets import (QApplication, QDialog, QDialogButtonBox,
+                                   QMessageBox, QScrollArea, QPushButton)
     from PySide6.QtTest import QTest
     import main
     from grimoire_modules.foret import rules
@@ -60,7 +62,8 @@ def run(pdf, output, platform):
 
     hidden = HiddenWindows()
     app.installEventFilter(hidden)
-    result = {'platform': app.platformName(), 'captures': [], 'quests': [], 'errors': []}
+    result = {'platform': app.platformName(), 'scale_factor': os.environ.get('QT_SCALE_FACTOR','1'),
+              'display_only': display_only, 'mouse_actions': [], 'captures': [], 'quests': [], 'errors': []}
     try:
         with tempfile.TemporaryDirectory(prefix='session-', dir=output) as temporary, ExitStack() as stack:
             root = Path(temporary)
@@ -82,6 +85,24 @@ def run(pdf, output, platform):
                         raise RuntimeError('Capture impossible : '+name)
                     result['captures'].append(name)
 
+                def click(button, label):
+                    if not button.isEnabled():
+                        raise AssertionError('Commande désactivée : '+label)
+                    for area in window.findChildren(QScrollArea):
+                        if area.widget() and area.widget().isAncestorOf(button):
+                            area.ensureWidgetVisible(button)
+                    app.processEvents()
+                    if not button.isVisible():
+                        raise AssertionError('Commande invisible : '+label)
+                    QTest.mouseClick(button, Qt.LeftButton, pos=button.rect().center())
+                    result['mouse_actions'].append(label)
+
+                def action_button(text):
+                    return next(window.event_layout.itemAt(i).widget()
+                                for i in range(window.event_layout.count())
+                                if isinstance(window.event_layout.itemAt(i).widget(),QPushButton)
+                                and text in window.event_layout.itemAt(i).widget().text())
+
                 def modal(action, name):
                     errors = []
                     def capture():
@@ -90,6 +111,12 @@ def run(pdf, output, platform):
                             if not isinstance(dialog, QDialog):
                                 raise RuntimeError('Dialogue absent : '+name)
                             shot(dialog, name)
+                            buttons = dialog.findChild(QDialogButtonBox)
+                            close = buttons.button(QDialogButtonBox.Cancel) if buttons else next(
+                                (b for b in dialog.findChildren(QPushButton) if b.text() == 'Fermer'),None)
+                            if close is None:
+                                raise RuntimeError('Commande de fermeture absente : '+name)
+                            click(close,'fermer '+name)
                         except Exception as error:
                             errors.append(str(error))
                         finally:
@@ -116,9 +143,17 @@ def run(pdf, output, platform):
                 window.resize(1280,800)
                 shot(window,'01-couverture')
                 window._adventurer_draft = {'habilete':12,'endurance':24,'chance':12}
-                window._begin_adventure('Eldan')
+                window.creation_name_field.setText('Eldan')
+                click(window.creation_start_button,'commencer')
+                assert window.current_paragraph == 1 and window._adventurer_draft is None
                 base = deepcopy(window._snapshot())
                 shot(window,'02-depart')
+                route = next(window.choice_layout.itemAt(i).widget()
+                             for i in range(window.choice_layout.count())
+                             if window.choice_layout.itemAt(i).widget().text().endswith('§261'))
+                click(route,'suivre Yaztromo')
+                assert window.current_paragraph == 261
+                window._restore(base)
                 window.show_prologue()
                 window.prologue_dialog.pages.setCurrentIndex(3)
                 shot(window.prologue_dialog,'03-carte')
@@ -130,6 +165,12 @@ def run(pdf, output, platform):
                 window.go_to(261)
                 window.perform_foret_action('buy',('Bandeau de Concentration',1))
                 window.go_to(158)
+                blocked = window.choice_layout.itemAt(0).widget()
+                assert not blocked.isEnabled()
+                before_blocked = deepcopy(window._snapshot())
+                QTest.mouseClick(blocked,Qt.LeftButton,pos=blocked.rect().center())
+                assert window._snapshot() == before_blocked
+                result['mouse_actions'].append('renvoi bloqué sans effet')
                 for width,height in ((1280,800),(930,650),(1600,900)):
                     window.resize(width,height)
                     shot(window,f'06-bandeau-{width}')
@@ -142,23 +183,25 @@ def run(pdf, output, platform):
                                 area.ensureWidgetVisible(window.event_group)
                         shot(window,'07-bandeau-actions-930')
                 window.resize(1280,800)
-                window.perform_foret_action('branch_test')
+                click(action_button('Bandeau'),'épreuve du Bandeau')
                 assert window.current_paragraph == 47
                 shot(window,'08-bandeau-reussi')
                 window._restore(base)
                 window.go_to(242)
                 shot(window,'09-lingot')
-                modal(lambda: window.perform_foret_action('gold_ingot'),'10-choix-objet')
+                before_cancel = deepcopy(window.character)
+                modal(lambda: click(action_button('lingot'),'choisir le lingot'),'10-choix-objet')
+                assert window.character == before_cancel
                 window.go_to(152)
                 shot(window,'11-couronne-avant')
-                window.perform_foret_action('entry')
+                click(action_button('couronne'),'recueillir la couronne')
                 shot(window,'12-couronne-apres')
                 window._restore(base)
                 window.character.update(gold=0,provisions=0,inventory=[],equipped_weapon=None)
                 window._refresh_character()
                 window.go_to(14)
                 shot(window,'13-secours-fosse')
-                window.perform_foret_action('emergency_exit')
+                click(action_button('secours'),'sortie de secours')
                 assert window.current_paragraph == 255
                 shot(window,'14-secours-suite')
                 window._restore(base)
@@ -174,7 +217,7 @@ def run(pdf, output, platform):
                           274,109,124,180,361,86,208,99,209,28,52,78,349,291,145,
                           285,388,316,198,87,90,210,43,50,188,221,378,67,113,149,
                           306,391,200,351,292,95,173]
-                for holy_water in (True,False):
+                for holy_water in ((True,False) if not display_only else ()):
                     window._restore(base)
                     window.follow_foret_route(261)
                     purchases = ['Gant d’Adresse au Lancer','Brassard de Force'] + (['Eau Bénite'] if holy_water else [])
@@ -207,7 +250,7 @@ def run(pdf, output, platform):
                     assert window.current_paragraph == 400
                     assert window.character['book_facts']['adventure_ended']
                     result['quests'].append({'holy_water':holy_water,'passages':len(path),'ending':400})
-                for width,height in ((1280,800),(930,650)):
+                for width,height in (((1280,800),(930,650)) if not display_only else ()):
                     window.resize(width,height)
                     shot(window,f'16-victoire-{width}')
             finally:
@@ -237,5 +280,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--pdf',type=Path,default=ROOT/'03. La Foret de la Malediction (1983).pdf')
     parser.add_argument('--platform',choices=('windows','offscreen'),default='windows' if sys.platform=='win32' else 'offscreen')
+    parser.add_argument('--display-only',action='store_true',help='Écrans et clics Qt, sans répéter les deux parcours du marteau.')
     args = parser.parse_args()
-    print(json.dumps(run(args.pdf.resolve(),ROOT/'audit-output/foret-ui-validation',args.platform),ensure_ascii=False,indent=2))
+    suffix = ('-zoom-'+os.environ.get('QT_SCALE_FACTOR','1')) if args.display_only else ''
+    output = ROOT/'audit-output'/('foret-ui-validation'+suffix)
+    print(json.dumps(run(args.pdf.resolve(),output,args.platform,display_only=args.display_only),ensure_ascii=False,indent=2))
