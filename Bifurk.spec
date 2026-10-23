@@ -5,6 +5,7 @@ Seuls les assets et catalogues livrés sont embarqués : jamais donnees ni PDF.
 Les hooks Qt collectent les plugins natifs (plateforme, images, multimédia).
 """
 import sys
+import os
 from pathlib import Path
 
 from PyInstaller.utils.hooks import collect_data_files, copy_metadata
@@ -12,6 +13,13 @@ from PyInstaller.utils.hooks import collect_data_files, copy_metadata
 ROOT = Path(SPECPATH)
 sys.path.insert(0, str(ROOT))
 from app_info import APP_VERSION, AUTHOR
+from scripts.windows_build_environment import windows_build_path
+
+# Les outils PDF/vidéo du poste peuvent fournir une DLL de même nom que celle
+# attendue par Qt (notamment ICU). Ne jamais les collecter depuis le PATH global.
+if sys.platform == 'win32':
+    os.environ['PATH'] = windows_build_path(sys.executable, sys.base_prefix, os.environ['SystemRoot'])
+
 
 windows_version = None
 if sys.platform == 'win32':
