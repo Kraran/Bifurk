@@ -1972,6 +1972,23 @@ class ForetPresentationTests(unittest.TestCase):
             w.go_to(first); self.assertEqual(w._reading_link_targets(),{360})
 
 
+    def test_minimum_window_keeps_adventurer_values_in_view_for_both_books(self):
+        from PySide6.QtWidgets import QScrollArea
+        for name in ('foret','sorcier'):
+            with self.subTest(book=name):
+                self.open(name); self.start()
+                w = self.w
+                w.show(); w.resize(930,650)
+                self.app.processEvents()
+                scroll = w.findChild(QScrollArea,'sideScroll')
+                self.assertEqual(scroll.horizontalScrollBar().maximum(),0)
+                for key in ('habilete','endurance','chance'):
+                    spin = w.stat_spins[key]
+                    self.assertGreaterEqual(spin.width(),60)
+                    self.assertTrue(scroll.widget().rect().contains(spin.mapTo(scroll.widget(),spin.rect().topLeft())))
+                    self.assertTrue(scroll.widget().rect().contains(spin.mapTo(scroll.widget(),spin.rect().bottomRight())))
+
+
 class ForetEditionContractTests(unittest.TestCase):
     def test_illustrations_have_verified_associations_and_exclude_ornaments(self):
         from illustrations import images_for_paragraph

@@ -9,8 +9,10 @@ et validation d’une partie complète sont trois étapes distinctes.
 Le registre et l’[audit des 400 paragraphes](reviews/2026-10-23-foret-audit-final.md)
 recensent désormais **222 paragraphes avec un point d’entrée réel**, et 178 passages
 narratifs sans action supplémentaire identifiée. Les huit constats de l’audit ont
-été corrigés ou documentés. Ce classement suit les analyses relues ; il ne remplace
-pas la validation de parcours complets et de la présentation Windows.
+été corrigés ou documentés. Le [contrôle natif Windows](reviews/2026-10-23-foret-validation-interface.md)
+couvre les écrans principaux à trois tailles et deux parcours avec le PDF réel.
+Ces contrôles ne remplacent pas une partie libre à la souris ni les autres
+configurations d’affichage.
 
 | Catégorie du registre | Paragraphes |
 | --- | ---: |
@@ -109,8 +111,10 @@ Les correctifs issus de l’audit sont intégrés : épreuve du §158, prises de
 §§146/152/242, historique du coffre et du tonneau, essais des §§133/374,
 condition complémentaire du §191 et quatre liens du texte. Les sept situations
 non décrites par la source disposent des sorties de secours autorisées par
-l’utilisateur, avec sauvegarde et historique. Il reste à valider la présentation
-Windows et des parcours représentatifs en partie réelle.
+l’utilisateur, avec sauvegarde et historique. Il reste à éprouver l’usage à la
+souris en partie libre et les autres configurations d’affichage.
+Le rendu Qt natif Windows et deux parcours représentatifs avec le PDF réel sont
+contrôlés ; le débordement de la feuille à la largeur minimale est corrigé.
 
 Les illustrations sont raccordées : 24 scènes avec numéro imprimé, le mode
 d’emploi de l’Œil d’Ambre au §91 et la carte dans le prologue. Le menu Actions
@@ -124,16 +128,16 @@ Deux variantes de parcours du marteau sont désormais couvertes par un test
 automatisé du lecteur, depuis les achats jusqu’à la victoire : Eau Bénite ou
 combat contre la Goule, avec rechargements et annulation de la remise.
 Voir [le contrôle des parcours](reviews/2026-10-23-foret-parcours-marteau.md).
-Cela ne valide pas encore toutes les branches ni la présentation Windows.
+Le contrôle natif complémentaire reprend ces deux variantes avec le texte et les images du PDF réel.
 
 Les branches alternatives des mécaniques intégrées sont également testées :
 fuites, épreuves, états de charges, essais répétés, maladies, nouvelle tentative
 de quête et transformations. Voir [le contrôle des branches alternatives](reviews/2026-10-23-foret-branches-alternatives.md).
 
-- **Validation en partie** : parcourir les chemins représentatifs dans le lecteur,
-  notamment les sorties de secours et les interactions d’équipement.
-- **Présentation Windows** : contrôler les pages, dialogues, agrandissements et
-  changements de livre. Les tests Qt automatisés utilisent le mode sans écran.
+- **Partie libre** : vérifier l’usage à la souris, les sorties de secours et les
+  interactions d’équipement sans scénario de dés imposés.
+- **Autres affichages** : contrôler les niveaux de zoom Windows et les configurations
+  autres que les trois tailles rendues avec le pilote natif Windows.
 
 ## Points à clarifier
 
