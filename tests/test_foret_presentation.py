@@ -364,6 +364,71 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(self.roll.call_count,calls)
         self.assertEqual(w._reading_link_targets(),{310})
 
+    def test_elven_bread_care_combat_undo_save_and_no_second_find(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({257:'Pain.',31:'Le puits.',377:'Combat.'})
+        w.character.update(endurance=20,provisions=0,chance=5)
+        w.character['initial']['endurance'] = 20
+        w.go_to(257)
+        self.assertEqual(w._reading_link_targets(),set())
+        w.perform_foret_action('entry')
+        self.assertEqual((w.character['endurance'],w.character['chance']),(20,6))
+        bread = lambda: next(o for o in w.care_options() if o['id'] == 'elven_bread')
+        self.assertFalse(bread()['enabled'])
+        w.use_care('elven_bread')
+        self.assertIn(rules.ELVEN_BREAD,w.character['inventory'])
+        w.character['endurance'] = 17
+        w.go_to(377)
+        before = copy.deepcopy(w._snapshot())
+        self.assertFalse(bread()['enabled'])
+        w.perform_foret_action('elven_bread')
+        self.assertEqual(w._snapshot(),before)
+        w.go_to(31)
+        self.assertTrue(bread()['enabled'])
+        w.use_care('elven_bread')
+        self.assertEqual((w.character['endurance'],w.character['provisions']),(20,0))
+        self.assertNotIn(rules.ELVEN_BREAD,w.character['inventory'])
+        w.undo_action()
+        self.assertEqual(w.character['endurance'],17)
+        self.assertIn(rules.ELVEN_BREAD,w.character['inventory'])
+        w.redo_action()
+        path = main.SAVES_DIR/'pain.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        w.go_to(257)
+        w.perform_foret_action('entry')
+        self.assertNotIn(rules.ELVEN_BREAD,w.character['inventory'])
+        self.assertEqual(w.character['chance'],6)
+
+    def test_monk_bell_route_and_exchange_are_persistent_and_undoable(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({191:'Le moine.',184:'Le soin.',390:'Le chemin.'})
+        w.character.update(endurance=10,potion_doses=1)
+        w.character['initial']['endurance'] = 20
+        w.go_to(191)
+        self.assertNotIn(184,w._reading_link_targets())
+        w.character['inventory'].append(rules.BELL)
+        self.assertIn(184,w._reading_link_targets())
+        w.go_to(184)
+        self.assertEqual(w._reading_link_targets(),set())
+        w.perform_foret_action('entry')
+        self.assertEqual((w.character['endurance'],w.character['potion_doses']),(14,1))
+        self.assertNotIn(rules.BELL,w.character['inventory'])
+        self.assertEqual(w._reading_link_targets(),{390})
+        w.undo_action()
+        self.assertEqual(w.character['endurance'],10)
+        self.assertIn(rules.BELL,w.character['inventory'])
+        w.redo_action()
+        w.perform_foret_action('entry')
+        self.assertEqual(w.character['endurance'],14)
+
     def test_cover_title_starting_resources_and_preparation_notice(self):
         self.open()
         self.assertEqual(self.w.book_module.id, 'foret_malediction_1983')

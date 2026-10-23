@@ -30,6 +30,8 @@ DURABLE = {'Anneau de Lumière','Bottes à Bondir','Corde Magique','Brassard de 
 HAMMER_HEAD = 'Tête de marteau en bronze — G'
 HAMMER_HANDLE = 'Manche de marteau en ébène — G'
 ENCHANTED_SWORD = 'Épée enchantée'
+ELVEN_BREAD = 'Pain elfique'
+BELL = 'Petite clochette de cuivre'
 GAS_PARAGRAPHS = {22,169,222}
 # Statistique, réussite, échec, blessure immédiate de l’échec.
 BRANCH_TESTS = {57:('chance',132,35,0),81:('chance',49,4,0),
@@ -427,6 +429,20 @@ def heal_found_potion(character):
     character['endurance'] = min(character['initial']['endurance'], character['endurance'] + 5)
 
 
+def eat_elven_bread(character, *, in_combat=False):
+    """Consommer un seul pain utile, hors combat, sans dépenser de provision."""
+    alive(character)
+    if in_combat:
+        raise ValueError('Le pain elfique ne peut pas être mangé en combat.')
+    if ELVEN_BREAD not in character.get('inventory', []):
+        raise ValueError('Aucun pain elfique dans le sac.')
+    maximum = character['initial']['endurance']
+    if character['endurance'] >= maximum:
+        raise ValueError('L’Endurance est déjà à son maximum.')
+    character['inventory'].remove(ELVEN_BREAD)
+    character['endurance'] = min(maximum,character['endurance']+4)
+
+
 def hammer_complete(character):
     """Un manche quelconque, une fausse pièce ou deux têtes ne suffisent pas."""
     inventory = character.get('inventory', [])
@@ -475,6 +491,8 @@ def advance_group(combat):
 # Les variantes partagent un identifiant physique. La table ne contient que des
 # effets relus : aucun motif de texte ne peut créer une récompense ou une charge.
 ENTRY_RULES = {
+    257:{'items':[ELVEN_BREAD], 'luck':1},
+    184:{'remove':[BELL], 'heal':4, 'label':'Rendre la clochette et boire la potion du moine'},
     4:{'damage':4},35:{'damage':4},45:{'damage':2},30:{'damage':2},
     70:{'items':[ENCHANTED_SWORD], 'equip':ENCHANTED_SWORD},
     46:{'luck':-2},
@@ -554,6 +572,8 @@ def resolve_entry(character, paragraph):
     if rule.get('equip'):
         working['equipped_weapon'] = rule['equip']
     damage_hero(working, rule.get('damage',0))
+    if rule.get('heal'):
+        working['endurance'] = min(working['initial']['endurance'],working['endurance']+rule['heal'])
     character.clear()
     character.update(working)
     return True
@@ -640,6 +660,8 @@ OPTIONAL_ITEM_ROUTES = {(92,100):'Potion de Contrôle des Insectes', (196,39):'F
 
 def route_available(character, paragraph, target):
     """Autoriser les seules conditions intégrées ; ne jamais renouveler une charge épuisée."""
+    if paragraph == 191 and target == 184:
+        return BELL in character.get('inventory', [])
     if paragraph == 295:
         helmet = ('Casque magique' in peek(character).get('worn', [])
                   and 'Casque magique' in character.get('inventory', []))

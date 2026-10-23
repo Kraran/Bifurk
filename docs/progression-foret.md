@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **107 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **110 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -15,10 +15,10 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | --- | ---: |
 | Boutique de Yaztromo | 1 |
 | Profils de combat | 17 |
-| Effets d’entrée et usages d’objets | 51 |
+| Effets d’entrée et usages d’objets | 53 |
 | Paiements | 7 |
 | Actions et épreuves spéciales | 31 |
-| Condition de route ajoutée dans ce lot | 1 (§295, casque porté) |
+| Conditions de route recensées séparément | 2 (§§191, 295) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
 combats en groupes et successifs, fouet du Démon, paralysie de la Goule,
@@ -31,6 +31,11 @@ les gaz et filtres, puis les sept épreuves des §§57/81/90/229/251/256/376,
 leurs blessures associées et le Troll du §310. Le casque doit être réellement porté
 pour éviter la blessure de la chute au §295 ; le §30 enlève deux points une fois.
 
+Le pain elfique du §257 est désormais récupéré avec son point de Chance puis
+consommable séparément depuis Soins, hors combat, pour +4 Endurance sous plafond.
+Le §184 échange une clochette contre une potion immédiatement bue (+4 Endurance),
+sans modifier les doses de départ. Le §191 vérifie la présence de la clochette.
+
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,
 l’absence de répétition, la restauration et l’annulation/rétablissement.
@@ -42,8 +47,8 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 - **Autres effets** : variations de caractéristiques et de provisions, dons et
   trouvailles encore documentés sans commande. Exemples : §§13, 42, 106, 129,
   145, 166, 174, 219, 237, 243, 299, 301, 353 et 387.
-- **Soins et équipement** : pain elfique (§257), échange de la clochette contre
-  un soin (§184), perte temporaire de l’épée (§358) et sa récupération.
+- **Équipement et autres soins** : perte temporaire de l’épée (§358) et sa
+  récupération, puis les autres interactions de soins encore documentaires.
 - **Choix et parcours** : compléter les conditions d’inventaire et de progression
   encore consultables, puis vérifier les chaînes de passages de bout en bout.
 - **Fins et présentation** : compléter les issues finales, retirer le colophon

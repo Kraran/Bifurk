@@ -50,6 +50,12 @@ converties globalement en événements exécutables.
   de Force trouvée (+5 E) distincte de la fiole initiale à deux doses ; vœu du génie
   sur une seule caractéristique ; échange des valeurs courantes H/C sans échange
   des plafonds. La lanterne magique ne consomme pas la lanterne de voyage.
+  Le pain elfique du §257 est récupéré avec +1 Chance, sans être mangé d’office.
+  Une portion utile rend quatre points d’Endurance depuis Soins, hors combat,
+  sous plafond, sans dépense de provisions. Au §184, le moine prend une clochette
+  et sa potion est bue aussitôt (+4 Endurance sous plafond), sans recharge ni
+  ajout d’une fiole ; l’échange a lieu une fois, même si le héros est déjà soigné.
+  Le choix du §191 exige la présence de la clochette.
 - **Paiements** : choix des exemplaires et des pièces aux §§12, 14, 32, 36, 218,
   279 et 297. Le tribut représente exactement cinq unités ; chaque pièce et chaque
   objet compte pour une unité. La valeur estimée d’un bijou ne crée pas des pièces.
