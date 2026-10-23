@@ -70,6 +70,76 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_forest_ordinary_meals_repeat_save_and_undo(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs[55] = 'Un chemin tranquille.'
+        w.go_to(55)
+        w.character['endurance'] = 10
+        w.character['initial']['endurance'] = 20
+        w.character['provisions'] = 3
+        meal = lambda: next(o for o in w.care_options() if o['id'] == 'meal')
+        self.assertTrue(meal()['enabled'])
+        w.use_care('meal')
+        self.assertEqual((w.character['endurance'], w.character['provisions']), (14, 2))
+        self.assertTrue(meal()['enabled'])
+        path = main.SAVES_DIR/'repas-foret.json'
+        w._write_atomic(path, w._save_data())
+        with patch('main.extract_paragraphs', return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path, announce=False))
+        self.assertTrue(meal()['enabled'])
+        w.use_care('meal')
+        self.assertEqual((w.character['endurance'], w.character['provisions']), (18, 1))
+        w.undo_action()
+        self.assertEqual((w.character['endurance'], w.character['provisions']), (14, 2))
+        w.redo_action()
+        self.assertEqual((w.character['endurance'], w.character['provisions']), (18, 1))
+        w.use_care('meal')
+        self.assertEqual((w.character['endurance'], w.character['provisions']), (20, 0))
+        w.character['endurance'] = 12
+        before = copy.deepcopy(w.character)
+        w.use_care('meal')
+        self.assertFalse(meal()['enabled'])
+        self.assertEqual(w.character, before)
+
+    def test_forest_meals_reject_combat_special_passages_and_full_health(self):
+        from types import SimpleNamespace
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({55:'Chemin.', 304:'Convalescence.', 328:'Chaise.'})
+        w.go_to(55)
+        w.character['endurance'] = 10
+        for number, combat, dialog, endurance in (
+                (55, False, None, w.character['initial']['endurance']),
+                (55, True, None, 10),
+                (55, False, SimpleNamespace(outcome=None), 10),
+                (304, False, None, 10), (328, False, None, 10)):
+            with self.subTest(number=number, combat=combat, dialog=dialog):
+                w.current_paragraph = number
+                w.character['endurance'] = endurance
+                with patch.object(w, 'combat_available', return_value=combat), \
+                     patch.object(w, '_combat_dialog', dialog):
+                    before = copy.deepcopy(w.character)
+                    w.use_care('meal')
+                    w.eat_meal()
+                    self.assertEqual(w.character, before)
+
+    def test_sorcier_meals_still_require_a_permitted_passage(self):
+        self.open('sorcier')
+        self.start()
+        w = self.w
+        w.character['endurance'] = 1
+        w.book_event_catalogue = {'paragraphs': {'1': {
+            'status':'verifie', 'mode':'narratif', 'note':'Passage de test.'}}}
+        w.current_paragraph = 1
+        self.assertFalse(next(o for o in w.care_options() if o['id'] == 'meal')['enabled'])
+        w.book_event_catalogue['paragraphs']['1']['optional_meal'] = True
+        self.assertTrue(next(o for o in w.care_options() if o['id'] == 'meal')['enabled'])
+        w.use_care('meal')
+        self.assertFalse(next(o for o in w.care_options() if o['id'] == 'meal')['enabled'])
+
     def test_forest_art_selection_popup_save_and_no_stale_image(self):
         self.open()
         self.assertTrue(self.w.scene_art.background_art.isNull())
