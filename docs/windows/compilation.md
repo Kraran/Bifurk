@@ -153,3 +153,10 @@ Consulter [COMPOSANTS-TIERS.md](COMPOSANTS-TIERS.md) avant la publication : les
 conditions PyMuPDF / MuPDF (AGPL ou commerciale), Qt et les assets accompagnent
 la distribution. La préparation du binaire n'attribue pas une nouvelle licence
 au code Bifurk et ne signe pas l'exécutable.
+
+
+Le spec isole aussi le `PATH` de recherche des DLL pendant la compilation :
+Python, ses DLL et Windows restent disponibles, les hooks ajoutent les ressources
+des paquets. Cela évite d’embarquer une DLL ICU ou OpenSSL provenant d’un outil PDF
+ou vidéo tiers installé sur le poste à la place de la bibliothèque attendue par Qt.
+Ce réglage ne modifie ni le PATH Windows ni les préférences du joueur.

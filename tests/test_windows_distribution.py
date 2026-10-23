@@ -5,6 +5,7 @@ séparation des ressources / données, l'exclusion du livre privé et l'archive
 effectivement téléversée ; aucun test ne crée de release distante.
 """
 import json
+import os
 import importlib.util
 from pathlib import Path
 import subprocess
@@ -22,6 +23,13 @@ from scripts import package_release as release
 
 class WindowsDistributionTests(unittest.TestCase):
     """Sécurité et contenu de l'archive portable construite par BUILD_EXE.bat."""
+
+    def test_build_dll_search_path_excludes_external_pdf_tools(self):
+        from scripts.windows_build_environment import windows_build_path
+        paths = windows_build_path(r'D:\jeu\.venv-build\Scripts\python.exe',
+                                   r'C:\Python313', r'C:\Windows').split(';')
+        self.assertEqual(paths, [r'D:\jeu\.venv-build\Scripts', r'C:\Python313',
+                                 r'C:\Python313\DLLs', r'C:\Windows\System32', r'C:\Windows'])
 
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -181,7 +189,8 @@ configuration ou un modèle absent du binaire.
                      'EXE': lambda *args, **kwargs: None,
                      'COLLECT': lambda *args, **kwargs: None}
         spec = ROOT / 'Bifurk.spec'
-        exec(compile(spec.read_text(encoding='utf-8'), str(spec), 'exec'), namespace)
+        with patch.dict(os.environ):
+            exec(compile(spec.read_text(encoding='utf-8'), str(spec), 'exec'), namespace)
         self.assertFalse(expected - set(collected), f'Ressources PyMuPDF manquantes : {expected - set(collected)}')
 
 
