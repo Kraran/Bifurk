@@ -22,7 +22,7 @@ class ForetController(ForetMechanicsActions):
 
     def _reading_link_targets(self):
         """Un renvoi illisible ou supposé ne doit pas devenir un lien cliquable."""
-        if rules.peek(self.character).get('ending'):
+        if self.character.get('book_facts', {}).get('adventure_ended'):
             return set()
         if self.combat_available():
             return set()
@@ -73,6 +73,12 @@ class ForetController(ForetMechanicsActions):
         if number in rules.TRANSFORMATION_ENDINGS:
             rules.finish_transformation(self.character,number)
             self._refresh_character()
+        if number == 400 and rules.peek(self.character).get('won'):
+            rules.finish_victory(self.character)
+            self._refresh_character()
+        if number == 2:
+            self.character['endurance'] = 0
+            self._refresh_character()
         if number == 98 and previous != number and not self._restoring:
             # Chaque nouvelle tentative de retour à Yaztromo traverse une nouvelle
             # embuscade ; une réussite ancienne ne doit pas ouvrir le chemin.
@@ -100,8 +106,10 @@ class ForetController(ForetMechanicsActions):
         self._clear_dynamic_layout(self.event_layout)
         self._clear_dynamic_layout(self.condition_layout)
         ending = rules.peek(self.character).get('ending')
-        if ending:
-            notice = QLabel('Aventure terminée — ' + rules.TRANSFORMATION_ENDINGS[ending] + '. Vous pouvez annuler la dernière action ou charger une partie.')
+        victory = rules.peek(self.character).get('victory_closed')
+        if ending or victory:
+            outcome = 'Victoire — le marteau a été remis à Gillibran' if victory else rules.TRANSFORMATION_ENDINGS[ending]
+            notice = QLabel('Aventure terminée — ' + outcome + '. Vous pouvez annuler la dernière action ou charger une partie.')
             notice.setWordWrap(True)
             self.event_layout.addWidget(notice)
             self.choice_group.hide()

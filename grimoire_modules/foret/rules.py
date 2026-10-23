@@ -204,7 +204,7 @@ def peek(character):
 
 def alive(character):
     """Refuser les actions après une perte létale, y compris par appel direct."""
-    if character['endurance'] <= 0 or peek(character).get('ending'):
+    if character['endurance'] <= 0 or character.get('book_facts', {}).get('adventure_ended'):
         raise ValueError('L’aventure est terminée.')
 
 
@@ -219,6 +219,18 @@ def finish_transformation(character, paragraph):
         return False
     alive(character)
     state(character)['ending'] = paragraph
+    character.setdefault('book_facts', {})['adventure_ended'] = True
+    return True
+
+
+def finish_victory(character):
+    """Clore uniquement la victoire déjà obtenue par remise du marteau."""
+    if peek(character).get('victory_closed'):
+        return False
+    alive(character)
+    if not peek(character).get('won'):
+        raise ValueError('Le marteau doit être remis avant de conclure la victoire.')
+    state(character)['victory_closed'] = True
     character.setdefault('book_facts', {})['adventure_ended'] = True
     return True
 
@@ -568,9 +580,9 @@ def hammer_complete(character):
 
 def hand_over_hammer(character):
     """Consommer les deux parties authentiques et terminer la quête une seule fois."""
-    alive(character)
     if peek(character).get('won'):
         return False
+    alive(character)
     if not hammer_complete(character):
         raise ValueError('Les deux parties marquées G sont nécessaires.')
     character['inventory'].remove(HAMMER_HEAD)

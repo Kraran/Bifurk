@@ -68,6 +68,50 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_victory_closes_play_only_after_real_handover(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({204:'Village.',400:'Victoire.',311:'Butin.'})
+        w.go_to(400)
+        self.assertFalse(w.character.get('book_facts',{}).get('adventure_ended',False))
+        w.character['inventory'] += [rules.HAMMER_HEAD,rules.HAMMER_HANDLE]
+        w.go_to(204)
+        gold = w.character['gold']
+        w.perform_foret_action('hammer')
+        self.assertTrue(w.character['book_facts']['adventure_ended'])
+        self.assertEqual(w.current_paragraph,400)
+        self.assertFalse(w.tools_button.isEnabled())
+        ended = copy.deepcopy(w._snapshot())
+        w.go_to(311)
+        w.perform_foret_action('entry')
+        w.set_stat('gold',999)
+        self.assertEqual(w._snapshot(),ended)
+        self.assertEqual(w.character['gold'],gold)
+        w.undo_action()
+        self.assertFalse(w.character.get('book_facts',{}).get('adventure_ended',False))
+        self.assertEqual(w.current_paragraph,204)
+        self.assertTrue(w.tools_button.isEnabled())
+
+    def test_ghoul_story_death_is_undoable_and_restored_as_dead(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs[2] = 'Fin après défaite.'
+        before = copy.deepcopy(w._snapshot())
+        w.go_to(2)
+        self.assertEqual(w.character['endurance'],0)
+        self.assertFalse(w.tools_button.isEnabled())
+        w.undo_action()
+        self.assertEqual(w._snapshot(),before)
+        w.redo_action()
+        path = main.SAVES_DIR/'goule-defaite.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        self.assertEqual(w.character['endurance'],0)
+
     def test_transformations_block_play_preserve_stats_save_and_allow_undo(self):
         from grimoire_modules.foret import rules
         self.open()
@@ -133,7 +177,8 @@ class ForetPresentationTests(unittest.TestCase):
         with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
             self.assertTrue(w.load_game(path,announce=False))
         w.go_to(204)
-        self.assertEqual(w._reading_link_targets(),{400})
+        self.assertEqual(w.current_paragraph,400)
+        self.assertEqual(w._reading_link_targets(),set())
         w.perform_foret_action('hammer')
         self.assertEqual(w.character['inventory'].count(rules.HAMMER_HEAD),1)
 
