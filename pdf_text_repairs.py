@@ -27,7 +27,7 @@ def repair_misplaced_fragment(paragraphs):
 
 
 def repair_foret_confirmed_errata(paragraphs):
-    """Corriger les deux lacunes de l’édition Forêt, confirmées par l’utilisateur.
+    """Corriger les lacunes confirmées de la Forêt et retirer le colophon final.
 
     Le registre réserve cette opération au SHA-256 du PDF catalogué. Préserver
     le récit extrait et rester idempotent : une seconde passe n’ajoute jamais une
@@ -42,3 +42,8 @@ def repair_foret_confirmed_errata(paragraphs):
     if text:
         paragraphs[267] = re.sub(r'(?i)(rendez\s*[-‐‑–]?\s*vous\s+au\s+)1%',
                                  r'\g<1>196', text)
+    text = paragraphs.get(400)
+    if text:
+        colophon = re.search(r"(?im)^\s*Achevé\s+d['’]imprimer\b",text)
+        if colophon:
+            paragraphs[400] = text[:colophon.start()].rstrip()

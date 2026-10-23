@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **191 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **193 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -17,7 +17,7 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | Profils de combat | 40 |
 | Effets d’entrée et usages d’objets | 90 |
 | Paiements | 10 |
-| Actions et épreuves spéciales | 36 |
+| Actions et épreuves spéciales | 38 |
 | Conditions et coûts de route recensés séparément | 17 (§§17, 95, 130, 132, 160, 172, 191, 199, 204, 243, 246, 271, 295, 346, 360, 366, 391) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
@@ -88,6 +88,11 @@ réellement cessibles avant d’ouvrir le paiement, sans toucher aux refus. Au
 §204, un marteau incomplet ouvre enfin le §381 ; la remise exige la tête et le
 manche authentiques, puis conserve la victoire après sauvegarde.
 
+Les transformations des §§333 et 399 terminent désormais l’aventure sans
+mettre artificiellement l’Endurance à zéro. Les actions de jeu et la navigation
+sont bloquées, tandis que sauvegarde, chargement et annulation restent possibles.
+Le colophon d’imprimerie est retiré du récit extrait au §400.
+
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,
 l’absence de répétition, la restauration et l’annulation/rétablissement.
@@ -103,8 +108,8 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
   conditions encore documentaires, puis vérifier leurs combinaisons en partie.
 - **Choix et parcours** : compléter les conditions d’inventaire et de progression
   encore consultables, puis vérifier les chaînes de passages de bout en bout.
-- **Fins et présentation** : compléter les issues finales, retirer le colophon
-  du récit au §400 et intégrer les illustrations de cette édition.
+- **Fins et présentation** : auditer les autres issues finales et intégrer les
+  illustrations de cette édition.
 - **Validation complète** : jouer des parcours représentatifs, vérifier les
   fenêtres sous Windows et auditer le comportement des sauvegardes en partie.
 

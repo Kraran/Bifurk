@@ -204,8 +204,23 @@ def peek(character):
 
 def alive(character):
     """Refuser les actions après une perte létale, y compris par appel direct."""
-    if character['endurance'] <= 0:
+    if character['endurance'] <= 0 or peek(character).get('ending'):
         raise ValueError('L’aventure est terminée.')
+
+
+TRANSFORMATION_ENDINGS = {333:'Transformation en Démon de Feu',399:'Transformation en grenouille'}
+
+
+def finish_transformation(character, paragraph):
+    """Terminer sans blessure fictive ; conserver le héros pour la sauvegarde et l’historique."""
+    if paragraph not in TRANSFORMATION_ENDINGS:
+        raise ValueError('Fin inconnue.')
+    if peek(character).get('ending') == paragraph:
+        return False
+    alive(character)
+    state(character)['ending'] = paragraph
+    character.setdefault('book_facts', {})['adventure_ended'] = True
+    return True
 
 
 def dice(total, low=2, high=12):

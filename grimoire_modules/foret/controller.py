@@ -22,6 +22,8 @@ class ForetController(ForetMechanicsActions):
 
     def _reading_link_targets(self):
         """Un renvoi illisible ou supposé ne doit pas devenir un lien cliquable."""
+        if rules.peek(self.character).get('ending'):
+            return set()
         if self.combat_available():
             return set()
         if ForetMechanicsActions._ff_encounter_pacified(self):
@@ -68,6 +70,9 @@ class ForetController(ForetMechanicsActions):
             if previous is not None:
                 self.transitions.append([previous, number])
         self.current_paragraph = number
+        if number in rules.TRANSFORMATION_ENDINGS:
+            rules.finish_transformation(self.character,number)
+            self._refresh_character()
         if number == 98 and previous != number and not self._restoring:
             # Chaque nouvelle tentative de retour à Yaztromo traverse une nouvelle
             # embuscade ; une réussite ancienne ne doit pas ouvrir le chemin.
@@ -94,6 +99,15 @@ class ForetController(ForetMechanicsActions):
         self._clear_dynamic_layout(self.choice_layout)
         self._clear_dynamic_layout(self.event_layout)
         self._clear_dynamic_layout(self.condition_layout)
+        ending = rules.peek(self.character).get('ending')
+        if ending:
+            notice = QLabel('Aventure terminée — ' + rules.TRANSFORMATION_ENDINGS[ending] + '. Vous pouvez annuler la dernière action ou charger une partie.')
+            notice.setWordWrap(True)
+            self.event_layout.addWidget(notice)
+            self.choice_group.hide()
+            self.event_group.show()
+            self.condition_group.hide()
+            return
         self.choice_group.setTitle('⚜  CONSULTER LES PASSAGES')
         for choice in self._analysed_reading_entry().get('routes', []):
             target = choice['target']
