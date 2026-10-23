@@ -15,6 +15,46 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_fixed_wounds_are_lethal_bounded_and_cannot_repeat(self):
+        for number,damage in ((19,1),(108,3),(143,2),(159,3),(250,2),(275,1),(277,1),(345,4)):
+            for stamina in (1,20):
+                with self.subTest(number=number,stamina=stamina):
+                    c = hero(endurance=stamina)
+                    r.resolve_entry(c,number)
+                    self.assertEqual(c['endurance'],max(0,stamina-damage))
+                    before = deepcopy(c)
+                    if c['endurance']:
+                        self.assertFalse(r.resolve_entry(c,number))
+                    else:
+                        with self.assertRaises(ValueError):r.resolve_entry(c,number)
+                    self.assertEqual(c,before)
+
+    def test_found_healing_caps_without_rations_or_starter_potion_changes(self):
+        for number,heal in ((68,3),(269,4),(283,4)):
+            for stamina in (5,19,20):
+                with self.subTest(number=number,stamina=stamina):
+                    c = hero(endurance=stamina,provisions=0,inventory=['Potion de Guérison'])
+                    r.resolve_entry(c,number)
+                    self.assertEqual(c['endurance'],min(20,stamina+heal))
+                    self.assertEqual(c['provisions'],0)
+                    self.assertEqual(c['inventory'],['Potion de Guérison'])
+                    c['endurance'] = 1
+                    self.assertFalse(r.resolve_entry(c,number))
+                    self.assertEqual(c['endurance'],1)
+
+    def test_earrings_are_two_payable_objects_and_bandit_gold_is_two_total(self):
+        c = hero(gold=0)
+        r.resolve_entry(c,202)
+        item = 'Boucle d’oreille en or (valeur 5 Or)'
+        self.assertEqual(c['inventory'],[item,item])
+        self.assertEqual(c['gold'],0)
+        r.pay(c,items=[item])
+        self.assertEqual(c['inventory'],[item])
+        self.assertFalse(r.resolve_entry(c,202))
+        r.resolve_entry(c,311)
+        self.assertEqual(c['gold'],2)
+        self.assertFalse(r.resolve_entry(c,311))
+
     def test_woodsmen_wolf_and_wyvern_loot_is_unique_without_automatic_equipment(self):
         c = hero(gold=0)
         for number in (50,116,305):

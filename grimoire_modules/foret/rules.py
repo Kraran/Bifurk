@@ -590,6 +590,13 @@ def advance_group(combat):
 # Les variantes partagent un identifiant physique. La table ne contient que des
 # effets relus : aucun motif de texte ne peut créer une récompense ou une charge.
 ENTRY_RULES = {
+    19:{'damage':1},108:{'damage':3},143:{'damage':2},159:{'damage':3},
+    250:{'damage':2},275:{'damage':1},277:{'damage':1},345:{'damage':4},
+    68:{'heal':3,'label':'Boire la Potion de Santé trouvée (+3 Endurance)'},
+    269:{'heal':4,'label':'Manger le champignon (+4 Endurance)'},
+    283:{'heal':4,'label':'Appliquer la boue magique (+4 Endurance)'},
+    202:{'items':['Boucle d’oreille en or (valeur 5 Or)']*2},
+    311:{'gold':2},
     50:{'items':['Petite clé d’argent']},
     116:{'items':['Collier de cuir incrusté d’or (valeur 15 Or)']},
     305:{'gold':10,'items':['Couteau à lancer']},

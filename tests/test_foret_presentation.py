@@ -68,6 +68,46 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_fixed_effects_gate_routes_and_restore_without_repeating(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        numbers = (19,68,108,143,159,202,250,269,275,277,283,311,345)
+        catalogue = w.book_event_catalogue['paragraphs']
+        for number in numbers:
+            w.paragraphs[number] = 'Effet à appliquer.'
+            for route in catalogue[str(number)]['routes']:
+                w.paragraphs[route['target']] = 'Suite.'
+        w.character['endurance'] = 10
+        base = w._snapshot()
+        for number in numbers:
+            with self.subTest(number=number):
+                w._restore(base)
+                w.go_to(number)
+                self.assertEqual(w._reading_link_targets(),set())
+                before = copy.deepcopy(w.character)
+                w.perform_foret_action('entry')
+                expected = {r['target'] for r in catalogue[str(number)]['routes']}
+                self.assertEqual(w._reading_link_targets(),expected)
+                after = copy.deepcopy(w.character)
+                w.undo_action()
+                self.assertEqual(w.character,before)
+                w.redo_action()
+                self.assertEqual(w.character,after)
+                path = main.SAVES_DIR/f'effet-{number}.json'
+                w._write_atomic(path,w._save_data())
+                with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                    self.assertTrue(w.load_game(path,announce=False))
+                w.perform_foret_action('entry')
+                self.assertTrue(rules.entry_resolved(w.character,number))
+                self.assertEqual(w.character,after)
+                if number == 275:
+                    self.assertNotIn('Casque magique',w.character['inventory'])
+                if number == 277:
+                    w.follow_foret_route(234)
+                    self.assertEqual(w.character['endurance'],9)
+
     def test_new_loot_requires_collection_and_survives_save_and_undo(self):
         from grimoire_modules.foret import rules
         self.open()
