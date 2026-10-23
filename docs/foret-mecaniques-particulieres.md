@@ -61,6 +61,16 @@ converties globalement en événements exécutables.
   objet compte pour une unité. La valeur estimée d’un bijou ne crée pas des pièces.
   Annuler ou proposer un tarif invalide ne modifie rien. Le paiement de deux objets
   achetés exige leur provenance et leur charge disponible.
+  Les cartes et les liens du récit revérifient désormais les coûts au clic :
+  le don du §243 retire une pièce uniquement vers le §166, et la fuite immédiate
+  du §130 retire un point de Chance sans blessure de combat. Une restauration
+  ne paie pas une seconde fois. Le tribut du §279 ouvre le §246 sans nouveau
+  prélèvement ; le §360 compte seulement les exemplaires pouvant être donnés.
+- **Butin des Lutins (§301)** : choisir de zéro à trois pièces, la petite flûte,
+  les biscuits infestés et/ou le collier. Chaque unité prise est conservée dans
+  un registre ; les autres restent disponibles, y compris après chargement.
+  Annuler ne prend rien. Les biscuits ne deviennent jamais des provisions,
+  et la petite flûte ne reçoit aucun pouvoir de flûte magique.
 - **Gnome (§§192, 46, 12)** : l’identité de l’arme transformée est conservée
   hors de l’inventaire jusqu’à sa restitution. Le projectile du §46 coûte deux
   points de Chance une seule fois. Le §12 exige exactement dix pièces OU deux

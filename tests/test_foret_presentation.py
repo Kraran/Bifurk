@@ -7,7 +7,8 @@ import unittest
 from unittest.mock import patch
 
 import pymupdf
-from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QPushButton
+from PySide6.QtCore import QUrl
+from PySide6.QtWidgets import QApplication, QDialog, QMessageBox, QPushButton, QSpinBox, QListWidget
 
 import main
 from grimoire_library import GrimoireLibraryDialog, imported_grimoires
@@ -539,6 +540,100 @@ class ForetPresentationTests(unittest.TestCase):
         w.perform_foret_action('silver_dart')
         self.assertEqual(w.character['inventory'].count(rules.SILVER_DART),1)
         self.assertEqual((w.character['chance'],w.character['gold']),(6,20))
+
+    def test_donation_card_and_link_recheck_gold_and_undo_cost_with_navigation(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({243:'Don.',166:'Bénédiction.',33:'Refus.'})
+        w.character['gold'] = 1
+        w.go_to(243)
+        button = next(w.choice_layout.itemAt(i).widget() for i in range(w.choice_layout.count())
+                      if '§166' in w.choice_layout.itemAt(i).widget().text())
+        w.character['gold'] = 0
+        button.click()
+        self.assertEqual(w.current_paragraph,243)
+        w.character['gold'] = 1
+        w.follow_link(QUrl('paragraph:166'))
+        self.assertEqual((w.current_paragraph,w.character['gold']),(166,0))
+        w.undo_action()
+        self.assertEqual((w.current_paragraph,w.character['gold']),(243,1))
+        w.redo_action()
+        self.assertEqual((w.current_paragraph,w.character['gold']),(166,0))
+        w.go_to(243)
+        w.follow_foret_route(166)
+        self.assertEqual(w.character['gold'],0)
+
+    def test_immediate_feline_escape_costs_chance_not_endurance(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({130:'Femme Féline.',153:'Combat.',355:'Fuite.'})
+        w.character.update(chance=8,endurance=20)
+        w.go_to(130)
+        before = copy.deepcopy(w.character)
+        w._render_choices_and_events(w.paragraphs[130])
+        self.assertEqual(w.character,before)
+        w.follow_foret_route(355)
+        self.assertEqual((w.current_paragraph,w.character['chance'],w.character['endurance']),(355,7,20))
+        w.undo_action()
+        self.assertEqual((w.current_paragraph,w.character['chance']),(130,8))
+
+    def test_bandit_payment_is_shared_across_the_three_passages(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({360:'Bandits.',279:'Paiement.',246:'Passage.',204:'Village.',104:'Combat.'})
+        w.character.update(gold=5,inventory=[])
+        w.go_to(246)
+        self.assertNotIn(204,w._reading_link_targets())
+        w.go_to(360)
+        w.follow_foret_route(279)
+        self.assertEqual(w.character['gold'],5)
+        w.perform_foret_action('payment',(5,[]))
+        self.assertEqual(w.character['gold'],0)
+        w.follow_foret_route(246)
+        w.follow_foret_route(204)
+        self.assertEqual((w.current_paragraph,w.character['gold']),(204,0))
+
+    def test_partial_goblin_loot_cancel_save_and_undo_preserve_remaining_stock(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({301:'Butin.',157:'Chemin.'})
+        w.character.update(gold=10,provisions=4)
+        w.go_to(301)
+        before = copy.deepcopy(w._snapshot())
+        with patch('grimoire_modules.foret.actions.QDialog.exec',lambda dialog: dialog.reject()):
+            w._foret_loot_dialog()
+        self.assertEqual(w._snapshot(),before)
+        def pick(dialog):
+            dialog.findChild(QSpinBox).setValue(1)
+            items = dialog.findChild(QListWidget)
+            items.item(1).setSelected(True)
+            next(button for button in dialog.findChildren(QPushButton)
+                 if button.text() == 'Prendre la sélection').click()
+            return dialog.result()
+        with patch('grimoire_modules.foret.actions.QDialog.exec',pick):
+            w._foret_loot_dialog()
+        self.assertEqual((w.character['gold'],w.character['provisions']),(11,4))
+        w.undo_action()
+        self.assertEqual(rules.remaining_goblin_loot(w.character),(3,list(rules.GOBLIN_LOOT)))
+        w.redo_action()
+        path = main.SAVES_DIR/'butin.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        self.assertEqual(rules.remaining_goblin_loot(w.character),(2,[rules.GOBLIN_LOOT[0],rules.GOBLIN_LOOT[2]]))
+        w.perform_foret_action('goblin_loot',(2,[rules.GOBLIN_LOOT[0],rules.GOBLIN_LOOT[2]]))
+        self.assertEqual(rules.remaining_goblin_loot(w.character),(0,[]))
+        self.assertEqual(w.character['gold'],13)
+        before = copy.deepcopy(w._snapshot())
+        w.perform_foret_action('goblin_loot',(1,[]))
+        self.assertEqual(w._snapshot(),before)
+        w.follow_foret_route(157)
+        self.assertEqual(w.current_paragraph,157)
 
     def test_cover_title_starting_resources_and_preparation_notice(self):
         self.open()

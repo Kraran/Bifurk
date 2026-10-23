@@ -33,6 +33,52 @@ ENCHANTED_SWORD = 'Épée enchantée'
 ELVEN_BREAD = 'Pain elfique'
 BELL = 'Petite clochette de cuivre'
 SILVER_DART = 'Fléchette d’argent (valeur 5 Or)'
+GOBLIN_LOOT = ('Petite flûte de cuivre','Biscuits infestés de vers','Collier de crânes de souris')
+ROUTE_COSTS = {(130,355):('chance',1),(243,166):('gold',1)}
+
+
+def route_paid(character, paragraph, target):
+    return f'{paragraph}:{target}' in peek(character).get('paid_routes', [])
+
+
+def pay_route(character, paragraph, target):
+    """Payer au choix de la route, jamais lors de son affichage ou de sa restauration."""
+    alive(character)
+    cost = ROUTE_COSTS.get((paragraph,target))
+    if cost is None or route_paid(character,paragraph,target):
+        return False
+    resource, amount = cost
+    if resource == 'gold':
+        pay(character,gold=amount)
+    else:
+        character[resource] = max(0,character[resource]-amount)
+    state(character).setdefault('paid_routes', []).append(f'{paragraph}:{target}')
+    return True
+
+
+def remaining_goblin_loot(character):
+    """Lire les unités encore disponibles sans créer d’état pendant l’affichage."""
+    taken = peek(character).get('goblin_loot', {})
+    return (3-taken.get('gold',0),[name for name in GOBLIN_LOOT if name not in taken.get('items', [])])
+
+
+def take_goblin_loot(character, *, gold=0, items=()):
+    """§301 : choisir tout ou partie du butin restant, sans doubler un exemplaire."""
+    alive(character)
+    items = list(items)
+    remaining_gold, remaining_items = remaining_goblin_loot(character)
+    if type(gold) is not int or not 0 <= gold <= remaining_gold:
+        raise ValueError('Choisir uniquement les pièces encore disponibles.')
+    if any(not isinstance(name,str) or name not in remaining_items for name in items) or len(items) != len(set(items)):
+        raise ValueError('Choisir chaque objet disponible au plus une fois.')
+    if not gold and not items:
+        return False
+    character['gold'] = character.get('gold',0)+gold
+    character.setdefault('inventory', []).extend(items)
+    taken = state(character).setdefault('goblin_loot', {'gold':0,'items':[]})
+    taken['gold'] += gold
+    taken['items'].extend(items)
+    return True
 GAS_PARAGRAPHS = {22,169,222}
 # Statistique, réussite, échec, blessure immédiate de l’échec.
 BRANCH_TESTS = {57:('chance',132,35,0),81:('chance',49,4,0),
@@ -716,6 +762,14 @@ OPTIONAL_ITEM_ROUTES = {(92,100):'Potion de Contrôle des Insectes', (196,39):'F
 
 def route_available(character, paragraph, target):
     """Autoriser les seules conditions intégrées ; ne jamais renouveler une charge épuisée."""
+    if paragraph == 243 and target == 166:
+        return route_paid(character,243,166) or character.get('gold',0) >= 1
+    if paragraph == 360 and target == 279:
+        units = character.get('gold',0) + sum(name != 'Anneau de Lenteur'
+                and name not in character.get('locked_items', []) for name in character.get('inventory', []))
+        return payment_resolved(character,279) or units >= 5
+    if paragraph == 246 and target == 204:
+        return payment_resolved(character,279)
     if paragraph == 191 and target == 184:
         return BELL in character.get('inventory', [])
     if paragraph == 295:

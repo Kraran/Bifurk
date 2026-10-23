@@ -98,7 +98,7 @@ class ForetController(ForetMechanicsActions):
             if choice.get('condition_text'):
                 button.setToolTip('Condition du livre : ' + choice['condition_text'])
             button.setEnabled(target in self._reading_link_targets())
-            button.clicked.connect(lambda checked=False, n=target: self.go_to(n))
+            button.clicked.connect(lambda checked=False, n=target: self.follow_foret_route(n))
             self.choice_layout.addWidget(button)
         self._foret_mechanics_buttons()
         for route in self._analysed_reading_entry().get('unresolved_routes', []):
@@ -123,4 +123,16 @@ class ForetController(ForetMechanicsActions):
         """Suivre seulement les liens de paragraphes internes du lecteur."""
         match = re.fullmatch(r'paragraph(?::|%3A)(\d+)', url.toString(), re.I)
         if match and int(match.group(1)) in self._reading_link_targets():
-            self.go_to(int(match.group(1)))
+            self.follow_foret_route(int(match.group(1)))
+
+    def follow_foret_route(self, target):
+        """Revérifier la route et payer son éventuel coût dans la transaction de navigation."""
+        if self._adventurer_draft is not None or target not in self._reading_link_targets():
+            return
+        try:
+            rules.pay_route(self.character,self.current_paragraph,target)
+        except ValueError as error:
+            self.rules_log.setText(str(error))
+            return
+        self._refresh_character()
+        self.go_to(target)

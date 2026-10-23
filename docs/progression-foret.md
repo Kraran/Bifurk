@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **127 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **132 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -17,8 +17,8 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | Profils de combat | 17 |
 | Effets d’entrée et usages d’objets | 69 |
 | Paiements | 7 |
-| Actions et épreuves spéciales | 33 |
-| Conditions de route recensées séparément | 2 (§§191, 295) |
+| Actions et épreuves spéciales | 34 |
+| Conditions et coûts de route recensés séparément | 6 (§§130, 191, 243, 246, 295, 360) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
 combats en groupes et successifs, fouet du Démon, paralysie de la Goule,
@@ -45,6 +45,12 @@ bijoux, pièce trouvée, pertes de provisions et d’or, éclair et fléchette d
 La fléchette reste facultative après le gain de Chance. Les valeurs des objets
 ne sont pas automatiquement converties en pièces.
 
+Les cartes et liens du récit paient le don au moine et la fuite immédiate au
+moment du choix. Le tribut des Bandits est partagé entre ses trois passages,
+sans second prélèvement. Le §301 propose un choix partiel des trois pièces et
+des objets ; le stock restant survit à la sauvegarde. Les biscuits infestés
+restent un objet et la petite flûte reste distincte de la flûte magique.
+
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,
 l’absence de répétition, la restauration et l’annulation/rétablissement.
@@ -54,9 +60,8 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 - **Autres rencontres** : raccorder leurs profils, issues et restrictions ;
   les 17 passages actuels ne couvrent pas tous les combats du livre.
 - **Autres effets** : variations de caractéristiques et de provisions, dons et
-  trouvailles encore documentés sans commande. Exemples : fuite choisie du
-  §130, sel des provisions au §178, don choisi au §243, règlement commun
-  des §§246/360/279 et sélection partielle du butin au §301.
+  trouvailles encore documentés sans commande, notamment le sel des provisions
+  au §178 et les autres effets recensés dans les analyses mais pas dans le registre.
 - **Équipement et autres soins** : compléter les autres interactions et
   conditions encore documentaires, puis vérifier leurs combinaisons en partie.
 - **Choix et parcours** : compléter les conditions d’inventaire et de progression

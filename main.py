@@ -2357,6 +2357,7 @@ def _track_action(method, label):
 # simples rafraîchissements visuels ni Undo/Redo, qui gèrent leurs propres piles.
 for _name, _label in {
     'perform_foret_action': 'Résoudre une mécanique de la Forêt',
+    'follow_foret_route': 'Choisir un chemin dans la Forêt',
     'use_care': 'Utiliser un soin',
     "go_to": "Changer de paragraphe", "apply_detected_event": "Appliquer un événement",
     "perform_book_action": "Résoudre une action du livre",

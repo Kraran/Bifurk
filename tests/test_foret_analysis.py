@@ -46,7 +46,7 @@ class ForetAnalysisTests(unittest.TestCase):
         owner._book_state = lambda number: {}
         owner._analysed_reading_entry = lambda: ForetController._analysed_reading_entry(owner)
         owner._reading_link_targets = lambda: ForetController._reading_link_targets(owner)
-        owner.go_to = owner.visited.append
+        owner.follow_foret_route = owner.visited.append
         html = render_links('Rendez-vous au 1%. Sinon rendez-vous au 25.', owner._reading_link_targets())
         self.assertNotIn('href="paragraph:1"', html)
         self.assertIn('href="paragraph:25"', html)
