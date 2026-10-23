@@ -6,26 +6,20 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **195 paragraphes distincts avec
-au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
-terminé, ni une affirmation d’automatisation complète de ces paragraphes.
-Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
-
-L’[audit final des 400 paragraphes](reviews/2026-10-23-foret-audit-final.md)
-recense plus largement **216 paragraphes avec un point d’entrée réel**, dont
-certains restent partiels ou bloqués dans un cas limite. Il identifie 21 omissions
-du décompte historique de 195, pas 21 nouvelles mécaniques à programmer.
-La revue classe 203 passages couverts selon leurs analyses, 178 narratifs,
-9 partiels, 3 sans la commande attendue et 7 avec une décision de source.
+Le registre et l’[audit des 400 paragraphes](reviews/2026-10-23-foret-audit-final.md)
+recensent désormais **222 paragraphes avec un point d’entrée réel**, et 178 passages
+narratifs sans action supplémentaire identifiée. Les huit constats de l’audit ont
+été corrigés ou documentés. Ce classement suit les analyses relues ; il ne remplace
+pas la validation de parcours complets et de la présentation Windows.
 
 | Catégorie du registre | Paragraphes |
 | --- | ---: |
 | Boutique de Yaztromo | 1 |
 | Profils de combat | 40 |
-| Effets d’entrée et usages d’objets | 90 |
+| Effets d’entrée et usages d’objets | 91 |
 | Paiements | 10 |
-| Actions et épreuves spéciales | 40 |
-| Conditions et coûts de route recensés séparément | 17 (§§17, 95, 130, 132, 160, 172, 191, 199, 204, 243, 246, 271, 295, 346, 360, 366, 391) |
+| Actions et épreuves spéciales | 47 |
+| Conditions et coûts de route recensés séparément | 47 |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
 combats en groupes et successifs, fouet du Démon, paralysie de la Goule,
@@ -34,7 +28,7 @@ convalescence, repas maudit, échange des caractéristiques et remise du marteau
 
 Les derniers lots ajoutent la lanterne et ses conséquences, les Faucons, le Gnome
 et la restitution de l’arme, l’épée enchantée avec son bonus équipé de +2 Habileté,
-les gaz et filtres, puis les sept épreuves des §§57/81/90/229/251/256/376,
+les gaz et filtres, puis les huit épreuves des §§57/81/90/158/229/251/256/376,
 leurs blessures associées et le Troll du §310. Le casque doit être réellement porté
 pour éviter la blessure de la chute au §295 ; le §30 enlève deux points une fois.
 
@@ -111,10 +105,12 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 
 ## Reste à faire
 
-Priorités issues de l’audit : test de Chance du §158 ; prises d’objets des
-§§146/152/242 ; historique coffre/tonneau (§§201/215/248/293/389), essais des
-§§133/374 et condition négative du §191 ; quatre liens de texte aux
-§§251/266/343. Les cas limites sont recensés séparément pour le point 2.
+Les correctifs issus de l’audit sont intégrés : épreuve du §158, prises des
+§§146/152/242, historique du coffre et du tonneau, essais des §§133/374,
+condition complémentaire du §191 et quatre liens du texte. Les sept situations
+non décrites par la source disposent des sorties de secours autorisées par
+l’utilisateur, avec sauvegarde et historique. Il reste à valider la présentation
+Windows et des parcours représentatifs en partie réelle.
 
 Les illustrations sont raccordées : 24 scènes avec numéro imprimé, le mode
 d’emploi de l’Œil d’Ambre au §91 et la carte dans le prologue. Le menu Actions
@@ -134,28 +130,20 @@ Les branches alternatives des mécaniques intégrées sont également testées :
 fuites, épreuves, états de charges, essais répétés, maladies, nouvelle tentative
 de quête et transformations. Voir [le contrôle des branches alternatives](reviews/2026-10-23-foret-branches-alternatives.md).
 
-- **Rencontres** : vérifier les contournements de combats et les conséquences
-  des issues dans des parcours complets. Les profils chiffrés du catalogue
-  sont raccordés, avec le mode successif confirmé pour les §§29/317.
-- **Autres effets** : variations de caractéristiques et de provisions, dons et
-  trouvailles encore recensés dans les analyses mais pas dans le registre.
-- **Équipement et autres soins** : compléter les autres interactions et
-  conditions encore documentaires, puis vérifier leurs combinaisons en partie.
-- **Choix et parcours** : compléter les conditions d’inventaire et de progression
-  encore consultables, puis vérifier les chaînes de passages de bout en bout.
-- **Fins et présentation** : poursuivre l’audit des issues et la vérification
-  visuelle des pages et agrandissements sous Windows.
-- **Validation complète** : jouer des parcours représentatifs, vérifier les
-  fenêtres sous Windows et auditer le comportement des sauvegardes en partie.
+- **Validation en partie** : parcourir les chemins représentatifs dans le lecteur,
+  notamment les sorties de secours et les interactions d’équipement.
+- **Présentation Windows** : contrôler les pages, dialogues, agrandissements et
+  changements de livre. Les tests Qt automatisés utilisent le mode sans écran.
 
 ## Points à clarifier
 
 Le mode de résolution des deux adversaires aux §§29 et 317 a été confirmé
 par l’utilisateur le 23 octobre 2026 : ils sont affrontés un après l’autre.
 La provenance de cette règle du projet figure dans chaque entrée du catalogue.
-Les cas non décrits par la source restent explicites : sac sans objet retirable
-au §370, insolvabilité aux §§12/218, absence d’épée au §358, absence de ration au §178, et interprétations
-documentées de certaines interactions.
+Les sorties de secours ont été autorisées le 23 octobre 2026 pour les §§12/14/218,
+178/328, 358 et 370. Elles sont identifiées comme règles de projet dans le catalogue.
+Le texte ne précise toujours pas la récupération physique de la Corde Magique ;
+son usage magique reste unique, sans rétablissement automatique de charge.
 
 Les corrections des §§186 et 267 sont confirmées et intégrées. Le choix de bonus
 de l’épée du §70 est également confirmé : +2 tant qu’elle est équipée, même

@@ -10,8 +10,9 @@ import html
 # La coupure « rendez-\n vous » est fréquente dans les PDF de livres-jeux.
 DESTINATION_RE = re.compile(
     r"(?i)(?:"
-    r"rendez\s*[-‐‑–]?\s*vous(?:\s+(?:alors|dans\s+ce\s+cas|directement|maintenant|après))?"
+    r"rendez\s*[-‐‑–]?\s*vous(?:\s+(?:alors|ensuite|dans\s+ce\s+cas|directement|maintenant|après))?"
     r"|(?:vous\s+)?(?:irez|allez|allez-vous|aller)(?:\s+(?:alors|dans\s+ce\s+cas))?"
+    r"|(?:vous\s+)?vous\s+rendrez(?:\s+(?:alors|ensuite))?"
     r"|reportez\s*[-‐‑–]?\s*vous(?:\s+alors)?"
     r"|(?:en\s+)?vous\s+rendant"
     r"|en\s+allant"

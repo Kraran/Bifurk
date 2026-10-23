@@ -216,6 +216,8 @@ class ForetMechanicsActions(FightingFantasyActions):
         if (number in rules.OPTIONAL_FINDS and rules.entry_resolved(self.character,number)
                 and 'optional_find:' + str(number) not in rules.peek(self.character).get('rewards', [])):
             add(rules.OPTIONAL_FINDS[number]['label'], 'optional_find')
+        if not self._book_state(number).get('foret_resolved') and rules.emergency_target(self.character,number) is not None:
+            add('Sortie de secours — règle de projet', 'emergency_exit')
         if number == 301:
             gold, items = rules.remaining_goblin_loot(self.character)
             if gold or items:
@@ -225,7 +227,8 @@ class ForetMechanicsActions(FightingFantasyActions):
             add('Prendre la fléchette d’argent (facultatif)', 'silver_dart')
         if number in rules.BRANCH_TESTS and not self._book_state(number).get('foret_resolved'):
             stat = rules.BRANCH_TESTS[number][0]
-            add('Résoudre l’épreuve — ' + ('Chance' if stat == 'chance' else 'Habileté'), 'branch_test')
+            add('Utiliser le Bandeau et tenter sa Chance' if number == 158 else
+                'Résoudre l’épreuve — ' + ('Chance' if stat == 'chance' else 'Habileté'), 'branch_test')
         if number in rules.GAS_PARAGRAPHS and not rules.gas_resolved(self.character,number):
             add('Résoudre le gaz toxique (1d6)', 'gas')
         if number in rules.ENTRY_RULES and not rules.entry_resolved(self.character, number):
@@ -258,7 +261,7 @@ class ForetMechanicsActions(FightingFantasyActions):
                 add('Porter ' + name, 'wear', name)
         if 'Potion de Force' in self.character.get('inventory', []):
             add('Boire la Potion de Force (+5 Endurance)', 'force_potion')
-        commands = {34:('Choisir le vœu du génie…', 'wish'),308:('Intervertir Habileté et Chance', 'swap'),98:('Échapper à l’embuscade — Chance', 'ambush'),
+        commands = {242:('Prendre le lingot en abandonnant un objet (facultatif)…','gold_ingot'),34:('Choisir le vœu du génie…', 'wish'),308:('Intervertir Habileté et Chance', 'swap'),98:('Échapper à l’embuscade — Chance', 'ambush'),
                     259:('Affronter la fièvre — perte de 3 Endurance puis Chance', 'fever'),
                     278:('Tomber dans la fosse — Chance', 'spiked_pit'),73:('Éprouver la porte (2d6)', 'door'),309:('Éviter les deux fléchettes', 'darts'),
                     372:('Soulever le coffre (2d6)', 'lift'),266:('Choisir la mise du bras de fer…', 'wrestle'),
@@ -276,7 +279,8 @@ class ForetMechanicsActions(FightingFantasyActions):
                     358:('Se libérer du nœud coulant — Chance', 'snare'),
                     178:('Utiliser le sel d’une ration', 'leech_salt'),
                     48:('Résoudre l’explosion de l’œuf (1d6)', 'egg_explosion')}
-        if number in commands and not self._book_state(number).get('foret_resolved'):
+        if (number in commands and not self._book_state(number).get('foret_resolved')
+                and not (number == 242 and 'gold_ingot' in rules.peek(self.character).get('rewards', []))):
             label, action = commands[number]
             add(label, action, enabled=number != 204 or rules.hammer_complete(self.character))
 
@@ -441,7 +445,24 @@ class ForetMechanicsActions(FightingFantasyActions):
             return
         target = None
         try:
-            if action == 'egg_explosion':
+            if action == 'emergency_exit':
+                if self._book_state(number).get('foret_resolved'):
+                    return
+                target = rules.use_emergency_exit(self.character,number)
+                self._book_state(number,True)['foret_resolved'] = True
+                self.rules_log.setText('Sortie de secours appliquée — règle de projet autorisée, non précisée par le livre.')
+            elif action == 'gold_ingot':
+                if number != 242 or 'gold_ingot' in rules.peek(self.character).get('rewards', []):
+                    return
+                choices = rules.removable_items(self.character)
+                if not choices:
+                    raise ValueError('Aucun objet retirable ; vous pouvez laisser le lingot et poursuivre.')
+                choice, accepted = QInputDialog.getItem(self,'Le lingot d’or',
+                    'Objet à abandonner pour faire place au lingot :',choices,0,False)
+                if not accepted:
+                    return
+                rules.take_gold_ingot(self.character,choice)
+            elif action == 'egg_explosion':
                 _, die = self._roll(1,context='Explosion de l’œuf — perte d’Endurance')
                 rules.egg_explosion(self.character,die)
             elif action == 'optional_find':
@@ -460,6 +481,8 @@ class ForetMechanicsActions(FightingFantasyActions):
             elif action == 'branch_test':
                 if number not in rules.BRANCH_TESTS or self._book_state(number).get('foret_resolved'):
                     return
+                if number == 158 and rules.available(self.character,'Bandeau de Concentration') < 1:
+                    raise ValueError('Aucun Bandeau de Concentration utilisable.')
                 stat = rules.BRANCH_TESTS[number][0]
                 _, total = self._roll(2,context=('Chance' if stat == 'chance' else 'Habileté') + f' — §{number}')
                 target = rules.resolve_branch_test(self.character,number,total)

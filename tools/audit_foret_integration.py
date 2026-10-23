@@ -39,7 +39,7 @@ def runtime_inventory():
     add((a for a,b in rules.ROUTE_COSTS),'cout_route')
     add((a for a,b in rules.FIXED_PAYMENT_ROUTES),'condition')
     # Effets automatiques relus dans ForetController.go_to, hors commandes.
-    add((2,156,333,399,400),'automatique')
+    add((2,156,215,333,399,400),'automatique')
     # Commande affichée hors de la table commands (issue du Loup-Garou).
     add((388,),'commande')
     tree = ast.parse((ROOT/'grimoire_modules/foret/actions.py').read_text(encoding='utf-8'))
@@ -126,24 +126,25 @@ def markdown(review, result):
     lines = ['# Forêt : audit final de l’intégration', '',
              'Revue des 400 analyses du catalogue, rapprochées du moteur ; relecture du PDF et',
              'reproduction Qt ciblées sur les écarts. La présence d’un gestionnaire ne prouve',
-             'pas que toutes les règles du passage sont exécutées. Aucun correctif du moteur',
-             'n’est inclus dans cet audit.', '', '## Bilan', '',
+             'pas que toutes les règles du passage sont exécutées. Les constats initiaux',
+             'sont conservés avec le résultat des correctifs.', '', '## Bilan', '',
              f"- {result['paragraphs']} paragraphes classés ; {result['routes']} renvois recensés.",
              f"- PDF exact contrôlé : {'oui' if result['pdf_checked'] else 'non, contrôle du registre seulement'}.",
-             f"- {result['runtime_paragraphs']} paragraphes ont un point d’entrée dans le moteur, contre {result['registered_paragraphs']} dans le registre historique.",
+             f"- {result['runtime_paragraphs']} paragraphes ont un point d’entrée dans le moteur, et {result['registered_paragraphs']} dans le registre.",
              '- Les classes portent sur les règles connues de chaque analyse, pas sur un pourcentage d’achèvement.', '']
     lines += [f'- {key} : {value}.' for key,value in result['classifications'].items()]
-    lines += ['', '## Constats à traiter', '']
+    lines += ['', '## Constats et correctifs', '']
     for f in review['findings']:
         lines += [f"### {f['id']} — {f['title']}",'',
                   'Paragraphes : '+', '.join('§'+str(n) for n in f['paragraphs'])+'.', '',
-                  f['observation'],'',f['next_step'],'']
-    lines += ['## Registre sous-estimé', '',
-              ', '.join('§'+str(n) for n in result['unregistered_runtime_paragraphs'])+'.', '',
+                  'Observation initiale : '+f['observation'],'',
+                  'Résultat ('+f.get('status','ouvert')+') : '+f.get('resolution',f['next_step']),'']
+    lines += ['## Registre réconcilié', '',
+              (', '.join('§'+str(n) for n in result['unregistered_runtime_paragraphs'])+'.') if result['unregistered_runtime_paragraphs'] else 'Aucun point d’entrée ne manque au registre.', '',
               'Ces ajouts de décompte ne représentent pas de nouvelles mécaniques à programmer.', '']
     if 'text_route_differences' in result:
         lines += ['## Comparaison des liens extraits', '',
-                  'Le catalogue conserve les destinations, mais certains renvois ne deviennent pas des liens dans le texte :', '']
+                  ('Écarts entre texte et catalogue :' if result['text_route_differences'] else 'Les liens des 400 textes correspondent aux 641 renvois du catalogue.'), '']
         for row in result['text_route_differences']:
             lines += [f"- §{row['paragraph']} : catalogue seulement {row['catalogue_only']}, texte seulement {row['text_only']}."]
         lines += ['']

@@ -212,6 +212,7 @@ class ForetPresentationTests(unittest.TestCase):
         with patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No):
             for _ in range(5):w.combat_round()
         self.assertEqual(w.current_paragraph,152)
+        w.perform_foret_action('entry')
         w.follow_foret_route(333)
         self.assertTrue(w.character['book_facts']['adventure_ended'])
         self.assertEqual(w.character['endurance'],24)
@@ -262,6 +263,7 @@ class ForetPresentationTests(unittest.TestCase):
                 with self.subTest(number=number,passed=passed):
                     w._restore(base)
                     w.character.update(habilete=8,chance=8,endurance=20)
+                    if number == 158:rules.buy(w.character,'Bandeau de Concentration')
                     w.go_to(number)
                     before = copy.deepcopy(w._snapshot())
                     total = 2 if passed else 12
@@ -1840,6 +1842,134 @@ class ForetPresentationTests(unittest.TestCase):
             self.assertEqual(len(button.text().splitlines()), 3)
         finally:
             dialog.deleteLater()
+
+
+    def test_audit_loot_dialog_cancel_exchange_and_crown_gate(self):
+        from grimoire_modules.foret import rules
+        self.open(); self.start()
+        w = self.w
+        w.paragraphs.update({int(n):e['title'] for n,e in w.book_event_catalogue['paragraphs'].items()})
+        w.go_to(146)
+        self.assertEqual(w._reading_link_targets(),{245})
+        w.perform_foret_action('entry')
+        self.assertIn('Morceau de pierre de la Bête Rocheuse',w.character['inventory'])
+        w.go_to(152)
+        self.assertEqual(w._reading_link_targets(),set())
+        w.perform_foret_action('entry')
+        self.assertIn(333,w._reading_link_targets())
+        self.assertNotIn('Couronne du Démon de Feu',rules.peek(w.character).get('worn',[]))
+        w.go_to(242)
+        before = copy.deepcopy(w._snapshot())
+        with patch('grimoire_modules.foret.actions.QInputDialog.getItem',return_value=('',False)):
+            w.perform_foret_action('gold_ingot')
+        self.assertEqual(w._snapshot(),before)
+        item = rules.removable_items(w.character)[0]
+        with patch('grimoire_modules.foret.actions.QInputDialog.getItem',return_value=(item,True)):
+            w.perform_foret_action('gold_ingot')
+        after = copy.deepcopy(w._snapshot())
+        self.assertEqual(w.character['gold'],before['character']['gold'])
+        self.assertIn(rules.GOLD_INGOT,w.character['inventory'])
+        self.assertEqual(w._reading_link_targets(),{121})
+        w.undo_action(); self.assertEqual(w._snapshot(),before)
+        w.redo_action(); self.assertEqual(w._snapshot(),after)
+        path = main.SAVES_DIR/'lingot.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        with patch('grimoire_modules.foret.actions.QInputDialog.getItem') as dialog:
+            w.perform_foret_action('gold_ingot')
+            dialog.assert_not_called()
+
+    def test_chest_barrel_both_orders_and_refusing_shield_survive_history(self):
+        from grimoire_modules.foret import rules
+        self.open(); self.start()
+        w = self.w
+        w.paragraphs.update({int(n):e['title'] for n,e in w.book_event_catalogue['paragraphs'].items()})
+        base = w._snapshot()
+        for take_shield in (True,False):
+            w._restore(base)
+            w.go_to(293)
+            self.assertEqual(w._reading_link_targets(),{215,389,88})
+            w.follow_foret_route(215)
+            self.assertTrue(rules.peek(w.character)['barrel_examined'])
+            w.follow_foret_route(248 if take_shield else 201)
+            if take_shield:w.perform_foret_action('entry')
+            w.follow_foret_route(389)
+            w.perform_foret_action('entry')
+            self.assertEqual(w._reading_link_targets(),{88})
+            self.assertEqual('Bouclier d’empereur' in w.character['inventory'],take_shield)
+            w.go_to(201); self.assertEqual(w._reading_link_targets(),{88})
+            w.go_to(293); self.assertEqual(w._reading_link_targets(),{88})
+            path = main.SAVES_DIR/'tonneau.json'
+            w._write_atomic(path,w._save_data())
+            with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                self.assertTrue(w.load_game(path,announce=False))
+            self.assertEqual(w._reading_link_targets(),{88})
+        w._restore(base)
+        w.go_to(389); w.perform_foret_action('entry')
+        self.assertEqual(w._reading_link_targets(),{215,88})
+        before = copy.deepcopy(w._snapshot())
+        w.follow_foret_route(215)
+        w.undo_action(); self.assertEqual(w._snapshot(),before)
+        self.assertFalse(rules.peek(w.character).get('barrel_examined',False))
+        w.redo_action()
+        w.follow_foret_route(248); w.perform_foret_action('entry')
+        self.assertEqual(w._reading_link_targets(),{88})
+
+    def test_emergency_exits_save_undo_and_normal_paths_are_not_bypassed(self):
+        from grimoire_modules.foret import rules
+        self.open(); self.start()
+        w = self.w
+        w.paragraphs.update({int(n):e['title'] for n,e in w.book_event_catalogue['paragraphs'].items()})
+        base = w._snapshot()
+        for number,target in ((12,67),(14,255),(218,274),(178,298),(328,118),(358,218),(370,231)):
+            with self.subTest(number=number):
+                w._restore(base)
+                w.character.update(gold=0,provisions=0,inventory=[],equipped_weapon=None)
+                w.go_to(number)
+                before = copy.deepcopy(w._snapshot())
+                self.assertTrue(any('Sortie de secours' in b.text() for b in w.event_group.findChildren(QPushButton)))
+                with patch.object(w,'_roll') as dice:w.perform_foret_action('emergency_exit')
+                dice.assert_not_called()
+                self.assertEqual(w.current_paragraph,target)
+                self.assertEqual(w.character['endurance'],before['character']['endurance'])
+                after = copy.deepcopy(w._snapshot())
+                w.undo_action(); self.assertEqual(w._snapshot(),before)
+                w.redo_action(); self.assertEqual(w._snapshot(),after)
+                path = main.SAVES_DIR/f'secours-{number}.json'
+                w._write_atomic(path,w._save_data())
+                with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                    self.assertTrue(w.load_game(path,announce=False))
+                w.go_to(number)
+                self.assertEqual(w._reading_link_targets(),{target})
+                before_repeat = copy.deepcopy(w.character)
+                w.perform_foret_action('emergency_exit')
+                self.assertEqual(w.character,before_repeat)
+
+
+    def test_ring_gauntlet_trials_cannot_repeat_after_save_or_item_loss(self):
+        self.open(); self.start()
+        w = self.w
+        w.paragraphs.update({int(n):e['title'] for n,e in w.book_event_catalogue['paragraphs'].items()})
+        base = w._snapshot()
+        for first,second in ((133,374),(374,133)):
+            w._restore(base)
+            w.go_to(first); w.perform_foret_action('entry')
+            self.assertEqual(w._reading_link_targets(),{second,360})
+            w.follow_foret_route(second)
+            before = copy.deepcopy(w._snapshot())
+            w.perform_foret_action('entry')
+            self.assertEqual(w._reading_link_targets(),{360})
+            after = copy.deepcopy(w._snapshot())
+            w.undo_action(); self.assertEqual(w._snapshot(),before)
+            w.redo_action(); self.assertEqual(w._snapshot(),after)
+            w.character['inventory'].clear()
+            path = main.SAVES_DIR/'essais.json'
+            w._write_atomic(path,w._save_data())
+            with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                self.assertTrue(w.load_game(path,announce=False))
+            self.assertEqual(w._reading_link_targets(),{360})
+            w.go_to(first); self.assertEqual(w._reading_link_targets(),{360})
 
 
 class ForetEditionContractTests(unittest.TestCase):
