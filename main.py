@@ -22,6 +22,7 @@ from themes import available_themes
 from sound_effects import SoundBank, EFFECT_LABELS
 from intro_music import IntroMusic
 from audio_configuration import configure_audio_backend
+from adventure_tracking import LABELS, new_tracking, read_tracking, mark_assisted
 from save_slots import SaveSlotsDialog, read_save
 from datetime import datetime
 from app_info import APP_NAME, APP_VERSION
@@ -310,6 +311,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.redo_stack = []
         self.action_history = []
         self._restoring = False
+        self.adventure_tracking = read_tracking(None)
         self._feedback_action_id = 0  # Identifiant visuel, hors sauvegardes et règles.
         self.reader_font_size = 20
         self._load_fonts()
@@ -756,8 +758,8 @@ class MainWindow(QMainWindow, ModuleActions):
         history_bar = QHBoxLayout()
         self.undo_btn = QPushButton("↶ Annuler")
         self.redo_btn = QPushButton("↷ Rétablir")
-        self.undo_btn.clicked.connect(self.undo_action)
-        self.redo_btn.clicked.connect(self.redo_action)
+        self.undo_btn.clicked.connect(lambda: self.manual_history(False))
+        self.redo_btn.clicked.connect(lambda: self.manual_history(True))
         history_bar.addWidget(self.undo_btn)
         history_bar.addWidget(self.redo_btn)
         self.history_label = QLabel("Historique : 0 action")
@@ -877,6 +879,7 @@ class MainWindow(QMainWindow, ModuleActions):
             caption.setAlignment(Qt.AlignCenter)
             stats_grid.addWidget(caption, 0, column)
             spin = QSpinBox()
+            spin.setKeyboardTracking(False)
             spin.setRange(0, 999)
             spin.setAlignment(Qt.AlignCenter)
             spin.setButtonSymbols(QSpinBox.UpDownArrows)
@@ -886,7 +889,7 @@ class MainWindow(QMainWindow, ModuleActions):
             spin.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
             spin.setMinimumHeight(46)
             spin.setAccessibleName(label)
-            spin.valueChanged.connect(lambda value, k=key: self.set_stat(k, value))
+            spin.valueChanged.connect(lambda value, k=key: self.manual_set_stat(k, value))
             stats_grid.addWidget(spin, 1, column)
             self.stat_spins[key] = spin
             bar = QProgressBar()
@@ -901,9 +904,10 @@ class MainWindow(QMainWindow, ModuleActions):
                 resources.addSpacing(12)
             resources.addWidget(QLabel(label))
             spin = QSpinBox()
+            spin.setKeyboardTracking(False)
             spin.setRange(0, 999)
             spin.setAccessibleName(label)
-            spin.valueChanged.connect(lambda value, k=key: self.set_stat(k, value))
+            spin.valueChanged.connect(lambda value, k=key: self.manual_set_stat(k, value))
             spin.setMinimumWidth(40)
             spin.setMaximumWidth(70)
             resources.addWidget(spin)
@@ -935,6 +939,11 @@ class MainWindow(QMainWindow, ModuleActions):
         hero_title.setObjectName("heroTitle")
         hero_row.addWidget(hero_title, 1)
         side_layout.addLayout(hero_row)
+        self.tracking_badge = QPushButton()
+        self.tracking_badge.setObjectName('adventureTrackingBadge')
+        self.tracking_badge.clicked.connect(self.show_tracking)
+        side_layout.addWidget(self.tracking_badge)
+        self._update_tracking_badge()
         side_layout.addWidget(stats_group)
         self.adventure_tabs = QTabWidget()
         self.adventure_tabs.setObjectName("adventureTabs")
@@ -963,10 +972,10 @@ class MainWindow(QMainWindow, ModuleActions):
         self.item_input.setPlaceholderText("Ajouter un objet…")
         inv_row.addWidget(self.item_input)
         add_item_btn = QPushButton("+")
-        add_item_btn.clicked.connect(self.add_item)
+        add_item_btn.clicked.connect(lambda: self.manual_inventory(False))
         inv_row.addWidget(add_item_btn)
         remove_item_btn = QPushButton("Retirer")
-        remove_item_btn.clicked.connect(self.remove_item)
+        remove_item_btn.clicked.connect(lambda: self.manual_inventory(True))
         inv_row.addWidget(remove_item_btn)
         inventory_tools = QWidget()
         inventory_tools.setLayout(inv_row)
@@ -1065,6 +1074,9 @@ class MainWindow(QMainWindow, ModuleActions):
         self.enemy_endurance = QSpinBox(fields)
         self.enemy_endurance.setRange(0, 999)
         self.enemy_endurance.setValue(6)
+        for widget in (self.enemy_name, self.enemy_skill, self.enemy_endurance):
+            widget.installEventFilter(self)
+            widget.editingFinished.connect(self._finish_manual_enemy_edit)
         self.rules_log = QLabel('Préparez le combat lorsque le récit le demande.', fields)
         self.combat_state = QLabel('Aucun combat engagé', fields)
         self.combat_journal = QListWidget(fields)
@@ -1076,7 +1088,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.goto_spin = QSpinBox(fields)
         self.goto_spin.setRange(1, 999)
         self.goto_button = QPushButton('Voyager', fields)
-        self.goto_button.clicked.connect(lambda: self.go_to(self.goto_spin.value()))
+        self.goto_button.clicked.connect(lambda: self.manual_travel(self.goto_spin.value()))
 
     def _refresh_action_controls(self):
         """Actualiser les commandes permanentes sans dépendre d'anciens onglets."""
@@ -1090,12 +1102,125 @@ class MainWindow(QMainWindow, ModuleActions):
         self.prologue_action.setVisible(bool(getattr(self.book_module, 'intro_pages', ())))
 
 
+    def _update_tracking_badge(self):
+        if hasattr(self, 'tracking_badge'):
+            tracking = self.adventure_tracking
+            self.tracking_badge.setText(LABELS[tracking['status']])
+            first = tracking['events'][0]['reason'] if tracking['events'] else (
+                'Aucune intervention enregistrée.' if tracking['status'] == 'tracked'
+                else 'Cette sauvegarde précède le suivi des interventions.')
+            self.tracking_badge.setToolTip(first + '\nCliquer pour consulter le journal.')
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.FocusIn and obj in (
+                getattr(self, 'enemy_name', None), getattr(self, 'enemy_skill', None),
+                getattr(self, 'enemy_endurance', None)):
+            self._enemy_edit_before = self._snapshot()
+        return super().eventFilter(obj, event)
+
+    def _finish_manual_enemy_edit(self):
+        before = getattr(self, '_enemy_edit_before', None)
+        self._enemy_edit_before = None
+        if before is None or self._restoring:
+            return
+        values = (self.enemy_name.text(), self.enemy_skill.value(), self.enemy_endurance.value())
+        old = (before['enemy_name'], before['enemy_skill'], before['enemy_endurance'])
+        if values == old:
+            return
+        def apply(values):
+            for widget, value in zip((self.enemy_name, self.enemy_skill, self.enemy_endurance), values):
+                widget.blockSignals(True)
+                (widget.setText if isinstance(widget, QLineEdit) else widget.setValue)(value)
+                widget.blockSignals(False)
+        apply(old)
+        def change():
+            state = self._snapshot()
+            apply(values)
+            self._record('Modifier manuellement un adversaire', state)
+        self._run_assisted(f'Modification manuelle de l’adversaire : {old} → {values}', change)
+
+    def show_tracking(self):
+        tracking = self.adventure_tracking
+        entries = '\n'.join(f"{e['at']} — {e['reason']}" for e in tracking['events'])
+        dialog = QDialog(self)
+        dialog.setAttribute(Qt.WA_DeleteOnClose)
+        dialog.setWindowTitle(LABELS[tracking['status']])
+        dialog.resize(650, 400)
+        layout = QVBoxLayout(dialog)
+        journal = QTextBrowser()
+        journal.setPlainText(entries or 'Aucune intervention enregistrée.\n'
+                             'Ce suivi ne vérifie pas les modifications externes des fichiers.')
+        layout.addWidget(journal)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        dialog.show()
+
+    def _run_assisted(self, reason, action, *, allow_draft=False):
+        """Confirmer à la frontière UI ; les règles normales ne passent pas ici."""
+        if ((self._adventurer_draft is not None and not allow_draft)
+                or (self.current_paragraph is None and not self.character.get('name'))):
+            return False
+        if QMessageBox.question(
+                self, 'Confirmer une intervention',
+                reason + '\n\nCette intervention marquera définitivement cette partie et ses futures '
+                'sauvegardes « Partie assistée », même après Annuler. Continuer ?',
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No) != QMessageBox.Yes:
+            return False
+        before = self._snapshot()
+        try:
+            action()
+        finally:
+            if before != self._snapshot():
+                mark_assisted(self.adventure_tracking, reason)
+                self._update_tracking_badge()
+                self._autosave()
+        return before != self._snapshot()
+
+    def manual_set_stat(self, key, value):
+        old = self._ff_stat_value(key)
+        if value != old:
+            self._run_assisted(f'Modification manuelle de {key} : {old} → {value}',
+                               lambda: self.set_stat(key, value))
+            self._refresh_character()  # Restaurer aussi le widget après un refus.
+
+    def manual_inventory(self, removing):
+        if removing:
+            row = self.inventory_list.currentRow()
+            items = self.character.get('inventory', [])
+            if row < 0 or row >= len(items):
+                return False
+            if items[row] in self.character.get('locked_items', []):
+                self.remove_item()
+                return False
+            reason, action = 'Retrait manuel : ' + items[row], self.remove_item
+        else:
+            item = self.item_input.text().strip()
+            if not item:
+                return False
+            reason, action = 'Ajout manuel : ' + item, self.add_item
+        return self._run_assisted(reason, action)
+
+    def manual_travel(self, number):
+        if (number not in self.paragraphs or number == self.current_paragraph
+                or self.character['endurance'] <= 0
+                or self.character.get('book_facts', {}).get('adventure_ended')):
+            return False
+        return self._run_assisted(f'Déplacement manuel du §{self.current_paragraph} au §{number}',
+                                  lambda: self.go_to(number))
+
+    def manual_history(self, redo):
+        if not (self.redo_stack if redo else self.undo_stack):
+            return False
+        return self._run_assisted('Rétablir une action' if redo else 'Annuler une action',
+                                  self.redo_action if redo else self.undo_action, allow_draft=True)
+
     def choose_paragraph(self):
         """Ouvrir la navigation manuelle depuis le menu Actions, avec les mêmes contrôles de route."""
         number, accepted = QInputDialog.getInt(self, 'Voyager', 'Numéro de paragraphe :',
                                               self.current_paragraph or 1, 1, self.goto_spin.maximum())
         if accepted:
-            self.go_to(number)
+            self.manual_travel(number)
 
     def roll_free_dice(self, notation):
         """Présenter tous les jets libres sur le même plateau animé."""
@@ -1247,6 +1372,8 @@ class MainWindow(QMainWindow, ModuleActions):
 
     def _prepare_adventurer(self):
         """Créer le premier tirage et son équipement de départ ; remettre les relances à zéro."""
+        self.adventure_tracking = new_tracking()
+        self._update_tracking_badge()
         self._creation_name = self.character.get('name', '')
         self._creation_rerolls = 0
         self._adventurer_draft = self._roll_adventurer()
@@ -1404,6 +1531,8 @@ class MainWindow(QMainWindow, ModuleActions):
             return
         self._discard_combat_popup()
         self._close_book_dialogs()
+        self.adventure_tracking = read_tracking(None)
+        self._update_tracking_badge()
         self.book_module = book_module
         self.pdf_path = path
         self.illustration_catalogue = illustrations
@@ -2204,7 +2333,8 @@ class MainWindow(QMainWindow, ModuleActions):
 
         Le chemin relatif permet de déplacer Bifurk ; le SHA-256 vérifie le livre au
         chargement. Ni texte narratif ni widgets ne sont inclus."""
-        return {"version": APP_VERSION, "pdf_path": (str(Path(self.pdf_path).relative_to(APP_DIR)) if self.pdf_path and within_directory(self.pdf_path, APP_DIR) else None),
+        return {"adventure_tracking": copy.deepcopy(self.adventure_tracking),
+                "version": APP_VERSION, "pdf_path": (str(Path(self.pdf_path).relative_to(APP_DIR)) if self.pdf_path and within_directory(self.pdf_path, APP_DIR) else None),
                 "saved_at": datetime.now().astimezone().isoformat(),
                 "save_name": self.character.get('name') or 'Aventurier sans nom',
                 "pdf_sha256": self._pdf_hash(),
@@ -2352,6 +2482,8 @@ class MainWindow(QMainWindow, ModuleActions):
             elif pdf_reference:
                 raise ValueError('Le grimoire de cette sauvegarde est introuvable dans donnees/grimoires.')
             self._restore(data)
+            self.adventure_tracking = read_tracking(data.get("adventure_tracking"))
+            self._update_tracking_badge()
             self.action_history = data['action_history']
             self.undo_stack = [(label, state) for label, state in data['undo_stack']]
             self.redo_stack = [(label, state) for label, state in data['redo_stack']]

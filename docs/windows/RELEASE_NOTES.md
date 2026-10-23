@@ -2,6 +2,11 @@
 
 ## Nouveautés depuis la 1.1.2
 
+- Suivi des parties avec badge et journal : les interventions manuelles et
+  Annuler/Rétablir demandent confirmation et laissent une marque « Partie assistée »
+  persistante dans les sauvegardes. Les sauvegardes antérieures au suivi portent
+  la mention « Historique non vérifié ».
+
 - Annonce sonore propre à chaque livre à l’affichage de sa couverture et au
   chargement réussi d’une sauvegarde ; fichiers fournis harmonisés pour le jeu.
 

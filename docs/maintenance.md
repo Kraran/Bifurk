@@ -269,3 +269,27 @@ Pour produire l'exécutable et son archive, suivre le
 
 Le découpage des règles communes et les points d’extension sont décrits dans
 [Socle Défis Fantastiques](socle-defis-fantastiques.md).
+
+
+## Suivi des interventions manuelles
+
+`adventure_tracking.py` valide le champ racine optionnel `adventure_tracking` des
+sauvegardes. Une sauvegarde sans ce champ reste lisible, avec le statut
+`unverified`. Le suivi est volontairement absent de `_snapshot()`, du personnage
+et des piles Undo/Redo : `_restore()` ne doit jamais rétablir une ancienne marque.
+Seul `load_game()` reprend le suivi du fichier sélectionné ; une sauvegarde
+antérieure à une intervention conserve donc son état propre.
+
+Les frontières UI `manual_set_stat`, `manual_inventory`, `manual_travel` et
+`manual_history` confirment avant mutation. Les éditions utilisateur des champs
+adverses sont aussi contrôlées. `_run_assisted()` marque et autosauvegarde seulement
+si l’état change effectivement. Ne pas déplacer ces confirmations dans les
+mutateurs utilisés par les règles : achats, pertes d’objets, combats et itinéraires
+normaux ne sont pas des interventions. Le suivi ne certifie pas les fichiers
+contre des modifications externes.
+
+Une nouvelle préparation explicite de héros initialise le suivi. Revalider un
+héros revenu à l’introduction par Undo conserve la marque. Le badge et son journal
+restent accessibles, y compris sur les fins d’aventure ; les emplacements de
+sauvegarde affichent le même statut. Les tests dédiés sont dans
+`tests/test_adventure_tracking.py`.

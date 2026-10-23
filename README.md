@@ -10,6 +10,14 @@ les soins et les outils ponctuels sont accessibles par **Soins** et **Actions…
 Le bouton **Quitter le jeu**, sous les sauvegardes, demande confirmation puis
 ferme les fenêtres et arrête l’audio. Sauvegardez votre progression avant de quitter.
 
+Un badge indique **Partie suivie**, **Partie assistée** ou **Historique non vérifié**.
+Les voyages manuels, éditions de valeurs ou d’inventaire et commandes Annuler /
+Rétablir demandent confirmation avant de marquer la partie comme assistée.
+La marque reste dans les sauvegardes et ne s’annule pas avec l’historique.
+Cliquer sur le badge affiche le journal ; les anciennes sauvegardes ont un
+historique non vérifié. Les choix du récit et les effets normaux restent neutres.
+Ce suivi ne protège pas contre la modification externe des fichiers de sauvegarde.
+
 [Captures et instructions de test](docs/design/grimoire.md).
 
 Le démarrage propose une nouvelle partie ou le chargement d’un des cinq emplacements.

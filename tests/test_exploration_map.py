@@ -86,7 +86,7 @@ class ExplorationMapTests(unittest.TestCase):
         self.assertEqual(self.w._snapshot(), before)
 
     def test_only_explicit_travel_calls_existing_navigation(self):
-        with patch.object(self.w, 'go_to') as go:
+        with patch.object(self.w, 'manual_travel', return_value=True) as go:
             self.dialog._select_link(QUrl('place:2'))
             self.dialog.select_place(99)
             self.dialog._select_link(QUrl('https://example.com'))

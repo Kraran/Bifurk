@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QWidget, QLabe
                                QDialogButtonBox, QMessageBox, QScrollArea, QSizePolicy,
                                QStyleOptionButton, QStyle)
 from dialog_chrome import DialogHeading
+from adventure_tracking import LABELS, read_tracking
 
 
 def read_save(path):
@@ -38,6 +39,7 @@ def read_save(path):
             raise ValueError('Caractéristiques invalides.')
     if not isinstance(data.get('book_title', ''), str):
         raise ValueError('Titre du grimoire invalide.')
+    read_tracking(data.get('adventure_tracking'))
     datetime.fromisoformat(data['saved_at'])
     return data
 
@@ -49,7 +51,11 @@ class SaveSlotButton(QPushButton):
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
 
     def minimumSizeHint(self):
-        return QSize(220, 82)
+        return QSize(220, max(82, self.fontMetrics().lineSpacing() *
+                              len(self.text().splitlines()) + 32))
+
+    def sizeHint(self):
+        return super().sizeHint().expandedTo(self.minimumSizeHint())
 
     def paintEvent(self, event):
         """Écourter uniquement le dessin ; text(), lecteur d'écran et infobulle restent complets."""
@@ -147,6 +153,7 @@ class SaveSlotsDialog(QDialog):
                     date = datetime.fromisoformat(data['saved_at'])
                     description = (
                         f'{data["save_name"]}  ·  {date:%d/%m/%Y à %H:%M}\n'
+                        f"{LABELS[read_tracking(data.get('adventure_tracking'))['status']]}\n"
                         f'Habileté {character["habilete"]}   ·   '
                         f'Endurance {character["endurance"]}   ·   Chance {character["chance"]}')
                     valid = True
@@ -158,7 +165,6 @@ class SaveSlotsDialog(QDialog):
             button.setObjectName(f'saveSlot{number}')
             button.setProperty('saveSlot', True)
             button.setToolTip((title + '\n' if title else '') + description)
-            button.setMinimumHeight(82)
             button.setEnabled(self.saving or valid)
             button.clicked.connect(lambda checked=False, p=path, occupied=exists:
                                    self.choose(p, self.saving and occupied))
@@ -174,6 +180,8 @@ class SaveSlotsDialog(QDialog):
             delete.clicked.connect(lambda checked=False, p=path: self.delete_save(p))
             row_layout.addWidget(delete)
             self.slots.addWidget(row)
+            button.ensurePolished()
+            button.setMinimumHeight(button.minimumSizeHint().height())
 
     def delete_save(self, path):
         """Demander confirmation, supprimer le fichier choisi puis rafraîchir sans fermer le menu."""

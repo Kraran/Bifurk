@@ -1938,7 +1938,7 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(self.w.book_module.engine, 'sorcier-1982')
         self.assertIsNone(self.w.current_paragraph)
 
-    def test_save_slots_identify_the_adventure_without_adding_text_rows(self):
+    def test_save_slots_identify_the_adventure_and_tracking(self):
         self.open()
         self.start()
         path = main.SAVES_DIR/'emplacement-1.json'
@@ -1947,7 +1947,11 @@ class ForetPresentationTests(unittest.TestCase):
         try:
             button = dialog.findChild(QPushButton, 'saveSlot1')
             self.assertIn('La Forêt de la Malédiction', button.text().splitlines()[0])
-            self.assertEqual(len(button.text().splitlines()), 3)
+            self.assertEqual(len(button.text().splitlines()), 4)
+            self.assertIn('Partie suivie', button.text())
+            dialog.show()
+            self.app.processEvents()
+            self.assertGreaterEqual(button.height(), 4 * button.fontMetrics().lineSpacing() + 32)
         finally:
             dialog.deleteLater()
 
@@ -2135,9 +2139,12 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(w.current_paragraph,47)
         self.assertEqual(w.character['chance'],before['character']['chance']-1)
         after = copy.deepcopy(w._snapshot())
-        QTest.mouseClick(w.undo_btn,Qt.LeftButton)
-        self.assertEqual(w._snapshot(),before)
-        QTest.mouseClick(w.redo_btn,Qt.LeftButton)
+        with patch.object(QMessageBox, 'question', return_value=QMessageBox.Yes) as confirm:
+            QTest.mouseClick(w.undo_btn,Qt.LeftButton)
+            self.assertEqual(w._snapshot(),before)
+            QTest.mouseClick(w.redo_btn,Qt.LeftButton)
+        self.assertEqual(confirm.call_count, 2)
+        self.assertEqual(w.adventure_tracking['status'], 'assisted')
         self.assertEqual(w._snapshot(),after)
 
 
