@@ -110,6 +110,10 @@ combat contre la Goule, avec rechargements et annulation de la remise.
 Voir [le contrôle des parcours](reviews/2026-10-23-foret-parcours-marteau.md).
 Cela ne valide pas encore toutes les branches ni la présentation Windows.
 
+Les branches alternatives des mécaniques intégrées sont également testées :
+fuites, épreuves, états de charges, essais répétés, maladies, nouvelle tentative
+de quête et transformations. Voir [le contrôle des branches alternatives](reviews/2026-10-23-foret-branches-alternatives.md).
+
 - **Rencontres** : vérifier les contournements de combats et les conséquences
   des issues dans des parcours complets. Les profils chiffrés du catalogue
   sont raccordés, avec le mode successif confirmé pour les §§29/317.
