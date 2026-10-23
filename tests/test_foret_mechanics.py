@@ -445,6 +445,7 @@ class ForetMechanicsTests(unittest.TestCase):
             for total in range(2,13):
                 with self.subTest(number=number,total=total):
                     c = hero()
+                    if number == 158:r.buy(c,'Bandeau de Concentration')
                     target = r.resolve_branch_test(c,number,total)
                     passed = total <= 8
                     self.assertEqual(target,success if passed else failure)
@@ -896,3 +897,107 @@ class ForetMechanicsTests(unittest.TestCase):
         self.assertEqual([(item['name'],item['gold_price']) for item in data['shop_analysis']['items']], list(r.SHOP))
         self.assertEqual(data['mechanics_implementation']['combat_paragraphs'],sorted(COMBATS))
         self.assertEqual(data['mechanics_implementation']['entry_effect_paragraphs'],sorted(r.ENTRY_RULES))
+
+
+    def test_witch_chair_is_atomic_and_cannot_repeat_after_reloading_state(self):
+        for total,target in ((2,47),(12,353)):
+            c = hero()
+            before = deepcopy(c)
+            with self.assertRaises(ValueError):r.resolve_branch_test(c,158,total)
+            self.assertEqual(c,before)
+            r.buy(c,'Bandeau de Concentration')
+            before = deepcopy(c)
+            with self.assertRaises(ValueError):r.resolve_branch_test(c,158,13)
+            self.assertEqual(c,before)
+            self.assertEqual(r.resolve_branch_test(c,158,total),target)
+            self.assertEqual(c['chance'],7)
+            self.assertEqual(r.available(c,'Bandeau de Concentration'),0)
+            restored = json.loads(json.dumps(c))
+            self.assertEqual(r.resolve_branch_test(restored,158,14-total),target)
+            self.assertEqual(restored,c)
+
+    def test_new_loot_is_unique_and_crown_is_not_worn(self):
+        for number,name in ((146,'Morceau de pierre de la Bête Rocheuse'),(152,'Couronne du Démon de Feu')):
+            c = hero()
+            r.resolve_entry(c,number)
+            self.assertIn(name,c['inventory'])
+            self.assertNotIn(name,r.peek(c).get('worn',[]))
+            r.pay(c,items=[name])
+            self.assertFalse(r.resolve_entry(c,number))
+            self.assertNotIn(name,c['inventory'])
+            self.assertEqual((c['gold'],c['habilete'],c['chance']),(30,8,8))
+
+    def test_ingot_exchange_removes_one_item_and_its_bonus_without_minting_coins(self):
+        c = hero(inventory=[r.ENCHANTED_SWORD,'Bijou'],equipped_weapon=r.ENCHANTED_SWORD)
+        self.assertTrue(r.take_gold_ingot(c,r.ENCHANTED_SWORD))
+        self.assertEqual(c['inventory'],['Bijou',r.GOLD_INGOT])
+        self.assertEqual(c['gold'],30)
+        self.assertEqual(r.effective_skill(c),8)
+        r.pay(c,items=[r.GOLD_INGOT])
+        self.assertFalse(r.take_gold_ingot(c,'Bijou'))
+        self.assertEqual(c['inventory'],['Bijou'])
+        c = hero(inventory=['Bijou','Bijou'])
+        r.take_gold_ingot(c,'Bijou')
+        self.assertEqual(c['inventory'].count('Bijou'),1)
+
+    def test_ingot_exchange_invalid_or_locked_choice_is_atomic(self):
+        for items,locked,choice in (([],[],'Absent'),(['Bijou'],['Bijou'],'Bijou'),
+                                    (['Anneau de Lenteur'],[],'Anneau de Lenteur')):
+            c = hero(inventory=items,locked_items=locked)
+            before = deepcopy(c)
+            with self.assertRaises(ValueError):r.take_gold_ingot(c,choice)
+            self.assertEqual(c,before)
+
+    def test_complementary_bell_and_already_tried_equipment_routes(self):
+        c = hero()
+        self.assertTrue(r.route_available(c,191,243))
+        c['inventory'].append(r.BELL)
+        self.assertTrue(r.route_available(c,191,184))
+        self.assertFalse(r.route_available(c,191,243))
+        c['inventory'].remove(r.BELL)
+        self.assertFalse(r.route_available(c,191,184))
+        for first,second in ((133,374),(374,133)):
+            c = hero()
+            r.resolve_entry(c,first)
+            self.assertTrue(r.route_available(c,first,second))
+            r.resolve_entry(c,second)
+            c['inventory'].clear()
+            self.assertFalse(r.route_available(c,second,first))
+            self.assertFalse(r.route_available(c,first,second))
+            self.assertTrue(r.route_available(c,second,360))
+
+    def test_emergency_exits_apply_only_when_normal_cost_is_impossible(self):
+        for number,target in ((12,67),(14,255),(218,274),(178,298),(328,118),(358,218),(370,231)):
+            with self.subTest(number=number):
+                c = hero(gold=0,provisions=0)
+                before = deepcopy(c)
+                self.assertEqual(r.emergency_target(c,number),target)
+                self.assertEqual(c,before)
+                self.assertEqual(r.use_emergency_exit(c,number),target)
+                for key in ('gold','inventory','endurance','chance','provisions'):
+                    self.assertEqual(c[key],before[key])
+                self.assertEqual(r.peek(c)['emergency_exits'][str(number)],target)
+        for number in (12,14,218,178,328,358,370):
+            c = hero(inventory=['Épée'],equipped_weapon='Épée')
+            before = deepcopy(c)
+            self.assertIsNone(r.emergency_target(c,number))
+            with self.assertRaises(ValueError):r.use_emergency_exit(c,number)
+            self.assertEqual(c,before)
+
+    def test_emergency_rescue_restores_only_the_actual_dropped_sword(self):
+        c = hero(gold=0,inventory=[r.ENCHANTED_SWORD],equipped_weapon=r.ENCHANTED_SWORD)
+        self.assertEqual(r.resolve_snare(c,12),218)
+        self.assertEqual(r.use_emergency_exit(c,218),274)
+        self.assertEqual(c['inventory'],[r.ENCHANTED_SWORD])
+        self.assertEqual(c['equipped_weapon'],r.ENCHANTED_SWORD)
+        self.assertFalse(r.payment_resolved(c,218))
+
+    def test_forest_text_links_recognize_future_and_adverb_without_bare_numbers(self):
+        from navigation import destinations,render_links
+        for text,expected in (('Rendez-vous ensuite au 260.',[260]),
+                ('vous vous rendrez au 354. Vous vous rendrez alors au 129.',[354,129]),
+                ('vous vous rendrez au 8.',[8]),('Une somme de 28 Or, puis 129 marches.',[]),
+                ('Vous vous rendrez alors au 1234.',[])):
+            self.assertEqual([n for _,_,n in destinations(text)],expected)
+            html = render_links(text,set(expected))
+            for number in expected:self.assertIn('paragraph:'+str(number),html)

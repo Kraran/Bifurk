@@ -171,26 +171,25 @@ Sorcier :
   Le bouclier n’intervient ni sur le fouet, ni sur la fuite, ni sur les pièges.
 - **Fuite de la plate-forme** : blessure de fuite réglementaire, puis perte de trois
   points au §156 si le joueur a survécu. Un chargement n’applique pas de nouvelle chute.
-- **Chaise sans provisions** : cas non décrit ; le bouton ne résout pas une prise
-  de repas imaginaire. L’erreur est expliquée sans changer les caractéristiques.
+- **Chaise sans provisions** : le repas reste refusé ; la sortie de secours
+  autorisée mène au §118 sans repas, soin ni blessure de repas.
 - **Champignons Brouilleurs** : seuls les scores courants sont échangés. Les soins
   ultérieurs utilisent les plafonds initiaux conservés.
 - **Lanterne après l’échec (§370)** : la source ne précise pas son abandon.
   Elle reste dans le sac, sauf si le joueur la choisit comme objet perdu. Le cas
-  sans objet susceptible d’être retiré n’est pas décrit : la commande explique
-  ce blocage et laisse le passage non résolu, sans inventer de paiement de remplacement.
+  sans objet susceptible d’être retiré dispose d’une sortie de secours vers 231,
+  sans perte ni blessure supplémentaire.
   L’Anneau de Lenteur et les objets verrouillés ne peuvent pas être choisis.
 - **Objets précieux du Gnome (§12)** : aucun inventaire fermé ni seuil de valeur
   n’est défini par la source. Le joueur choisit explicitement les deux objets
   qu’il accepte de donner comme précieux ; le moteur vérifie les exemplaires
   présents et refuse les objets verrouillés. Il ne convertit pas les bijoux en
-  monnaie. Sans paiement valide, les sorties restent bloquées ; aucune issue
-  gratuite n’est ajoutée au cas d’insolvabilité non décrit.
-- **Piège sans arme ou sans paiement** : le cas sans épée disponible au §358
-  est expliqué sans dépenser de Chance ni inventer une libération. Au §218,
-  un paiement invalide laisse l’épée au sol ; aucune dette ni blessure de
-  remplacement n’est ajoutée. Consulter ce passage sans arme tombée ne crée
-  pas d’épée lors d’un paiement.
+  monnaie. Si les deux moyens sont impossibles, la sortie de secours mène au §67,
+  sans récupérer l’épée transformée.
+- **Piège sans arme ou sans paiement** : sans épée au §358, la sortie de secours
+  mène au §218 sans test de Chance. Sans moyen de paiement au §218, le secours
+  restitue seulement l’arme réellement tombée et mène au §274, sans dette ni
+  blessure ajoutée. Un paiement invalide reste refusé sans mutation.
 - **Habileté et épée enchantée** : l’Habileté de base et son total initial sont
   conservés séparément du bonus calculé. La feuille et le combat affichent la
   valeur effective (par exemple 10 pour une base de 8). Les potions et le vœu
@@ -219,11 +218,12 @@ existant : le Sorcier conserve son moteur et ses règles.
 
 ## Périmètre restant
 
-`mechanics_implementation` dans le catalogue énumère les passages raccordés ;
-`automation_pending` conserve la liste des passages qui n’ont pas encore une
-intégration complète. Les autres effets ordinaires et rencontres restent à relier,
-ainsi que les illustrations. Le §70 utilise désormais la règle de bonus confirmée
-par l’utilisateur, sans modifier les règles de l’épée magique du Sorcier.
+`mechanics_implementation` et la revue des 400 paragraphes concordent sur les
+222 passages avec un point d’entrée. `automation_pending` conserve les passages
+à valider globalement : ce registre documentaire n’active aucune automatisation
+à lui seul. Les illustrations sont raccordées. La présentation Windows et les
+parcours en partie réelle restent à contrôler. Le §70 utilise la règle de bonus
+confirmée par l’utilisateur, indépendante des règles du Sorcier.
 Les §§29/317 utilisent le mode successif confirmé par l’utilisateur le 23 octobre 2026.
 Les corrections fournies par l’utilisateur le 22 octobre 2026 lèvent les deux
 blocages de source : §186 complété par Anguille Carnivore H5/E4 et victoire au
@@ -243,3 +243,34 @@ achats possibles dans la limite des 30 pièces. Pour vérifier une mécanique is
 en mode préparation, le menu Actions permet de consulter son paragraphe (par
 exemple 377 pour les Pygmées ou 84 pour le délai de fuite). Cela constitue un test
 de moteur, pas une partie complète validée. Aucun PDF ni illustration n’est livré.
+
+## Correctifs de l’audit et exceptions de projet (23 octobre 2026)
+
+Le §158 combine en une action le Bandeau, 2d6 de Chance et sa dépense d’un point ;
+47 en réussite, 353 en échec. L’issue est persistante. Les prises uniques ajoutées
+sont le morceau de pierre facultatif au §146, la couronne non portée au §152 et
+le lingot facultatif au §242, de valeur 28 Or contre un objet choisi abandonné.
+Ce dernier n’ajoute pas 28 pièces. Un choix annulé ou invalide ne modifie rien.
+
+L’examen du tonneau est distinct de la prise du bouclier. Le coffre détruit ne
+peut plus être ouvert ; le tonneau déjà examiné n’est plus reproposé après le
+coffre. Les deux essais anneau/gantelet ne se répètent pas. Au §191, seul le
+renvoi correspondant à la présence ou à l’absence de la clochette est permis.
+
+L’utilisateur a choisi des sorties de secours adaptées aux situations que le
+livre ne décrit pas. Ces exceptions sont proposées par une commande explicite,
+uniquement si l’action normale est impossible ; elles sont enregistrées dans
+la sauvegarde et annulables. Elles ne prétendent pas reproduire une règle imprimée.
+
+| Passage et situation | Sortie de secours |
+| --- | --- |
+| 12, ni 10 Or ni deux objets retirables | 67, repartir sans récupérer l’épée transformée |
+| 14, ni 3 Or ni objet magique retirable | 255, secours sans paiement ni dette |
+| 218, ni 5 Or ni objet magique retirable | 274, secours et restitution de l’épée réellement tombée |
+| 178, aucune ration pour le sel | 298, continuer sans coût ni blessure ajoutée |
+| 328, aucune ration à manger | 118, quitter sans repas, soin ou blessure de repas |
+| 358, aucune épée utilisable | 218, attendre le secours sans test de Chance |
+| 370, aucun objet retirable | 231, sans perte supplémentaire |
+
+La récupération physique de la corde attachée reste non précisée par le texte.
+Son unique charge est consommée au §94, jamais renouvelée par les §§136/164.

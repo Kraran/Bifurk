@@ -14,7 +14,9 @@
         158
       ],
       "observation": "Le bouton consomme le Bandeau mais ne lance aucun dé, ne dépense aucune Chance et laisse les routes 47 et 353 ouvertes ensemble. Reproduction Qt : 0 jet, 0 Chance dépensée après le bouton d’entrée. Le PDF demande Tenter sa Chance.",
-      "next_step": "Raccorder un test unique, son coût et sa destination, atomiquement avec l’usage du Bandeau ; tester les deux issues et la sauvegarde."
+      "next_step": "Raccorder un test unique, son coût et sa destination, atomiquement avec l’usage du Bandeau ; tester les deux issues et la sauvegarde.",
+      "status": "corrige",
+      "resolution": "Usage du Bandeau et test de Chance atomiques, issue unique persistante ; réussite, échec, sauvegarde et annulation testés."
     },
     {
       "id": "F02",
@@ -27,7 +29,9 @@
         242
       ],
       "observation": "Aucun bouton de prise n’est proposé : morceau de pierre facultatif (§146), couronne récupérée sans la porter (§152), lingot de valeur 28 Or contre abandon d’un objet (§242). Le PDF confirme les trois prises ; le lecteur conserve actuellement l’inventaire inchangé.",
-      "next_step": "Ajouter les prises uniques, séparer possession et port de la couronne, et rendre le troc du lingot facultatif et atomique sans créditer 28 pièces."
+      "next_step": "Ajouter les prises uniques, séparer possession et port de la couronne, et rendre le troc du lingot facultatif et atomique sans créditer 28 pièces.",
+      "status": "corrige",
+      "resolution": "Pierre facultative, couronne recueillie sans port, lingot facultatif contre un objet retirable ; aucun crédit de 28 pièces."
     },
     {
       "id": "F03",
@@ -42,7 +46,9 @@
         389
       ],
       "observation": "Les routes 201/248 → 389 restent ouvertes après destruction du coffre. La route 389 → 215 reste ouverte après examen du tonneau. Les gains de 389 et 248 sont déjà uniques : le défaut porte sur les choix et l’état d’examen, pas sur une duplication d’or démontrée.",
-      "next_step": "Conserver l’examen et l’ouverture séparément de la prise du bouclier, puis filtrer les routes conditionnelles. Tester tous les ordres et le refus du bouclier."
+      "next_step": "Conserver l’examen et l’ouverture séparément de la prise du bouclier, puis filtrer les routes conditionnelles. Tester tous les ordres et le refus du bouclier.",
+      "status": "corrige",
+      "resolution": "Examen du tonneau indépendant de la prise du bouclier, coffre ouvert identifié par son effet unique ; routes filtrées dans les deux ordres."
     },
     {
       "id": "F04",
@@ -54,7 +60,9 @@
         374
       ],
       "observation": "Après les deux essais, les routes 133 → 374 et 374 → 133 restent proposées. Le PDF réserve ces choix à un objet non encore essayé. Les objets et bonus ne sont pas réattribués grâce aux marqueurs d’entrée existants.",
-      "next_step": "Masquer chaque essai déjà effectué sans bloquer le départ vers 360 ; conserver l’interdiction après sauvegarde et annulation."
+      "next_step": "Masquer chaque essai déjà effectué sans bloquer le départ vers 360 ; conserver l’interdiction après sauvegarde et annulation.",
+      "status": "corrige",
+      "resolution": "Marqueurs d’essai persistants : renvois déjà utilisés fermés, indépendamment de la possession ultérieure."
     },
     {
       "id": "F05",
@@ -65,7 +73,9 @@
         191
       ],
       "observation": "Avec la clochette dans le sac, le lecteur autorise à la fois 184 et 243. Le PDF distingue explicitement si oui / sinon. Seule la condition de la route vers 184 est implémentée.",
-      "next_step": "Rendre les deux branches complémentaires, avec tests de présence, absence et retrait de la clochette."
+      "next_step": "Rendre les deux branches complémentaires, avec tests de présence, absence et retrait de la clochette.",
+      "status": "corrige",
+      "resolution": "Présence et absence de la clochette donnent des routes complémentaires."
     },
     {
       "id": "F06",
@@ -78,7 +88,9 @@
         343
       ],
       "observation": "Après extraction et réparations de l’édition, le parseur ne reconnaît pas 251 → 260, 266 → 129/354 et 343 → 8. Les formulations avec ensuite et vous vous rendrez ne sont pas reconnues. Les destinations du catalogue et les commandes/cartes correspondantes sont présentes.",
-      "next_step": "Compléter le parseur de renvois avec des exemples ciblés et vérifier les faux positifs ; les 641 destinations du catalogue ne sont pas à reconstruire."
+      "next_step": "Compléter le parseur de renvois avec des exemples ciblés et vérifier les faux positifs ; les 641 destinations du catalogue ne sont pas à reconstruire.",
+      "status": "corrige",
+      "resolution": "Reconnaissance de ensuite et vous vous rendrez ; comparaison des 400 textes avec les 641 renvois du catalogue."
     },
     {
       "id": "F07",
@@ -95,7 +107,9 @@
         370
       ],
       "observation": "Absence de moyen de paiement (12/14/218), absence de ration (178/328), absence d’arme (358) ou absence d’objet retirable (370). Le moteur refuse l’action sans dépense partielle. Les analyses et le PDF ne donnent pas toutes une issue explicite.",
-      "next_step": "Présenter ces cas à l’utilisateur lors du point consacré aux décisions de règles ; ne pas les résoudre silencieusement dans cet audit."
+      "next_step": "Présenter ces cas à l’utilisateur lors du point consacré aux décisions de règles ; ne pas les résoudre silencieusement dans cet audit.",
+      "status": "corrige",
+      "resolution": "Décision utilisateur du 23/10/2026 : sorties de secours adaptées. Exceptions explicites et séparées du texte source, sans dette ni blessure ajoutée."
     },
     {
       "id": "F08",
@@ -114,7 +128,9 @@
         400
       ],
       "observation": "Certaines analyses parlent encore de règles à préciser déjà décidées ou mises en œuvre : épée, bouclier, échange H/Chance, fuite et chute, correction 186 et retrait du colophon. Le devenir physique de la corde attachée et sa récupération restent peu explicites ; l’usage magique unique est déjà appliqué. Le registre omet des conditions d’objets, deux conditions explicites et la chute automatique.",
-      "next_step": "Actualiser les analyses sans les rendre exécutables en bloc, distinguer choix documentés et incertitudes de source, et réconcilier le registre avec l’inventaire réel."
+      "next_step": "Actualiser les analyses sans les rendre exécutables en bloc, distinguer choix documentés et incertitudes de source, et réconcilier le registre avec l’inventaire réel.",
+      "status": "documente",
+      "resolution": "Analyses et registre harmonisés. Le devenir physique de la corde reste non précisé par la source ; son usage magique unique n’est jamais renouvelé."
     }
   ],
   "paragraphs": {
@@ -207,11 +223,11 @@
     },
     "12": {
       "source_page_pdf": 22,
-      "status": "decision_source",
+      "status": "couvert",
       "runtime": [
         "paiement"
       ],
-      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Récupérer l'épée contre 10 Or OU deux objets précieux choisis; pas les deux. Cas d'insolvabilité non décrit, à traiter sans inventer de paiement.",
+      "reason": "Décision utilisateur du 23/10/2026 : sorties de secours adaptées. Exceptions explicites et séparées du texte source, sans dette ni blessure ajoutée.",
       "findings": [
         "F07"
       ]
@@ -227,11 +243,11 @@
     },
     "14": {
       "source_page_pdf": 23,
-      "status": "decision_source",
+      "status": "couvert",
       "runtime": [
         "paiement"
       ],
-      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Payer 3 Or OU, à défaut d'or, un objet magique choisi; retirer le paiement. Absence des deux moyens non décrite.",
+      "reason": "Décision utilisateur du 23/10/2026 : sorties de secours adaptées. Exceptions explicites et séparées du texte source, sans dette ni blessure ajoutée.",
       "findings": [
         "F07"
       ]
@@ -689,7 +705,7 @@
       "runtime": [
         "effet"
       ],
-      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Ajouter et équiper l'épée enchantée; Habileté +2. Articulation au plafond initial et à la perte de l'épée à spécifier avec les règles générales, sans appliquer les mécanismes du Sorcier implicitement.",
+      "reason": "Analyses et registre harmonisés. Le devenir physique de la corde reste non précisé par la source ; son usage magique unique n’est jamais renouvelé.",
       "findings": [
         "F08"
       ]
@@ -887,7 +903,7 @@
       "runtime": [
         "effet"
       ],
-      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Corde attachée au tronc pour la descente; suivre son état/récupération au retour, pas de destruction annoncée ici.",
+      "reason": "Analyses et registre harmonisés. Le devenir physique de la corde reste non précisé par la source ; son usage magique unique n’est jamais renouvelé.",
       "findings": [
         "F08"
       ]
@@ -1204,11 +1220,12 @@
     },
     "133": {
       "source_page_pdf": 67,
-      "status": "partiel",
+      "status": "couvert",
       "runtime": [
+        "condition",
         "effet"
       ],
-      "reason": "Objet unique raccordé ; essai du gantelet déjà effectué encore proposé.",
+      "reason": "Marqueurs d’essai persistants : renvois déjà utilisés fermés, indépendamment de la possession ultérieure.",
       "findings": [
         "F04"
       ]
@@ -1233,7 +1250,7 @@
       "source_page_pdf": 67,
       "status": "narratif",
       "runtime": [],
-      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Descente par Corde Magique; plafond bas, pas de malus chiffré permanent ici.",
+      "reason": "Analyses et registre harmonisés. Le devenir physique de la corde reste non précisé par la source ; son usage magique unique n’est jamais renouvelé.",
       "findings": [
         "F08"
       ]
@@ -1313,9 +1330,11 @@
     },
     "146": {
       "source_page_pdf": 72,
-      "status": "manquant",
-      "runtime": [],
-      "reason": "Prise facultative du morceau de pierre absente.",
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Pierre facultative, couronne recueillie sans port, lingot facultatif contre un objet retirable ; aucun crédit de 28 pièces.",
       "findings": [
         "F02"
       ]
@@ -1357,9 +1376,11 @@
     },
     "152": {
       "source_page_pdf": 73,
-      "status": "manquant",
-      "runtime": [],
-      "reason": "Acquisition de la couronne absente ; transformation séparée déjà raccordée.",
+      "status": "couvert",
+      "runtime": [
+        "effet"
+      ],
+      "reason": "Pierre facultative, couronne recueillie sans port, lingot facultatif contre un objet retirable ; aucun crédit de 28 pièces.",
       "findings": [
         "F02"
       ]
@@ -1409,11 +1430,11 @@
     },
     "158": {
       "source_page_pdf": 75,
-      "status": "partiel",
+      "status": "couvert",
       "runtime": [
-        "effet"
+        "epreuve"
       ],
-      "reason": "Usage du Bandeau raccordé, mais test de Chance et branchement manquants.",
+      "reason": "Usage du Bandeau et test de Chance atomiques, issue unique persistante ; réussite, échec, sauvegarde et annulation testés.",
       "findings": [
         "F01"
       ]
@@ -1463,7 +1484,7 @@
       "source_page_pdf": 78,
       "status": "narratif",
       "runtime": [],
-      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Sortie de la champignonnière; récupération de la Corde Magique non précisée.",
+      "reason": "Analyses et registre harmonisés. Le devenir physique de la corde reste non précisé par la source ; son usage magique unique n’est jamais renouvelé.",
       "findings": [
         "F08"
       ]
@@ -1580,11 +1601,11 @@
     },
     "178": {
       "source_page_pdf": 83,
-      "status": "decision_source",
+      "status": "couvert",
       "runtime": [
         "commande"
       ],
-      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Provisions -1 pour le sel; pas de blessure d'Endurance chiffrée. Prévoir le cas où le héros n'a plus de provisions sans valeur négative.",
+      "reason": "Décision utilisateur du 23/10/2026 : sorties de secours adaptées. Exceptions explicites et séparées du texte source, sans dette ni blessure ajoutée.",
       "findings": [
         "F07"
       ]
@@ -1687,11 +1708,11 @@
     },
     "191": {
       "source_page_pdf": 88,
-      "status": "partiel",
+      "status": "couvert",
       "runtime": [
         "condition"
       ],
-      "reason": "Condition positive présente, condition négative non filtrée.",
+      "reason": "Présence et absence de la clochette donnent des routes complémentaires.",
       "findings": [
         "F05"
       ]
@@ -1776,9 +1797,11 @@
     },
     "201": {
       "source_page_pdf": 92,
-      "status": "partiel",
-      "runtime": [],
-      "reason": "Condition de coffre déjà ouvert non filtrée.",
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Examen du tonneau indépendant de la prise du bouclier, coffre ouvert identifié par son effet unique ; routes filtrées dans les deux ordres.",
       "findings": [
         "F03"
       ]
@@ -1891,9 +1914,11 @@
     },
     "215": {
       "source_page_pdf": 97,
-      "status": "partiel",
-      "runtime": [],
-      "reason": "Examen du tonneau non conservé séparément du choix de prise.",
+      "status": "couvert",
+      "runtime": [
+        "automatique"
+      ],
+      "reason": "Examen du tonneau indépendant de la prise du bouclier, coffre ouvert identifié par son effet unique ; routes filtrées dans les deux ordres.",
       "findings": [
         "F03"
       ]
@@ -1916,11 +1941,11 @@
     },
     "218": {
       "source_page_pdf": 97,
-      "status": "decision_source",
+      "status": "couvert",
       "runtime": [
         "paiement"
       ],
-      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Payer 5 Or OU un objet magique; récupérer l'épée et couper le lien. Pas de dégât de chute chiffré. Manque des deux moyens non décrit.",
+      "reason": "Décision utilisateur du 23/10/2026 : sorties de secours adaptées. Exceptions explicites et séparées du texte source, sans dette ni blessure ajoutée.",
       "findings": [
         "F07"
       ]
@@ -2114,9 +2139,11 @@
     },
     "242": {
       "source_page_pdf": 105,
-      "status": "manquant",
-      "runtime": [],
-      "reason": "Prise facultative et échange d’un objet contre le lingot absents.",
+      "status": "couvert",
+      "runtime": [
+        "commande"
+      ],
+      "reason": "Pierre facultative, couronne recueillie sans port, lingot facultatif contre un objet retirable ; aucun crédit de 28 pièces.",
       "findings": [
         "F02"
       ]
@@ -2163,11 +2190,12 @@
     },
     "248": {
       "source_page_pdf": 106,
-      "status": "partiel",
+      "status": "couvert",
       "runtime": [
+        "condition",
         "effet"
       ],
-      "reason": "Gain et protection raccordés ; coffre déjà ouvert encore proposé.",
+      "reason": "Examen du tonneau indépendant de la prise du bouclier, coffre ouvert identifié par son effet unique ; routes filtrées dans les deux ordres. Analyses et registre harmonisés. Le devenir physique de la corde reste non précisé par la source ; son usage magique unique n’est jamais renouvelé.",
       "findings": [
         "F03",
         "F08"
@@ -2195,7 +2223,7 @@
       "runtime": [
         "epreuve"
       ],
-      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Épreuve d'Habileté 2d6, pas de coût de Chance; échec Endurance -4.",
+      "reason": "Reconnaissance de ensuite et vous vous rendrez ; comparaison des 400 textes avec les 641 renvois du catalogue.",
       "findings": [
         "F06"
       ]
@@ -2319,7 +2347,7 @@
       "runtime": [
         "commande"
       ],
-      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Choisir mise : un objet OU 10 Or. Jusqu'à TROIS jets successifs de 2d6 ≤ Habileté, arrêt au premier échec. Pas de coût de Chance. Retirer la mise seulement si perte, sans la compter deux fois au §129.",
+      "reason": "Reconnaissance de ensuite et vous vous rendrez ; comparaison des 400 textes avec les 641 renvois du catalogue.",
       "findings": [
         "F06"
       ]
@@ -2536,9 +2564,11 @@
     },
     "293": {
       "source_page_pdf": 126,
-      "status": "partiel",
-      "runtime": [],
-      "reason": "Choix initiaux présents ; historique commun coffre/tonneau incomplet.",
+      "status": "couvert",
+      "runtime": [
+        "condition"
+      ],
+      "reason": "Examen du tonneau indépendant de la prise du bouclier, coffre ouvert identifié par son effet unique ; routes filtrées dans les deux ordres.",
       "findings": [
         "F03"
       ]
@@ -2665,7 +2695,7 @@
       "runtime": [
         "commande"
       ],
-      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Intervertir les valeurs courantes Habileté et Chance. Le texte ne demande pas d'échanger les plafonds initiaux; interaction avec les plafonds/potions à trancher explicitement.",
+      "reason": "Analyses et registre harmonisés. Le devenir physique de la corde reste non précisé par la source ; son usage magique unique n’est jamais renouvelé.",
       "findings": [
         "F08"
       ]
@@ -2822,11 +2852,11 @@
     },
     "328": {
       "source_page_pdf": 139,
-      "status": "decision_source",
+      "status": "couvert",
       "runtime": [
         "commande"
       ],
-      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Endurance -4 AU LIEU de la restauration du repas; ne pas annuler avec +4 E. Nourriture consommée implique une ration, mais le cas sans provisions doit être explicité, pas inventé.",
+      "reason": "Décision utilisateur du 23/10/2026 : sorties de secours adaptées. Exceptions explicites et séparées du texte source, sans dette ni blessure ajoutée.",
       "findings": [
         "F07"
       ]
@@ -2947,7 +2977,7 @@
       "runtime": [
         "paiement"
       ],
-      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Or -1 pour l'information; les 30 Or cités sont le besoin du corbeau, PAS un gain/coût du héros.",
+      "reason": "Reconnaissance de ensuite et vous vous rendrez ; comparaison des 400 textes avec les 641 renvois du catalogue.",
       "findings": [
         "F06"
       ]
@@ -3022,7 +3052,7 @@
       "runtime": [
         "combat"
       ],
-      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Combat : Homme-Singe [8/7]; Force d'Attaque du héros -2 à chaque assaut. La fuite en combat renvoie à la chute du §156 (-3 Endurance), à distinguer du saut avant combat au §195; politique de cumul de blessure de fuite à expliciter.",
+      "reason": "Analyses et registre harmonisés. Le devenir physique de la corde reste non précisé par la source ; son usage magique unique n’est jamais renouvelé.",
       "findings": [
         "F08"
       ]
@@ -3071,11 +3101,11 @@
     },
     "358": {
       "source_page_pdf": 152,
-      "status": "decision_source",
+      "status": "couvert",
       "runtime": [
         "commande"
       ],
-      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Épreuve de Chance 2d6, coût 1 Chance; en échec l'épée tombe et devient temporairement inaccessible, pas détruite.",
+      "reason": "Décision utilisateur du 23/10/2026 : sorties de secours adaptées. Exceptions explicites et séparées du texte source, sans dette ni blessure ajoutée.",
       "findings": [
         "F07"
       ]
@@ -3167,11 +3197,11 @@
     },
     "370": {
       "source_page_pdf": 156,
-      "status": "decision_source",
+      "status": "couvert",
       "runtime": [
         "commande"
       ],
-      "reason": "Action présente ; cas sans ressource laissé explicitement non résolu.Perdre UN objet choisi du sac, en plus des -3 Endurance déjà appliqués au §395. Cas du sac vide non décrit.",
+      "reason": "Décision utilisateur du 23/10/2026 : sorties de secours adaptées. Exceptions explicites et séparées du texte source, sans dette ni blessure ajoutée.",
       "findings": [
         "F07"
       ]
@@ -3204,11 +3234,12 @@
     },
     "374": {
       "source_page_pdf": 157,
-      "status": "partiel",
+      "status": "couvert",
       "runtime": [
+        "condition",
         "effet"
       ],
-      "reason": "Objet unique raccordé ; essai de l’anneau déjà effectué encore proposé.",
+      "reason": "Marqueurs d’essai persistants : renvois déjà utilisés fermés, indépendamment de la possession ultérieure.",
       "findings": [
         "F04"
       ]
@@ -3324,11 +3355,12 @@
     },
     "389": {
       "source_page_pdf": 163,
-      "status": "partiel",
+      "status": "couvert",
       "runtime": [
+        "condition",
         "effet"
       ],
-      "reason": "Gain unique raccordé ; tonneau déjà examiné encore proposé.",
+      "reason": "Examen du tonneau indépendant de la prise du bouclier, coffre ouvert identifié par son effet unique ; routes filtrées dans les deux ordres.",
       "findings": [
         "F03"
       ]
@@ -3367,7 +3399,7 @@
       "source_page_pdf": 164,
       "status": "narratif",
       "runtime": [],
-      "reason": "Pas d’action propre supplémentaire selon l’analyse relue : Le second choix aboutit au paragraphe source incomplet §186; conserver ce lien mais signaler le blocage de l'édition.",
+      "reason": "Analyses et registre harmonisés. Le devenir physique de la corde reste non précisé par la source ; son usage magique unique n’est jamais renouvelé.",
       "findings": [
         "F08"
       ]
@@ -3417,7 +3449,7 @@
       "runtime": [
         "automatique"
       ],
-      "reason": "Points d’entrée identifiés pour les règles de l’analyse : Victoire finale après remise des DEUX parties gravées G; retirer les parties remises et marquer quête terminée. Casque ailé en or, boîte de gemmes et bijoux comme récompenses narratives; montants non chiffrés, ne pas inventer un solde. Le texte extrait contient un colophon d'imprimerie à écarter du récit.",
+      "reason": "Analyses et registre harmonisés. Le devenir physique de la corde reste non précisé par la source ; son usage magique unique n’est jamais renouvelé.",
       "findings": [
         "F08"
       ]

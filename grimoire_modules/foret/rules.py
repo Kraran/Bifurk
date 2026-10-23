@@ -85,7 +85,7 @@ def take_goblin_loot(character, *, gold=0, items=()):
 GAS_PARAGRAPHS = {22,169,222}
 # Statistique, réussite, échec, blessure immédiate de l’échec.
 BRANCH_TESTS = {57:('chance',132,35,0),81:('chance',49,4,0),
-                90:('chance',210,348,3),229:('chance',165,45,0),
+                90:('chance',210,348,3),158:('chance',47,353,0),229:('chance',165,45,0),
                 251:('habilete',63,260,4),256:('chance',122,295,0),
                 376:('chance',74,310,0)}
 
@@ -96,6 +96,17 @@ def resolve_branch_test(character, paragraph, total):
     dice(total)
     if paragraph not in BRANCH_TESTS:
         raise ValueError('Épreuve non intégrée.')
+    if paragraph == 158:
+        previous = peek(character).get('witch_chair_target')
+        if previous is not None:
+            return previous
+        working = deepcopy(character)
+        consume(working,'Bandeau de Concentration')
+        target = 47 if spend_luck(working,total) else 353
+        state(working)['witch_chair_target'] = target
+        character.clear()
+        character.update(working)
+        return target
     stat, success, failure, damage = BRANCH_TESTS[paragraph]
     passed = spend_luck(character,total) if stat == 'chance' else total <= effective_skill(character)
     if passed:
@@ -635,6 +646,8 @@ ENTRY_RULES = {
     50:{'items':['Petite clé d’argent']},
     116:{'items':['Collier de cuir incrusté d’or (valeur 15 Or)']},
     305:{'gold':10,'items':['Couteau à lancer']},
+    146:{'items':['Morceau de pierre de la Bête Rocheuse'],'optional':True},
+    152:{'items':['Couronne du Démon de Feu'],'label':'Recueillir la couronne sans la porter'},
     13:{'luck':-3},42:{'luck':-1},129:{'luck':-2},134:{'luck':-1},141:{'luck':-1},
     166:{'luck':2},237:{'luck':-2},
     53:{'empty_resources':('gold',)},
@@ -660,7 +673,6 @@ ENTRY_RULES = {
     312:{'identity':'ghoul_loot','gold':25,'items':[HAMMER_HEAD]},
     64:{'use':'Potion de Contrôle des Plantes'}, 94:{'use':'Corde Magique'},
     100:{'use':'Potion de Contrôle des Insectes'},
-    158:{'use':'Bandeau de Concentration'},
     211:{'use':'Potion Antipoison'}, 214:{'use':'Potion de Guérison'},
     228:{'use':'Bottes à Bondir'}, 235:{'use':'Potion de Tranquillité','luck':1},
     268:{'use':'Gousses d’Ail'},
@@ -887,8 +899,14 @@ def route_available(character, paragraph, target):
         return payment_resolved(character,279) or units >= 5
     if paragraph == 246 and target == 204:
         return payment_resolved(character,279)
-    if paragraph == 191 and target == 184:
-        return BELL in character.get('inventory', [])
+    if paragraph == 191 and target in (184,243):
+        return target == (184 if BELL in character.get('inventory', []) else 243)
+    if (paragraph,target) in ((133,374),(374,133)):
+        return not entry_resolved(character,target)
+    if (paragraph,target) in ((201,389),(248,389),(293,389)):
+        return not entry_resolved(character,389)
+    if paragraph in (389,293) and target == 215:
+        return not peek(character).get('barrel_examined',False)
     if paragraph == 295:
         helmet = ('Casque magique' in peek(character).get('worn', [])
                   and 'Casque magique' in character.get('inventory', []))
@@ -989,3 +1007,65 @@ def swap_skill_luck(character):
     """§308 : échanger seulement les scores courants ; les plafonds ne sont pas échangés."""
     alive(character)
     character['habilete'], character['chance'] = character['chance'], character['habilete']
+
+
+GOLD_INGOT = 'Lingot d’or (valeur 28 Or)'
+
+
+def removable_items(character):
+    """Un exemplaire par choix ; exclure les objets bloqués ou maudits."""
+    return list(dict.fromkeys(name for name in character.get('inventory', [])
+                if name not in character.get('locked_items', []) and name != 'Anneau de Lenteur'))
+
+
+def take_gold_ingot(character, item):
+    """§242 : abandonner un objet, puis prendre le lingot une seule fois."""
+    alive(character)
+    if 'gold_ingot' in peek(character).get('rewards', []):
+        return False
+    if item not in removable_items(character):
+        raise ValueError('Choisir un objet retirable pour faire place au lingot.')
+    working = deepcopy(character)
+    pay(working,items=[item])
+    reward(working,'gold_ingot',items=[GOLD_INGOT])
+    character.clear()
+    character.update(working)
+    return True
+
+
+def emergency_target(character, paragraph):
+    """Exceptions de projet autorisées le 23/10/2026, seulement si le coût est impossible."""
+    items = removable_items(character)
+    if paragraph in (12,14,218) and not payment_resolved(character,paragraph):
+        gold = character.get('gold',0)
+        if paragraph == 12:
+            return 67 if gold < 10 and len([n for n in character.get('inventory', []) if n in items]) < 2 else None
+        magical = set(PRICES) | set(EQUIPMENT) | {'Poudre de Lévitation','Œil d’Ambre',
+                    'Potion de Force','Lanterne magique',ENCHANTED_SWORD}
+        if gold < (3 if paragraph == 14 else 5) and not any(n in magical for n in items):
+            return 255 if paragraph == 14 else 274
+    if paragraph in (178,328) and character.get('provisions',0) < 1:
+        return 298 if paragraph == 178 else 118
+    if paragraph == 358:
+        try:
+            snare_weapon(character)
+        except ValueError:
+            return 218
+    if paragraph == 370 and not items:
+        return 231
+    return None
+
+
+def use_emergency_exit(character, paragraph):
+    """Ne simuler ni paiement ni repas ; restituer seulement l’épée du piège déjà tombée."""
+    alive(character)
+    target = emergency_target(character,paragraph)
+    if target is None:
+        raise ValueError('La sortie de secours ne s’applique pas à cette situation.')
+    if paragraph == 218:
+        sword = state(character).pop('snare_sword',None)
+        if sword is not None:
+            character.setdefault('inventory', []).append(sword)
+            character['equipped_weapon'] = sword
+    state(character).setdefault('emergency_exits', {})[str(paragraph)] = target
+    return target

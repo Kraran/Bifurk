@@ -24,6 +24,9 @@ class ForetController(ForetMechanicsActions):
         """Un renvoi illisible ou supposé ne doit pas devenir un lien cliquable."""
         if self.character.get('book_facts', {}).get('adventure_ended'):
             return set()
+        if (str(self.current_paragraph) in rules.peek(self.character).get('emergency_exits', {})
+                and self._book_state(self.current_paragraph).get('foret_target') is not None):
+            return {self._book_state(self.current_paragraph)['foret_target']} & set(self.paragraphs)
         if self.combat_available():
             return set()
         if ForetMechanicsActions._ff_encounter_pacified(self):
@@ -84,6 +87,8 @@ class ForetController(ForetMechanicsActions):
             # embuscade ; une réussite ancienne ne doit pas ouvrir le chemin.
             self._book_state(number, True).pop('foret_resolved', None)
             self._book_state(number, True).pop('foret_target', None)
+        if number == 215 and not self._restoring:
+            rules.state(self.character)['barrel_examined'] = True
         if number not in self.visited_paragraphs:
             self.visited_paragraphs.append(number)
         self._foret_prepare_combat()

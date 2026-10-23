@@ -206,7 +206,14 @@
       ],
       "analysis": {
         "source_page_pdf": 22,
-        "rules": "Récupérer l'épée contre 10 Or OU deux objets précieux choisis; pas les deux. Cas d'insolvabilité non décrit, à traiter sans inventer de paiement."
+        "rules": "Récupérer l'épée contre 10 Or OU deux objets précieux choisis; pas les deux. Cas d'insolvabilité non décrit, à traiter sans inventer de paiement. Exception de projet autorisée : Repartir sans récupérer l’épée transformée → §67, uniquement quand le coût normal est impossible.",
+        "project_rule": {
+          "confirmed_by": "user",
+          "confirmed_on": "2026-10-23",
+          "scope": "Sortie de secours adaptée autorisée pour une situation non décrite par le livre",
+          "target": 67,
+          "behavior": "Repartir sans récupérer l’épée transformée"
+        }
       }
     },
     "13": {
@@ -237,7 +244,14 @@
       ],
       "analysis": {
         "source_page_pdf": 23,
-        "rules": "Payer 3 Or OU, à défaut d'or, un objet magique choisi; retirer le paiement. Absence des deux moyens non décrite."
+        "rules": "Payer 3 Or OU, à défaut d'or, un objet magique choisi; retirer le paiement. Absence des deux moyens non décrite. Exception de projet autorisée : Être secouru sans paiement ni dette ajoutée → §255, uniquement quand le coût normal est impossible.",
+        "project_rule": {
+          "confirmed_by": "user",
+          "confirmed_on": "2026-10-23",
+          "scope": "Sortie de secours adaptée autorisée pour une situation non décrite par le livre",
+          "target": 255,
+          "behavior": "Être secouru sans paiement ni dette ajoutée"
+        }
       }
     },
     "15": {
@@ -1197,7 +1211,7 @@
       ],
       "analysis": {
         "source_page_pdf": 45,
-        "rules": "Ajouter et équiper l'épée enchantée; Habileté +2. Articulation au plafond initial et à la perte de l'épée à spécifier avec les règles générales, sans appliquer les mécanismes du Sorcier implicitement."
+        "rules": "Ajouter et équiper l’épée enchantée. Décision utilisateur : +2 Habileté tant qu’elle est équipée et présente, même au-delà du total initial ; aucun changement du total initial, bonus retiré avec l’arme."
       }
     },
     "71": {
@@ -1635,7 +1649,7 @@
       ],
       "analysis": {
         "source_page_pdf": 53,
-        "rules": "Corde attachée au tronc pour la descente; suivre son état/récupération au retour, pas de destruction annoncée ici."
+        "rules": "Corde attachée au tronc ; unique usage magique consommé. L’objet durable reste marqué magie épuisée. Le texte ne précise ni destruction physique ni récupération : aucun usage supplémentaire n’est recréé."
       }
     },
     "95": {
@@ -2380,7 +2394,7 @@
       ],
       "analysis": {
         "source_page_pdf": 67,
-        "rules": "Descente par Corde Magique; plafond bas, pas de malus chiffré permanent ici."
+        "rules": "Descente par la corde attachée au §94 ; aucun nouveau coût magique ni malus permanent chiffré. Récupération physique non précisée."
       }
     },
     "137": {
@@ -2563,7 +2577,7 @@
       ],
       "analysis": {
         "source_page_pdf": 72,
-        "rules": "Prise facultative d'un morceau de pierre de la Bête; ne pas l'imposer à l'inventaire."
+        "rules": "Prise facultative et unique d’un morceau de pierre de la Bête Rocheuse, sans valeur monétaire ou bonus inventé."
       }
     },
     "147": {
@@ -2689,7 +2703,7 @@
       ],
       "analysis": {
         "source_page_pdf": 73,
-        "rules": "Couronne récupérée mais pas encore portée; ne pas accorder d'effet de couronne avant son essai. La phrase précédant les choix est incomplète dans l'extraction, choix lisibles."
+        "rules": "Recueillir une seule fois la couronne du Démon de Feu sans la porter, avant les choix. Le port au §333 est une transformation terminale distincte."
       },
       "source_issues": [
         {
@@ -2915,7 +2929,7 @@
       ],
       "analysis": {
         "source_page_pdf": 78,
-        "rules": "Sortie de la champignonnière; récupération de la Corde Magique non précisée."
+        "rules": "Sortie de la champignonnière. Récupération physique de la corde non précisée ; aucune charge magique rétablie."
       }
     },
     "165": {
@@ -3166,7 +3180,14 @@
       ],
       "analysis": {
         "source_page_pdf": 83,
-        "rules": "Provisions -1 pour le sel; pas de blessure d'Endurance chiffrée. Prévoir le cas où le héros n'a plus de provisions sans valeur négative."
+        "rules": "Provisions -1 pour le sel; pas de blessure d'Endurance chiffrée. Prévoir le cas où le héros n'a plus de provisions sans valeur négative. Exception de projet autorisée : Poursuivre sans ration dépensée ni blessure ajoutée → §298, uniquement quand le coût normal est impossible.",
+        "project_rule": {
+          "confirmed_by": "user",
+          "confirmed_on": "2026-10-23",
+          "scope": "Sortie de secours adaptée autorisée pour une situation non décrite par le livre",
+          "target": 298,
+          "behavior": "Poursuivre sans ration dépensée ni blessure ajoutée"
+        }
       }
     },
     "179": {
@@ -3905,7 +3926,14 @@
       ],
       "analysis": {
         "source_page_pdf": 97,
-        "rules": "Payer 5 Or OU un objet magique; récupérer l'épée et couper le lien. Pas de dégât de chute chiffré. Manque des deux moyens non décrit."
+        "rules": "Payer 5 Or OU un objet magique; récupérer l'épée et couper le lien. Pas de dégât de chute chiffré. Manque des deux moyens non décrit. Exception de projet autorisée : Être secouru sans paiement ; restituer seulement l’épée réellement tombée → §274, uniquement quand le coût normal est impossible.",
+        "project_rule": {
+          "confirmed_by": "user",
+          "confirmed_on": "2026-10-23",
+          "scope": "Sortie de secours adaptée autorisée pour une situation non décrite par le livre",
+          "target": 274,
+          "behavior": "Être secouru sans paiement ; restituer seulement l’épée réellement tombée"
+        }
       }
     },
     "219": {
@@ -4337,7 +4365,7 @@
       ],
       "analysis": {
         "source_page_pdf": 105,
-        "rules": "Prendre facultativement lingot d'or, valeur 28 Or, contre abandon d'UN objet choisi; ne pas convertir en pièces. Sortie possible sans le prendre."
+        "rules": "Prise facultative et unique du lingot d’or (valeur 28 Or), contre abandon d’un exemplaire choisi d’un objet retirable. Aucun crédit de pièces ; annuler laisse le sac inchangé."
       }
     },
     "243": {
@@ -4449,7 +4477,7 @@
       ],
       "analysis": {
         "source_page_pdf": 106,
-        "rules": "Ajouter bouclier d'empereur; Chance +1. Quand blessé, 1d6 : 4–6 réduisent la blessure normale de 2 à 1; 1–3 ne la réduisent pas. Interaction avec Chance à préciser; ce n'est pas le bouclier au croissant du Sorcier."
+        "rules": "Ajouter et porter le bouclier d’empereur ; Chance +1. Sur blessure normale, 1d6 : 4–6 réduisent 2 à 1, puis appliquer le choix et le test éventuel de Chance. Le coffre n’est proposé que s’il n’a pas déjà été ouvert."
       }
     },
     "249": {
@@ -5535,7 +5563,7 @@
       ],
       "analysis": {
         "source_page_pdf": 132,
-        "rules": "Intervertir les valeurs courantes Habileté et Chance. Le texte ne demande pas d'échanger les plafonds initiaux; interaction avec les plafonds/potions à trancher explicitement."
+        "rules": "Intervertir seulement les valeurs courantes Habileté et Chance, sans les plafonner lors de l’échange ni modifier les totaux initiaux. Les soins et potions ultérieurs conservent leur plafond initial respectif."
       }
     },
     "309": {
@@ -5908,7 +5936,14 @@
       ],
       "analysis": {
         "source_page_pdf": 139,
-        "rules": "Endurance -4 AU LIEU de la restauration du repas; ne pas annuler avec +4 E. Nourriture consommée implique une ration, mais le cas sans provisions doit être explicité, pas inventé."
+        "rules": "Endurance -4 AU LIEU de la restauration du repas; ne pas annuler avec +4 E. Nourriture consommée implique une ration, mais le cas sans provisions doit être explicité, pas inventé. Exception de projet autorisée : Quitter la chaise sans repas, ni soin ni blessure de repas → §118, uniquement quand le coût normal est impossible.",
+        "project_rule": {
+          "confirmed_by": "user",
+          "confirmed_on": "2026-10-23",
+          "scope": "Sortie de secours adaptée autorisée pour une situation non décrite par le livre",
+          "target": 118,
+          "behavior": "Quitter la chaise sans repas, ni soin ni blessure de repas"
+        }
       }
     },
     "329": {
@@ -6341,7 +6376,7 @@
       ],
       "analysis": {
         "source_page_pdf": 150,
-        "rules": "Combat : Homme-Singe [8/7]; Force d'Attaque du héros -2 à chaque assaut. La fuite en combat renvoie à la chute du §156 (-3 Endurance), à distinguer du saut avant combat au §195; politique de cumul de blessure de fuite à expliciter."
+        "rules": "Homme-Singe [8/7], Force d’Attaque du héros -2. Fuite : blessure réglementaire (et Chance éventuelle), puis chute distincte de 3 Endurance au §156 si le héros survit."
       }
     },
     "353": {
@@ -6449,7 +6484,14 @@
       ],
       "analysis": {
         "source_page_pdf": 152,
-        "rules": "Épreuve de Chance 2d6, coût 1 Chance; en échec l'épée tombe et devient temporairement inaccessible, pas détruite."
+        "rules": "Épreuve de Chance 2d6, coût 1 Chance; en échec l'épée tombe et devient temporairement inaccessible, pas détruite. Exception de projet autorisée : Attendre le secours sans jet ni coût de Chance → §218, uniquement quand le coût normal est impossible.",
+        "project_rule": {
+          "confirmed_by": "user",
+          "confirmed_on": "2026-10-23",
+          "scope": "Sortie de secours adaptée autorisée pour une situation non décrite par le livre",
+          "target": 218,
+          "behavior": "Attendre le secours sans jet ni coût de Chance"
+        }
       }
     },
     "359": {
@@ -6669,7 +6711,14 @@
       ],
       "analysis": {
         "source_page_pdf": 156,
-        "rules": "Perdre UN objet choisi du sac, en plus des -3 Endurance déjà appliqués au §395. Cas du sac vide non décrit."
+        "rules": "Perdre UN objet choisi du sac, en plus des -3 Endurance déjà appliqués au §395. Cas du sac vide non décrit. Exception de projet autorisée : Repartir sans perte supplémentaire si aucun objet n’est retirable → §231, uniquement quand le coût normal est impossible.",
+        "project_rule": {
+          "confirmed_by": "user",
+          "confirmed_on": "2026-10-23",
+          "scope": "Sortie de secours adaptée autorisée pour une situation non décrite par le livre",
+          "target": 231,
+          "behavior": "Repartir sans perte supplémentaire si aucun objet n’est retirable"
+        }
       }
     },
     "371": {
@@ -7108,7 +7157,7 @@
       ],
       "analysis": {
         "source_page_pdf": 164,
-        "rules": "Le second choix aboutit au paragraphe source incomplet §186; conserver ce lien mais signaler le blocage de l'édition."
+        "rules": "Deux traversées : pierres vers 66, eau vers 186. Le §186 est corrigé et son combat intégré ; plus de blocage de l’édition sur ce renvoi."
       }
     },
     "395": {
@@ -7206,7 +7255,7 @@
       "routes": [],
       "analysis": {
         "source_page_pdf": 168,
-        "rules": "Victoire finale après remise des DEUX parties gravées G; retirer les parties remises et marquer quête terminée. Casque ailé en or, boîte de gemmes et bijoux comme récompenses narratives; montants non chiffrés, ne pas inventer un solde. Le texte extrait contient un colophon d'imprimerie à écarter du récit."
+        "rules": "Victoire après remise des deux parties gravées G : les retirer et clore l’aventure. Récompenses narratives sans montant inventé. Le colophon est retiré par la réparation d’extraction."
       },
       "source_issues": [
         {
@@ -7849,7 +7898,8 @@
       141,
       143,
       145,
-      158,
+      146,
+      152,
       159,
       163,
       166,
@@ -7929,17 +7979,22 @@
       90,
       98,
       154,
+      156,
+      158,
       169,
       178,
       182,
       192,
       204,
+      215,
       219,
       222,
       229,
+      242,
       251,
       256,
       259,
+      261,
       262,
       266,
       278,
@@ -7951,8 +8006,10 @@
       333,
       358,
       370,
+      371,
       372,
       376,
+      383,
       388,
       395,
       399,
@@ -7960,22 +8017,52 @@
     ],
     "notes": "Ces services validés sont implémentés dans grimoire_modules/foret. Le statut des 400 analyses ne valide pas une automatisation complète de chaque passage.",
     "conditional_route_paragraphs": [
+      3,
+      16,
       17,
+      28,
+      82,
+      92,
       95,
+      114,
+      120,
+      126,
       130,
       132,
+      133,
+      137,
+      138,
+      155,
       160,
+      170,
       172,
+      173,
       191,
+      196,
+      197,
       199,
+      201,
       204,
+      237,
+      240,
       243,
       246,
+      248,
       271,
+      293,
       295,
+      319,
+      322,
+      325,
+      336,
+      342,
       346,
+      356,
       360,
       366,
+      367,
+      374,
+      389,
       391
     ]
   }
