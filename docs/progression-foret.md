@@ -104,6 +104,11 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 
 ## Reste à faire
 
+Les illustrations sont raccordées : 24 scènes avec numéro imprimé, le mode
+d’emploi de l’Œil d’Ambre au §91 et la carte dans le prologue. Le menu Actions
+permet de retrouver le prologue et la carte pendant la partie. Les pixels
+restent dans le PDF local. Voir [le contrôle des illustrations](reviews/2026-10-23-foret-illustrations.md).
+
 Deux variantes de parcours du marteau sont désormais couvertes par un test
 automatisé du lecteur, depuis les achats jusqu’à la victoire : Eau Bénite ou
 combat contre la Goule, avec rechargements et annulation de la remise.
@@ -123,8 +128,8 @@ de quête et transformations. Voir [le contrôle des branches alternatives](revi
   conditions encore documentaires, puis vérifier leurs combinaisons en partie.
 - **Choix et parcours** : compléter les conditions d’inventaire et de progression
   encore consultables, puis vérifier les chaînes de passages de bout en bout.
-- **Fins et présentation** : auditer les autres issues finales et intégrer les
-  illustrations de cette édition.
+- **Fins et présentation** : poursuivre l’audit des issues et la vérification
+  visuelle des pages et agrandissements sous Windows.
 - **Validation complète** : jouer des parcours représentatifs, vérifier les
   fenêtres sous Windows et auditer le comportement des sauvegardes en partie.
 

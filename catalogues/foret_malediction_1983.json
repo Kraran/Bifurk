@@ -19,6 +19,1092 @@
       ],
       "statut": "verifie",
       "paragraphes": []
+    },
+    {
+      "id": "foret-p2-image1",
+      "type": "ornement",
+      "page_pdf": 2,
+      "rect": [
+        212.25,
+        405.391,
+        398.39,
+        584.839
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p8-image1",
+      "type": "ornement",
+      "page_pdf": 8,
+      "rect": [
+        192.0,
+        252.99,
+        420.75,
+        320.49
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p11-image1",
+      "type": "feuille_aventure",
+      "page_pdf": 11,
+      "rect": [
+        58.2,
+        72.0,
+        612.0,
+        500.05
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Feuille d’aventure ; accessible dans les pages de règles, sans association narrative."
+    },
+    {
+      "id": "foret-p17-image1",
+      "type": "carte",
+      "page_pdf": 17,
+      "rect": [
+        100.31,
+        72.0,
+        513.21,
+        596.74
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Carte de Gromollet ; accessible dans le prologue, sans association à un paragraphe de jeu."
+    },
+    {
+      "id": "foret-p18-image1",
+      "type": "illustration",
+      "page_pdf": 18,
+      "rect": [
+        134.25,
+        72.0,
+        478.5,
+        632.25
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        1
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p21-image1",
+      "type": "ornement",
+      "page_pdf": 21,
+      "rect": [
+        222.75,
+        72.0,
+        390.0,
+        184.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p21-image2",
+      "type": "ornement",
+      "page_pdf": 21,
+      "rect": [
+        192.0,
+        500.23,
+        420.75,
+        567.73
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p23-image1",
+      "type": "ornement",
+      "page_pdf": 23,
+      "rect": [
+        222.75,
+        424.47,
+        390.0,
+        536.97
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p25-image1",
+      "type": "illustration",
+      "page_pdf": 25,
+      "rect": [
+        134.25,
+        76.0,
+        478.5,
+        637.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        15
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p30-image1",
+      "type": "illustration",
+      "page_pdf": 30,
+      "rect": [
+        143.25,
+        72.0,
+        470.25,
+        608.25
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        29
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p33-image1",
+      "type": "illustration",
+      "page_pdf": 33,
+      "rect": [
+        91.5,
+        72.001,
+        521.9,
+        738.661
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        38
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p34-image1",
+      "type": "ornement",
+      "page_pdf": 34,
+      "rect": [
+        222.75,
+        566.06,
+        390.0,
+        678.56
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p37-image1",
+      "type": "illustration",
+      "page_pdf": 37,
+      "rect": [
+        148.5,
+        248.739,
+        464.86,
+        713.179
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        49
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p39-image1",
+      "type": "ornement",
+      "page_pdf": 39,
+      "rect": [
+        192.0,
+        445.98,
+        420.75,
+        513.48
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p40-image1",
+      "type": "illustration",
+      "page_pdf": 40,
+      "rect": [
+        162.75,
+        272.482,
+        450.27,
+        713.362
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        57
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p44-image1",
+      "type": "illustration",
+      "page_pdf": 44,
+      "rect": [
+        144.0,
+        72.0,
+        468.75,
+        594.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        69
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p45-image1",
+      "type": "ornement",
+      "page_pdf": 45,
+      "rect": [
+        222.75,
+        72.0,
+        390.0,
+        184.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p45-image2",
+      "type": "ornement",
+      "page_pdf": 45,
+      "rect": [
+        192.0,
+        610.22,
+        420.75,
+        677.72
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p51-image1",
+      "type": "illustration",
+      "page_pdf": 51,
+      "rect": [
+        140.25,
+        72.0,
+        473.25,
+        615.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        90
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p52-image1",
+      "type": "illustration",
+      "page_pdf": 52,
+      "rect": [
+        179.77,
+        186.24,
+        433.1,
+        336.45
+      ],
+      "statut": "verifie_position",
+      "paragraphes": [
+        91
+      ],
+      "note": "Mode d’emploi de l’Œil d’Ambre, inséré dans le texte du §91 entre son en-tête et celui du §92."
+    },
+    {
+      "id": "foret-p56-image1",
+      "type": "ornement",
+      "page_pdf": 56,
+      "rect": [
+        231.0,
+        203.49,
+        382.5,
+        333.24
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p57-image1",
+      "type": "ornement",
+      "page_pdf": 57,
+      "rect": [
+        239.96,
+        408.24,
+        373.66,
+        522.74
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p58-image1",
+      "type": "ornement",
+      "page_pdf": 58,
+      "rect": [
+        192.0,
+        237.99,
+        420.75,
+        305.49
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p59-image1",
+      "type": "illustration",
+      "page_pdf": 59,
+      "rect": [
+        134.25,
+        120.5,
+        479.25,
+        686.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        107
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p64-image1",
+      "type": "ornement",
+      "page_pdf": 64,
+      "rect": [
+        192.0,
+        220.74,
+        420.75,
+        288.24
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p65-image1",
+      "type": "ornement",
+      "page_pdf": 65,
+      "rect": [
+        192.0,
+        72.0,
+        420.75,
+        139.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p68-image1",
+      "type": "ornement",
+      "page_pdf": 68,
+      "rect": [
+        192.0,
+        638.959,
+        420.75,
+        706.459
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p69-image1",
+      "type": "ornement",
+      "page_pdf": 69,
+      "rect": [
+        192.0,
+        324.23,
+        420.75,
+        391.73
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p70-image1",
+      "type": "illustration",
+      "page_pdf": 70,
+      "rect": [
+        143.25,
+        76.0,
+        470.25,
+        587.5
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        142
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p73-image1",
+      "type": "ornement",
+      "page_pdf": 73,
+      "rect": [
+        231.0,
+        400.73,
+        382.5,
+        530.48
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p76-image1",
+      "type": "ornement",
+      "page_pdf": 76,
+      "rect": [
+        192.0,
+        72.0,
+        420.75,
+        139.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p77-image1",
+      "type": "illustration",
+      "page_pdf": 77,
+      "rect": [
+        144.75,
+        76.0,
+        468.75,
+        613.75
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        160
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p79-image1",
+      "type": "ornement",
+      "page_pdf": 79,
+      "rect": [
+        222.75,
+        72.0,
+        390.0,
+        184.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p81-image1",
+      "type": "ornement",
+      "page_pdf": 81,
+      "rect": [
+        192.0,
+        72.0,
+        420.75,
+        139.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p82-image1",
+      "type": "ornement",
+      "page_pdf": 82,
+      "rect": [
+        192.0,
+        352.23,
+        420.75,
+        419.73
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p82-image2",
+      "type": "ornement",
+      "page_pdf": 82,
+      "rect": [
+        192.0,
+        599.72,
+        420.75,
+        667.22
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p85-image1",
+      "type": "illustration",
+      "page_pdf": 85,
+      "rect": [
+        146.25,
+        76.0,
+        466.5,
+        604.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        181
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p87-image1",
+      "type": "ornement",
+      "page_pdf": 87,
+      "rect": [
+        192.0,
+        403.98,
+        420.75,
+        471.48
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p89-image1",
+      "type": "ornement",
+      "page_pdf": 89,
+      "rect": [
+        192.0,
+        203.49,
+        420.75,
+        270.99
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p90-image1",
+      "type": "ornement",
+      "page_pdf": 90,
+      "rect": [
+        192.0,
+        383.48,
+        420.75,
+        450.98
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p91-image1",
+      "type": "ornement",
+      "page_pdf": 91,
+      "rect": [
+        192.0,
+        354.82,
+        420.75,
+        422.32
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p95-image1",
+      "type": "illustration",
+      "page_pdf": 95,
+      "rect": [
+        141.75,
+        76.0,
+        471.0,
+        592.75
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        212
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p99-image1",
+      "type": "ornement",
+      "page_pdf": 99,
+      "rect": [
+        192.0,
+        306.98,
+        420.75,
+        374.48
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p101-image1",
+      "type": "illustration",
+      "page_pdf": 101,
+      "rect": [
+        144.0,
+        72.0,
+        468.75,
+        585.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        230
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p101-image2",
+      "type": "ornement",
+      "page_pdf": 101,
+      "rect": [
+        192.0,
+        601.59,
+        420.75,
+        669.09
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p102-image1",
+      "type": "ornement",
+      "page_pdf": 102,
+      "rect": [
+        192.0,
+        314.49,
+        420.75,
+        381.99
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p108-image1",
+      "type": "illustration",
+      "page_pdf": 108,
+      "rect": [
+        146.25,
+        76.0,
+        467.25,
+        593.5
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        253
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p111-image1",
+      "type": "ornement",
+      "page_pdf": 111,
+      "rect": [
+        192.0,
+        72.0,
+        420.75,
+        139.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p113-image1",
+      "type": "ornement",
+      "page_pdf": 113,
+      "rect": [
+        231.0,
+        306.98,
+        382.5,
+        436.73
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p115-image1",
+      "type": "illustration",
+      "page_pdf": 115,
+      "rect": [
+        144.75,
+        72.0,
+        468.75,
+        582.75
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        265
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p120-image1",
+      "type": "ornement",
+      "page_pdf": 120,
+      "rect": [
+        222.75,
+        324.23,
+        390.0,
+        436.73
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p123-image1",
+      "type": "illustration",
+      "page_pdf": 123,
+      "rect": [
+        151.5,
+        72.0,
+        462.0,
+        606.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        285
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p125-image1",
+      "type": "ornement",
+      "page_pdf": 125,
+      "rect": [
+        192.0,
+        397.48,
+        420.75,
+        464.98
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p126-image1",
+      "type": "ornement",
+      "page_pdf": 126,
+      "rect": [
+        192.0,
+        417.98,
+        420.75,
+        485.48
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p127-image1",
+      "type": "ornement",
+      "page_pdf": 127,
+      "rect": [
+        231.0,
+        72.0,
+        382.5,
+        201.75
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p128-image1",
+      "type": "illustration",
+      "page_pdf": 128,
+      "rect": [
+        144.75,
+        76.0,
+        468.0,
+        610.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        294
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p132-image1",
+      "type": "ornement",
+      "page_pdf": 132,
+      "rect": [
+        222.75,
+        535.47,
+        390.0,
+        647.97
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p136-image1",
+      "type": "illustration",
+      "page_pdf": 136,
+      "rect": [
+        142.5,
+        76.0,
+        470.25,
+        612.25
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        317
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p139-image1",
+      "type": "ornement",
+      "page_pdf": 139,
+      "rect": [
+        222.75,
+        203.49,
+        390.0,
+        315.99
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p142-image1",
+      "type": "ornement",
+      "page_pdf": 142,
+      "rect": [
+        192.0,
+        269.24,
+        420.75,
+        336.74
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p144-image1",
+      "type": "illustration",
+      "page_pdf": 144,
+      "rect": [
+        144.75,
+        76.0,
+        468.0,
+        571.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        340
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p145-image1",
+      "type": "ornement",
+      "page_pdf": 145,
+      "rect": [
+        192.0,
+        572.55,
+        420.75,
+        640.05
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p147-image1",
+      "type": "ornement",
+      "page_pdf": 147,
+      "rect": [
+        231.0,
+        72.0,
+        382.5,
+        201.75
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p149-image1",
+      "type": "illustration",
+      "page_pdf": 149,
+      "rect": [
+        143.25,
+        76.0,
+        470.25,
+        590.5
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        351
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p153-image1",
+      "type": "illustration",
+      "page_pdf": 153,
+      "rect": [
+        144.0,
+        72.0,
+        468.75,
+        592.5
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        360
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p155-image1",
+      "type": "ornement",
+      "page_pdf": 155,
+      "rect": [
+        222.75,
+        466.47,
+        390.0,
+        578.97
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p158-image1",
+      "type": "ornement",
+      "page_pdf": 158,
+      "rect": [
+        192.0,
+        72.0,
+        420.75,
+        139.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p159-image1",
+      "type": "illustration",
+      "page_pdf": 159,
+      "rect": [
+        151.5,
+        172.756,
+        462.0,
+        707.506
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        378
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p160-image1",
+      "type": "ornement",
+      "page_pdf": 160,
+      "rect": [
+        192.0,
+        76.0,
+        420.75,
+        143.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p161-image1",
+      "type": "ornement",
+      "page_pdf": 161,
+      "rect": [
+        222.75,
+        583.965,
+        390.0,
+        696.465
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p164-image1",
+      "type": "ornement",
+      "page_pdf": 164,
+      "rect": [
+        222.75,
+        72.0,
+        390.0,
+        184.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p164-image2",
+      "type": "ornement",
+      "page_pdf": 164,
+      "rect": [
+        222.75,
+        537.98,
+        390.0,
+        650.48
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
+    },
+    {
+      "id": "foret-p166-image1",
+      "type": "illustration",
+      "page_pdf": 166,
+      "rect": [
+        150.0,
+        76.0,
+        463.5,
+        628.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        396
+      ],
+      "note": "Numéro de paragraphe lu dans la légende intégrée à l’image du PDF."
+    },
+    {
+      "id": "foret-p169-image1",
+      "type": "ornement",
+      "page_pdf": 169,
+      "rect": [
+        168.75,
+        172.24,
+        444.57,
+        357.77
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Motif décoratif récurrent ; aucune association narrative."
     }
   ]
 }
