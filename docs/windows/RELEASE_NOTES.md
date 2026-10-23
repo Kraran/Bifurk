@@ -2,6 +2,8 @@
 
 ## Nouveautés depuis la 1.1.2
 
+- Bouton « Quitter le jeu » avec confirmation et arrêt des fenêtres et de l’audio.
+
 - La Forêt de la Malédiction devient une aventure complète : mécaniques spéciales,
   boutique, équipements, combats, épreuves, fins et cas limites validés.
 - Illustrations de la Forêt et fond dédié après la couverture.
