@@ -489,6 +489,57 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual((w.current_paragraph,w.character['chance']),(40,9))
         self.assertEqual(w.character['inventory'].count('Épée'),1)
 
+    def test_ordinary_resource_loss_save_undo_and_later_revisit_do_not_reapply(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({145:'Naufrage.',285:'Le camp.',353:'Le réveil.',26:'Cabane.',220:'Chemin.'})
+        w.character.update(provisions=7,gold=30,endurance=20)
+        inventory = list(w.character['inventory'])
+        w.go_to(145)
+        self.assertEqual(w._reading_link_targets(),set())
+        calls = self.roll.call_count
+        w.perform_foret_action('entry')
+        self.assertEqual((w.character['provisions'],w.character['gold'],w.character['endurance']),(0,30,20))
+        self.assertEqual(w.character['inventory'],inventory)
+        self.assertEqual(self.roll.call_count,calls)
+        self.assertEqual(w._reading_link_targets(),{285})
+        w.undo_action()
+        self.assertEqual(w.character['provisions'],7)
+        w.redo_action()
+        path = main.SAVES_DIR/'naufrage.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        w.character['provisions'] = 3
+        w.perform_foret_action('entry')
+        self.assertEqual(w.character['provisions'],3)
+
+    def test_silver_dart_can_be_left_or_taken_separately_and_undo_does_not_repeat_luck(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({219:'Fléchette.',300:'Le chemin.'})
+        w.character.update(chance=5,gold=20)
+        w.go_to(219)
+        w.perform_foret_action('entry')
+        self.assertEqual((w.character['chance'],w.character['gold']),(6,20))
+        self.assertNotIn(rules.SILVER_DART,w.character['inventory'])
+        self.assertEqual(w._reading_link_targets(),{300})
+        w.go_to(300)
+        self.assertNotIn(rules.SILVER_DART,w.character['inventory'])
+        w.go_to(219)
+        w.perform_foret_action('silver_dart')
+        self.assertEqual(w.character['inventory'].count(rules.SILVER_DART),1)
+        w.undo_action()
+        self.assertNotIn(rules.SILVER_DART,w.character['inventory'])
+        self.assertEqual(w.character['chance'],6)
+        w.redo_action()
+        w.perform_foret_action('silver_dart')
+        self.assertEqual(w.character['inventory'].count(rules.SILVER_DART),1)
+        self.assertEqual((w.character['chance'],w.character['gold']),(6,20))
+
     def test_cover_title_starting_resources_and_preparation_notice(self):
         self.open()
         self.assertEqual(self.w.book_module.id, 'foret_malediction_1983')

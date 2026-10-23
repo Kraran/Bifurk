@@ -203,6 +203,9 @@ class ForetMechanicsActions(FightingFantasyActions):
                 button.clicked.connect(lambda checked=False: self.perform_foret_action(action, payload))
             self.event_layout.addWidget(button)
         number = self.current_paragraph
+        if (number == 219 and rules.entry_resolved(self.character,219)
+                and 'bear_silver_dart' not in rules.peek(self.character).get('rewards', [])):
+            add('Prendre la fléchette d’argent (facultatif)', 'silver_dart')
         if number in rules.BRANCH_TESTS and not self._book_state(number).get('foret_resolved'):
             stat = rules.BRANCH_TESTS[number][0]
             add('Résoudre l’épreuve — ' + ('Chance' if stat == 'chance' else 'Habileté'), 'branch_test')
@@ -211,7 +214,10 @@ class ForetMechanicsActions(FightingFantasyActions):
         if number in rules.ENTRY_RULES and not rules.entry_resolved(self.character, number):
             rule = rules.ENTRY_RULES[number]
             label = rule.get('label') or ('Utiliser ' + rule['use'] if rule.get('use') else
-                     'Employer ' + ', '.join(rule['remove']) if rule.get('remove') else 'Recueillir la trouvaille')
+                     'Employer ' + ', '.join(rule['remove']) if rule.get('remove') else
+                     'Appliquer la perte de ressources' if rule.get('empty_resources') else
+                     'Appliquer la blessure' if rule.get('damage') else
+                     'Appliquer la perte de Chance' if rule.get('luck',0) < 0 else 'Recueillir la trouvaille')
             add(label, 'entry', enabled=(not rule.get('use') or rules.available(self.character, rule['use']) > 0)
                 and all(name in self.character.get('inventory', []) for name in rule.get('remove', [])))
         if number in rules.PAYMENT_PARAGRAPHS and not rules.payment_resolved(self.character, number):
@@ -366,14 +372,16 @@ class ForetMechanicsActions(FightingFantasyActions):
         expected = {'wish':34,'swap':308,'ambush':98,'fever':259,'spiked_pit':278,'buy':261,'door':73,'darts':309,'lift':372,'wrestle':266,'bracelet':52,
                     'convalescence':304,'cursed_meal':328,'combat_potion':262,'hammer':204,
                     'lantern_flash':395,'discard_lantern':154,'lose_item':370,'gnome_sword':192,
-                    'find_filters':60,'stone_sword':182,'snare':358}
+                    'find_filters':60,'stone_sword':182,'snare':358,'silver_dart':219}
         if action in expected and number != expected[action]:
             return
         if self._book_state(number).get('foret_resolved') and action in expected and action != 'buy':
             return
         target = None
         try:
-            if action == 'snare':
+            if action == 'silver_dart':
+                rules.take_silver_dart(self.character)
+            elif action == 'snare':
                 rules.snare_weapon(self.character)
                 _, total = self._roll(2,context='Chance — piège au nœud coulant')
                 target = rules.resolve_snare(self.character,total)

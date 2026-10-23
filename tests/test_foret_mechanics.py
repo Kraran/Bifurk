@@ -14,6 +14,56 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_ordinary_luck_variations_are_bounded_and_do_not_charge_stakes_again(self):
+        for number,loss in ((13,3),(42,1),(129,2),(134,1),(141,1),(237,2)):
+            c = hero(chance=2)
+            r.resolve_entry(c,number)
+            self.assertEqual(c['chance'],max(0,2-loss))
+            self.assertEqual((c['gold'],c['endurance']),(30,20))
+            before = deepcopy(c)
+            self.assertFalse(r.resolve_entry(c,number))
+            self.assertEqual(c,before)
+        c = hero(chance=9)
+        r.resolve_entry(c,166)
+        self.assertEqual((c['chance'],c['gold']),(10,30))
+
+    def test_resource_losses_preserve_inventory_other_resources_and_stats(self):
+        for number,key in ((53,'gold'),(145,'provisions'),(299,'provisions'),(353,'provisions')):
+            c = hero(inventory=['Épée','Lanterne'])
+            r.resolve_entry(c,number)
+            self.assertEqual(c[key],0)
+            other = 'gold' if key == 'provisions' else 'provisions'
+            self.assertEqual(c[other],30 if other == 'gold' else 10)
+            self.assertEqual((c['habilete'],c['endurance'],c['chance']),(8,20,8))
+            self.assertEqual(c['inventory'],['Épée','Lanterne'])
+
+    def test_valuable_finds_do_not_become_coins_and_lightning_can_be_lethal(self):
+        for number,name,luck in ((106,'Bague d’or à émeraude (valeur 15 Or)',2),
+                                 (174,'Anneau d’or (valeur 10 Or)',1)):
+            c = hero()
+            r.resolve_entry(c,number)
+            self.assertEqual((c['gold'],c['chance']),(30,8+luck))
+            self.assertEqual(c['inventory'],[name])
+            self.assertFalse(r.resolve_entry(c,number))
+        c = hero()
+        r.resolve_entry(c,387)
+        self.assertEqual((c['gold'],c['chance']),(31,9))
+        c = hero(endurance=3)
+        r.resolve_entry(c,163)
+        self.assertEqual((c['endurance'],c['chance']),(0,8))
+
+    def test_silver_dart_is_optional_after_luck_gain_and_can_only_be_taken_once(self):
+        c = hero()
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.take_silver_dart(c)
+        self.assertEqual(c,before)
+        r.resolve_entry(c,219)
+        self.assertEqual((c['gold'],c['chance'],c['inventory']),(30,9,[]))
+        self.assertTrue(r.take_silver_dart(c))
+        self.assertEqual(c['inventory'],[r.SILVER_DART])
+        self.assertFalse(r.take_silver_dart(c))
+        self.assertEqual(c['gold'],30)
+
     def test_snare_luck_success_preserves_weapon_and_spends_once(self):
         c = hero(inventory=['Épée'],equipped_weapon='Épée')
         self.assertEqual(r.resolve_snare(c,2),40)

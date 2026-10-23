@@ -74,6 +74,15 @@ converties globalement en événements exécutables.
 - **Quête** : seules la tête et le manche marqués G valident le marteau. Les
   fausses pièces ne conviennent pas. La remise retire les deux pièces authentiques
   et marque la victoire sans inventer une valeur d’or pour les récompenses finales.
+- **Effets ordinaires** : les pertes de Chance des §§13/42/129/134/141/237,
+  la bénédiction du §166, les bijoux des §§106/174 et la pièce du §387 ont leur
+  commande explicite. La mise du bras de fer n’est pas retirée une seconde fois
+  au §129, ni le don du moine au §166. Les §§145/299/353 vident seulement les
+  provisions ; le §53 vide seulement l’or. Le §163 retire trois points d’Endurance sans
+  jet de Chance. Chaque effet physique est mémorisé pour ne pas être rejoué.
+  Au §219, le point de Chance de la trouvaille est séparé du choix facultatif
+  de prendre la fléchette d’argent. Les valeurs des bijoux restent descriptives
+  et ne créent pas de pièces d’or.
 - **Lanterne magique (§§395, 154, 370)** : test obligatoire de Chance avec une
   dépense, perte de trois points d’Endurance seulement en cas d’échec, puis choix
   d’un exemplaire à perdre si le héros survit. Le §154 abandonne la lanterne
