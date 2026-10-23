@@ -7,6 +7,8 @@ Les illustrations du livre sont affichées à gauche du récit et peuvent être 
 La sacoche présente les objets en lignes compactes ; **Gérer les objets…** déplie les commandes d’ajout et de retrait.
 La sacoche reste dans le panneau latéral. Les combats possèdent leur fenêtre ;
 les soins et les outils ponctuels sont accessibles par **Soins** et **Actions…**.
+Le bouton **Quitter le jeu**, sous les sauvegardes, demande confirmation puis
+ferme les fenêtres et arrête l’audio. Sauvegardez votre progression avant de quitter.
 
 [Captures et instructions de test](docs/design/grimoire.md).
 

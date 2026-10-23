@@ -438,6 +438,29 @@ class MainWindow(QMainWindow, ModuleActions):
         else:
             self.open_pdf()
 
+    def confirm_quit(self):
+        """Demander confirmation avant de quitter depuis le bouton dédié."""
+        answer = QMessageBox.question(
+            self, 'Quitter le jeu',
+            'Voulez-vous quitter Bifurk ?\n\n'
+            'La progression non sauvegardée sera perdue.',
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if answer == QMessageBox.Yes:
+            self.close()
+
+    def closeEvent(self, event):
+        """Fermer les vues et arrêter les flux avant la fermeture native Qt."""
+        for dialog in self.findChildren(QDialog):
+            dialog.reject()
+        self.intro_music.set_enabled(False)
+        self.sounds.set_enabled(False)
+        self.sounds.set_ambient_enabled(False)
+        sink = getattr(self.sounds, '_pcm_sink', None)
+        if sink is not None:
+            sink.stop()
+        self.sounds._close_log()
+        super().closeEvent(event)
+
     def _close_book_dialogs(self):
         """Retirer les vues liées à l'ancien PDF avant de changer d'aventure."""
         for name in ('rules_dialog', 'prologue_dialog'):
@@ -997,6 +1020,11 @@ class MainWindow(QMainWindow, ModuleActions):
         save_row.addWidget(save_btn)
         save_row.addWidget(load_btn)
         side_layout.addLayout(save_row)
+        self.quit_button = QPushButton('Quitter le jeu')
+        self.quit_button.setObjectName('quitGameButton')
+        self.quit_button.setToolTip('Fermer Bifurk après confirmation')
+        self.quit_button.clicked.connect(self.confirm_quit)
+        side_layout.addWidget(self.quit_button)
         scroll = QScrollArea()
         scroll.setObjectName("sideScroll")
         scroll.setWidgetResizable(True)

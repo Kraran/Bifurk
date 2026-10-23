@@ -137,6 +137,8 @@ class IntroMusicTests(unittest.TestCase):
             self.addCleanup(muted.close)
             self.assertEqual(muted.intro_music.volume_percent, 0)
             self.assertFalse(muted.intro_music.enabled)
+            for instance in (window, restored, muted):
+                instance.close()  # Libérer audio.log avant la sortie du dossier temporaire.
 
     def test_new_game_and_save_load_drive_music_after_content_is_ready(self):
         with tempfile.TemporaryDirectory() as folder, \
@@ -163,3 +165,4 @@ class IntroMusicTests(unittest.TestCase):
             window.intro_music.menu.assert_called_once()
             window.intro_music.fade_out.assert_called_once()
             self.assertEqual(observed, [1, 1])
+            window.close()
