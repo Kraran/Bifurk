@@ -109,6 +109,9 @@ d’emploi de l’Œil d’Ambre au §91 et la carte dans le prologue. Le menu A
 permet de retrouver le prologue et la carte pendant la partie. Les pixels
 restent dans le PDF local. Voir [le contrôle des illustrations](reviews/2026-10-23-foret-illustrations.md).
 
+Après la couverture, le fond fourni `foret.jpg` remplit la fenêtre lorsqu’aucune
+illustration de paragraphe n’est affichée, comme le fond du Sorcier.
+
 Deux variantes de parcours du marteau sont désormais couvertes par un test
 automatisé du lecteur, depuis les achats jusqu’à la victoire : Eau Bénite ou
 combat contre la Goule, avec rechargements et annulation de la remise.
