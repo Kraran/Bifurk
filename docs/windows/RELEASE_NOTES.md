@@ -23,9 +23,10 @@
   QFont au démarrage ; améliorations de l’affichage sur les petites fenêtres.
 - Sauvegardes conservées au format actuel ; importer son propre PDF de l’édition reconnue.
 
-Le [bilan de clôture](../reviews/2026-10-23-foret-cloture.md) distingue l’audit,
+Le [bilan de clôture](https://github.com/Kraran/Bifurk/blob/v1.2.0/docs/reviews/2026-10-23-foret-cloture.md) distingue l’audit,
 les tests de branches, les contrôles Qt et la partie interne sans triche.
-Cette mise à jour des sources ne produit ni exécutable ni archive Windows.
+Distribution portable Windows x64 : extraire le ZIP complet puis lancer Bifurk.exe.
+Conserver une copie du dossier donnees avant une mise à jour.
 
 ---
 
