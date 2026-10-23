@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **156 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **159 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -15,7 +15,7 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | --- | ---: |
 | Boutique de Yaztromo | 1 |
 | Profils de combat | 40 |
-| Effets d’entrée et usages d’objets | 69 |
+| Effets d’entrée et usages d’objets | 72 |
 | Paiements | 7 |
 | Actions et épreuves spéciales | 35 |
 | Conditions et coûts de route recensés séparément | 6 (§§130, 191, 243, 246, 295, 360) |
@@ -57,6 +57,11 @@ Gobelin et du Changeur de Forme partagent leurs blessures. La fuite ne s’ouvre
 que lorsqu’elle est proposée par la source. Au §178, le sel coûte une ration ;
 le cas sans ration reste explicitement non résolu.
 
+Les §§50 et 116 donnent la petite clé d’argent et le collier de cuir incrusté
+d’or, sans convertir sa valeur en pièces. Le §305 donne dix pièces et le couteau
+à lancer une seule fois ; essayer le gantelet ou passer l’anneau reste un choix
+séparé. Le butin ne modifie pas l’état de la Vouivre.
+
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,
 l’absence de répétition, la restauration et l’annulation/rétablissement.
@@ -67,9 +72,7 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
   des issues dans des parcours complets. Les profils chiffrés du catalogue
   sont raccordés, avec le mode successif confirmé pour les §§29/317.
 - **Autres effets** : variations de caractéristiques et de provisions, dons et
-  trouvailles encore documentés sans commande : par exemple la clé d’argent
-  du §50, le collier du §116, les objets et choix du §305, ainsi que les autres
-  effets recensés dans les analyses mais pas dans le registre.
+  trouvailles encore recensés dans les analyses mais pas dans le registre.
 - **Équipement et autres soins** : compléter les autres interactions et
   conditions encore documentaires, puis vérifier leurs combinaisons en partie.
 - **Choix et parcours** : compléter les conditions d’inventaire et de progression

@@ -590,6 +590,9 @@ def advance_group(combat):
 # Les variantes partagent un identifiant physique. La table ne contient que des
 # effets relus : aucun motif de texte ne peut créer une récompense ou une charge.
 ENTRY_RULES = {
+    50:{'items':['Petite clé d’argent']},
+    116:{'items':['Collier de cuir incrusté d’or (valeur 15 Or)']},
+    305:{'gold':10,'items':['Couteau à lancer']},
     13:{'luck':-3},42:{'luck':-1},129:{'luck':-2},134:{'luck':-1},141:{'luck':-1},
     166:{'luck':2},237:{'luck':-2},
     53:{'empty_resources':('gold',)},
