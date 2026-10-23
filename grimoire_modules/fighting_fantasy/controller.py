@@ -13,6 +13,10 @@ from .rules import (POTION_STATS, POTION_DOSES, adventurer_stats, spend_luck,
 
 class FightingFantasyActions:
     """Fournir création, soins, assauts et fuite ; le livre étend seulement les exceptions."""
+    def _ff_stat_value(self, key):
+        """Lire la caractéristique affichée, avec les éventuels bonus du livre."""
+        return self.character.get(key, 0)
+
     def _ff_item_removed(self, name):
         """Notifier un retrait manuel ; le socle n’attribue aucun pouvoir aux objets."""
 
@@ -265,6 +269,9 @@ class FightingFantasyActions:
             return
         label = {'habilete': 'Habileté', 'endurance': 'Endurance', 'chance': 'Chance'}[result.stat]
         old, target, doses = result.before, result.after, result.remaining + 1
+        if result.stat == 'habilete':
+            bonus = self._ff_stat_value('habilete') - self.character['habilete']
+            old, target = old + bonus, target + bonus
         self._refresh_character()
         self.rules_log.setText(f"Potion utilisée : {label} {old} → {target}. Doses restantes : {doses-1}.")
 

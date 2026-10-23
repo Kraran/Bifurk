@@ -306,7 +306,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             self._roster_html = roster_html
         char = owner.character
         self.hero.setText(f"<b>{html.escape(char.get('name') or 'Votre aventurier')}</b><br>"
-                          f"Habileté {char['habilete']}<br>Endurance {char['endurance']}<br>Chance {char['chance']}"
+                          f"Habileté {owner._ff_stat_value('habilete')}<br>Endurance {char['endurance']}<br>Chance {char['chance']}"
                           f"<br><small>Habileté de combat : {owner._ff_combat_profile()['skill']}</small>")
         self.weapon.blockSignals(True)
         weapons = [self.owner.weapon_combo.itemText(i) for i in range(self.owner.weapon_combo.count())]
@@ -321,7 +321,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.shield.setChecked(bool(char.get('shield_equipped')))
         self.shield.blockSignals(False)
         self._refresh_footer()
-        self.stat_feedback.observe(char,
+        self.stat_feedback.observe({**char, 'habilete': owner._ff_stat_value('habilete')},
             enabled=self.isVisible() and not self.owner._restoring,
             batch=self.owner._feedback_action_id)
         self._refresh_monster_feedback()

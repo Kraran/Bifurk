@@ -195,6 +195,114 @@ class ForetPresentationTests(unittest.TestCase):
         w.perform_foret_action('entry')
         self.assertEqual(w.character['chance'],6)
 
+    def test_enchanted_sword_display_weapon_switch_care_save_and_loss(self):
+        from grimoire_modules.foret import rules
+        from combat_dialog import CombatDialog
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({70:'L’épée.',334:'Le chemin.',377:'Les Pygmées.'})
+        w.character['habilete'] = 8
+        w.character['initial']['habilete'] = 8
+        w.go_to(70)
+        self.assertEqual(w._reading_link_targets(),set())
+        w.perform_foret_action('entry')
+        self.assertEqual(w.stat_spins['habilete'].value(),10)
+        self.assertEqual(w.stat_bars['habilete'].format(),'10 / 8')
+        self.assertEqual(w._reading_link_targets(),{334})
+        w.weapon_combo.setCurrentText('Épée')
+        self.assertEqual(w.stat_spins['habilete'].value(),8)
+        w.weapon_combo.setCurrentText(rules.ENCHANTED_SWORD)
+        self.assertEqual(w.stat_spins['habilete'].value(),10)
+        w.character.update(habilete=5,potion="Potion d'Adresse",potion_doses=2)
+        w.drink_potion()
+        self.assertEqual(w.stat_spins['habilete'].value(),10)
+        self.assertEqual(w.character['initial']['habilete'],8)
+        self.assertFalse(w.care_options()[0]['enabled'])
+        w.go_to(377)
+        dialog = CombatDialog(w)
+        self.addCleanup(dialog.deleteLater)
+        self.assertIn('Habileté 10',dialog.hero.text())
+        self.assertEqual(w._ff_combat_profile()['skill'],10)
+        stamina = w.character['endurance']
+        with patch.object(w,'_roll',side_effect=[([6,6],12),([4,4],8),([6,6],12),([4,4],8)]), \
+                patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No):
+            w.combat_round()
+        self.assertEqual(w._combat_roster()[0]['stamina'],3)
+        self.assertEqual(w.character['endurance'],stamina)
+        path = main.SAVES_DIR/'epee.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        self.assertEqual(w.stat_spins['habilete'].value(),10)
+        row = w.character['inventory'].index(rules.ENCHANTED_SWORD)
+        w.inventory_list.setCurrentRow(row)
+        w.remove_item()
+        self.assertEqual(w.stat_spins['habilete'].value(),8)
+        w.undo_action()
+        self.assertEqual(w.stat_spins['habilete'].value(),10)
+        w.redo_action()
+        self.assertEqual(w.stat_spins['habilete'].value(),8)
+
+    def test_silver_box_gas_one_die_save_undo_and_alias_cannot_repeat(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({22:'Gaz.',169:'Même gaz.',358:'Sortie.',85:'La cage.'})
+        w.character.update(habilete=8,endurance=20)
+        w.go_to(22)
+        self.assertEqual(w._reading_link_targets(),set())
+        calls = self.roll.call_count
+        w.perform_foret_action('gas')
+        self.assertEqual(self.roll.call_count,calls+1)
+        self.assertEqual(self.roll.call_args.args,(1,))
+        self.assertEqual((w.character['habilete'],w.character['endurance']),(6,17))
+        self.assertEqual(w._reading_link_targets(),{358})
+        path = main.SAVES_DIR/'gaz.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        w.go_to(169)
+        w.perform_foret_action('gas')
+        self.assertEqual(self.roll.call_count,calls+1)
+        self.assertEqual(w.character['inventory'].count('Boîte d’argent'),1)
+        self.assertEqual(w._reading_link_targets(),{85,358})
+        w.undo_action()
+        w.undo_action()
+        self.assertEqual((w.character['habilete'],w.character['endurance']),(8,20))
+        self.assertNotIn('Boîte d’argent',w.character['inventory'])
+        w.redo_action()
+        self.assertEqual(w.character['inventory'].count('Boîte d’argent'),1)
+
+    def test_filter_search_and_stone_sword_routes_require_their_tests(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({60:'Filtres.',183:'Protection.',44:'Trop tard.',182:'Le rocher.',70:'L’épée.',334:'Le chemin.'})
+        w.go_to(60)
+        calls = self.roll.call_count
+        w.perform_foret_action('find_filters')
+        self.assertEqual(self.roll.call_count,calls)
+        self.assertEqual(w._reading_link_targets(),set())
+        rules.buy(w.character,'Filtres à Nez')
+        w.character['chance'] = 10
+        w.perform_foret_action('find_filters')
+        self.assertEqual((w.current_paragraph,w.character['chance']),(183,9))
+        self.assertEqual(rules.available(w.character,'Filtres à Nez'),1)
+        w.perform_foret_action('entry')
+        self.assertEqual(rules.available(w.character,'Filtres à Nez'),0)
+        w.character['habilete'] = 6
+        w.go_to(182)
+        self.assertEqual(w._reading_link_targets(),set())
+        before = copy.deepcopy(w.character)
+        w.perform_foret_action('stone_sword')
+        self.assertEqual(w.current_paragraph,70)
+        self.assertEqual(w.character['chance'],before['chance'])
+        self.assertEqual(w.character['endurance'],before['endurance'])
+        w.perform_foret_action('entry')
+        self.assertEqual(w.stat_spins['habilete'].value(),8)
+
     def test_cover_title_starting_resources_and_preparation_notice(self):
         self.open()
         self.assertEqual(self.w.book_module.id, 'foret_malediction_1983')

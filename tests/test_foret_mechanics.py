@@ -14,6 +14,89 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_silver_box_gas_aliases_share_one_roll_and_one_box(self):
+        for paragraph in (22,169):
+            c = hero()
+            self.assertTrue(r.inhale_gas(c,paragraph,4))
+            self.assertEqual((c['habilete'],c['endurance']),(6,16))
+            before = deepcopy(c)
+            self.assertFalse(r.inhale_gas(c,169 if paragraph == 22 else 22,6))
+            self.assertEqual(c,before)
+            self.assertEqual(c['inventory'].count('Boîte d’argent'),1)
+            r.buy(c,'Filtres à Nez')
+            self.assertFalse(r.resolve_entry(c,338))
+            self.assertEqual(r.available(c,'Filtres à Nez'),1)
+        c = hero()
+        r.buy(c,'Filtres à Nez')
+        r.resolve_entry(c,365)
+        before = deepcopy(c)
+        self.assertFalse(r.inhale_gas(c,22,6))
+        self.assertEqual(c,before)
+
+    def test_gas_validates_dice_and_stops_loot_on_death_and_mushroom_preserves_skill(self):
+        c = hero(endurance=3)
+        before = deepcopy(c)
+        for die in (True,0,7):
+            with self.assertRaises(ValueError):r.inhale_gas(c,22,die)
+            self.assertEqual(c,before)
+        r.inhale_gas(c,22,3)
+        self.assertEqual(c['endurance'],0)
+        self.assertNotIn('Boîte d’argent',c['inventory'])
+        c = hero()
+        r.inhale_gas(c,222,6)
+        self.assertEqual((c['habilete'],c['endurance']),(8,14))
+        self.assertEqual(c['inventory'],[])
+
+    def test_mushroom_filter_luck_and_stone_sword_skill_have_distinct_costs(self):
+        c = hero()
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.find_mushroom_filters(c,2)
+        self.assertEqual(c,before)
+        r.buy(c,'Filtres à Nez')
+        self.assertEqual(r.find_mushroom_filters(c,2),183)
+        self.assertEqual(c['chance'],7)
+        self.assertEqual(r.available(c,'Filtres à Nez'),1)
+        self.assertEqual(r.find_mushroom_filters(c,12),44)
+        before = deepcopy(c)
+        self.assertEqual(r.extract_stone_sword(c,8),70)
+        self.assertEqual(r.extract_stone_sword(c,9),334)
+        self.assertEqual(c,before)
+
+    def test_enchanted_sword_bonus_requires_verified_source_and_equipped_copy(self):
+        c = hero(inventory=[r.ENCHANTED_SWORD],equipped_weapon=r.ENCHANTED_SWORD)
+        self.assertEqual(r.effective_skill(c),8)
+        c['inventory'] = ['Épée']
+        self.assertTrue(r.resolve_entry(c,70))
+        self.assertFalse(r.resolve_entry(c,70))
+        self.assertEqual(c['inventory'].count(r.ENCHANTED_SWORD),1)
+        self.assertEqual((c['habilete'],c['initial']['habilete'],r.effective_skill(c)),(8,8,10))
+        self.assertEqual(r.combined_door({**c,'chance':10},10),327)
+        self.assertEqual(r.lift_chest(c,10),48)
+        self.assertEqual(r.arm_wrestling(c,[10,10,10],gold=10),354)
+        c['equipped_weapon'] = 'Épée'
+        self.assertEqual(r.effective_skill(c),8)
+        c['equipped_weapon'] = r.ENCHANTED_SWORD
+        r.lose_backpack_item(c,r.ENCHANTED_SWORD)
+        self.assertEqual(r.effective_skill(c),8)
+        self.assertFalse(r.resolve_entry(c,70))
+
+    def test_enchanted_sword_potions_wish_and_gnome_preserve_base_skill(self):
+        from grimoire_modules.fighting_fantasy.rules import drink_potion
+        c = hero(habilete=5,inventory=['Épée'],equipped_weapon='Épée',
+                 potion="Potion d'Adresse",potion_doses=2)
+        r.resolve_entry(c,70)
+        self.assertEqual(r.effective_skill(c),7)
+        drink_potion(c)
+        self.assertEqual((r.effective_skill(c),c['habilete'],c['initial']['habilete']),(10,8,8))
+        r.transform_gnome_sword(c)
+        self.assertEqual(r.effective_skill(c),8)
+        r.pay_paragraph(c,12,gold=10)
+        self.assertEqual(r.effective_skill(c),10)
+        c['habilete'] = 4
+        c['inventory'].append('Lanterne magique')
+        r.make_wish(c,'habilete')
+        self.assertEqual(r.effective_skill(c),10)
+
     def test_gnome_transforms_and_returns_same_weapon_only_once(self):
         c = hero(inventory=['Épée'],equipped_weapon='Épée')
         self.assertTrue(r.transform_gnome_sword(c))
