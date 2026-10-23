@@ -429,6 +429,66 @@ class ForetPresentationTests(unittest.TestCase):
         w.perform_foret_action('entry')
         self.assertEqual(w.character['endurance'],14)
 
+    def test_snare_dropped_sword_save_payment_and_undo_restore_identity_and_bonus(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({70:'Épée.',358:'Piège.',218:'Secours.',40:'Liberté.',274:'Chemin.'})
+        w.character.update(habilete=8,endurance=20,chance=0,gold=10)
+        w.go_to(70)
+        w.perform_foret_action('entry')
+        self.assertEqual(w.stat_spins['habilete'].value(),10)
+        w.go_to(358)
+        self.assertEqual(w._reading_link_targets(),set())
+        calls = self.roll.call_count
+        w.perform_foret_action('snare')
+        self.assertEqual((w.current_paragraph,w.character['chance']),(218,0))
+        self.assertNotIn(rules.ENCHANTED_SWORD,w.character['inventory'])
+        self.assertEqual(w.stat_spins['habilete'].value(),8)
+        self.assertEqual(w._reading_link_targets(),set())
+        path = main.SAVES_DIR/'piege.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        before = copy.deepcopy(w._snapshot())
+        w.perform_foret_action('payment',(0,[rules.ENCHANTED_SWORD]))
+        self.assertEqual(w._snapshot(),before)
+        w.perform_foret_action('payment',(5,[]))
+        self.assertEqual(w.character['gold'],5)
+        self.assertEqual(w.stat_spins['habilete'].value(),10)
+        self.assertEqual(w.character['inventory'].count(rules.ENCHANTED_SWORD),1)
+        self.assertEqual(w.character['endurance'],20)
+        self.assertEqual(w._reading_link_targets(),{274})
+        w.undo_action()
+        self.assertEqual(w.stat_spins['habilete'].value(),8)
+        self.assertEqual(w.character['gold'],10)
+        w.redo_action()
+        w.perform_foret_action('payment',(5,[]))
+        self.assertEqual(w.character['gold'],5)
+        w.go_to(358)
+        w.perform_foret_action('snare')
+        self.assertEqual(self.roll.call_count,calls+1)
+        self.assertEqual(w._reading_link_targets(),{218})
+
+    def test_snare_success_and_missing_sword_do_not_create_or_destroy_equipment(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({358:'Piège.',40:'Liberté.',218:'Secours.'})
+        w.character['chance'] = 10
+        w.go_to(358)
+        w.character['inventory'].remove('Épée')
+        calls = self.roll.call_count
+        before = copy.deepcopy(w._snapshot())
+        w.perform_foret_action('snare')
+        self.assertEqual(self.roll.call_count,calls)
+        self.assertEqual(w._snapshot(),before)
+        w.character['inventory'].append('Épée')
+        w.perform_foret_action('snare')
+        self.assertEqual((w.current_paragraph,w.character['chance']),(40,9))
+        self.assertEqual(w.character['inventory'].count('Épée'),1)
+
     def test_cover_title_starting_resources_and_preparation_notice(self):
         self.open()
         self.assertEqual(self.w.book_module.id, 'foret_malediction_1983')

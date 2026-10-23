@@ -66,6 +66,11 @@ converties globalement en événements exécutables.
   points de Chance une seule fois. Le §12 exige exactement dix pièces OU deux
   exemplaires choisis, puis restitue la même épée sans en fabriquer une nouvelle.
   Un passage consulté directement sans arme transformée ne crée pas d’épée.
+- **Nœud coulant (§§358, 218)** : un test de Chance décide si l’épée reste dans
+  le fourreau. En cas d’échec, la même arme devient inaccessible et son bonus
+  cesse. Le paiement existant du §218 (5 Or OU un objet magique) la restitue et
+  la rééquipe une seule fois. Elle ne peut pas elle-même servir de paiement
+  tant qu’elle est au sol. La libération n’invente aucun dégât de chute.
 - **Quête** : seules la tête et le manche marqués G valident le marteau. Les
   fausses pièces ne conviennent pas. La remise retire les deux pièces authentiques
   et marque la victoire sans inventer une valeur d’or pour les récompenses finales.
@@ -136,6 +141,11 @@ Sorcier :
   présents et refuse les objets verrouillés. Il ne convertit pas les bijoux en
   monnaie. Sans paiement valide, les sorties restent bloquées ; aucune issue
   gratuite n’est ajoutée au cas d’insolvabilité non décrit.
+- **Piège sans arme ou sans paiement** : le cas sans épée disponible au §358
+  est expliqué sans dépenser de Chance ni inventer une libération. Au §218,
+  un paiement invalide laisse l’épée au sol ; aucune dette ni blessure de
+  remplacement n’est ajoutée. Consulter ce passage sans arme tombée ne crée
+  pas d’épée lors d’un paiement.
 - **Habileté et épée enchantée** : l’Habileté de base et son total initial sont
   conservés séparément du bonus calculé. La feuille et le combat affichent la
   valeur effective (par exemple 10 pour une base de 8). Les potions et le vœu

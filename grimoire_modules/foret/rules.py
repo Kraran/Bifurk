@@ -97,6 +97,38 @@ def extract_stone_sword(character, total):
     return 70 if total <= effective_skill(character) else 334
 
 
+def snare_weapon(character):
+    """Lire l’arme du fourreau et valider qu’elle peut devenir inaccessible."""
+    alive(character)
+    name = character.get('equipped_weapon')
+    if name is None:
+        name = next((name for name in ('Épée',ENCHANTED_SWORD,'Épée magique','Épée trouvée dans la rivière')
+                     if name in character.get('inventory', [])), None)
+    if name is None:
+        raise ValueError('Aucune épée disponible dans le fourreau ; le livre ne décrit pas ce cas.')
+    _validate_payment(character,0,[name])
+    return name
+
+
+def resolve_snare(character, total):
+    """§358 : Chance une fois ; conserver l’arme tombée pour sa restitution au §218."""
+    alive(character)
+    dice(total)
+    previous = peek(character).get('snare_outcome')
+    if previous is not None:
+        return previous
+    name = snare_weapon(character)
+    if spend_luck(character,total):
+        target = 40
+    else:
+        pay(character,items=[name])
+        state(character)['snare_sword'] = name
+        character['equipped_weapon'] = None
+        target = 218
+    state(character)['snare_outcome'] = target
+    return target
+
+
 def effective_skill(character):
     """Bonus de +2 à l’arme équipée, indépendant du total initial et des soins."""
     active = (character.get('equipped_weapon') == ENCHANTED_SWORD
@@ -606,15 +638,17 @@ def pay_paragraph(character, paragraph, *, gold=0, items=()):
         price = 3 if paragraph == 14 else 5
         valid = (gold == price and not items) or (gold == 0 and len(items) == 1)
         if paragraph in (14,218) and items:
-            magical = set(PRICES) | set(EQUIPMENT) | {'Poudre de Lévitation','Œil d’Ambre','Potion de Force'}
+            magical = set(PRICES) | set(EQUIPMENT) | {'Poudre de Lévitation','Œil d’Ambre','Potion de Force',
+                                                     'Lanterne magique',ENCHANTED_SWORD}
             valid = valid and items[0] in magical
         if paragraph == 14 and items and character.get('gold',0) >= 3:
             valid = False
     if not valid:
         raise ValueError('La sélection ne correspond pas au tarif de ce passage.')
     pay(character, gold=gold, items=items, magic_only=magic_only, units=units)
-    if paragraph == 12:
-        sword = state(character).pop('gnome_sword', None)
+    if paragraph in (12,218):
+        key = 'gnome_sword' if paragraph == 12 else 'snare_sword'
+        sword = state(character).pop(key, None)
         if sword is not None:
             character.setdefault('inventory', []).append(sword)
             character['equipped_weapon'] = sword

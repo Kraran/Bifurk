@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **110 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **111 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -17,7 +17,7 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | Profils de combat | 17 |
 | Effets d’entrée et usages d’objets | 53 |
 | Paiements | 7 |
-| Actions et épreuves spéciales | 31 |
+| Actions et épreuves spéciales | 32 |
 | Conditions de route recensées séparément | 2 (§§191, 295) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
@@ -36,6 +36,10 @@ consommable séparément depuis Soins, hors combat, pour +4 Endurance sous plafo
 Le §184 échange une clochette contre une potion immédiatement bue (+4 Endurance),
 sans modifier les doses de départ. Le §191 vérifie la présence de la clochette.
 
+Le piège du §358 est raccordé : le test de Chance conserve l’épée ou la rend
+temporairement inaccessible. Le paiement du §218 restitue et rééquipe la même
+arme, sans duplication, dégât de chute ni bonus conservé pendant la perte.
+
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,
 l’absence de répétition, la restauration et l’annulation/rétablissement.
@@ -47,8 +51,8 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 - **Autres effets** : variations de caractéristiques et de provisions, dons et
   trouvailles encore documentés sans commande. Exemples : §§13, 42, 106, 129,
   145, 166, 174, 219, 237, 243, 299, 301, 353 et 387.
-- **Équipement et autres soins** : perte temporaire de l’épée (§358) et sa
-  récupération, puis les autres interactions de soins encore documentaires.
+- **Équipement et autres soins** : compléter les autres interactions et
+  conditions encore documentaires, puis vérifier leurs combinaisons en partie.
 - **Choix et parcours** : compléter les conditions d’inventaire et de progression
   encore consultables, puis vérifier les chaînes de passages de bout en bout.
 - **Fins et présentation** : compléter les issues finales, retirer le colophon
@@ -61,7 +65,8 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 Le mode de résolution des deux adversaires aux §§29 et 317 doit encore être
 confirmé. Aucun mode simultané ou successif n’est automatisé par supposition.
 Les cas non décrits par la source restent explicites : sac sans objet retirable
-au §370, insolvabilité au §12, et interprétations documentées de certaines interactions.
+au §370, insolvabilité aux §§12/218, absence d’épée au §358, et interprétations
+documentées de certaines interactions.
 
 Les corrections des §§186 et 267 sont confirmées et intégrées. Le choix de bonus
 de l’épée du §70 est également confirmé : +2 tant qu’elle est équipée, même
