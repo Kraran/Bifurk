@@ -68,6 +68,264 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_door_and_both_darts_outcomes_use_only_the_required_dice(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({73:'Porte.',327:'Ouvert.',112:'Départ.',309:'Fléchettes.',77:'Sain.',197:'Poison.'})
+        base = w._snapshot()
+        cases = [(73,'door',[2],327,8),(73,'door',[12],112,8),
+                 (309,'darts',[2,2],77,6),(309,'darts',[12,2],197,6),
+                 (309,'darts',[2,12],197,6),(309,'darts',[12,12],197,6)]
+        for number,action,totals,target,chance in cases:
+            with self.subTest(number=number,totals=totals):
+                w._restore(base)
+                w.character.update(habilete=8,chance=8,endurance=20)
+                w.go_to(number)
+                with patch.object(w,'_roll',side_effect=[([t//2]*2,t) for t in totals]) as dice:
+                    w.perform_foret_action(action)
+                    self.assertEqual(dice.call_count,len(totals))
+                self.assertEqual(w.current_paragraph,target)
+                self.assertEqual((w.character['chance'],w.character['endurance']),(chance,20))
+
+    def test_chest_failure_retry_then_lethal_egg_is_one_undoable_chain(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({372:'Coffre.',48:'Œuf.',288:'Sortie.'})
+        w.character.update(habilete=8,endurance=3)
+        w.go_to(372)
+        with patch.object(w,'_roll',return_value=([6,6],12)):
+            w.perform_foret_action('lift')
+        self.assertEqual((w.current_paragraph,w.character['endurance']),(372,2))
+        self.assertEqual(w._reading_link_targets(),{288})
+        path = main.SAVES_DIR/'coffre-essai-rate.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        with patch.object(w,'_roll',return_value=([1,1],2)):
+            w.perform_foret_action('lift')
+        self.assertEqual(w.current_paragraph,48)
+        self.assertEqual(w.character['endurance'],2)
+        w.perform_foret_action('egg_explosion')
+        self.assertEqual(w.character['endurance'],0)
+        w.undo_action()
+        self.assertEqual((w.current_paragraph,w.character['endurance']),(48,2))
+
+    def test_wrestling_loses_only_one_stake_at_first_failed_test(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({266:'Mise.',129:'Défaite.',354:'Victoire.'})
+        base = w._snapshot()
+        for failure in (0,1,2,None):
+            with self.subTest(failure=failure):
+                w._restore(base)
+                w.character.update(gold=30,habilete=8)
+                w.go_to(266)
+                totals = [2]*3 if failure is None else [2]*failure+[12]
+                with patch('grimoire_modules.foret.actions.QInputDialog.getItem',return_value=('10 pièces d’or',True)), \
+                     patch.object(w,'_roll',side_effect=[([t//2]*2,t) for t in totals]) as dice:
+                    w.perform_foret_action('wrestle')
+                    self.assertEqual(dice.call_count,len(totals))
+                self.assertEqual(w.current_paragraph,354 if failure is None else 129)
+                self.assertEqual(w.character['gold'],30 if failure is None else 20)
+                self.assertNotIn('Poudre de Lévitation',w.character['inventory'])
+                if failure is None:
+                    w.perform_foret_action('entry')
+                    self.assertIn('Poudre de Lévitation',w.character['inventory'])
+                    self.assertTrue(rules.entry_resolved(w.character,78))
+
+    def test_fever_survival_followup_and_convalescence_starvation(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({259:'Fièvre.',244:'Guérison.',19:'Excision.',18:'Suite.',304:'Jambe.',69:'Tunnel.'})
+        base = w._snapshot()
+        for stamina,total,target,remaining in ((20,2,244,17),(20,12,19,15),(4,12,259,0)):
+            with self.subTest(stamina=stamina,total=total):
+                w._restore(base)
+                w.character.update(endurance=stamina,chance=8)
+                w.go_to(259)
+                with patch.object(w,'_roll',return_value=([total//2]*2,total)) as dice:
+                    w.perform_foret_action('fever')
+                    self.assertEqual(dice.call_count,1)
+                self.assertEqual((w.current_paragraph,w.character['endurance']),(target,remaining))
+                self.assertEqual(w.character['chance'],7)
+                if target == 19:
+                    w.perform_foret_action('entry')
+                    self.assertEqual(w.character['endurance'],14)
+        for rations in (4,5):
+            w._restore(base)
+            w.character.update(provisions=rations,habilete=8,endurance=20)
+            w.go_to(304)
+            w.perform_foret_action('convalescence')
+            self.assertEqual(w.character['endurance'],20 if rations == 5 else 0)
+            if rations == 5:
+                self.assertEqual((w.current_paragraph,w.character['provisions'],w.character['habilete']),(69,0,6))
+
+    def test_transformation_routes_after_demon_or_attacking_yaztromo(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({107:'Démon.',152:'Couronne.',333:'Transformation.',54:'Attaque.',399:'Grenouille.'})
+        w.character.update(habilete=12,endurance=24)
+        base = w._snapshot()
+        w.go_to(107)
+        with patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No):
+            for _ in range(5):w.combat_round()
+        self.assertEqual(w.current_paragraph,152)
+        w.follow_foret_route(333)
+        self.assertTrue(w.character['book_facts']['adventure_ended'])
+        self.assertEqual(w.character['endurance'],24)
+        w.undo_action()
+        self.assertEqual(w.current_paragraph,152)
+        w._restore(base)
+        w.follow_foret_route(54)
+        w.follow_foret_route(399)
+        self.assertEqual(w.current_paragraph,399)
+        self.assertTrue(w.character['book_facts']['adventure_ended'])
+        self.assertEqual(w.character['endurance'],24)
+
+    def test_all_shop_item_branches_distinguish_missing_manual_valid_and_spent(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({int(n):e['title'] for n,e in w.book_event_catalogue['paragraphs'].items()})
+        base = w._snapshot()
+        for number,(item,present,absent) in rules.ITEM_BRANCHES.items():
+            for status in ('missing','manual','charged','spent'):
+                with self.subTest(number=number,status=status):
+                    w._restore(base)
+                    if status == 'manual':w.character['inventory'].append(item)
+                    elif status in ('charged','spent'):
+                        rules.buy(w.character,item)
+                        if status == 'spent':rules.consume(w.character,item)
+                    if number == 173:rules.resolve_entry(w.character,78)
+                    if number == 322:rules.buy(w.character,'Anneau de Lumière')
+                    w.go_to(number)
+                    if number in rules.ENTRY_RULES:w.perform_foret_action('entry')
+                    before = copy.deepcopy(w.character)
+                    targets = w._reading_link_targets()
+                    expected,blocked = (present,absent) if status == 'charged' else (absent,present)
+                    self.assertIn(expected,targets)
+                    self.assertNotIn(blocked,targets)
+                    self.assertEqual(w.character,before)
+
+    def test_all_branch_tests_save_and_undo_success_and_failure(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({int(n):e['title'] for n,e in w.book_event_catalogue['paragraphs'].items()})
+        base = w._snapshot()
+        for number,(stat,success,failure,damage) in rules.BRANCH_TESTS.items():
+            for passed in (True,False):
+                with self.subTest(number=number,passed=passed):
+                    w._restore(base)
+                    w.character.update(habilete=8,chance=8,endurance=20)
+                    w.go_to(number)
+                    before = copy.deepcopy(w._snapshot())
+                    total = 2 if passed else 12
+                    with patch.object(w,'_roll',return_value=([total//2]*2,total)) as dice:
+                        w.perform_foret_action('branch_test')
+                        self.assertEqual(dice.call_count,1)
+                    target = success if passed else failure
+                    self.assertEqual(w.current_paragraph,target)
+                    self.assertEqual(w.character['chance'],7 if stat == 'chance' else 8)
+                    self.assertEqual(w.character['endurance'],20-(damage if not passed else 0))
+                    after = copy.deepcopy(w._snapshot())
+                    w.undo_action()
+                    self.assertEqual(w._snapshot(),before)
+                    w.redo_action()
+                    path = main.SAVES_DIR/f'branche-{number}-{passed}.json'
+                    w._write_atomic(path,w._save_data())
+                    with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                        self.assertTrue(w.load_game(path,announce=False))
+                    self.assertEqual(w.character,after['character'])
+                    w.go_to(number)
+                    self.assertEqual(w._reading_link_targets(),{target})
+                    before_repeat = copy.deepcopy(w.character)
+                    with patch.object(w,'_roll') as dice:
+                        w.perform_foret_action('branch_test')
+                        dice.assert_not_called()
+                    self.assertEqual(w.character,before_repeat)
+
+    def test_every_flee_branch_with_luck_success_failure_and_lethal_wound(self):
+        from grimoire_modules.foret import rules
+        from grimoire_modules.foret.encounters import COMBATS
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({int(n):e['title'] for n,e in w.book_event_catalogue['paragraphs'].items()})
+        base = w._snapshot()
+        with patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No):
+            for number,profile in COMBATS.items():
+                if 'escape_target' not in profile:continue
+                for mode in ('no_luck','lucky','unlucky','lethal'):
+                    with self.subTest(number=number,mode=mode):
+                        w._restore(base)
+                        w.character.update(habilete=12,endurance=24,chance=8)
+                        w.go_to(number)
+                        for _ in range(profile.get('escape_after_assaults',0)):w.combat_round()
+                        self.assertTrue(w.can_flee_combat())
+                        if mode == 'lethal':w.character['endurance'] = 1
+                        before = copy.deepcopy(w._snapshot())
+                        answer = QMessageBox.Yes if mode in ('lucky','unlucky') else QMessageBox.No
+                        total = 2 if mode == 'lucky' else 12
+                        with patch.object(w,'_ask_combat_question',return_value=answer), \
+                             patch.object(w,'_roll',return_value=([total//2]*2,total)) as dice:
+                            w.escape_scripted_combat(number)
+                            self.assertEqual(dice.call_count,int(answer == QMessageBox.Yes))
+                        cost = 1 if answer == QMessageBox.Yes else 0
+                        damage = {'no_luck':2,'lucky':1,'unlucky':3,'lethal':2}[mode]
+                        if profile['escape_target'] == 156 and mode != 'lethal':damage += 3
+                        self.assertEqual(w.character['endurance'],max(0,before['character']['endurance']-damage))
+                        self.assertEqual(w.character['chance'],8-cost)
+                        escaped = rules.peek(w.character)['combats'][profile['identity']]
+                        self.assertTrue(escaped['escaped'])
+                        self.assertFalse(escaped['finished'])
+                        self.assertEqual(escaped['groups'],before['character']['book_state']['foret']['combats'][profile['identity']]['groups'])
+                        self.assertEqual(w.current_paragraph,number if mode == 'lethal' else profile['escape_target'])
+                        w.undo_action()
+                        self.assertEqual(w._snapshot(),before)
+
+    def test_failed_quest_retry_preserves_loot_spent_charges_and_can_die_on_return(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({204:'Village.',381:'Nouvelle tentative.',98:'Retour.',261:'Boutique.'})
+        rules.buy(w.character,'Bottes à Bondir')
+        rules.consume(w.character,'Bottes à Bondir')
+        rules.resolve_entry(w.character,232)
+        w.character['chance'] = 8
+        initial = copy.deepcopy(w.character)
+        w.go_to(204)
+        w.follow_foret_route(381)
+        w.follow_foret_route(98)
+        w.perform_foret_action('ambush')
+        self.assertEqual(w.current_paragraph,1)
+        w.follow_foret_route(261)
+        self.assertEqual(w.character['gold'],initial['gold'])
+        self.assertEqual(w.character['inventory'],initial['inventory'])
+        self.assertEqual(rules.available(w.character,'Bottes à Bondir'),0)
+        self.assertEqual(w.character['chance'],7)
+        self.assertFalse(rules.entry_resolved(w.character,312))
+        w.go_to(204)
+        w.follow_foret_route(381)
+        w.follow_foret_route(98)
+        before = copy.deepcopy(w._snapshot())
+        with patch.object(w,'_roll',return_value=([6,6],12)):
+            w.perform_foret_action('ambush')
+        self.assertEqual(w.character['endurance'],0)
+        self.assertEqual(w.character['gold'],initial['gold'])
+        self.assertEqual(w.character['inventory'],initial['inventory'])
+        w.undo_action()
+        self.assertEqual(w._snapshot(),before)
+
     def test_complete_hammer_quest_by_holy_water_or_ghoul_combat(self):
         from grimoire_modules.foret import rules
         self.open()
