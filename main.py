@@ -845,7 +845,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.stats_group = stats_group
         stats_grid = QGridLayout(stats_group)
         stats_grid.setHorizontalSpacing(4)
-        stats_grid.setContentsMargins(8, 10, 8, 8)
+        stats_grid.setContentsMargins(4, 10, 4, 8)
         self.stat_spins = {}
         self.stat_bars = {}
         stats = [("HABILETÉ", "habilete"), ("ENDURANCE", "endurance"), ("CHANCE", "chance")]
@@ -858,6 +858,9 @@ class MainWindow(QMainWindow, ModuleActions):
             spin.setAlignment(Qt.AlignCenter)
             spin.setButtonSymbols(QSpinBox.UpDownArrows)
             spin.setObjectName("heroValue")
+            # Le calcul de largeur de QSpinBox réserve trop de place sous Windows.
+            # Les trois colonnes doivent tenir dans le panneau à sa largeur minimale.
+            spin.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
             spin.setMinimumHeight(46)
             spin.setAccessibleName(label)
             spin.valueChanged.connect(lambda value, k=key: self.set_stat(k, value))
