@@ -14,6 +14,7 @@ HUNTERS = [[enemy('Chien de chasse',7,6)],
            [enemy('Chien de chasse A',6,6),enemy('Chien de chasse B',5,6)],
            [enemy('Dernier chien',6,5),enemy('Homme masqué',8,7)]]
 COMBATS = {
+    310: {'groups':[[enemy('Troll des Cavernes',8,9)]], 'victory_target':101,'identity':'cave_troll'},
     231: {'groups':[[enemy('Premier Faucon de la Mort',4,4)],
                     [enemy('Deuxième Faucon de la Mort',4,3)],
                     [enemy('Troisième Faucon de la Mort',5,4)]],

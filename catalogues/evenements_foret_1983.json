@@ -7774,14 +7774,19 @@
       231,
       276,
       285,
+      310,
       352,
       377
     ],
     "entry_effect_paragraphs": [
+      4,
       21,
       24,
+      30,
+      35,
       39,
       44,
+      45,
       46,
       55,
       58,
@@ -7839,8 +7844,11 @@
       22,
       34,
       52,
+      57,
       60,
       73,
+      81,
+      90,
       98,
       154,
       169,
@@ -7848,6 +7856,9 @@
       192,
       204,
       222,
+      229,
+      251,
+      256,
       259,
       262,
       266,
@@ -7858,9 +7869,13 @@
       328,
       370,
       372,
+      376,
       388,
       395
     ],
-    "notes": "Ces services validés sont implémentés dans grimoire_modules/foret. Le statut des 400 analyses ne valide pas une automatisation complète de chaque passage."
+    "notes": "Ces services validés sont implémentés dans grimoire_modules/foret. Le statut des 400 analyses ne valide pas une automatisation complète de chaque passage.",
+    "conditional_route_paragraphs": [
+      295
+    ]
   }
 }
