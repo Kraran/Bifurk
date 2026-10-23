@@ -6,7 +6,7 @@ et validation d’une partie complète sont trois étapes distinctes.
 
 ## Fait
 
-Le registre `mechanics_implementation` recense **189 paragraphes distincts avec
+Le registre `mechanics_implementation` recense **191 paragraphes distincts avec
 au moins une mécanique intégrée**. Ce nombre n’est ni un pourcentage de travail
 terminé, ni une affirmation d’automatisation complète de ces paragraphes.
 Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels existants.
@@ -18,7 +18,7 @@ Les catégories se recoupent et n’énumèrent pas tous les liens conditionnels
 | Effets d’entrée et usages d’objets | 90 |
 | Paiements | 10 |
 | Actions et épreuves spéciales | 36 |
-| Conditions et coûts de route recensés séparément | 14 (§§17, 95, 130, 132, 160, 172, 191, 199, 243, 246, 295, 360, 366, 391) |
+| Conditions et coûts de route recensés séparément | 17 (§§17, 95, 130, 132, 160, 172, 191, 199, 204, 243, 246, 271, 295, 346, 360, 366, 391) |
 
 Sont intégrés : achats et charges, équipement et malédiction, paiements choisis,
 combats en groupes et successifs, fouet du Démon, paralysie de la Goule,
@@ -82,6 +82,11 @@ sont raccordés, sans double prélèvement depuis leurs passages d’accès. Les
 §§17/172 partagent la même offrande. Le vœu du bassin (§199 → 134) coûte une
 pièce au choix de route, puis applique séparément la perte de Chance du §134.
 Les offres hors budget sont masquées, les routes gratuites restent accessibles.
+
+Les routes payantes des §§271 et 346 vérifient le prix et les objets
+réellement cessibles avant d’ouvrir le paiement, sans toucher aux refus. Au
+§204, un marteau incomplet ouvre enfin le §381 ; la remise exige la tête et le
+manche authentiques, puis conserve la victoire après sauvegarde.
 
 Les commandes intégrées sont raccordées aux sauvegardes et à l’historique.
 Les tests vérifient notamment les coûts, la survie, les variantes d’un même butin,

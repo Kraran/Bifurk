@@ -68,6 +68,52 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_village_missing_parts_opens_retry_and_handover_is_undoable(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({204:'Village.',381:'Échec.',98:'Retour.',400:'Victoire.'})
+        w.go_to(204)
+        self.assertEqual(w._reading_link_targets(),{381})
+        w.follow_foret_route(381)
+        self.assertEqual(w.current_paragraph,381)
+        w.character['inventory'] += [rules.HAMMER_HEAD,rules.HAMMER_HEAD]
+        w.go_to(204)
+        self.assertEqual(w._reading_link_targets(),{381})
+        w.character['inventory'].append(rules.HAMMER_HANDLE)
+        self.assertEqual(w._reading_link_targets(),set())
+        before = copy.deepcopy(w._snapshot())
+        w.perform_foret_action('hammer')
+        self.assertEqual(w.current_paragraph,400)
+        self.assertTrue(rules.peek(w.character)['won'])
+        self.assertEqual(w.character['inventory'].count(rules.HAMMER_HEAD),1)
+        w.undo_action()
+        self.assertEqual(w._snapshot(),before)
+        w.redo_action()
+        path = main.SAVES_DIR/'marteau-remis.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        w.go_to(204)
+        self.assertEqual(w._reading_link_targets(),{400})
+        w.perform_foret_action('hammer')
+        self.assertEqual(w.character['inventory'].count(rules.HAMMER_HEAD),1)
+
+    def test_payment_route_rechecks_inventory_at_click_without_charging(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({271:'Gnome.',297:'Prix.',67:'Départ.',346:'Arragon.',32:'Tribut.',111:'Défi.'})
+        for source,target,gold,items in ((271,297,0,['Bijou']),(346,32,10,['Bijou','Bijou'])):
+            w.character.update(gold=gold,inventory=items)
+            w.go_to(source)
+            self.assertIn(target,w._reading_link_targets())
+            w.character['inventory'].clear()
+            w.follow_foret_route(target)
+            self.assertEqual(w.current_paragraph,source)
+            self.assertEqual(w.character['gold'],gold)
+
     def test_fixed_payment_choices_dialog_cancel_save_and_undo(self):
         from grimoire_modules.foret import rules
         self.open()
