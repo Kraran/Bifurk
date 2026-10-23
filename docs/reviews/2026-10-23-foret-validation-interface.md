@@ -81,3 +81,10 @@ Le statut de préparation n’est pas changé par ce lot.
 
 La suite locale comprend les correctifs d’audit préexistants du journal audio et
 de trois fichiers de tests généraux ; ces changements restent séparés de ce lot.
+
+## Complément souris et zoom
+
+Le [contrôle complémentaire](2026-10-23-foret-souris-zoom.md) ajoute les événements
+souris Qt, l’annulation/rétablissement et les échelles Qt 125 %, 150 % et 200 %.
+Les limites de ce rapport initial sont ainsi précisées, sans prétendre simuler
+une partie libre sur le bureau.

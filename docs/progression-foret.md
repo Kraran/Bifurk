@@ -11,8 +11,9 @@ recensent désormais **222 paragraphes avec un point d’entrée réel**, et 178
 narratifs sans action supplémentaire identifiée. Les huit constats de l’audit ont
 été corrigés ou documentés. Le [contrôle natif Windows](reviews/2026-10-23-foret-validation-interface.md)
 couvre les écrans principaux à trois tailles et deux parcours avec le PDF réel.
-Ces contrôles ne remplacent pas une partie libre à la souris ni les autres
-configurations d’affichage.
+Le [complément souris et zoom Qt](reviews/2026-10-23-foret-souris-zoom.md)
+ajoute 51 captures aux échelles 125 %, 150 % et 200 %, et les clics des commandes
+principales. Ces contrôles ne remplacent pas une partie libre sur le bureau.
 
 | Catégorie du registre | Paragraphes |
 | --- | ---: |
@@ -136,8 +137,9 @@ de quête et transformations. Voir [le contrôle des branches alternatives](revi
 
 - **Partie libre** : vérifier l’usage à la souris, les sorties de secours et les
   interactions d’équipement sans scénario de dés imposés.
-- **Autres affichages** : contrôler les niveaux de zoom Windows et les configurations
-  autres que les trois tailles rendues avec le pilote natif Windows.
+- **Autres affichages** : vérifier les dimensions physiques disponibles, les réglages
+  du système et les configurations à plusieurs moniteurs. Les trois tailles de
+  fenêtre et les échelles Qt 125 %, 150 %, 200 % sont contrôlées.
 
 ## Points à clarifier
 

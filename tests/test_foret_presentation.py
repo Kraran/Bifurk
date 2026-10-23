@@ -1989,6 +1989,50 @@ class ForetPresentationTests(unittest.TestCase):
                     self.assertTrue(scroll.widget().rect().contains(spin.mapTo(scroll.widget(),spin.rect().bottomRight())))
 
 
+    def test_mouse_choices_and_band_test_keep_undo_and_redo_atomic(self):
+        from PySide6.QtCore import Qt
+        from PySide6.QtTest import QTest
+        from PySide6.QtWidgets import QScrollArea
+        self.open()
+        w = self.w
+        w.show(); w.resize(930,650)
+        w.creation_name_field.setText('Eldan')
+        QTest.mouseClick(w.creation_start_button,Qt.LeftButton)
+        self.assertIsNone(w._adventurer_draft)
+        w.paragraphs.update({int(n):e['title'] for n,e in w.book_event_catalogue['paragraphs'].items()})
+        w.go_to(1)
+        route = next(w.choice_layout.itemAt(i).widget() for i in range(w.choice_layout.count())
+                     if w.choice_layout.itemAt(i).widget().text().endswith('§261'))
+        for area in w.findChildren(QScrollArea):
+            if area.widget() and area.widget().isAncestorOf(route):area.ensureWidgetVisible(route)
+        self.app.processEvents()
+        QTest.mouseClick(route,Qt.LeftButton,pos=route.rect().center())
+        self.assertEqual(w.current_paragraph,261)
+        w.perform_foret_action('buy',('Bandeau de Concentration',1))
+        w.go_to(158)
+        before = copy.deepcopy(w._snapshot())
+        blocked = w.choice_layout.itemAt(0).widget()
+        self.assertFalse(blocked.isEnabled())
+        QTest.mouseClick(blocked,Qt.LeftButton)
+        self.assertEqual(w._snapshot(),before)
+        action = next(w.event_layout.itemAt(i).widget() for i in range(w.event_layout.count())
+                      if isinstance(w.event_layout.itemAt(i).widget(),QPushButton)
+                      and 'Bandeau' in w.event_layout.itemAt(i).widget().text())
+        for area in w.findChildren(QScrollArea):
+            if area.widget() and area.widget().isAncestorOf(action):area.ensureWidgetVisible(action)
+        self.app.processEvents()
+        with patch.object(w,'_roll',return_value=([1,1],2)) as dice:
+            QTest.mouseClick(action,Qt.LeftButton)
+        self.assertEqual(dice.call_count,1)
+        self.assertEqual(w.current_paragraph,47)
+        self.assertEqual(w.character['chance'],before['character']['chance']-1)
+        after = copy.deepcopy(w._snapshot())
+        QTest.mouseClick(w.undo_btn,Qt.LeftButton)
+        self.assertEqual(w._snapshot(),before)
+        QTest.mouseClick(w.redo_btn,Qt.LeftButton)
+        self.assertEqual(w._snapshot(),after)
+
+
 class ForetEditionContractTests(unittest.TestCase):
     def test_illustrations_have_verified_associations_and_exclude_ornaments(self):
         from illustrations import images_for_paragraph
