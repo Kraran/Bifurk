@@ -408,5 +408,5 @@ class ExplorationMapDialog(QDialog):
     def travel(self):
         """Conserver la navigation explicite déjà offerte par l'ancienne carte."""
         if self.selected in self.places and self.travel_button.isEnabled():
-            self.owner.go_to(self.selected)
-            self.accept()
+            if self.owner.manual_travel(self.selected):
+                self.accept()
