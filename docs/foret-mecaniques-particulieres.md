@@ -56,6 +56,9 @@ converties globalement en événements exécutables.
   et sa potion est bue aussitôt (+4 Endurance sous plafond), sans recharge ni
   ajout d’une fiole ; l’échange a lieu une fois, même si le héros est déjà soigné.
   Le choix du §191 exige la présence de la clochette.
+  Au §178, le sel coûte une ration sans blessure ni repas restaurateur. La sortie
+  mène au combat de l’Araignée. Sans ration, la commande laisse l’état intact
+  et explique le cas non décrit ; les provisions ne deviennent pas négatives.
 - **Paiements** : choix des exemplaires et des pièces aux §§12, 14, 32, 36, 218,
   279 et 297. Le tribut représente exactement cinq unités ; chaque pièce et chaque
   objet compte pour une unité. La valeur estimée d’un bijou ne crée pas des pièces.
@@ -129,6 +132,22 @@ la cible offensive ; il doit parer l’autre. Un survivant termine le combat seu
 Le choix de cible revient entre chaque assaut. La chronique n’ajoute pas un nouvel
 assaut pour la seconde attaque et le grand bandeau de victoire attend la dernière
 paire. Une blessure létale interrompt les jets et coups suivants.
+
+Les duels et successions ordinaires sont aussi raccordés :
+
+- §§7, 43, 79, 212 et 330 : essaims, Hommes des Bois, Vampires, Clones et Loups
+  affrontés un par un, conformément aux instructions explicites.
+- §§9/117 : même Gobelin persistant, avec sortie vers le butin de la branche.
+- §§203/286 : même Changeur de Forme, dont les blessures sont partagées.
+- §§15, 118, 128, 153, 167, 181, 241, 265, 290, 298, 303 et 347 : duels
+  ordinaires contre Ver, Sanglier, Barbare, Femme Féline, Vouivre, Homme-Poisson,
+  Ours, Géant, Ogre, Araignée, Ptérodactyle et Nain.
+
+La fuite réglementaire est offerte aux §§43/153/212/290, sans délai importé
+du Sorcier. La fuite engagée de la Femme Féline blesse normalement, tandis
+que son évitement au §130 coûte seulement de la Chance. Aucun venin,
+souffle périodique ou pouvoir de Vampire supplémentaire n’est inventé.
+Une séquence complète reste une seule rencontre pour la potion des deux combats.
 
 ## Interprétations explicites
 

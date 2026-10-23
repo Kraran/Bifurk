@@ -522,6 +522,18 @@ def eat_elven_bread(character, *, in_combat=False):
     character['endurance'] = min(maximum,character['endurance']+4)
 
 
+def use_leech_salt(character):
+    """§178 : une ration pour le sel ; sans ration, ne pas inventer une issue gratuite."""
+    alive(character)
+    if 'leech_salt' in peek(character).get('rewards', []):
+        return False
+    if character.get('provisions',0) < 1:
+        raise ValueError('Aucune ration pour le sel ; le livre ne décrit pas ce cas.')
+    character['provisions'] -= 1
+    reward(character,'leech_salt')
+    return True
+
+
 def take_silver_dart(character):
     """§219 : prendre facultativement la fléchette après le gain de Chance de la trouvaille."""
     alive(character)

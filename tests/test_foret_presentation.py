@@ -635,6 +635,132 @@ class ForetPresentationTests(unittest.TestCase):
         w.follow_foret_route(157)
         self.assertEqual(w.current_paragraph,157)
 
+    def test_all_new_ordinary_combats_reach_only_their_victory_after_last_enemy(self):
+        from grimoire_modules.foret.encounters import COMBATS
+        self.open()
+        self.start()
+        w = self.w
+        numbers = (7,9,15,43,79,117,118,128,153,167,181,203,212,241,265,286,290,298,303,330,347)
+        w.character['habilete'] = 30
+        base = w._snapshot()
+        for number in numbers:
+            w.paragraphs[number] = 'Combat.'
+            w.paragraphs[COMBATS[number]['victory_target']] = 'Victoire.'
+        with patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No):
+            for number in numbers:
+                with self.subTest(number=number):
+                    w._restore(base)
+                    w.go_to(number)
+                    self.assertEqual(w._reading_link_targets(),set())
+                    stamina = w.character['endurance']
+                    calls = self.roll.call_count
+                    rounds = 0
+                    while w.current_paragraph == number and rounds < 30:
+                        w.combat_round()
+                        rounds += 1
+                    self.assertEqual(w.current_paragraph,COMBATS[number]['victory_target'])
+                    self.assertEqual(w.character['endurance'],stamina)
+                    self.assertEqual(self.roll.call_count-calls,2*rounds)
+                    w.go_to(number)
+                    self.assertFalse(w.combat_available())
+                    self.assertEqual(w._reading_link_targets(),{COMBATS[number]['victory_target']})
+
+    def test_new_ordinary_combats_apply_normal_lethal_hit_without_extra_rolls(self):
+        self.open()
+        self.start()
+        w = self.w
+        numbers = (7,9,15,43,79,117,118,128,153,167,181,203,212,241,265,286,290,298,303,330,347)
+        w.character.update(habilete=1,endurance=2)
+        base = w._snapshot()
+        with patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No):
+            for number in numbers:
+                with self.subTest(number=number):
+                    w._restore(base)
+                    w.paragraphs[number] = 'Combat.'
+                    w.go_to(number)
+                    calls = self.roll.call_count
+                    w.combat_round()
+                    self.assertEqual(w.character['endurance'],0)
+                    self.assertEqual(w.current_paragraph,number)
+                    self.assertEqual(self.roll.call_count-calls,2)
+                    w.combat_round()
+                    self.assertEqual(self.roll.call_count-calls,2)
+
+    def test_ordinary_combat_aliases_share_wounds_and_potion_counts_encounters(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.character['habilete'] = 30
+        w.paragraphs.update({9:'Gobelin.',117:'Même Gobelin.',232:'Butin.',203:'Changeur.',286:'Même Changeur.',
+                             7:'Essaims.',23:'Sortie.'})
+        rules.drink_combat_potion(w.character)
+        with patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No):
+            w.go_to(9)
+            w.combat_round()
+            self.assertEqual(w.enemy_endurance.value(),2)
+            w.go_to(117)
+            self.assertEqual(w.enemy_endurance.value(),2)
+            self.assertEqual(rules.peek(w.character)['combat_potion_remaining'],1)
+            w.combat_round()
+            self.assertEqual(w.current_paragraph,232)
+            w.go_to(7)
+            for _ in range(6):
+                if w.current_paragraph != 7:break
+                w.combat_round()
+            self.assertEqual(w.current_paragraph,23)
+            self.assertEqual(rules.peek(w.character)['combat_potion_remaining'],0)
+            w.go_to(203)
+            w.combat_round()
+            self.assertEqual(w.enemy_endurance.value(),8)
+            w.go_to(286)
+            self.assertEqual(w.enemy_endurance.value(),8)
+
+    def test_new_flee_routes_use_combat_damage_without_initial_chance_cost(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.character.update(endurance=20,chance=8)
+        base = w._snapshot()
+        with patch.object(w,'_ask_combat_question',return_value=QMessageBox.No):
+            for number,target in ((43,188),(153,355),(212,107),(290,358)):
+                with self.subTest(number=number):
+                    w._restore(base)
+                    w.paragraphs.update({number:'Combat.',target:'Fuite.'})
+                    w.go_to(number)
+                    self.assertTrue(w.can_flee_combat())
+                    calls = self.roll.call_count
+                    w.escape_scripted_combat(number)
+                    self.assertEqual((w.current_paragraph,w.character['endurance'],w.character['chance']),(target,18,8))
+                    self.assertEqual(self.roll.call_count,calls)
+
+    def test_leech_salt_empty_ration_then_save_undo_and_no_second_cost(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({178:'Sangsue.',298:'Araignée.'})
+        w.character.update(provisions=0,endurance=20,chance=8)
+        w.go_to(178)
+        self.assertEqual(w._reading_link_targets(),set())
+        before = copy.deepcopy(w._snapshot())
+        w.perform_foret_action('leech_salt')
+        self.assertEqual(w._snapshot(),before)
+        w.character['provisions'] = 1
+        w.perform_foret_action('leech_salt')
+        self.assertEqual((w.current_paragraph,w.character['provisions'],w.character['endurance']),(298,0,20))
+        self.assertTrue(w.combat_available())
+        w.undo_action()
+        self.assertEqual((w.current_paragraph,w.character['provisions']),(178,1))
+        w.redo_action()
+        path = main.SAVES_DIR/'sel.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        w.go_to(178)
+        w.perform_foret_action('leech_salt')
+        self.assertEqual(w.character['provisions'],0)
+        self.assertEqual(w._reading_link_targets(),{298})
+
     def test_cover_title_starting_resources_and_preparation_notice(self):
         self.open()
         self.assertEqual(self.w.book_module.id, 'foret_malediction_1983')

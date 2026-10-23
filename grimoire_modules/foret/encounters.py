@@ -10,10 +10,42 @@ def enemy(name, skill, stamina):
     return {'name':name, 'skill':skill, 'stamina':stamina}
 
 
+def successive(identity, victory, enemies, *, escape=None):
+    """Décrire un adversaire par groupe, uniquement pour les successions explicites."""
+    profile = {'identity':identity, 'victory_target':victory,
+               'groups':[[enemy(*spec)] for spec in enemies]}
+    if escape is not None:
+        profile['escape_target'] = escape
+    return profile
+
+
 HUNTERS = [[enemy('Chien de chasse',7,6)],
            [enemy('Chien de chasse A',6,6),enemy('Chien de chasse B',5,6)],
            [enemy('Dernier chien',6,5),enemy('Homme masqué',8,7)]]
 COMBATS = {
+    7: successive('killer_bees',23,[('Premier essaim d’Abeilles Tueuses',7,3),
+                                   ('Deuxième essaim d’Abeilles Tueuses',8,4),('Troisième essaim d’Abeilles Tueuses',7,4)]),
+    9: successive('caged_goblin',176,[('Gobelin',5,4)]),
+    117: successive('caged_goblin',232,[('Gobelin',5,4)]),
+    15: successive('stinging_worm',217,[('Ver Piqueur',8,7)]),
+    43: successive('woodsmen',50,[('Premier Homme des Bois',7,5),('Deuxième Homme des Bois',6,4)],escape=188),
+    79: successive('tree_vampires',386,[('Premier Vampire',5,5),('Deuxième Vampire',6,5),('Troisième Vampire',5,7)]),
+    118: successive('wild_boar',174,[('Sanglier Sauvage',6,5)]),
+    128: successive('barbarian',272,[('Barbare',9,7)]),
+    153: successive('cat_woman',202,[('Femme Féline',8,5)],escape=355),
+    167: successive('wyvern',305,[('Vouivre Volante',10,11)]),
+    181: successive('fish_man',162,[('Homme-Poisson',7,6)]),
+    203: successive('shape_changer',373,[('Changeur de Forme',10,10)]),
+    286: successive('shape_changer',373,[('Changeur de Forme',10,10)]),
+    212: successive('warrior_clones',321,[('Premier Guerrier Clone',5,5),('Deuxième Guerrier Clone',6,4),
+                                        ('Troisième Guerrier Clone',5,6),('Quatrième Guerrier Clone',6,5)],escape=107),
+    241: successive('bear',219,[('Ours',7,8)]),
+    265: successive('forest_giant',356,[('Géant des Forêts',9,9)]),
+    290: successive('ogre',385,[('Ogre',8,12)],escape=358),
+    298: successive('giant_spider',140,[('Araignée Géante',7,8)]),
+    303: successive('pterodactyl',247,[('Ptérodactyle',7,8)]),
+    330: successive('wolves',116,[('Premier Loup',7,8),('Deuxième Loup',7,7),('Troisième Loup',7,9)]),
+    347: successive('dwarf',363,[('Nain',8,5)]),
     310: {'groups':[[enemy('Troll des Cavernes',8,9)]], 'victory_target':101,'identity':'cave_troll'},
     231: {'groups':[[enemy('Premier Faucon de la Mort',4,4)],
                     [enemy('Deuxième Faucon de la Mort',4,3)],
