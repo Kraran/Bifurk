@@ -104,6 +104,12 @@ l’absence de répétition, la restauration et l’annulation/rétablissement.
 
 ## Reste à faire
 
+Deux variantes de parcours du marteau sont désormais couvertes par un test
+automatisé du lecteur, depuis les achats jusqu’à la victoire : Eau Bénite ou
+combat contre la Goule, avec rechargements et annulation de la remise.
+Voir [le contrôle des parcours](reviews/2026-10-23-foret-parcours-marteau.md).
+Cela ne valide pas encore toutes les branches ni la présentation Windows.
+
 - **Rencontres** : vérifier les contournements de combats et les conséquences
   des issues dans des parcours complets. Les profils chiffrés du catalogue
   sont raccordés, avec le mode successif confirmé pour les §§29/317.

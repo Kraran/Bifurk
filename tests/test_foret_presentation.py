@@ -68,6 +68,84 @@ class ForetPresentationTests(unittest.TestCase):
     def start(self):
         self.w._begin_adventure('Eldan')
 
+    def test_complete_hammer_quest_by_holy_water_or_ghoul_combat(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        # Un héros légal ayant obtenu les maxima aux tirages de création.
+        self.w._adventurer_draft = {'habilete':12,'endurance':24,'chance':12}
+        self.start()
+        w = self.w
+        catalogue = w.book_event_catalogue['paragraphs']
+        w.paragraphs.update({int(n):entry['title'] for n,entry in catalogue.items()})
+        w.follow_foret_route(261)
+        base = w._snapshot()
+        prefix = [261,177,160,8,392,157,337,230,137,55,168,117,232,358,40,
+                  274,109,124,180,361,86,208,99,209,28,52,78,349,291,145,
+                  285,388,316,198,87,90,210,43,50,188,221,378,67,113,149,
+                  306,391,200,351,292,95,173]
+        suffix = [112,103,360,279,246,204]
+        with patch.object(w,'_assault_luck_choice',return_value=QMessageBox.No), \
+             patch('grimoire_modules.foret.actions.QInputDialog.getItem',return_value=('10 pièces d’or',True)):
+            for holy_water in (True,False):
+                with self.subTest(holy_water=holy_water):
+                    w._restore(base)
+                    purchases = ['Gant d’Adresse au Lancer','Brassard de Force']
+                    if holy_water:purchases.append('Eau Bénite')
+                    for item in purchases:w.perform_foret_action('buy',(item,1))
+                    path = prefix + ([58] if holy_water else [227,312]) + suffix
+                    for index,number in enumerate(path):
+                        self.assertEqual(w.current_paragraph,number,f'Parcours au §{number}')
+                        if w.combat_available():
+                            rounds = 0
+                            while w.combat_available() and rounds < 30:
+                                w.combat_round()
+                                rounds += 1
+                            self.assertLess(rounds,30)
+                        elif number in rules.ENTRY_RULES:
+                            w.perform_foret_action('entry')
+                        elif number == 358:w.perform_foret_action('snare')
+                        elif number == 52:w.perform_foret_action('bracelet')
+                        elif number == 388:w.perform_foret_action('werewolf_exit')
+                        elif number == 90:w.perform_foret_action('branch_test')
+                        elif number == 279:w.perform_foret_action('payment',(5,[]))
+                        if number in (232,173,279):
+                            saved = copy.deepcopy(w.character)
+                            save_path = main.SAVES_DIR/f'parcours-{holy_water}-{number}.json'
+                            w._write_atomic(save_path,w._save_data())
+                            with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                                self.assertTrue(w.load_game(save_path,announce=False))
+                            self.assertEqual(w.character,saved)
+                        self.assertGreater(w.character['endurance'],0)
+                        self.assertGreaterEqual(w.character['gold'],0)
+                        if index+1 < len(path):
+                            target = path[index+1]
+                            if w.current_paragraph != target:
+                                self.assertIn(target,w._reading_link_targets(),f'Route {number} → {target}')
+                                w.follow_foret_route(target)
+                    self.assertTrue(rules.hammer_complete(w.character))
+                    self.assertNotIn('Poudre de Lévitation',w.character['inventory'])
+                    self.assertIn('Petite clé d’argent',w.character['inventory'])
+                    for item in purchases:self.assertEqual(rules.available(w.character,item),0)
+                    self.assertEqual(w.character['provisions'],0)
+                    # La mise du bras de fer n’est perdue qu’en cas d’échec.
+                    expected_gold = 30-sum(rules.PRICES[item] for item in purchases)+25-5
+                    self.assertEqual(w.character['gold'],expected_gold)
+                    w.perform_foret_action('hammer')
+                    self.assertEqual(w.current_paragraph,400)
+                    self.assertTrue(w.character['book_facts']['adventure_ended'])
+                    self.assertFalse(rules.hammer_complete(w.character))
+                    self.assertEqual(w.character['gold'],expected_gold)
+                    w.undo_action()
+                    self.assertEqual(w.current_paragraph,204)
+                    self.assertTrue(rules.hammer_complete(w.character))
+                    w.redo_action()
+                    final = copy.deepcopy(w.character)
+                    save_path = main.SAVES_DIR/f'victoire-parcours-{holy_water}.json'
+                    w._write_atomic(save_path,w._save_data())
+                    with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+                        self.assertTrue(w.load_game(save_path,announce=False))
+                    self.assertEqual(w.character,final)
+
     def test_victory_closes_play_only_after_real_handover(self):
         from grimoire_modules.foret import rules
         self.open()
