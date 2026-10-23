@@ -278,7 +278,7 @@ class ForetMechanicsActions(FightingFantasyActions):
                     48:('Résoudre l’explosion de l’œuf (1d6)', 'egg_explosion')}
         if number in commands and not self._book_state(number).get('foret_resolved'):
             label, action = commands[number]
-            add(label, action)
+            add(label, action, enabled=number != 204 or rules.hammer_complete(self.character))
 
     def _foret_shop(self):
         """Panier explicite : le choix seul ne dépense rien ; chaque achat est une transaction."""

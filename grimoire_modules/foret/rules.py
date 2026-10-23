@@ -831,6 +831,17 @@ OPTIONAL_ITEM_ROUTES = {(92,100):'Potion de Contrôle des Insectes', (196,39):'F
 
 def route_available(character, paragraph, target):
     """Autoriser les seules conditions intégrées ; ne jamais renouveler une charge épuisée."""
+    if (paragraph,target) in ((271,297),(346,32)):
+        payment = 297 if paragraph == 271 else 32
+        if payment_resolved(character,payment):
+            return True
+        objects = sum(name != 'Anneau de Lenteur' and name not in character.get('locked_items', [])
+                      for name in character.get('inventory', []))
+        gold = character.get('gold',0)
+        return (gold >= 5 or objects >= 1) if paragraph == 271 else (gold >= 10 and objects >= 2)
+    if paragraph == 204:
+        complete = hammer_complete(character) or peek(character).get('won',False)
+        return target == (400 if complete else 381)
     payment = FIXED_PAYMENT_ROUTES.get((paragraph,target))
     if payment is not None:
         return payment_resolved(character,payment) or character.get('gold',0) >= FIXED_PAYMENTS[payment]

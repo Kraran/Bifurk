@@ -15,6 +15,36 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_gnome_and_arragon_offer_routes_require_payable_objects(self):
+        c = hero(gold=0,inventory=['Anneau de Lenteur','Bijou'],locked_items=['Bijou'])
+        before = deepcopy(c)
+        self.assertFalse(r.route_available(c,271,297))
+        self.assertTrue(r.route_available(c,271,67))
+        self.assertFalse(r.route_available(c,346,32))
+        self.assertTrue(r.route_available(c,346,111))
+        self.assertEqual(c,before)
+        c['gold'] = 5
+        self.assertTrue(r.route_available(c,271,297))
+        c['gold'] = 10
+        self.assertFalse(r.route_available(c,346,32))
+        c['inventory'] += ['Boucle','Boucle']
+        self.assertTrue(r.route_available(c,346,32))
+        r.pay_paragraph(c,32,gold=10,items=['Boucle','Boucle'])
+        self.assertEqual((c['gold'],c['chance']),(0,7))
+        self.assertTrue(r.route_available(c,346,32))
+
+    def test_village_requires_two_different_authentic_hammer_parts(self):
+        for items in ([],[r.HAMMER_HEAD],[r.HAMMER_HEAD]*2,['Fausse tête',r.HAMMER_HANDLE]):
+            c = hero(inventory=items)
+            self.assertTrue(r.route_available(c,204,381))
+            self.assertFalse(r.route_available(c,204,400))
+        c = hero(inventory=[r.HAMMER_HEAD,r.HAMMER_HANDLE])
+        self.assertFalse(r.route_available(c,204,381))
+        self.assertTrue(r.route_available(c,204,400))
+        r.hand_over_hammer(c)
+        self.assertTrue(r.route_available(c,204,400))
+        self.assertFalse(r.route_available(c,204,381))
+
     def test_well_advice_and_ferry_payments_require_exact_gold_once(self):
         for number,price in ((89,1),(343,1),(127,3)):
             c = hero(gold=price-1,inventory=['Bijou'])
