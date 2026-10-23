@@ -14,6 +14,43 @@ def hero(**changes):
 
 
 class ForetMechanicsTests(unittest.TestCase):
+    def test_branch_tests_all_totals_costs_and_damage_locations(self):
+        for number,(stat,success,failure,damage) in r.BRANCH_TESTS.items():
+            for total in range(2,13):
+                with self.subTest(number=number,total=total):
+                    c = hero()
+                    target = r.resolve_branch_test(c,number,total)
+                    passed = total <= 8
+                    self.assertEqual(target,success if passed else failure)
+                    self.assertEqual(c['chance'],7 if stat == 'chance' else 8)
+                    self.assertEqual(c['endurance'],20 if passed else 20-damage)
+
+    def test_branch_test_lethal_damage_and_enchanted_skill(self):
+        for number,damage in ((90,3),(251,4)):
+            c = hero(endurance=damage,chance=0)
+            self.assertIsNone(r.resolve_branch_test(c,number,12))
+            self.assertEqual(c['endurance'],0)
+        c = hero()
+        r.resolve_entry(c,70)
+        self.assertEqual(r.resolve_branch_test(c,251,10),63)
+        self.assertEqual(c['chance'],8)
+        before = deepcopy(c)
+        with self.assertRaises(ValueError):r.resolve_branch_test(c,90,True)
+        self.assertEqual(c,before)
+
+    def test_helmet_route_requires_wearing_and_presence(self):
+        c = hero(chance=12)
+        r.resolve_entry(c,4)
+        self.assertEqual((c['endurance'],c['chance']),(16,12))
+        c = hero(inventory=['Casque magique'])
+        self.assertTrue(r.route_available(c,295,30))
+        self.assertFalse(r.route_available(c,295,225))
+        r.wear(c,'Casque magique')
+        self.assertTrue(r.route_available(c,295,225))
+        self.assertFalse(r.route_available(c,295,30))
+        c['inventory'].clear()
+        self.assertTrue(r.route_available(c,295,30))
+
     def test_silver_box_gas_aliases_share_one_roll_and_one_box(self):
         for paragraph in (22,169):
             c = hero()

@@ -31,6 +31,25 @@ HAMMER_HEAD = 'Tête de marteau en bronze — G'
 HAMMER_HANDLE = 'Manche de marteau en ébène — G'
 ENCHANTED_SWORD = 'Épée enchantée'
 GAS_PARAGRAPHS = {22,169,222}
+# Statistique, réussite, échec, blessure immédiate de l’échec.
+BRANCH_TESTS = {57:('chance',132,35,0),81:('chance',49,4,0),
+                90:('chance',210,348,3),229:('chance',165,45,0),
+                251:('habilete',63,260,4),256:('chance',122,295,0),
+                376:('chance',74,310,0)}
+
+
+def resolve_branch_test(character, paragraph, total):
+    """Résoudre une épreuve relue ; ne pas anticiper les blessures du renvoi."""
+    alive(character)
+    dice(total)
+    if paragraph not in BRANCH_TESTS:
+        raise ValueError('Épreuve non intégrée.')
+    stat, success, failure, damage = BRANCH_TESTS[paragraph]
+    passed = spend_luck(character,total) if stat == 'chance' else total <= effective_skill(character)
+    if passed:
+        return success
+    damage_hero(character,damage)
+    return failure if character['endurance'] > 0 else None
 
 
 def gas_resolved(character, paragraph):
@@ -200,7 +219,8 @@ def reward(character, identity, *, gold=0, items=(), luck=0):
     character['gold'] = character.get('gold', 0) + gold
     character.setdefault('inventory', []).extend(items)
     cap = character.get('initial', {}).get('chance', character['chance'])
-    character['chance'] = min(cap, max(0, character['chance'] + luck))
+    if luck:
+        character['chance'] = min(cap, max(0, character['chance'] + luck))
     state(character).setdefault('rewards', []).append(identity)
     return True
 
@@ -455,6 +475,7 @@ def advance_group(combat):
 # Les variantes partagent un identifiant physique. La table ne contient que des
 # effets relus : aucun motif de texte ne peut créer une récompense ou une charge.
 ENTRY_RULES = {
+    4:{'damage':4},35:{'damage':4},45:{'damage':2},30:{'damage':2},
     70:{'items':[ENCHANTED_SWORD], 'equip':ENCHANTED_SWORD},
     46:{'luck':-2},
     21:{'use':'Potion Antipoison'}, 24:{'use':'Potion Antipoison'},
@@ -619,6 +640,10 @@ OPTIONAL_ITEM_ROUTES = {(92,100):'Potion de Contrôle des Insectes', (196,39):'F
 
 def route_available(character, paragraph, target):
     """Autoriser les seules conditions intégrées ; ne jamais renouveler une charge épuisée."""
+    if paragraph == 295:
+        helmet = ('Casque magique' in peek(character).get('worn', [])
+                  and 'Casque magique' in character.get('inventory', []))
+        return target == (225 if helmet else 30)
     if paragraph == 356 and target in (34,395):
         return 'Lanterne magique' in character.get('inventory', [])
     if paragraph in ITEM_BRANCHES:

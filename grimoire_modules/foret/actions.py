@@ -203,6 +203,9 @@ class ForetMechanicsActions(FightingFantasyActions):
                 button.clicked.connect(lambda checked=False: self.perform_foret_action(action, payload))
             self.event_layout.addWidget(button)
         number = self.current_paragraph
+        if number in rules.BRANCH_TESTS and not self._book_state(number).get('foret_resolved'):
+            stat = rules.BRANCH_TESTS[number][0]
+            add('Résoudre l’épreuve — ' + ('Chance' if stat == 'chance' else 'Habileté'), 'branch_test')
         if number in rules.GAS_PARAGRAPHS and not rules.gas_resolved(self.character,number):
             add('Résoudre le gaz toxique (1d6)', 'gas')
         if number in rules.ENTRY_RULES and not rules.entry_resolved(self.character, number):
@@ -363,7 +366,14 @@ class ForetMechanicsActions(FightingFantasyActions):
             return
         target = None
         try:
-            if action == 'gas':
+            if action == 'branch_test':
+                if number not in rules.BRANCH_TESTS or self._book_state(number).get('foret_resolved'):
+                    return
+                stat = rules.BRANCH_TESTS[number][0]
+                _, total = self._roll(2,context=('Chance' if stat == 'chance' else 'Habileté') + f' — §{number}')
+                target = rules.resolve_branch_test(self.character,number,total)
+                self._book_state(number,True)['foret_resolved'] = True
+            elif action == 'gas':
                 if number not in rules.GAS_PARAGRAPHS or rules.gas_resolved(self.character,number):
                     return
                 _, die = self._roll(1,context='Gaz toxique — perte d’Endurance')

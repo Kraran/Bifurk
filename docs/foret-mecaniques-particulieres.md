@@ -33,6 +33,10 @@ converties globalement en événements exécutables.
   fosse au pieu, fièvre avec contrôle de survie avant les dés et embuscade du retour.
   Le §182 compare 2d6 à l’Habileté effective pour extraire l’épée du rocher :
   réussite vers le §70, échec sans blessure vers le §334, sans dépense de Chance.
+  Les §§57, 81, 90, 229, 256 et 376 ont désormais leur test de Chance obligatoire ;
+  le §251 utilise l’Habileté. Les flèches des §§90/251 blessent immédiatement en
+  cas d’échec, tandis que les blessures des §§35/4/45 sont appliquées uniquement
+  dans leur passage respectif. Une blessure mortelle interrompt le parcours.
 - **Gaz toxiques (§§22, 169, 222, 60)** : un seul d6 de perte d’Endurance.
   La boîte d’argent enlève aussi deux points d’Habileté de base ; le champignon
   n’en enlève aucun. Les §§22/169 et les variantes protégées §§338/365 partagent
@@ -84,6 +88,7 @@ encore en consultation ne sont pas interprétées à partir de leur texte libre.
 | 227 | Quatre coups blessants de la Goule provoquent la paralysie et la fin. |
 | 186 | Anguille Carnivore H5/E4 ; victoire vers le §131, sans fuite. |
 | 231 | Trois Faucons de la Mort successifs H4/E4, H4/E3, H5/E4 ; victoire au §224, fuite réglementaire au §332. |
+| 310 | Troll des Cavernes H8/E9, réveillé après échec au §376 ; victoire au §101, butin commun au §74. |
 | 285 | La blessure du Loup-Garou reste mémorisée malgré les soins (§388). |
 | 84 | Fuite après exactement trois assauts terminés, égalités comprises. |
 | 49, 71, 165 et 193 | Force d’Attaque -3 sous plafond bas. |

@@ -24,6 +24,8 @@ class ForetController(ForetMechanicsActions):
         """Un renvoi illisible ou supposé ne doit pas devenir un lien cliquable."""
         if self.combat_available():
             return set()
+        if self.current_paragraph in rules.BRANCH_TESTS and not self._book_state(self.current_paragraph).get('foret_resolved'):
+            return set()
         if self.current_paragraph in rules.GAS_PARAGRAPHS and not rules.gas_resolved(self.character,self.current_paragraph):
             return set()
         combat = self._foret_combat()

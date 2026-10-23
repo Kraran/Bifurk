@@ -303,6 +303,67 @@ class ForetPresentationTests(unittest.TestCase):
         w.perform_foret_action('entry')
         self.assertEqual(w.stat_spins['habilete'].value(),8)
 
+    def test_arrow_branch_damage_is_applied_only_at_its_paragraph_and_undoable(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({81:'Flèche.',4:'Blessure.',49:'Combat.',93:'Croisement.'})
+        w.character.update(chance=0,endurance=20)
+        w.go_to(81)
+        self.assertEqual(w._reading_link_targets(),set())
+        calls = self.roll.call_count
+        w.perform_foret_action('branch_test')
+        self.assertEqual((w.current_paragraph,w.character['endurance'],w.character['chance']),(4,20,0))
+        self.assertEqual(w._reading_link_targets(),set())
+        w.perform_foret_action('entry')
+        self.assertEqual(w.character['endurance'],16)
+        w.perform_foret_action('entry')
+        self.assertEqual(w.character['endurance'],16)
+        w.undo_action()
+        self.assertEqual(w.character['endurance'],20)
+        w.redo_action()
+        w.go_to(81)
+        w.perform_foret_action('branch_test')
+        self.assertEqual(self.roll.call_count,calls+1)
+        self.assertEqual(w._reading_link_targets(),{4})
+
+    def test_immediate_arrow_damage_stops_on_death_and_skill_preserves_luck(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({90:'Flèche.',210:'Esquive.',348:'Blessure.',251:'Centaure.',63:'Esquive.',260:'Blessure.'})
+        w.character.update(chance=0,endurance=3)
+        w.go_to(90)
+        w.perform_foret_action('branch_test')
+        self.assertEqual(w.character['endurance'],0)
+        self.assertEqual(w.current_paragraph,90)
+        w.undo_action()
+        w.character.update(habilete=5,endurance=20,chance=8)
+        w.go_to(251)
+        w.perform_foret_action('branch_test')
+        self.assertEqual((w.current_paragraph,w.character['endurance'],w.character['chance']),(260,16,8))
+
+    def test_troll_luck_failure_prepares_combat_and_saved_test_is_not_repeated(self):
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({376:'Le sac.',74:'Butin.',310:'Troll.',101:'Butin.'})
+        w.character['chance'] = 0
+        w.go_to(376)
+        w.perform_foret_action('branch_test')
+        self.assertEqual(w.current_paragraph,310)
+        self.assertTrue(w.combat_available())
+        self.assertEqual((w.enemy_skill.value(),w.enemy_endurance.value()),(8,9))
+        path = main.SAVES_DIR/'epreuve.json'
+        w._write_atomic(path,w._save_data())
+        with patch('main.extract_paragraphs',return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path,announce=False))
+        calls = self.roll.call_count
+        w.go_to(376)
+        w.perform_foret_action('branch_test')
+        self.assertEqual(self.roll.call_count,calls)
+        self.assertEqual(w._reading_link_targets(),{310})
+
     def test_cover_title_starting_resources_and_preparation_notice(self):
         self.open()
         self.assertEqual(self.w.book_module.id, 'foret_malediction_1983')
