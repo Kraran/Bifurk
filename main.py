@@ -14,6 +14,7 @@ from pathlib import Path
 from navigation import destinations, render_links
 from illustrations import images_for_paragraph, cover
 from grimoire_modules.controller import ModuleActions
+from carnet import CarnetMixin
 from grimoire_modules.fighting_fantasy.rules import POTION_STATS, POTION_DOSES
 from grimoire_modules.registry import module_for_pdf
 from rules_viewer import RulesDialog
@@ -244,7 +245,7 @@ def set_bronze_titlebar(widget):
         pass
 
 
-class MainWindow(QMainWindow, ModuleActions):
+class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     """Contrôleur principal et propriétaire Qt des vues et services de l’aventure.
 
     État durable : character, progression, rencontres et instantanés d’historique.
@@ -918,6 +919,8 @@ class MainWindow(QMainWindow, ModuleActions):
         self.paragraph_number.setObjectName('paragraphNumber')
         self.paragraph_number.setAlignment(Qt.AlignCenter)
         self.paragraph_number.hide()
+        self.paragraph_number.installEventFilter(self)
+        self._init_carnet()
         title_row = QHBoxLayout()
         self.title_row = title_row
         title_row.setSpacing(4)
@@ -927,7 +930,10 @@ class MainWindow(QMainWindow, ModuleActions):
         title_row.addWidget(cover_button)
         title_row.addWidget(self.art_toggle)
         title_row.addStretch(1)
+        # Le ruban du marque-page équilibre une marge égale à gauche : le cartouche reste centré.
+        title_row.addSpacing(self.bookmark_ribbon.width() + title_row.spacing())
         title_row.addWidget(self.paragraph_number)
+        title_row.addWidget(self.bookmark_ribbon, 0, Qt.AlignTop)
         title_row.addStretch(1)
         minus_btn = PageToolButton("font_minus", "Réduire la taille du texte", text="A−")
         minus_btn.clicked.connect(lambda: self.change_reader_font_size(-2))
@@ -1196,7 +1202,11 @@ class MainWindow(QMainWindow, ModuleActions):
         load_btn.setToolTip("Charger une partie")
         load_btn.clicked.connect(self._close_sheet_drawer)
         load_btn.clicked.connect(self.load_game)
-        self.sheet_seals = (self.care_button, self.tools_button, save_btn, load_btn)
+        self.carnet_button = SealButton("Carnet", "notebook")
+        self.carnet_button.setToolTip("Carnet de notes et marque-pages (N)")
+        self.carnet_button.clicked.connect(self._close_sheet_drawer)
+        self.carnet_button.clicked.connect(lambda: self.open_carnet())
+        self.sheet_seals = (self.care_button, self.tools_button, self.carnet_button, save_btn, load_btn)
         self.side_panel = side
         for seal in self.sheet_seals:
             seals.addWidget(seal)
@@ -1293,6 +1303,8 @@ class MainWindow(QMainWindow, ModuleActions):
         self.tools_button.setEnabled(playing)
         self.care_button.setEnabled(playing and any(option['enabled'] for option in self.care_options()))
         self.prologue_action.setVisible(bool(getattr(self.book_module, 'intro_pages', ())))
+        self.carnet_button.setEnabled(self.current_paragraph is not None)
+        self._update_bookmark_ribbon()
 
 
     def _toggle_inventory(self, expanded):
@@ -1353,7 +1365,7 @@ class MainWindow(QMainWindow, ModuleActions):
 
     def _activate_choice(self, number):
         """Cliquer le n-ième choix visible si aucune boîte de dialogue n'est ouverte."""
-        if QApplication.activeModalWidget() is not None:
+        if QApplication.activeModalWidget() is not None or self.carnet_is_open():
             return
         cards = self._visible_choice_cards()
         if 0 < number <= len(cards) and cards[number - 1].isEnabled():
@@ -1372,6 +1384,8 @@ class MainWindow(QMainWindow, ModuleActions):
     def eventFilter(self, obj, event):
         if obj is getattr(self, 'sheet_strip', None) and event.type() in (QEvent.Resize, QEvent.Move):
             self._place_sheet_drawer()
+        if obj is getattr(self, 'paragraph_number', None) and event.type() in (QEvent.Show, QEvent.Hide):
+            QTimer.singleShot(0, self._update_bookmark_ribbon)
         if event.type() == QEvent.FocusIn and obj in (
                 getattr(self, 'enemy_name', None), getattr(self, 'enemy_skill', None),
                 getattr(self, 'enemy_endurance', None)):
@@ -1981,6 +1995,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.undo_stack.clear()
         self.redo_stack.clear()
         self.action_history.clear()
+        self._reset_carnet()
         self.go_to(1 if 1 in self.paragraphs else min(self.paragraphs))
         self.intro_music.fade_out()
 
@@ -2066,6 +2081,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.transitions = []
         self.visited_paragraphs = []
         self.undo_stack.clear(); self.redo_stack.clear()
+        self._reset_carnet()
         self._update_history_controls()
         self._adventurer_draft = None
         self._show_book_title(play_sound=True)
@@ -2864,7 +2880,8 @@ class MainWindow(QMainWindow, ModuleActions):
                 "module_id": self.book_module.id if self.book_module else None,
                 "book_title": self.book_module.title if self.book_module else (Path(self.pdf_path).stem if self.pdf_path else ""),
                 **self._snapshot(), "action_history": self.action_history,
-                "undo_stack": self.undo_stack, "redo_stack": self.redo_stack}
+                "undo_stack": self.undo_stack, "redo_stack": self.redo_stack,
+                **self._carnet_save_fields()}
 
     def _pdf_hash(self, path=None):
         """Calculer le SHA-256 par blocs ; un chemin candidat permet de valider avant chargement."""
@@ -3010,6 +3027,8 @@ class MainWindow(QMainWindow, ModuleActions):
             self.action_history = data['action_history']
             self.undo_stack = [(label, state) for label, state in data['undo_stack']]
             self.redo_stack = [(label, state) for label, state in data['redo_stack']]
+            # Champs facultatifs : une sauvegarde antérieure au carnet se charge carnet vide.
+            self._load_carnet(data)
             self._update_history_controls()
             self._remember_book()
             self.intro_music.fade_out()
