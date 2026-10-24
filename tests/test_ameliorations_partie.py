@@ -334,9 +334,7 @@ class ShopTests(WindowCase):
 
     def test_descriptions_only_from_coded_rules(self):
         self.assertIn('Objet durable', rules.shop_description('Corde Magique'))
-        self.assertIn('2 passages', rules.shop_description('Corde Magique'))
-        self.assertIn('cinq capsules', rules.shop_description('Capsules de Feu'))
-        self.assertIn('Aucun passage', rules.shop_description('Perche à Sonder'))
+        self.assertIn('sachet', rules.shop_description('Capsules de Feu'))
         self.assertIn('disparaît du sac', rules.shop_description('Potion de Guérison'))
 
     def test_dialog_total_description_and_owned_durable(self):

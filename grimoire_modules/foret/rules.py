@@ -297,29 +297,18 @@ def shop_buy(character, name, quantity=1):
     buy(character, name, quantity)
 
 
-def shop_uses(name):
-    """Passages où le livre propose d’employer l’article (choix codés dans ITEM_BRANCHES)."""
-    name = canonical(name)
-    places = {number for number, (item, _, _) in ITEM_BRANCHES.items() if item == name}
-    places |= {source for (source, _), item in OPTIONAL_ITEM_ROUTES.items() if item == name}
-    return sorted(places)
-
-
 def shop_description(name):
-    """Description neutre tirée des seules règles codées (charges, durabilité, passages)."""
+    """Description neutre de l’article, sans rien révéler de l’aventure.
+
+    Seule la nature de l’achat est dite (objet durable, usage unique, sachet) :
+    jamais le nombre de passages où le livre en propose l’usage, ce qui serait
+    un aperçu de la suite du livre."""
     name = canonical(name)
     if name in DURABLE:
-        text = 'Objet durable : il reste dans le sac, mais sa magie ne sert qu’une fois.'
-    elif name == 'Capsules de Feu':
-        text = 'Un sachet de cinq capsules, qui compte pour une seule utilisation.'
-    else:
-        text = 'Usage unique : l’article disparaît du sac une fois employé.'
-    count = len(shop_uses(name))
-    if count:
-        text += f' Le livre en propose l’usage dans {count} passage{"s" if count > 1 else ""}.'
-    else:
-        text += ' Aucun passage du livre n’en propose l’usage dans cette adaptation.'
-    return text
+        return 'Objet durable : il reste dans le sac, mais sa magie ne sert qu’une fois.'
+    if name == 'Capsules de Feu':
+        return 'Un sachet de capsules, employé en une seule fois : il disparaît ensuite du sac.'
+    return 'Usage unique : l’article disparaît du sac une fois employé.'
 
 
 def consume(character, name):
