@@ -193,5 +193,56 @@ class LowEnduranceAlertTests(WindowCase):
         self.assertTrue(dialog.alert.isHidden())
 
 
+class EventLabelTests(WindowCase):
+    def buttons(self, w):
+        from PySide6.QtWidgets import QPushButton
+        layout = w.event_layout
+        found = {}
+        for index in range(layout.count()):
+            widget = layout.itemAt(index).widget()
+            if isinstance(widget, QPushButton):
+                found[widget.text()] = widget
+        return found
+
+    def test_damage_and_resource_amounts_in_labels(self):
+        w = self.begin(paragraphs=(108, 145))
+        w.go_to(108)
+        buttons = self.buttons(w)
+        self.assertIn('Blessure : −3 Endurance', buttons)
+        self.assertEqual(buttons['Blessure : −3 Endurance'].toolTip(), 'Effets : Endurance −3.')
+        w.character['provisions'] = 10
+        w.go_to(145)
+        self.assertIn('Perdre vos 10 Provisions', self.buttons(w))
+
+    def test_finds_drop_value_in_label_but_keep_it_in_tooltip(self):
+        from grimoire_modules.foret import labels
+        label, tip = labels.entry_button(rules.ENTRY_RULES[106], {'inventory': []})
+        self.assertEqual(label, 'Recueillir : Bague d’or à émeraude, +2 Chance')
+        self.assertIn('(valeur 15 Or)', tip)
+        label, _ = labels.entry_button(rules.ENTRY_RULES[305], {})
+        self.assertEqual(label, 'Recueillir : 10 Or, Couteau à lancer')
+
+    def test_tests_show_score_and_outcomes(self):
+        w = self.begin(paragraphs=(90, 259, 22))
+        w.character['chance'] = 8
+        w.go_to(90)
+        button = next(b for t, b in self.buttons(w).items() if t.startswith('Tenter votre Chance'))
+        self.assertEqual(button.text(), 'Tenter votre Chance (2d6 ≤ 8)')
+        self.assertIn('§210', button.toolTip())
+        self.assertIn('perte de 3 Endurance', button.toolTip())
+        w.go_to(259)
+        self.assertIn('Affronter la fièvre : −3 Endurance, puis Chance (2d6 ≤ 8)', self.buttons(w))
+        w.go_to(22)
+        self.assertIn('Gaz toxique : −1d6 Endurance, −2 Habileté', self.buttons(w))
+
+    def test_equipment_label_shows_skill_bonus(self):
+        w = self.begin(paragraphs=(2,))
+        w.character['inventory'].append('Casque magique')
+        w._refresh_character()
+        w.go_to(2)
+        button = self.buttons(w)['Porter Casque magique (+1 Habileté)']
+        self.assertIn('+1', button.toolTip())
+
+
 if __name__ == '__main__':
     unittest.main()

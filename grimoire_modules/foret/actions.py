@@ -7,7 +7,7 @@ physique de ce mixin. Aucune décision persistante n’est conservée dans un wi
 from copy import deepcopy
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QComboBox, QSpinBox,
                                QPushButton, QInputDialog, QMessageBox, QListWidget, QAbstractItemView)
-from . import rules, feedback
+from . import rules, feedback, labels
 from .encounters import COMBATS
 from ..fighting_fantasy.controller import FightingFantasyActions
 from ..fighting_fantasy.rules import spend_luck, combat_damage, escape_damage
@@ -199,8 +199,10 @@ class ForetMechanicsActions(FightingFantasyActions):
 
     def _foret_mechanics_buttons(self):
         """Afficher les seules commandes implantées, en revérifiant tout au clic."""
-        def add(label, action, payload=None, enabled=True, combat=False):
+        def add(label, action, payload=None, enabled=True, combat=False, tooltip=''):
             button = QPushButton(label)
+            if tooltip:
+                button.setToolTip(tooltip)
             button.setEnabled(enabled and self.character['endurance'] > 0)
             button.setProperty('combatAction', combat)
             if action == 'shop':
@@ -226,20 +228,17 @@ class ForetMechanicsActions(FightingFantasyActions):
                 and 'bear_silver_dart' not in rules.peek(self.character).get('rewards', [])):
             add('Prendre la fléchette d’argent (facultatif)', 'silver_dart')
         if number in rules.BRANCH_TESTS and not self._book_state(number).get('foret_resolved'):
-            stat = rules.BRANCH_TESTS[number][0]
-            add('Utiliser le Bandeau et tenter sa Chance' if number == 158 else
-                'Résoudre l’épreuve — ' + ('Chance' if stat == 'chance' else 'Habileté'), 'branch_test')
+            label, tip = labels.branch_button(number, self.character)
+            add(label, 'branch_test', tooltip=tip)
         if number in rules.GAS_PARAGRAPHS and not rules.gas_resolved(self.character,number):
-            add('Résoudre le gaz toxique (1d6)', 'gas')
+            label, tip = labels.gas_button(number)
+            add(label, 'gas', tooltip=tip)
         if number in rules.ENTRY_RULES and not rules.entry_resolved(self.character, number):
             rule = rules.ENTRY_RULES[number]
-            label = rule.get('label') or ('Utiliser ' + rule['use'] if rule.get('use') else
-                     'Employer ' + ', '.join(rule['remove']) if rule.get('remove') else
-                     'Appliquer la perte de ressources' if rule.get('empty_resources') else
-                     'Appliquer la blessure' if rule.get('damage') else
-                     'Appliquer la perte de Chance' if rule.get('luck',0) < 0 else 'Recueillir la trouvaille')
+            label, tip = labels.entry_button(rule, self.character)
             add(label, 'entry', enabled=(not rule.get('use') or rules.available(self.character, rule['use']) > 0)
-                and all(name in self.character.get('inventory', []) for name in rule.get('remove', [])))
+                and all(name in self.character.get('inventory', []) for name in rule.get('remove', [])),
+                tooltip=tip)
         if number in rules.PAYMENT_PARAGRAPHS and not rules.payment_resolved(self.character, number):
             add('Choisir le paiement…', 'payment_dialog')
         if number == 388 and not self._book_state(number).get('foret_resolved'):
@@ -258,10 +257,10 @@ class ForetMechanicsActions(FightingFantasyActions):
                         'target', index, combat=True)
         for name in rules.peek(self.character).get('worn', []):
             if name != 'Anneau de Lenteur':
-                add('Retirer ' + name, 'unwear', name)
+                add(labels.equipment_label(name, False), 'unwear', name, tooltip=labels.equipment_tip(name))
         for name in rules.EQUIPMENT:
             if name in self.character.get('inventory', []) and name not in rules.peek(self.character).get('worn', []):
-                add('Porter ' + name, 'wear', name)
+                add(labels.equipment_label(name, True), 'wear', name, tooltip=labels.equipment_tip(name))
         if 'Potion de Force' in self.character.get('inventory', []):
             add('Boire la Potion de Force (+5 Endurance)', 'force_potion')
         commands = {242:('Prendre le lingot en abandonnant un objet (facultatif)…','gold_ingot'),34:('Choisir le vœu du génie…', 'wish'),308:('Intervertir Habileté et Chance', 'swap'),98:('Échapper à l’embuscade — Chance', 'ambush'),
@@ -285,7 +284,8 @@ class ForetMechanicsActions(FightingFantasyActions):
         if (number in commands and not self._book_state(number).get('foret_resolved')
                 and not (number == 242 and 'gold_ingot' in rules.peek(self.character).get('rewards', []))):
             label, action = commands[number]
-            add(label, action, enabled=number != 204 or rules.hammer_complete(self.character))
+            label, tip = labels.command_button(number, self.character) or (label, '')
+            add(label, action, enabled=number != 204 or rules.hammer_complete(self.character), tooltip=tip)
 
     def _foret_shop(self):
         """Panier explicite : le choix seul ne dépense rien ; chaque achat est une transaction."""
