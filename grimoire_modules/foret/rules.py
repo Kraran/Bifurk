@@ -275,6 +275,53 @@ def buy(character, name, quantity=1):
     charges[name] = charges.get(name, 0) + quantity
 
 
+def owned_durable(character, name):
+    """Un objet durable de la boutique déjà dans le sac, magie intacte ou épuisée."""
+    name = canonical(name)
+    inventory = character.get('inventory', [])
+    return name in DURABLE and (name in inventory or name + ' (magie épuisée)' in inventory)
+
+
+def shop_limit(character, name):
+    """Quantité qu’on peut encore acheter chez Yaztromo : un seul exemplaire d’un objet durable."""
+    name = canonical(name)
+    if name in DURABLE:
+        return 0 if owned_durable(character, name) else 1
+    return 99
+
+
+def shop_buy(character, name, quantity=1):
+    """Achat depuis la boutique : refuser un objet durable déjà possédé ou en double."""
+    if type(quantity) is int and quantity > shop_limit(character, name):
+        raise ValueError('Objet durable : un seul exemplaire, et pas de rachat s’il est déjà dans le sac.')
+    buy(character, name, quantity)
+
+
+def shop_uses(name):
+    """Passages où le livre propose d’employer l’article (choix codés dans ITEM_BRANCHES)."""
+    name = canonical(name)
+    places = {number for number, (item, _, _) in ITEM_BRANCHES.items() if item == name}
+    places |= {source for (source, _), item in OPTIONAL_ITEM_ROUTES.items() if item == name}
+    return sorted(places)
+
+
+def shop_description(name):
+    """Description neutre tirée des seules règles codées (charges, durabilité, passages)."""
+    name = canonical(name)
+    if name in DURABLE:
+        text = 'Objet durable : il reste dans le sac, mais sa magie ne sert qu’une fois.'
+    elif name == 'Capsules de Feu':
+        text = 'Un sachet de cinq capsules, qui compte pour une seule utilisation.'
+    else:
+        text = 'Usage unique : l’article disparaît du sac une fois employé.'
+    count = len(shop_uses(name))
+    if count:
+        text += f' Le livre en propose l’usage dans {count} passage{"s" if count > 1 else ""}.'
+    else:
+        text += ' Aucun passage du livre n’en propose l’usage dans cette adaptation.'
+    return text
+
+
 def consume(character, name):
     """Dépenser une charge ; garder les objets durables en tant que matériel épuisé.
 

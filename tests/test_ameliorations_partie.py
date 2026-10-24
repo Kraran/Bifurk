@@ -300,5 +300,78 @@ class CareMenuTests(WindowCase):
         self.assertIn('commande du passage', meal['reason'])
 
 
+
+class ShopTests(WindowCase):
+    def open_shop(self, w, steps):
+        """Ouvrir la vraie boutique et jouer `steps(dialog)` à la place de la boucle modale."""
+        from grimoire_modules.foret import actions
+
+        class Probe(actions.QDialog):
+            def exec(self):
+                steps(self)
+                return 0
+        with patch.object(actions, 'QDialog', Probe):
+            w._foret_shop()
+
+    def widgets(self, dialog):
+        from PySide6.QtWidgets import QComboBox, QSpinBox, QLabel, QPushButton
+        labels = {l.objectName(): l for l in dialog.findChildren(QLabel)}
+        buy = next(b for b in dialog.findChildren(QPushButton) if b.text() == 'Acheter')
+        return dialog.findChild(QComboBox), dialog.findChild(QSpinBox), labels, buy
+
+    def test_rules_refuse_second_durable(self):
+        c = {'gold': 30, 'endurance': 20, 'inventory': []}
+        rules.shop_buy(c, 'Corde Magique')
+        with self.assertRaises(ValueError):
+            rules.shop_buy(c, 'Corde Magique')
+        with self.assertRaises(ValueError):
+            rules.shop_buy(c, 'Bottes à Bondir', 2)
+        rules.consume(c, 'Corde Magique')
+        with self.assertRaises(ValueError):
+            rules.shop_buy(c, 'Corde Magique')
+        rules.shop_buy(c, 'Potion Antipoison', 3)
+        self.assertEqual(c['gold'], 30 - 3 - 6)
+
+    def test_descriptions_only_from_coded_rules(self):
+        self.assertIn('Objet durable', rules.shop_description('Corde Magique'))
+        self.assertIn('2 passages', rules.shop_description('Corde Magique'))
+        self.assertIn('cinq capsules', rules.shop_description('Capsules de Feu'))
+        self.assertIn('Aucun passage', rules.shop_description('Perche à Sonder'))
+        self.assertIn('disparaît du sac', rules.shop_description('Potion de Guérison'))
+
+    def test_dialog_total_description_and_owned_durable(self):
+        w = self.begin(paragraphs=(261,))
+        w.go_to(261)
+        w.character['gold'] = 20
+        seen = {}
+
+        def steps(dialog):
+            selector, quantity, labels, buy = self.widgets(dialog)
+            selector.setCurrentIndex(selector.findData('Potion Antipoison'))
+            quantity.setValue(3)
+            seen['total'] = labels['shopBalance'].text()
+            self.assertIn('disparaît du sac', labels['shopDescription'].text())
+            selector.setCurrentIndex(selector.findData('Corde Magique'))
+            seen['durable_max'] = quantity.maximum()
+            seen['after_switch'] = labels['shopBalance'].text()
+            buy.click()
+            seen['owned_text'] = selector.currentText()
+            seen['buy_enabled'] = buy.isEnabled()
+            seen['owned_enabled'] = selector.model().item(selector.currentIndex()).isEnabled()
+            seen['description'] = labels['shopDescription'].text()
+        self.open_shop(w, steps)
+        self.assertEqual(seen['total'], 'Or disponible : 20 — total : 3 × 2 = 6 pièces d’or')
+        self.assertEqual(seen['durable_max'], 1)
+        self.assertEqual(seen['after_switch'], 'Or disponible : 20 — total : 1 × 3 = 3 pièces d’or')
+        self.assertEqual(w.character['gold'], 17)
+        self.assertTrue(seen['owned_text'].endswith('déjà dans le sac'))
+        self.assertFalse(seen['buy_enabled'])
+        self.assertFalse(seen['owned_enabled'])
+        self.assertIn('ne se rachète pas', seen['description'])
+        w.perform_foret_action('buy', ('Corde Magique', 1))
+        self.assertEqual(w.character['gold'], 17)
+        self.assertEqual(w.character['inventory'].count('Corde Magique'), 1)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -5,6 +5,7 @@ explicitement le socle plutôt que super(), puisque self n’est pas une instanc
 physique de ce mixin. Aucune décision persistante n’est conservée dans un widget.
 """
 from copy import deepcopy
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QComboBox, QSpinBox,
                                QPushButton, QInputDialog, QMessageBox, QListWidget, QAbstractItemView)
 from . import rules, feedback, labels
@@ -288,29 +289,71 @@ class ForetMechanicsActions(FightingFantasyActions):
             add(label, action, enabled=number != 204 or rules.hammer_complete(self.character), tooltip=tip)
 
     def _foret_shop(self):
-        """Panier explicite : le choix seul ne dépense rien ; chaque achat est une transaction."""
+        """Panier explicite : le choix seul ne dépense rien ; chaque achat est une transaction.
+
+        Chaque article porte une description neutre tirée des règles codées ; un objet
+        durable ne s’achète qu’en un exemplaire et plus du tout s’il est déjà dans le sac."""
         dialog = QDialog(self)
         dialog.setWindowTitle('Yaztromo — objets magiques')
         layout = QVBoxLayout(dialog)
-        layout.addWidget(QLabel('Chaque article acheté ne peut servir qu’une fois.'))
+        header = QLabel('Chaque article acheté ne peut servir qu’une fois. '
+                        'Un objet durable ne s’achète qu’en un seul exemplaire.')
+        header.setWordWrap(True)
+        layout.addWidget(header)
         selector = QComboBox()
         for name, price in rules.SHOP:
-            selector.addItem(f'{name} — {price} pièces d’or', name)
+            selector.addItem('', name)
         layout.addWidget(selector)
+        description = QLabel()
+        description.setObjectName('shopDescription')
+        description.setWordWrap(True)
+        layout.addWidget(description)
         quantity = QSpinBox()
         quantity.setRange(1,99)
         quantity.setPrefix('Quantité : ')
         layout.addWidget(quantity)
         balance = QLabel()
+        balance.setObjectName('shopBalance')
         layout.addWidget(balance)
         buy = QPushButton('Acheter')
         layout.addWidget(buy)
+
+        def label_items():
+            model = selector.model()
+            for index, (name, price) in enumerate(rules.SHOP):
+                owned = rules.owned_durable(self.character, name)
+                selector.setItemText(index, f'{name} — {price} pièce{"s" if price > 1 else ""} d’or'
+                                     + (' — déjà dans le sac' if owned else ''))
+                selector.setItemData(index, rules.shop_description(name), Qt.ToolTipRole)
+                item = model.item(index) if hasattr(model, 'item') else None
+                if item is not None:
+                    item.setEnabled(not owned)
+
         def refresh():
-            price = rules.PRICES[selector.currentData()] * quantity.value()
-            balance.setText(f'Or disponible : {self.character.get("gold",0)} — total : {price}')
-            buy.setEnabled(self.character.get('gold',0) >= price)
+            name = selector.currentData()
+            limit = rules.shop_limit(self.character, name)
+            quantity.blockSignals(True)
+            quantity.setRange(1, max(1, min(99, limit)))
+            quantity.blockSignals(False)
+            quantity.setEnabled(limit > 1)
+            text = rules.shop_description(name)
+            if limit == 0:
+                text += ' Vous l’avez déjà : il ne se rachète pas.'
+            description.setText(text)
+            unit = rules.PRICES[name]
+            count = quantity.value()
+            price = unit * count
+            gold = self.character.get('gold', 0)
+            balance.setText(f'Or disponible : {gold} — total : {count} × {unit} = {price} '
+                            f'pièce{"s" if price > 1 else ""} d’or')
+            buy.setEnabled(limit >= count and gold >= price and self.character['endurance'] > 0)
+            buy.setToolTip('' if buy.isEnabled() else
+                           'Objet durable déjà possédé.' if limit == 0 else
+                           'Pas assez de pièces d’or.' if gold < price else '')
+
         def purchase():
             self.perform_foret_action('buy', (selector.currentData(), quantity.value()))
+            label_items()
             refresh()
         selector.currentIndexChanged.connect(refresh)
         quantity.valueChanged.connect(refresh)
@@ -318,6 +361,7 @@ class ForetMechanicsActions(FightingFantasyActions):
         close = QPushButton('Revenir au grimoire')
         close.clicked.connect(dialog.accept)
         layout.addWidget(close)
+        label_items()
         refresh()
         dialog.exec()
         dialog.deleteLater()
@@ -589,7 +633,7 @@ class ForetMechanicsActions(FightingFantasyActions):
             elif action == 'entry':
                 rules.resolve_entry(self.character, number)
             elif action == 'buy':
-                rules.buy(self.character, *payload)
+                rules.shop_buy(self.character, *payload)
             elif action == 'target':
                 combat = self._foret_combat()
                 if not self.combat_available() or type(payload) is not int:

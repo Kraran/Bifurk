@@ -1685,15 +1685,16 @@ class ForetPresentationTests(unittest.TestCase):
         self.w.paragraphs[261] = 'Les achats.'
         self.w.go_to(261)
         before = self.w._snapshot()
-        self.w.perform_foret_action('buy', ('Bottes à Bondir', 2))
+        # Un objet durable ne s’achète qu’une fois : le panier double porte sur une potion.
+        self.w.perform_foret_action('buy', ('Potion Antipoison', 2))
         self.assertEqual(self.w.character['gold'], 26)
-        self.assertEqual(rules.available(self.w.character, 'Bottes de Saut'), 2)
+        self.assertEqual(rules.available(self.w.character, 'Potion Antipoison'), 2)
         path = main.SAVES_DIR/'emplacement-1.json'
         self.w._write_atomic(path, self.w._save_data())
         self.w._restore(before)
-        self.assertEqual(rules.available(self.w.character, 'Bottes à Bondir'), 0)
+        self.assertEqual(rules.available(self.w.character, 'Potion Antipoison'), 0)
         self.assertTrue(self.w.load_game(path, announce=False))
-        self.assertEqual(rules.available(self.w.character, 'Bottes à Bondir'), 2)
+        self.assertEqual(rules.available(self.w.character, 'Potion Antipoison'), 2)
 
     def test_pair_can_change_target_each_round_and_popup_reads_both_enemies(self):
         from combat_dialog import CombatDialog
