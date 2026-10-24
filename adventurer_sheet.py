@@ -742,6 +742,34 @@ def draw_item_art(p, kind, c, s):
 
 
 SLOT = QSize(74, 90)
+# Nombre d'exemplaires regroupés dans une même case de la sacoche.
+INVENTORY_QUANTITY_ROLE = Qt.UserRole + 1
+
+
+def _paint_quantity(p, r, quantity, compact=False):
+    """Pastille de parchemin cerclée d'or, coin haut gauche : nombre d'exemplaires.
+
+    Le coin haut droit reste à la marque de l'arme équipée."""
+    if not quantity or int(quantity) < 2:
+        return
+    text = str(int(quantity)) if int(quantity) < 100 else '99+'
+    size = 13 if compact else 17
+    p.save()
+    p.setFont(font('title', 10 if compact else 13, bold=True))
+    width = max(size, QFontMetrics(p.font()).horizontalAdvance(text) + (5 if compact else 7))
+    badge = QRectF(r.left() + (1 if compact else 2), r.top() + (1 if compact else 2), width, size)
+    p.setPen(Qt.NoPen)
+    p.setBrush(QColor(0, 0, 0, 120))
+    p.drawRoundedRect(badge.translated(0, 1), size / 2, size / 2)
+    fill = QLinearGradient(badge.topLeft(), badge.bottomLeft())
+    fill.setColorAt(0, IVORY)
+    fill.setColorAt(1, QColor('#d9c08a'))
+    p.setBrush(QBrush(fill))
+    p.setPen(QPen(GOLD_DARK, 1.2))
+    p.drawRoundedRect(badge, size / 2, size / 2)
+    p.setPen(BORDEAUX_DARK)
+    p.drawText(badge.adjusted(0, -1 if compact else 0, 0, 0), Qt.AlignCenter, text)
+    p.restore()
 
 
 def _paint_slot(p, rect, filled, selected=False, equipped=False):
@@ -784,6 +812,7 @@ class InventoryDelegate(QStyledItemDelegate):
                 p.setBrush(BORDEAUX)
                 p.drawEllipse(badge)
                 draw_glyph(p, 'sword', badge.center(), 3.2, GOLD_LIGHT)
+            _paint_quantity(p, r, index.data(INVENTORY_QUANTITY_ROLE), compact=True)
             p.restore()
             return
         draw_item_art(p, _item_kind(name), QPointF(r.center().x(), r.top() + 25), 17)
@@ -803,6 +832,7 @@ class InventoryDelegate(QStyledItemDelegate):
             p.setBrush(BORDEAUX)
             p.drawEllipse(badge)
             draw_glyph(p, 'sword', badge.center(), 4.5, GOLD_LIGHT)
+        _paint_quantity(p, r, index.data(INVENTORY_QUANTITY_ROLE))
         p.restore()
 
 
