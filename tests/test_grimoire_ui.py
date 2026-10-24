@@ -9,10 +9,10 @@ import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
 
-from PySide6.QtGui import QPixmap, QWheelEvent
-from PySide6.QtCore import Qt, QPoint, QPointF
+from PySide6.QtGui import QPixmap, QWheelEvent, QTextDocument
+from PySide6.QtCore import Qt, QPoint, QPointF, QUrl
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea
+from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea, QWidget
 
 from main import MainWindow
 from grimoire_ui import IllustrationDialog
@@ -100,7 +100,8 @@ class GrimoireInterfaceTests(unittest.TestCase):
         page = w.findChild(QScrollArea, "pageScroll")
         self.assertEqual(w.width(), 930)
         self.assertEqual(page.horizontalScrollBar().maximum(), 0)
-        self.assertLessEqual(w.scene_art.geometry().right(), page.geometry().left() + 1)
+        # Proposition UI : sous 1100 px l'illustration est masquée automatiquement.
+        self.assertFalse(w.scene_art.isVisible())
         self.assertGreaterEqual(w.reader.height(), 230)
         self.assertTrue(w.choice_group.isVisible())
         self.assertEqual(w.adventure_tabs.count(), 1)
@@ -116,14 +117,33 @@ class GrimoireInterfaceTests(unittest.TestCase):
         self.assertTrue(all(not w.inventory_list.item(i).icon().isNull() for i in range(3)))
         self.assertEqual(w.character["inventory"], names)
 
-    def test_inventory_rows_remain_compact_with_many_objects(self):
+    def test_inventory_grid_keeps_slots_compact_with_many_objects(self):
+        """La sacoche est une grille de cases : plusieurs objets par rangée, cases bornées."""
         w = self.window
         w.character["inventory"] = [f"Clé {number}" for number in range(12)]
         w._refresh_character()
         self.app.processEvents()
-        first = w.inventory_list.visualItemRect(w.inventory_list.item(0))
-        self.assertLessEqual(first.height(), 44)
-        self.assertGreaterEqual(w.inventory_list.viewport().height(), first.height() * 3)
+        rects = [w.inventory_list.visualItemRect(w.inventory_list.item(i)) for i in range(3)]
+        self.assertLessEqual(rects[0].height(), 96)
+        self.assertEqual({rect.top() for rect in rects}, {rects[0].top()})
+        self.assertLess(rects[0].left(), rects[1].left())
+        self.assertGreaterEqual(w.inventory_list.viewport().height(), rects[0].height())
+
+    def test_sheet_mirrors_initial_values_potion_and_weapon_choice(self):
+        w = self.window
+        w.character.update(inventory=["Épée", "Épée magique", "Lanterne"], potion="Potion de Vigueur", potion_doses=1)
+        w._refresh_character()
+        self.app.processEvents()
+        initial = w.character.get("initial", {})
+        self.assertEqual(w.stat_medallions["endurance"].initial, initial.get("endurance"))
+        self.assertEqual(w.potion_value.text(), "1/2")
+        self.assertEqual(w.potion_token.caption, "VIGUEUR")
+        self.assertFalse(w.potion_combo.isVisible())
+        # Deux armes : la bannière de choix apparaît et le double-clic équipe.
+        self.assertFalse(w.weapon_combo.isHidden())
+        w._equip_from_grid(w.inventory_list.item(1))
+        self.assertEqual(__import__("book_events").equipped_weapon(w.character), "Épée magique")
+        self.assertIn("Arme équipée", w.inventory_list.item(1).toolTip())
 
     def test_opening_shows_cover_and_double_click_opens_displayed_image(self):
         w = self.window
@@ -248,6 +268,71 @@ class GrimoireInterfaceTests(unittest.TestCase):
         self.assertFalse(any("Voir l’illustration du paragraphe" in b.text()
                              for b in w.findChildren(QPushButton)))
 
+
+    def test_long_paragraph_opens_with_illuminated_drop_cap(self):
+        w = self.window
+        long_text = 'Votre torche révèle une porte de pierre. ' * 5
+        w._render_paragraph_text(long_text)
+        html = w.reader.toHtml()
+        self.assertIn('bifurk-initial:', html)
+        self.assertTrue(w.reader.toPlainText().rstrip().endswith('porte de pierre.'))
+        url = next(f.name() for f in self._image_formats(w.reader.document()))
+        self.assertIsNotNone(w.reader.document().resource(QTextDocument.ImageResource, QUrl(url)))
+        self.assertIn('otre torche', w.reader.toPlainText())
+        # Texte court ou ne commençant pas par une lettre : pas de lettrine.
+        for text in ('Une porte.', '« ' + long_text):
+            with self.subTest(text=text[:12]):
+                w._render_paragraph_text(text)
+                self.assertNotIn('bifurk-initial:', w.reader.toHtml())
+
+    @staticmethod
+    def _image_formats(document):
+        block = document.begin()
+        while block.isValid():
+            it = block.begin()
+            while not it.atEnd():
+                fmt = it.fragment().charFormat()
+                if fmt.isImageFormat():
+                    yield fmt.toImageFormat()
+                it += 1
+            block = block.next()
+
+    def test_choice_card_shows_seal_number_and_destination_without_changing_text(self):
+        from grimoire_ui import ChoiceCard
+        card = ChoiceCard('Prendre le passage ouest  →  §71')
+        card.set_shortcut_number(3)
+        self.assertEqual(card.text(), 'Prendre le passage ouest  →  §71')
+        self.assertEqual(card._caption.text(), 'Prendre le passage ouest')
+        self.assertEqual(card._destination, '§71')
+        self.assertEqual(card.toolTip(), 'Touche 3')
+        plain = ChoiceCard('Ouvrir une chronique sauvegardée')
+        self.assertEqual(plain._caption.text(), 'Ouvrir une chronique sauvegardée')
+        self.assertEqual(plain._destination, '')
+
+    def test_header_commands_are_painted_medallions_with_tooltips(self):
+        from grimoire_chrome import MedallionButton
+        w = self.window
+        header = w.findChild(QWidget, 'grimoireHeader')
+        for button in (w.undo_btn, w.redo_btn, w.rules_button, w.map_button,
+                       w.open_btn, w.settings_button):
+            with self.subTest(button=button.caption):
+                self.assertIsInstance(button, MedallionButton)
+                self.assertTrue(header.isAncestorOf(button))
+                self.assertTrue(button.toolTip())
+        self.assertIsNotNone(w.settings_button.menu())
+        self.assertEqual(w.paragraph_number.objectName(), 'paragraphNumber')
+
+    def test_compact_window_keeps_choice_plaques_and_sheet_seals_inside(self):
+        w = self.window
+        w.resize(930, 650)
+        w.go_to(1)
+        self.app.processEvents()
+        side = w.findChild(QScrollArea, 'sideScroll')
+        self.assertEqual(side.verticalScrollBar().maximum(), 0)
+        self.assertTrue(w.stats_heading.isHidden())
+        w.resize(1600, 900)
+        self.app.processEvents()
+        self.assertFalse(w.stats_heading.isHidden())
 
 if __name__ == "__main__":
     unittest.main()

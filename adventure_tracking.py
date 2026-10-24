@@ -3,7 +3,7 @@ from copy import deepcopy
 from datetime import datetime
 
 LABELS = {'tracked': 'Partie suivie', 'assisted': 'Partie assistée',
-          'unverified': 'Historique non vérifié'}
+          'unverified': 'Partie non suivie'}
 
 
 def new_tracking():

@@ -6,7 +6,8 @@
     "parchment": "../../parchment.jpg",
     "leather": "../../leather.jpg",
     "scene": "../../grimoire-library.png",
-    "checkmark": "../../check-bronze.svg"
+    "checkmark": "../../check-bronze.svg",
+    "page": "page-parchment.jpg"
   },
   "colors": {
     "page": "#ead9b8",

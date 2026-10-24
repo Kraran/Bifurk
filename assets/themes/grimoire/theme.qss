@@ -1,10 +1,10 @@
 
             /* 9.75 pt = 13 px à 96 dpi ; conserver une taille en points valide pour la fenêtre Windows. */
-            QMainWindow, QWidget { background-color: #241d18; color: #e9d6b3; font-family: '${ui_font}'; font-size: 9.75pt; }
+            QMainWindow, QWidget { background-color: #241d18; color: #e9d6b3; font-family: '${ui_font}'; font-size: 10.5pt; }
             QMainWindow { background-image: url('${leather}'); }
             QLabel { background: transparent; }
             QLabel#appTitle { color: #edcb87; font-family: ${ui_font}; font-size: 29px; font-weight: bold; }
-            QLabel#subtitle { color: #aa8b5a; font-size: 10px; letter-spacing: 2px; }
+            QLabel#subtitle { color: #b89a68; font-size: 11px; letter-spacing: 2px; }
             QLabel#sectionTitle { color: #f0d39a; font-size: 25px; font-weight: bold; padding: 6px 2px; }
             QLabel#muted { color: #bca98b; }
             QWidget#readerPanel, QWidget#sidePanel { background: transparent; }
@@ -15,7 +15,7 @@
                 border-radius: 5px; padding: 9px 12px; font-family: ${ui_font}; font-weight: bold; }
             QPushButton:hover { background-color: #705038; border-color: #e1bc75; }
             QPushButton:pressed { background-color: #38291f; }
-            QPushButton:disabled { color: #897963; border-color: #514537; }
+            QPushButton:disabled { color: #b3a283; border-color: #6a5a46; }
             QPushButton#goldButton { background-color: #a27a3f; color: #21170f; border: 1px solid #e0b975; }
             QPushButton#goldButton:hover { background-color: #c59a53; }
             QSpinBox, QLineEdit, QComboBox { background: #e6d0a5; color: #35251a; border: 1px solid #9d784b;
@@ -94,10 +94,11 @@ QWidget#readerPanel QLabel { color: #4c3528; }
 QWidget#readerPanel QPushButton { background: #e9d4ab; color: #442a1e; border: 1px solid #a67e45; }
 QWidget#readerPanel QPushButton:hover { background: #fcecc9; border: 1px solid #71313a; }
 QWidget#readerPanel QPushButton#choiceCard { text-align: left; padding: 13px 16px;
-    border-left: 4px solid #843741; font-size: 14px; }
+    border-left: 4px solid #843741; font-size: 17px; }
+QWidget#readerPanel QPushButton#choiceCard QLabel#choiceCaption { font-size: 17px; color: #3a2418; }
 QPushButton:focus { border: 2px solid #efc568; }
 QWidget#readerPanel QPushButton:focus { border: 2px solid #74313a; }
-QWidget#readerPanel QPushButton:disabled { color: #8a7963; border-color: #c5b89f; }
+QWidget#readerPanel QPushButton:disabled { color: #75644f; border-color: #b8a98d; }
 QTabWidget#adventureTabs::pane { border: 1px solid #87633b; background: #30211a; border-radius: 4px; }
 QTabBar::tab { background: #35231d; color: #cbb18b; padding: 10px 12px; border: 1px solid #795536; }
 QTabBar::tab:selected { background: #6c2f36; color: #ffe7b1; border-bottom: 2px solid #d9b16b; }
@@ -182,6 +183,7 @@ QDialog QPushButton[saveSlot="true"] { background: ${page}; color: ${ink};
     border: 3px double ${frame}; border-left: 5px solid ${accent}; border-radius: 9px;
     text-align: left; font-size: 15px; padding: 10px 14px; }
 QDialog QPushButton[saveSlot="true"]:enabled:hover { background: ${gold}; border-color: ${rubric}; }
+QDialog QPushButton[emptySlot="true"] { font-size: 13px; padding: 6px 14px; font-style: italic; }
 QDialog QPushButton[saveSlot="true"]:disabled { background: ${scene_background}; color: ${ornament}; border-color: ${frame}; }
 QDialog QCheckBox { background: transparent; spacing: 10px; padding: 3px 0; }
 QDialog QCheckBox::indicator { width: 18px; height: 18px; border: 1px solid ${ornament};
@@ -209,3 +211,99 @@ QSlider#musicVolume::handle:horizontal { width: 16px; margin: -7px 0;
     background: ${gold}; border: 2px solid ${frame}; border-radius: 2px; }
 QSlider#musicVolume::handle:horizontal:hover, QSlider#musicVolume::handle:horizontal:focus {
     background: ${page}; border-color: ${gold}; }
+
+/* Proposition UI : en-tête allégé, sacoche repliable, ressources en lecture seule. */
+QPushButton#settingsButton { font-size: 18px; padding: 4px 12px; }
+QPushButton#settingsButton::menu-indicator { width: 0; image: none; }
+QPushButton#inventoryToggle { text-align: left; color: #f1d49a; font-weight: bold;
+    background: #30221a; border: 1px solid #87633b; padding: 6px 10px; }
+QPushButton#inventoryToggle:checked { background: #3a291f; }
+QWidget#sidePanel QSpinBox#resourceValue { background: #2c1f18; border: 1px solid #5e4630;
+    color: #f6d99f; font-weight: bold; padding: 2px 6px; }
+QWidget#sidePanel QSpinBox#resourceValue[locked="true"]::up-button,
+QWidget#sidePanel QSpinBox#resourceValue[locked="true"]::down-button { width: 0; height: 0; border: none; }
+QWidget#sidePanel QSpinBox#resourceValue QLineEdit { background: transparent; color: #f6d99f; font-weight: bold; }
+QLabel#heroCrest { border-radius: 22px; font-size: 22px; min-width: 44px; min-height: 44px; }
+QLabel#heroTitle { font-size: 20px; }
+
+/* ---- Fiche d'aventurier illustrée (adventurer_sheet.py) ----
+   Le fond, les blasons, la barre de vie, les plaques et les sceaux sont peints au QPainter ;
+   ces règles rendent transparents les widgets de données qu'ils habillent. */
+QWidget#sidePanel { background: transparent; border: none; }
+QWidget#sidePanel QWidget { background: transparent; }
+QWidget#sidePanel QGroupBox#sheetStats { background: transparent; border: none; margin: 0; padding: 0; }
+QWidget#sidePanel QLabel#heroTitle { font-family: '${reading_font}'; font-size: 19px; font-weight: bold;
+    color: #f4dc9e; }
+QWidget#sidePanel QSpinBox#heroValue { background: transparent; border: none; padding: 0;
+    color: #fff3d6; font-family: '${reading_font}'; font-size: 34px; font-weight: bold; }
+QWidget#sidePanel QSpinBox#heroValue::up-button,
+QWidget#sidePanel QSpinBox#heroValue::down-button { width: 0; height: 0; border: none; }
+QWidget#sidePanel QSpinBox#heroValue QLineEdit { background: transparent; border: none; color: #fff3d6; }
+QWidget#sidePanel QSpinBox#heroValue:disabled, QWidget#sidePanel QSpinBox#heroValue QLineEdit:disabled { color: #b9a98f; }
+QWidget#sidePanel QSpinBox#resourceValue { background: transparent; border: 1px solid transparent; border-radius: 5px;
+    padding: 0; color: #f6d99f; font-family: '${reading_font}'; font-size: 27px; font-weight: bold; }
+QWidget#sidePanel QSpinBox#resourceValue QLineEdit { background: transparent; border: none; color: #f6d99f;
+    font-family: '${reading_font}'; font-size: 27px; font-weight: bold; }
+QWidget#sidePanel QSpinBox#resourceValue[locked="false"] { border: 1px dashed #d8b46c; background: rgba(0, 0, 0, 70); }
+QWidget#sidePanel QLabel#tokenValue { color: #f6d99f; font-family: '${reading_font}'; font-size: 22px; font-weight: bold; }
+QWidget#sidePanel QPushButton#combatButton { color: #fff0cd; font-family: '${reading_font}'; font-size: 18px;
+    font-weight: bold; letter-spacing: 2px; padding: 9px; border: 2px solid #d8b46c; border-radius: 6px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #a83a48, stop:0.55 #7a2632, stop:1 #4a141c); }
+QWidget#sidePanel QPushButton#combatButton:hover { border-color: #f4dc9e;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #c24a59, stop:0.55 #8e2e3b, stop:1 #57171f); }
+QWidget#sidePanel QPushButton#sheetLink { background: transparent; border: none; color: #d8b46c;
+    font-family: '${reading_font}'; font-style: italic; font-size: 14px; padding: 2px 6px; }
+QWidget#sidePanel QPushButton#sheetLink:hover, QWidget#sidePanel QPushButton#sheetLink:checked { color: #f4dc9e; }
+QWidget#sidePanel QLineEdit#sheetInput { background: #efdfbb; color: #30241b; border: 1px solid #ad8950;
+    border-radius: 4px; padding: 4px 6px; font-family: '${reading_font}'; font-size: 15px; }
+QWidget#sidePanel QComboBox#weaponBanner { color: #f4dc9e; border: 1px solid #d8b46c; border-radius: 4px;
+    padding: 4px 10px; font-family: '${reading_font}'; font-size: 15px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #8a2a36, stop:1 #4a141c); }
+QWidget#sidePanel QComboBox#weaponBanner QAbstractItemView { background: #3a1a16; color: #f4dc9e;
+    selection-background-color: #7a2632; border: 1px solid #d8b46c; }
+QWidget#sidePanel QCheckBox { color: #e9c989; font-family: '${reading_font}'; font-size: 15px; }
+QWidget#sidePanel QTabWidget#adventureTabs::pane { border: none; background: transparent; }
+QWidget#sidePanel QFrame#inventoryPanel { background: transparent; border: none; }
+QWidget#sidePanel QListWidget#inventoryCards { background: transparent; border: none; padding: 0; }
+QWidget#sidePanel QListWidget#inventoryCards::item { background: transparent; border: none; margin: 0; padding: 0; }
+QWidget#sidePanel QScrollBar:vertical { background: rgba(0, 0, 0, 60); width: 8px; border-radius: 4px; margin: 0; }
+QWidget#sidePanel QScrollBar::handle:vertical { background: #8a6633; border-radius: 4px; min-height: 24px; }
+QWidget#sidePanel QScrollBar::add-line, QWidget#sidePanel QScrollBar::sub-line { height: 0; }
+QScrollArea#sideScroll QScrollBar:vertical { background: #1c100c; width: 9px; }
+QScrollArea#sideScroll QScrollBar::handle:vertical { background: #8a6633; border-radius: 4px; min-height: 24px; }
+/* ---- Proposition v3 : centre en page de livre, bandeau de cuir et d'or. ----
+   Les surfaces sont peintes (grimoire_chrome) ; ces règles neutralisent les boîtes grises. */
+QFrame#grimoireHeader { background: transparent; border: none; }
+QLabel#bookName { color: #f1dcae; font-family: 'EB Garamond'; font-size: 17px; font-style: italic; }
+QWidget#readerPanel { background: transparent; border: none; }
+QWidget#readerPanel QLabel#sectionTitle { font-family: 'EB Garamond'; color: #7a2632; font-size: 30px;
+    font-weight: bold; letter-spacing: 1px; padding: 2px 2px 0; }
+QTextBrowser#reader { background: transparent; border: none; padding: 4px 6px; color: #2e1d14; }
+QScrollArea#pageScroll QScrollBar:vertical { background: #1c100c; width: 9px; }
+QScrollArea#pageScroll QScrollBar::handle:vertical { background: #8a6633; border-radius: 4px; min-height: 24px; }
+/* Après pageScroll : la barre du texte, fine et bronze sur le vélin. */
+QTextBrowser#reader QScrollBar:vertical { background: rgba(120, 80, 30, 35); width: 7px;
+    border: none; border-radius: 3px; margin: 2px 0; }
+QTextBrowser#reader QScrollBar::handle:vertical { background: #a0773f; border-radius: 3px; min-height: 26px; }
+QTextBrowser#reader QScrollBar::add-line:vertical, QTextBrowser#reader QScrollBar::sub-line:vertical { height: 0; }
+QTextBrowser#reader QScrollBar::add-page:vertical, QTextBrowser#reader QScrollBar::sub-page:vertical { background: none; }
+QWidget#readerPanel QGroupBox { background: transparent; border: none; margin: 0; padding: 0; }
+QWidget#readerPanel QGroupBox::title { color: transparent; background: transparent; padding: 0; }
+QWidget#readerPanel QLabel { color: #4a3122; font-family: 'EB Garamond'; font-size: 17px; }
+QWidget#readerPanel QLabel#fontSizeLabel { color: #7a2632; font-family: 'Lato'; font-size: 12px; font-weight: bold; }
+/* Boutons d'événement (tests, combats, objets) : plaques de parchemin à filet d'or. */
+QWidget#readerPanel QPushButton { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #fbf1d8, stop:1 #e6cb96);
+    color: #3a2418; border: 2px solid #a5783c; border-radius: 8px; padding: 9px 16px;
+    font-family: 'EB Garamond'; font-size: 17px; font-weight: bold; }
+QWidget#readerPanel QPushButton:hover { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #fffaea, stop:1 #f3dca9);
+    border-color: #7a2632; }
+QWidget#readerPanel QPushButton:focus { border: 2px solid #7a2632; }
+QWidget#readerPanel QPushButton:disabled { color: #8a7a64; background: #e7dcc4; border-color: #c2b08c; }
+QWidget#readerPanel QLineEdit, QWidget#readerPanel QComboBox { background: #fbf3df; color: #2e1d14;
+    border: 1px solid #a5783c; border-radius: 6px; padding: 6px 8px; font-family: 'EB Garamond'; font-size: 17px; }
+QPushButton#aboutBrand { border: 1px solid transparent; border-radius: 14px; background: transparent; }
+QPushButton#aboutBrand:hover { background: rgba(255, 220, 150, 22); border-color: transparent; }
+QPushButton#aboutBrand:focus { background: transparent; border: 1px dotted rgba(223, 191, 124, 110); }
+QWidget#readerPanel QLabel#choiceCaption,
+QWidget#readerPanel QPushButton#choiceCard QLabel#choiceCaption { font-family: 'EB Garamond'; font-size: 21px; color: #2e1d14; }
+QWidget#readerPanel QPushButton:disabled QLabel#choiceCaption { color: #8a7a64; }
