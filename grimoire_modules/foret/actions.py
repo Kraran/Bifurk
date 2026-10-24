@@ -405,7 +405,8 @@ class ForetMechanicsActions(FightingFantasyActions):
         dialog.deleteLater()
 
     def _ff_meal_status(self):
-        """La Forêt autorise les repas répétés hors combat (règles, page PDF 9).
+        """La Forêt autorise les repas hors combat (règles, page PDF 9), un par paragraphe :
+        le socle refuse un second repas tant que le héros ne s'est pas déplacé.
 
         Les §§304 et 328 gardent leur commande spéciale, sans soin ordinaire
         permettant d'en contourner le coût ou la blessure. Le marqueur de repas
@@ -428,9 +429,10 @@ class ForetMechanicsActions(FightingFantasyActions):
 
     def care_options(self, *, in_combat=False):
         options = FightingFantasyActions.care_options(self, in_combat=in_combat)
-        next(option for option in options if option['id'] == 'meal')['reason'] = (
-            'Repas indisponible : combat, repas spécial, fin de partie, '
-            'Endurance au maximum ou provisions épuisées.')
+        meal = next(option for option in options if option['id'] == 'meal')
+        if not meal.get('already_ate'):
+            meal['reason'] = ('Repas indisponible : combat, repas spécial, fin de partie, '
+                              'Endurance au maximum ou provisions épuisées.')
         options.append({'id':'force_potion', 'label':'Potion de Force (+5 Endurance)',
                         'enabled':self.character['endurance'] > 0 and self._adventurer_draft is None
                                   and 'Potion de Force' in self.character.get('inventory', [])
