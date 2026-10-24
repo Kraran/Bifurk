@@ -9,6 +9,12 @@ from themes import default_theme
 from PySide6.QtCore import Qt, QRectF, QSize, Signal, QPointF
 from PySide6.QtGui import QColor, QFont, QFontMetrics, QPalette, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen, QShortcut, QKeySequence
 from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle, QDialog, QMessageBox
+from PySide6.QtGui import QRadialGradient
+import html
+import adventurer_sheet
+from adventurer_sheet import GOLD, GOLD_LIGHT, GOLD_DARK, BORDEAUX, draw_diamond
+from grimoire_chrome import (draw_gold_frame, draw_corner_fleurons, draw_wax_seal, draw_icon,
+                             RUBRIC, PAGE_INK, BRONZE)
 
 
 def message_icon(kind, theme, device_pixel_ratio=1):
@@ -128,53 +134,88 @@ class IllustrationDialog(QDialog):
 
 
 class IlluminatedPage(QWidget):
-    """A book page with painted corner flourishes, independent of native controls."""
+    """Page de livre peinte : vélin texturé, pli de reliure, tranche, double filet et volutes."""
 
     def __init__(self, texture_path=None, parent=None, theme=None):
         """Initialiser thème et texture ; une texture absente laisse apparaître la couleur de page."""
         super().__init__(parent)
         self.theme = theme or default_theme()
-        self.texture = QPixmap(str(texture_path)) if texture_path else QPixmap()
+        self.texture = QPixmap(str(self._page_texture(texture_path)))
+        self.compact = False
+
+    def set_compact(self, compact):
+        """Petites hauteurs : filets rapprochés du bord et volutes réduites."""
+        if bool(compact) != self.compact:
+            self.compact = bool(compact)
+            self.update()
+
+    def _page_texture(self, fallback):
+        page = getattr(self.theme, 'assets', {}).get('page')
+        return page if page else (fallback or '')
 
     def set_theme(self, theme):
         """Mettre à jour les couleurs et textures de la surface puis demander un nouveau dessin."""
         self.theme = theme
-        self.texture = QPixmap(str(theme.assets['parchment']))
+        self.texture = QPixmap(str(self._page_texture(theme.assets['parchment'])))
         self.update()
 
     def paintEvent(self, event):
-        """Dessiner le parchemin sous un clip arrondi puis les filets et quatre ornements tournés."""
+        """Dessiner tranche, vélin, ombre de reliure, vieillissement des bords puis ornements."""
         super().paintEvent(event)
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
-        page = QPainterPath()
-        page.addRoundedRect(QRectF(self.rect()), 12, 12)
-        p.setClipPath(page)
-        p.fillPath(page, QColor(self.theme.color("page")))
+        full = QRectF(self.rect())
+        page = full.adjusted(2, 2, -7, -7)
+        # Ombre portée et tranche des feuillets (côté droit et bas).
+        p.setPen(Qt.NoPen)
+        p.setBrush(QColor(0, 0, 0, 90))
+        p.drawRoundedRect(page.translated(5, 6), 8, 8)
+        for k, shade in ((4, '#c9ad7c'), (2, '#dcc39a')):
+            p.setBrush(QColor(shade))
+            p.setPen(QPen(QColor('#8f6e45'), .6))
+            p.drawRoundedRect(page.translated(k, k), 8, 8)
+        clip = QPainterPath()
+        clip.addRoundedRect(page, 8, 8)
+        p.setClipPath(clip)
+        p.fillPath(clip, QColor(self.theme.color("page")))
         if not self.texture.isNull():
             p.setRenderHint(QPainter.SmoothPixmapTransform)
-            p.drawPixmap(QRectF(self.rect()), self.texture, QRectF(self.texture.rect()))
-        p.setPen(QPen(QColor(self.theme.color("ornament")), 1.2))
-        p.drawRoundedRect(self.rect().adjusted(4, 4, -5, -5), 10, 10)
-        p.drawRoundedRect(self.rect().adjusted(8, 8, -9, -9), 8, 8)
-        for x, y, rotation in ((12, 12, 0), (self.width()-12, 12, 90),
-                                (self.width()-12, self.height()-12, 180),
-                                (12, self.height()-12, 270)):
-            p.save()
-            p.translate(x, y)
-            p.rotate(rotation)
-            flourish = QPainterPath()
-            flourish.moveTo(0, 43)
-            flourish.cubicTo(0, 10, 30, 29, 22, 10)
-            flourish.cubicTo(12, -5, 10, 31, 43, 0)
-            p.drawPath(flourish)
-            p.setBrush(QColor(self.theme.color("rubric")))
-            p.drawEllipse(QRectF(5, 5, 5, 5))
-            p.restore()
+            p.drawPixmap(page, self.texture, QRectF(self.texture.rect()))
+        # Pli de reliure à gauche : la page est la belle page d'un livre ouvert.
+        gutter = QLinearGradient(page.topLeft(), QPointF(page.left() + 46, page.top()))
+        gutter.setColorAt(0, QColor(70, 40, 15, 120))
+        gutter.setColorAt(.35, QColor(70, 40, 15, 40))
+        gutter.setColorAt(1, QColor(70, 40, 15, 0))
+        p.fillRect(page, gutter)
+        aged = QRadialGradient(page.center(), max(page.width(), page.height()) * .72)
+        aged.setColorAt(.62, QColor(120, 80, 30, 0))
+        aged.setColorAt(1, QColor(120, 80, 30, 70))
+        p.fillRect(page, aged)
+        p.setClipping(False)
+        p.setBrush(Qt.NoBrush)
+        p.setPen(QPen(QColor('#7d5a2e'), 1))
+        p.drawRoundedRect(page, 8, 8)
+        inset = 7 if self.compact else 11
+        frame = page.adjusted(inset, inset, -inset, -inset)
+        p.setPen(QPen(BRONZE, 1.6))
+        p.drawRoundedRect(frame, 5, 5)
+        p.setPen(QPen(QColor(122, 38, 50, 150), .8))
+        p.drawRoundedRect(frame.adjusted(4, 4, -4, -4), 3, 3)
+        draw_corner_fleurons(p, frame.adjusted(-4, -4, 4, 4), color=BRONZE, light=RUBRIC,
+                             size=20 if self.compact else 30)
+        for y in (frame.top(), frame.bottom()):
+            draw_diamond(p, QPointF(frame.center().x(), y), 4.5, BRONZE)
+            draw_diamond(p, QPointF(frame.center().x(), y), 1.8, RUBRIC)
 
 
 class ChoiceCard(QPushButton):
-    """Wrap long destinations while keeping native button focus and keyboard behaviour."""
+    compact = False  # suivi de la densité de la fenêtre principale (petites hauteurs)
+    tight = False    # très petites hauteurs : plaque basse, « → §N » en fin de texte
+
+    """Plaque de choix ornementée : sceau numéroté, destination en cartouche, survol lumineux.
+
+    Le texte du bouton (text()) reste le libellé complet ; le label enfant, transparent aux
+    clics, affiche l'action et le dessin ajoute numéro et destination « §N »."""
 
     def __init__(self, text, parent=None):
         """Confier le retour à la ligne au label et les clics au bouton parent.
@@ -183,21 +224,133 @@ class ChoiceCard(QPushButton):
         masquer l’activation native ; le layout détermine la hauteur du contenu."""
         super().__init__(text, parent)
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
+        self.setAttribute(Qt.WA_Hover)
+        self.setCursor(Qt.PointingHandCursor)
+        self._number = None
+        action, destination = text, ''
+        if '→' in text:
+            head, tail = text.rsplit('→', 1)
+            if tail.strip().startswith('§'):
+                action, destination = head.strip(), tail.strip().replace('§ ', '§')
+        self._destination = destination
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(18, 12, 14, 12)
-        caption = QLabel(text)
+        self._right = 92 if destination else 22
+        layout.setContentsMargins(70, 15, self._right, 16)
+        caption = QLabel(action)
         caption.setWordWrap(True)
         caption.setAttribute(Qt.WA_TransparentForMouseEvents)
-        caption.setStyleSheet("background: transparent; border: none;")
+        caption.setObjectName("choiceCaption")
+        caption.setStyleSheet(
+            "background: transparent; border: none; color: #2e1d14; "
+            f"font-family: '{adventurer_sheet.FONTS['title']}'; font-size: 21px;")
         layout.addWidget(caption)
+        self._caption, self._base_text, self._action = caption, text, action
+        self._tight = None
+        self.set_compact(ChoiceCard.compact, ChoiceCard.tight)
+
+    def set_compact(self, compact, tight=False):
+        """Plaque plus basse sur les petites fenêtres ; le sceau reste lisible.
+
+        En mode serré, la destination quitte sa colonne et suit le texte (« … → §N »)
+        pour que chaque plaque tienne sur une ligne de plus au même encombrement."""
+        self._compact = compact
+        tight = bool(tight)
+        if tight:
+            self.layout().setContentsMargins(52, 6, 16, 7)
+        else:
+            self.layout().setContentsMargins(70, 10 if compact else 15, self._right, 11 if compact else 16)
+        if tight != self._tight:
+            self._tight = tight
+            style = self._caption.styleSheet()
+            style = style.replace('font-size: 21px', 'font-size: 18px') if tight else \
+                style.replace('font-size: 18px', 'font-size: 21px')
+            self._caption.setStyleSheet(style)
+            if tight and self._destination:
+                self._caption.setTextFormat(Qt.RichText)
+                self._caption.setText(
+                    f"{html.escape(self._action)}&nbsp;&nbsp;<span style=\"color:#7a2632; font-style:italic; "
+                    f"font-weight:600; white-space:nowrap;\">→&nbsp;{html.escape(self._destination)}</span>")
+            else:
+                self._caption.setTextFormat(Qt.PlainText)
+                self._caption.setText(self._action)
+            self.update()
+
+    def set_shortcut_number(self, number):
+        """Afficher le numéro dans le sceau ; la touche correspondante active le choix."""
+        self._number = number
+        self.setToolTip(f"Touche {number}")
+        self.setAccessibleName(f"Choix {number} : {self._base_text}")
+        self.update()
+
+    def changeEvent(self, event):
+        super().changeEvent(event)
+        if event.type() == event.Type.EnabledChange:
+            self._caption.setStyleSheet(self._caption.styleSheet().replace(
+                '#2e1d14', '#8a7a64') if not self.isEnabled() else
+                self._caption.styleSheet().replace('#8a7a64', '#2e1d14'))
 
     def paintEvent(self, event):
-        """Laisser Qt dessiner le bouton sans texte : le label enfant gère le retour à la ligne."""
-        option = QStyleOptionButton()
-        self.initStyleOption(option)
-        option.text = ""
-        painter = QPainter(self)
-        self.style().drawControl(QStyle.CE_PushButton, option, painter, self)
+        """Plaque de parchemin, double filet doré, sceau numéroté et flèche-plume vers §N."""
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        enabled = self.isEnabled()
+        hover = enabled and (self.underMouse() or self.hasFocus())
+        r = QRectF(self.rect()).adjusted(3, 2, -3, -4)
+        if self.isDown():
+            r.translate(0, 1)
+        if hover:
+            for k, alpha in ((5, 40), (3, 70)):
+                p.setPen(QPen(QColor(232, 190, 100, alpha), k * 2))
+                p.setBrush(Qt.NoBrush)
+                p.drawRoundedRect(r, 8, 8)
+        p.setPen(Qt.NoPen)
+        p.setBrush(QColor(60, 35, 12, 70))
+        p.drawRoundedRect(r.translated(0, 2.5), 8, 8)
+        g = QLinearGradient(r.topLeft(), r.bottomLeft())
+        if not enabled:
+            g.setColorAt(0, QColor('#ece2cc'))
+            g.setColorAt(1, QColor('#d6c7a8'))
+        elif hover:
+            g.setColorAt(0, QColor('#fffaea'))
+            g.setColorAt(1, QColor('#f3dca9'))
+        else:
+            g.setColorAt(0, QColor('#fbf1d8'))
+            g.setColorAt(1, QColor('#e8cf9c'))
+        p.setBrush(g)
+        p.setPen(QPen(RUBRIC if hover else GOLD_DARK, 1.8))
+        p.drawRoundedRect(r, 8, 8)
+        inner = r.adjusted(4, 4, -4, -4)
+        p.setBrush(Qt.NoBrush)
+        p.setPen(QPen(QColor(GOLD) if enabled else QColor('#c8b48e'), 1))
+        p.drawRoundedRect(inner, 5, 5)
+        for pt in (inner.topLeft(), inner.topRight(), inner.bottomLeft(), inner.bottomRight()):
+            draw_diamond(p, pt, 2.6, GOLD_DARK if enabled else QColor('#b7a37f'))
+        # Sceau numéroté.
+        tight = bool(self._tight)
+        c = QPointF(r.left() + (24 if tight else 31), r.center().y())
+        seal = BORDEAUX if enabled else QColor('#8b7d70')
+        radius = 13 if tight else (16 if self._compact else 18)
+        draw_wax_seal(p, c, radius + (1 if hover else 0), color=seal, ring=GOLD_LIGHT if hover else GOLD)
+        if self._number is not None:
+            p.setFont(adventurer_sheet.font('title', 15 if tight else (18 if self._compact else 20), bold=True))
+            p.setPen(GOLD_LIGHT if enabled else QColor('#e2d6c2'))
+            p.drawText(QRectF(c.x() - 18, c.y() - 19, 36, 36), Qt.AlignCenter, str(self._number))
+        else:
+            draw_diamond(p, c, 6, GOLD_LIGHT)
+        p.setPen(QPen(QColor(138, 102, 51, 110), 1))
+        sep = r.left() + (44 if tight else 60)
+        p.drawLine(QPointF(sep, inner.top() + (5 if tight else 9)), QPointF(sep, inner.bottom() - (5 if tight else 9)))
+        if self._destination and not tight:
+            x0 = r.right() - 84
+            p.setPen(QPen(QColor(138, 102, 51, 110), 1))
+            p.drawLine(QPointF(x0, inner.top() + 8), QPointF(x0, inner.bottom() - 8))
+            color = RUBRIC if enabled else QColor('#a8987e')
+            dx = 4 if hover else 0
+            draw_icon(p, 'arrow', QPointF(x0 + 22 + dx, r.center().y()), 9, color)
+            p.setFont(adventurer_sheet.font('title', 18, bold=True, italic=True))
+            p.setPen(color)
+            p.drawText(QRectF(x0 + 34, r.top(), 52, r.height()), Qt.AlignVCenter | Qt.AlignLeft,
+                       self._destination)
 
 
 def inventory_icon(name, theme=None):
@@ -314,8 +467,8 @@ class GrimoireScene(QWidget):
 
     def _fit_scale(self):
         """Calculer le facteur qui fait tenir l’image entière dans la surface avec marge de deux pixels."""
-        return min(max(1, self.width()-4) / max(1, self.picture.width()),
-                   max(1, self.height()-4) / max(1, self.picture.height()))
+        return min(max(1, self.width()-22) / max(1, self.picture.width()),
+                   max(1, self.height()-22) / max(1, self.picture.height()))
 
     def _constrain_pan(self):
         """Limiter le déplacement au débordement de l’image ; centrer les axes qui ne débordent pas."""
@@ -403,19 +556,28 @@ class GrimoireScene(QWidget):
         le décor utilise max pour remplir la surface. Le clipping suit les coins arrondis."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        box = QRectF(self.rect()).adjusted(2, 2, -2, -2)
+        outer = QRectF(self.rect()).adjusted(3, 3, -3, -3)
+        # Passe-partout de cuir sombre puis illustration dans le filet doré de la fiche.
+        matte = QPainterPath()
+        matte.addRoundedRect(outer, 10, 10)
+        painter.fillPath(matte, QColor('#1e120e'))
+        box = outer.adjusted(8, 8, -8, -8)
         clip = QPainterPath()
-        clip.addRoundedRect(box, 8, 8)
+        clip.addRoundedRect(box, 6, 6)
         painter.setClipPath(clip)
         painter.fillRect(box, QColor(self.theme.color("scene_background")))
         if not self.picture.isNull():
             painter.setRenderHint(QPainter.SmoothPixmapTransform)
             scale = (self._fit_scale() * self.zoom if self.is_book_art else
-                     max(self.width()/self.picture.width(), self.height()/self.picture.height()))
+                     max(box.width()/self.picture.width(), box.height()/self.picture.height()))
             width, height = self.picture.width()*scale, self.picture.height()*scale
-            target = QRectF((self.width()-width)/2 + self.pan.x(),
-                            (self.height()-height)/2 + self.pan.y(), width, height)
+            target = QRectF(box.center().x() - width/2 + self.pan.x(),
+                            box.center().y() - height/2 + self.pan.y(), width, height)
             painter.drawPixmap(target, self.picture, QRectF(self.picture.rect()))
+        inner_shadow = QRadialGradient(box.center(), max(box.width(), box.height()) * .75)
+        inner_shadow.setColorAt(.7, QColor(0, 0, 0, 0))
+        inner_shadow.setColorAt(1, QColor(0, 0, 0, 120))
+        painter.fillRect(box, inner_shadow)
         if not self.is_book_art and self.background_art.isNull():
             shade = QLinearGradient(0, self.height() / 2, 0, self.height())
             shade.setColorAt(0, QColor(20, 12, 8, 0))
@@ -426,12 +588,4 @@ class GrimoireScene(QWidget):
                              Qt.AlignBottom | Qt.AlignLeft,
                              "✦  BIFURK")
         painter.setClipping(False)
-        painter.setPen(QColor(self.theme.color("frame")))
-        painter.drawRoundedRect(box, 8, 8)
-        for x in (12, self.width() - 12):
-            for y in (12, self.height() - 12):
-                painter.save()
-                painter.translate(x, y)
-                painter.rotate(45)
-                painter.fillRect(QRectF(-3, -3, 6, 6), QColor(self.theme.color("gold")))
-                painter.restore()
+        draw_gold_frame(painter, outer, 10)

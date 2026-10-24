@@ -251,7 +251,8 @@ class CombatControlsTests(unittest.TestCase):
         self.assertEqual(self.w.adventure_tabs.count(), 1)
         self.assertEqual(self.w.adventure_tabs.tabText(0), 'Sacoche')
         self.assertFalse(self.w.adventure_tabs.tabBar().isVisible())
-        self.assertTrue(self.w.combat_button.isVisible())
+        # Proposition UI : Combattre n'apparaît que lorsqu'un combat est disponible.
+        self.assertEqual(self.w.combat_button.isVisible(), self.w.combat_button.isEnabled())
         self.assertTrue(self.w.tools_button.isVisible())
         self.assertFalse(self.w._engine_fields.isVisible())
 

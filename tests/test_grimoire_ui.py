@@ -9,10 +9,10 @@ import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
 
-from PySide6.QtGui import QPixmap, QWheelEvent
-from PySide6.QtCore import Qt, QPoint, QPointF
+from PySide6.QtGui import QPixmap, QWheelEvent, QTextDocument
+from PySide6.QtCore import Qt, QPoint, QPointF, QUrl
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea
+from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea, QWidget
 
 from main import MainWindow
 from grimoire_ui import IllustrationDialog
@@ -100,7 +100,8 @@ class GrimoireInterfaceTests(unittest.TestCase):
         page = w.findChild(QScrollArea, "pageScroll")
         self.assertEqual(w.width(), 930)
         self.assertEqual(page.horizontalScrollBar().maximum(), 0)
-        self.assertLessEqual(w.scene_art.geometry().right(), page.geometry().left() + 1)
+        # Proposition UI : sous 1100 px l'illustration est masquée automatiquement.
+        self.assertFalse(w.scene_art.isVisible())
         self.assertGreaterEqual(w.reader.height(), 230)
         self.assertTrue(w.choice_group.isVisible())
         self.assertEqual(w.adventure_tabs.count(), 1)
@@ -116,14 +117,33 @@ class GrimoireInterfaceTests(unittest.TestCase):
         self.assertTrue(all(not w.inventory_list.item(i).icon().isNull() for i in range(3)))
         self.assertEqual(w.character["inventory"], names)
 
-    def test_inventory_rows_remain_compact_with_many_objects(self):
+    def test_inventory_grid_keeps_slots_compact_with_many_objects(self):
+        """La sacoche est une grille de cases : plusieurs objets par rangée, cases bornées."""
         w = self.window
         w.character["inventory"] = [f"Clé {number}" for number in range(12)]
         w._refresh_character()
         self.app.processEvents()
-        first = w.inventory_list.visualItemRect(w.inventory_list.item(0))
-        self.assertLessEqual(first.height(), 44)
-        self.assertGreaterEqual(w.inventory_list.viewport().height(), first.height() * 3)
+        rects = [w.inventory_list.visualItemRect(w.inventory_list.item(i)) for i in range(3)]
+        self.assertLessEqual(rects[0].height(), 96)
+        self.assertEqual({rect.top() for rect in rects}, {rects[0].top()})
+        self.assertLess(rects[0].left(), rects[1].left())
+        self.assertGreaterEqual(w.inventory_list.viewport().height(), rects[0].height())
+
+    def test_sheet_mirrors_initial_values_potion_and_weapon_choice(self):
+        w = self.window
+        w.character.update(inventory=["Épée", "Épée magique", "Lanterne"], potion="Potion de Vigueur", potion_doses=1)
+        w._refresh_character()
+        self.app.processEvents()
+        initial = w.character.get("initial", {})
+        self.assertEqual(w.stat_medallions["endurance"].initial, initial.get("endurance"))
+        self.assertEqual(w.potion_value.text(), "1/2")
+        self.assertEqual(w.potion_token.caption, "VIGUEUR")
+        self.assertFalse(w.potion_combo.isVisible())
+        # Deux armes : la bannière de choix apparaît et le double-clic équipe.
+        self.assertFalse(w.weapon_combo.isHidden())
+        w._equip_from_grid(w.inventory_list.item(1))
+        self.assertEqual(__import__("book_events").equipped_weapon(w.character), "Épée magique")
+        self.assertIn("Arme équipée", w.inventory_list.item(1).toolTip())
 
     def test_opening_shows_cover_and_double_click_opens_displayed_image(self):
         w = self.window
@@ -248,6 +268,219 @@ class GrimoireInterfaceTests(unittest.TestCase):
         self.assertFalse(any("Voir l’illustration du paragraphe" in b.text()
                              for b in w.findChildren(QPushButton)))
 
+
+    def test_long_paragraph_opens_with_illuminated_drop_cap(self):
+        w = self.window
+        long_text = 'Votre torche révèle une porte de pierre. ' * 5
+        w._render_paragraph_text(long_text)
+        html = w.reader.toHtml()
+        self.assertIn('bifurk-initial:', html)
+        self.assertTrue(w.reader.toPlainText().rstrip().endswith('porte de pierre.'))
+        url = next(f.name() for f in self._image_formats(w.reader.document()))
+        self.assertIsNotNone(w.reader.document().resource(QTextDocument.ImageResource, QUrl(url)))
+        self.assertIn('otre torche', w.reader.toPlainText())
+        # Texte court ou ne commençant pas par une lettre : pas de lettrine.
+        for text in ('Une porte.', '« ' + long_text):
+            with self.subTest(text=text[:12]):
+                w._render_paragraph_text(text)
+                self.assertNotIn('bifurk-initial:', w.reader.toHtml())
+
+    @staticmethod
+    def _image_formats(document):
+        block = document.begin()
+        while block.isValid():
+            it = block.begin()
+            while not it.atEnd():
+                fmt = it.fragment().charFormat()
+                if fmt.isImageFormat():
+                    yield fmt.toImageFormat()
+                it += 1
+            block = block.next()
+
+    def test_choice_card_shows_seal_number_and_destination_without_changing_text(self):
+        from grimoire_ui import ChoiceCard
+        card = ChoiceCard('Prendre le passage ouest  →  §71')
+        card.set_shortcut_number(3)
+        self.assertEqual(card.text(), 'Prendre le passage ouest  →  §71')
+        self.assertEqual(card._caption.text(), 'Prendre le passage ouest')
+        self.assertEqual(card._destination, '§71')
+        self.assertEqual(card.toolTip(), 'Touche 3')
+        plain = ChoiceCard('Ouvrir une chronique sauvegardée')
+        self.assertEqual(plain._caption.text(), 'Ouvrir une chronique sauvegardée')
+        self.assertEqual(plain._destination, '')
+
+    def test_header_commands_are_painted_medallions_with_tooltips(self):
+        from grimoire_chrome import MedallionButton
+        w = self.window
+        header = w.findChild(QWidget, 'grimoireHeader')
+        for button in (w.undo_btn, w.redo_btn, w.rules_button, w.map_button,
+                       w.open_btn, w.settings_button):
+            with self.subTest(button=button.caption):
+                self.assertIsInstance(button, MedallionButton)
+                self.assertTrue(header.isAncestorOf(button))
+                self.assertTrue(button.toolTip())
+        self.assertIsNotNone(w.settings_button.menu())
+        self.assertEqual(w.paragraph_number.objectName(), 'paragraphNumber')
+
+    def test_compact_window_keeps_choice_plaques_and_sheet_seals_inside(self):
+        w = self.window
+        w.resize(930, 650)
+        w.go_to(1)
+        self.app.processEvents()
+        side = w.findChild(QScrollArea, 'sideScroll')
+        # Sous 1100 px, la fiche est en tiroir : on la déplie pour la mesurer.
+        w.toggle_sheet_drawer(True)
+        self.app.processEvents()
+        self.assertEqual(side.verticalScrollBar().maximum(), 0)
+        self.assertEqual(side.horizontalScrollBar().maximum(), 0)
+        self.assertTrue(w.stats_heading.isHidden())
+        w.resize(1600, 900)
+        self.app.processEvents()
+        self.assertFalse(w.stats_heading.isHidden())
+
+    def _choice_button(self):
+        w = self.window
+        return next(w.choice_layout.itemAt(i).widget() for i in range(w.choice_layout.count())
+                    if isinstance(w.choice_layout.itemAt(i).widget(), QPushButton))
+
+    def test_narrow_window_folds_sheet_into_a_drawer(self):
+        w = self.window
+        side = w.findChild(QScrollArea, 'sideScroll')
+        w.resize(930, 650)
+        w.go_to(1)
+        self.app.processEvents()
+        self.assertTrue(w.sheet_strip.isVisible())
+        self.assertFalse(side.isVisible())
+        self.assertNotIn(side, [w.splitter.widget(i) for i in range(w.splitter.count())])
+        self.assertIn('8', w.sheet_strip.toolTip())
+        # Un clic sur la bande déplie la fiche par-dessus la page, sans la déplacer.
+        QTest.qWait(20)
+        page_geometry = w.reader_panel.geometry()
+        QTest.mouseClick(w.sheet_strip, Qt.LeftButton)
+        self.app.processEvents()
+        self.assertTrue(side.isVisible())
+        self.assertTrue(w.drawer_scrim.isVisible())
+        self.assertEqual(w.reader_panel.geometry(), page_geometry)
+        self.assertLessEqual(side.geometry().right(), w.sheet_strip.geometry().left())
+        self.assertGreaterEqual(side.width(), 365)
+        # Un clic à côté la referme.
+        QTest.mouseClick(w.drawer_scrim, Qt.LeftButton, pos=QPoint(20, 20))
+        self.app.processEvents()
+        self.assertFalse(side.isVisible())
+        self.assertFalse(w.drawer_scrim.isVisible())
+        # Tab (hors champ de saisie) l'ouvre, Échap la referme.
+        w.reader.setFocus()
+        w.sheet_shortcut.activated.emit()
+        self.app.processEvents()
+        self.assertTrue(side.isVisible())
+        w.escape_shortcut.activated.emit()
+        self.app.processEvents()
+        self.assertFalse(side.isVisible())
+        # Une action de jeu la referme aussi.
+        w.toggle_sheet_drawer(True)
+        self._choice_button().click()
+        self.app.processEvents()
+        self.assertEqual(w.current_paragraph, 2)
+        self.assertFalse(side.isVisible())
+
+    def test_tab_in_an_editable_field_keeps_moving_focus(self):
+        from PySide6.QtWidgets import QLineEdit
+        w = self.window
+        w.resize(930, 650)
+        self.app.processEvents()
+        w.toggle_sheet_drawer(True)
+        self.app.processEvents()
+        field = w.side_scroll.findChild(QLineEdit)
+        if field is None:
+            self.skipTest('pas de champ de saisie visible dans la fiche')
+        field.setFocus()
+        w._tab_sheet_drawer()
+        self.assertTrue(w.side_scroll.isVisible())
+
+    def test_wide_window_keeps_sheet_in_the_splitter(self):
+        w = self.window
+        side = w.findChild(QScrollArea, 'sideScroll')
+        w.resize(930, 650)
+        self.app.processEvents()
+        w.toggle_sheet_drawer(True)
+        w.resize(1600, 900)
+        self.app.processEvents()
+        self.assertFalse(w.sheet_strip.isVisible())
+        self.assertFalse(w.drawer_scrim.isVisible())
+        self.assertTrue(side.isVisible())
+        self.assertEqual(w.splitter.indexOf(side), 2)
+        self.assertGreaterEqual(side.width(), 330)
+        w.toggle_sheet_drawer(True)
+        self.assertFalse(w._drawer_open)
+
+    def test_reading_mode_hides_sheet_and_banner(self):
+        w = self.window
+        header = w.findChild(QWidget, 'grimoireHeader')
+        side = w.findChild(QScrollArea, 'sideScroll')
+        w.resize(930, 650)
+        w.go_to(1)
+        self.app.processEvents()
+        self.assertIn(w.reading_action, w.settings_button.menu().actions())
+        self.assertIn('F10', w.reading_action.text())
+        w.reading_action.trigger()
+        self.app.processEvents()
+        self.assertTrue(w.reading_mode)
+        self.assertFalse(header.isVisible())
+        self.assertFalse(w.sheet_strip.isVisible())
+        self.assertFalse(side.isVisible())
+        self.assertTrue(w.reading_exit_button.isVisible())
+        self.assertTrue(w.reader.isVisible())
+        self.assertTrue(self._choice_button().isVisible())
+        w.escape_shortcut.activated.emit()
+        self.app.processEvents()
+        self.assertFalse(w.reading_mode)
+        self.assertTrue(header.isVisible())
+        self.assertTrue(w.sheet_strip.isVisible())
+        # F10 marche aussi en grand écran, et une seconde fois pour revenir.
+        w.resize(1600, 900)
+        self.app.processEvents()
+        w.toggle_reading_mode()
+        self.app.processEvents()
+        self.assertFalse(side.isVisible())
+        w.toggle_reading_mode()
+        self.app.processEvents()
+        self.assertTrue(side.isVisible())
+        self.assertTrue(header.isVisible())
+
+    def test_story_font_follows_window_height_until_user_chooses(self):
+        w = self.window
+        for size, expected in (((930, 650), 16), ((1280, 720), 17), ((1600, 900), 20)):
+            with self.subTest(size=size):
+                w.resize(*size)
+                self.app.processEvents()
+                self.assertEqual(w.reader_font_size, expected)
+        w.resize(930, 650)
+        self.app.processEvents()
+        w.change_reader_font_size(2)
+        self.assertEqual(w.reader_font_size, 18)
+        w.resize(1600, 900)
+        self.app.processEvents()
+        self.assertEqual(w.reader_font_size, 18)
+
+    def test_low_window_uses_one_line_page_header_and_slim_banner(self):
+        w = self.window
+        w.resize(1280, 720)
+        w.go_to(1)
+        self.app.processEvents()
+        self.assertTrue(w.undo_btn.slim)
+        self.assertFalse(w.subtitle_label.isVisible())
+        self.assertGreaterEqual(w.title_row.indexOf(w.paragraph_title), 0)
+        self.assertTrue(w.undo_btn.toolTip())
+        card = self._choice_button()
+        self.assertTrue(card.tight)
+        self.assertIn('§2', card._caption.text())
+        self.assertTrue(card.isVisible())
+        w.resize(1600, 900)
+        self.app.processEvents()
+        self.assertFalse(w.undo_btn.slim)
+        self.assertTrue(w.subtitle_label.isVisible())
+        self.assertEqual(w.title_row.indexOf(w.paragraph_title), -1)
+        self.assertEqual(w.reader_layout.indexOf(w.paragraph_title), 0)
 
 if __name__ == "__main__":
     unittest.main()

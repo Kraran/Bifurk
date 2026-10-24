@@ -36,7 +36,7 @@ def choice_caption(label, target):
                        label, flags=re.I).strip()
     return f'{label or "Poursuivre le chemin"}  →  §{target}'
 
-def render_links(text, available):
+def render_links(text, available, link_color="#123f70"):
     """Échappe le texte avant de créer des liens uniquement vers les sections existantes."""
     pieces = []
     last = 0
@@ -45,7 +45,7 @@ def render_links(text, available):
         target = int(m.group('target'))
         if target in available:
             pieces.append(html.escape(text[m.start():m.start('target')]) +
-                          f'<a href="paragraph:{target}" style="color:#123f70; text-decoration:underline; font-weight:bold;">{target}</a>')
+                          f'<a href="paragraph:{target}" style="color:{link_color}; text-decoration:underline; font-weight:bold;">{target}</a>')
         else:
             pieces.append(html.escape(m.group(0)))
         last = m.end()

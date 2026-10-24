@@ -51,6 +51,8 @@ class SaveSlotButton(QPushButton):
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Minimum)
 
     def minimumSizeHint(self):
+        if self.property('emptySlot'):
+            return QSize(220, self.fontMetrics().lineSpacing() + 22)
         return QSize(220, max(82, self.fontMetrics().lineSpacing() *
                               len(self.text().splitlines()) + 32))
 
@@ -108,6 +110,7 @@ class SaveSlotsDialog(QDialog):
         self.slots = QVBoxLayout(body)
         self.slots.setContentsMargins(0, 0, 6, 0)
         self.slots.setSpacing(10)
+        self.slots.setAlignment(Qt.AlignTop)
         scroll.setWidget(body)
         layout.addWidget(scroll, 1)
         self.refresh_slots()
@@ -166,6 +169,10 @@ class SaveSlotsDialog(QDialog):
             button.setProperty('saveSlot', True)
             button.setToolTip((title + '\n' if title else '') + description)
             button.setEnabled(self.saving or valid)
+            if not exists:
+                # Emplacement libre : une seule ligne discrète, sans bouton Supprimer.
+                button.setText(f'⚜  Emplacement {number}  —  libre')
+                button.setProperty('emptySlot', True)
             button.clicked.connect(lambda checked=False, p=path, occupied=exists:
                                    self.choose(p, self.saving and occupied))
             row = QWidget()
@@ -177,6 +184,7 @@ class SaveSlotsDialog(QDialog):
             delete.setProperty('dialogAction', 'danger')
             delete.setAccessibleName(f'Supprimer la sauvegarde de l’emplacement {number}')
             delete.setEnabled(exists)
+            delete.setVisible(exists)
             delete.clicked.connect(lambda checked=False, p=path: self.delete_save(p))
             row_layout.addWidget(delete)
             self.slots.addWidget(row)
