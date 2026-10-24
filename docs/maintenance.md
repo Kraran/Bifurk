@@ -23,6 +23,7 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 | `dice_dialog.py` | Plateau de dés 3D, animation et révélation des jets déjà tirés | `DiceCanvas`, `DiceDialog` |
 | `combat_dialog.py` | Combat modal, plateaux intégrés et chronique de la rencontre | `CombatDialog`, `present_roll` |
 | `stat_feedback.py` | Cartouches de variations, cumul par action et placement sur les valeurs | `StatFeedback.observe`, `StatBadge` |
+| `loading_progress.py` | Barre de chargement parchemin/or : lecture du PDF et des sauvegardes en QThread, apparition après 300 ms, fermeture avant tout message d’erreur | `LoadingSession`, `LoadingOverlay` |
 | `exploration_map.py` | Graphe des lieux découverts, recherche et recentrage | `ExplorationMapDialog`, `discovered_places` |
 | `dialog_chrome.py` | Bandeaux et habillage des dialogues Qt standards | `DialogHeading`, `harmonize_standard_dialog` |
 | `rules_viewer.py` | Lecture des pages physiques déclarées par le module | `RulesDialog.render_page` |

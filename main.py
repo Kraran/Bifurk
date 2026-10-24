@@ -33,6 +33,7 @@ from dice_dialog import DiceDialog
 from combat_dialog import CombatDialog
 from dialog_chrome import DialogHeading, harmonize_standard_dialog
 from stat_feedback import StatFeedback
+from loading_progress import LoadingSession
 import adventurer_sheet
 from adventurer_sheet import (SheetPanel, OrnateHeading, HeroEmblem, StatMedallion,
                               ResourceToken, ValueLabel, SealButton, RibbonButton, InventoryGrid,
@@ -118,18 +119,30 @@ def resolve_book_reference(reference):
 
 
 
-def extract_paragraphs(pdf_path):
+_UNKNOWN_MODULE = object()
+
+
+def extract_paragraphs(pdf_path, *, module=_UNKNOWN_MODULE, progress=None):
     """Extraire les sections numérotées d’un PDF textuel, sans OCR.
 
     Le tri PyMuPDF et la suppression des césures facilitent la lecture. Un numéro
     isolé après « rendez-vous au » reste une destination, pas un nouveau titre.
-    Le dictionnaire retourné associe numéro entier et texte non vide."""
+    Le dictionnaire retourné associe numéro entier et texte non vide.
+    module évite de recalculer l’empreinte quand l’appelant a déjà reconnu le
+    livre ; progress(pages_lues, pages_totales) suit la lecture page à page et
+    peut être appelé hors du thread de l’interface (aucun widget touché ici)."""
     try:
         import pymupdf
     except ImportError as exc:
         raise RuntimeError("PyMuPDF n'est pas installé. Lancez : pip install PyMuPDF") from exc
     with pymupdf.open(pdf_path) as doc:
-        text = "\n".join(page.get_text("text", sort=True) for page in doc)
+        total = doc.page_count
+        pages = []
+        for index, page in enumerate(doc):
+            pages.append(page.get_text("text", sort=True))
+            if progress is not None:
+                progress(index + 1, total)
+        text = "\n".join(pages)
     # Normalize common PDF line-break artifacts while preserving paragraph boundaries.
     text = text.replace("\u00ad", "")
     lines = [line.strip() for line in text.splitlines()]
@@ -152,11 +165,70 @@ def extract_paragraphs(pdf_path):
     if current is not None:
         paragraphs[current] = "\n".join(buffer).strip()
     # Ne corriger le défaut éditorial que pour le PDF exact déjà catalogué.
-    module = module_for_pdf(pdf_path)
+    if module is _UNKNOWN_MODULE:
+        module = module_for_pdf(pdf_path)
     if module is not None:
         module.repair_paragraphs(paragraphs)
     # Drop empty sections and likely front matter sections without content.
     return {n: t for n, t in paragraphs.items() if t}
+
+
+def _extraction_reporter(report, start, end):
+    """Traduire les pages lues en progression réelle entre start et end."""
+    def pages(done, total):
+        report(start + (end - start) * done / max(1, total), "Extraction des paragraphes",
+               f"page {done} / {total}")
+    return pages
+
+
+def read_book_for_opening(path, report):
+    """Travail d’ouverture sans widget, exécutable hors du thread de l’interface.
+
+    L’empreinte n’est calculée qu’une fois pour reconnaître l’édition, puis transmise
+    à l’extraction. Le livre n’est importé que s’il contient des paragraphes."""
+    report(.02, "Lecture du livre")
+    book_module = module_for_pdf(path)
+    report(.08, "Extraction des paragraphes")
+    paragraphs = extract_paragraphs(path, module=book_module,
+                                    progress=_extraction_reporter(report, .08, .85))
+    report(.86, "Préparation des catalogues")
+    illustrations = book_module.catalogue('illustrations') if book_module else None
+    events = book_module.catalogue('events') if book_module else None
+    if paragraphs:
+        report(.9, "Rangement dans la bibliothèque")
+        path = import_book(path)
+    return paragraphs, book_module, illustrations, events, path
+
+
+def read_save_for_loading(path, pdf_hash, report):
+    """Lire et valider une sauvegarde sans widget, exécutable hors du thread de l’interface.
+
+    Renvoie (données, livre) où livre vaut None si la sauvegarde ne référence aucun
+    grimoire, sinon (pdf, paragraphes, module, illustrations, événements). Toute
+    incohérence lève une erreur avant que la partie en cours ne soit modifiée."""
+    report(.02, "Lecture de la sauvegarde")
+    data = read_save(Path(path))
+    pdf_reference = data['pdf_path']
+    pdf = resolve_book_reference(pdf_reference)
+    if not pdf:
+        if pdf_reference:
+            raise ValueError('Le grimoire de cette sauvegarde est introuvable dans donnees/grimoires.')
+        return data, None
+    report(.05, "Vérification du grimoire")
+    expected = data['pdf_sha256']
+    if expected and expected != pdf_hash(pdf):
+        raise ValueError("Le PDF a changé depuis la sauvegarde.")
+    book_module = module_for_pdf(pdf)
+    saved_module = data.get('module_id')
+    if saved_module is not None and (book_module is None or saved_module != book_module.id):
+        raise ValueError("Le module de cette sauvegarde ne correspond pas au grimoire.")
+    report(.14, "Extraction des paragraphes")
+    paragraphs = extract_paragraphs(pdf, module=book_module,
+                                    progress=_extraction_reporter(report, .14, .86))
+    report(.87, "Préparation des catalogues")
+    illustrations = book_module.catalogue('illustrations') if book_module else None
+    events = book_module.catalogue('events') if book_module else None
+    return data, (pdf, paragraphs, book_module, illustrations, events)
 
 
 def franciser_message(dialog):
@@ -2121,27 +2193,38 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def open_pdf(self, path=None, *, startup=False):
         """Importer ou ouvrir le PDF, charger ses catalogues puis présenter la création.
 
-        Le livre source n’est pas modifié ; les erreurs de lecture sont présentées en dialogue."""
+        Le livre source n’est pas modifié ; les erreurs de lecture sont présentées en dialogue.
+        La lecture (empreinte, texte, catalogues, copie) tourne hors du thread de
+        l’interface derrière la barre de chargement ; les widgets ne sont touchés qu’ensuite."""
         if not isinstance(path, (str, Path)):
             path = self._themed_file_dialog(kind="pdf")
         if not path:
             return
-        try:
-            paragraphs = extract_paragraphs(path)
-            book_module = module_for_pdf(path)
-            illustrations = book_module.catalogue('illustrations') if book_module else None
-            events = book_module.catalogue('events') if book_module else None
-        except Exception as exc:
-            QMessageBox.critical(self, "Import impossible", str(exc))
+        error = None
+        session = LoadingSession(self, "Ouverture du grimoire…")
+        self.last_loading = session
+        with session:
+            try:
+                paragraphs, book_module, illustrations, events, path = session.run(
+                    lambda report: read_book_for_opening(path, report))
+            except Exception as exc:
+                error = exc
+            else:
+                if paragraphs:
+                    session.step(.95, "Préparation de l’aventure")
+                    self._install_opened_book(path, paragraphs, book_module, illustrations, events)
+                    session.step(1.0, "Préparation de l’aventure")
+        if error is not None:
+            QMessageBox.critical(self, "Import impossible", str(error))
             return
         if not paragraphs:
             QMessageBox.warning(self, "Aucun paragraphe", "Aucun paragraphe numéroté n'a été détecté. Le PDF est peut-être scanné ou sa mise en page n'est pas compatible.")
             return
-        try:
-            path = import_book(path)
-        except Exception as exc:
-            QMessageBox.critical(self, "Import impossible", str(exc))
-            return
+        if self.illustration_catalogue is None and not startup:
+            QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
+
+    def _install_opened_book(self, path, paragraphs, book_module, illustrations, events):
+        """Appliquer dans le thread de l’interface un livre lu et importé par read_book_for_opening."""
         self._discard_combat_popup()
         self._close_book_dialogs()
         self.adventure_tracking = read_tracking(None)
@@ -2162,12 +2245,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.piranha_combat = None
         self.book_combat_assaults = {}
         self.paragraphs = paragraphs
-        if self.illustration_catalogue is None and not startup:
-            QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
         self.book_label.setText(book_module.title if book_module else Path(path).name)
         self.book_label.setToolTip(self.book_label.text())
         self.goto_spin.setMaximum(max(paragraphs))
-        first = 1 if 1 in paragraphs else min(paragraphs)
         self.transitions = []
         self.visited_paragraphs = []
         self.undo_stack.clear(); self.redo_stack.clear()
@@ -3101,54 +3181,53 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             if self.current_paragraph is not None:
                 self.intro_music.fade_out()
             return
-        try:
-            data = read_save(Path(path))
-            pdf_reference = data['pdf_path']
-            pdf = resolve_book_reference(pdf_reference)
-            if pdf:
-                expected = data['pdf_sha256']
-                if expected and expected != self._pdf_hash(pdf):
-                    raise ValueError("Le PDF a changé depuis la sauvegarde.")
-                book_module = module_for_pdf(pdf)
-                saved_module = data.get('module_id')
-                if saved_module is not None and (book_module is None or saved_module != book_module.id):
-                    raise ValueError("Le module de cette sauvegarde ne correspond pas au grimoire.")
-                paragraphs = extract_paragraphs(pdf)
-                illustration_catalogue = book_module.catalogue('illustrations') if book_module else None
-                self._close_book_dialogs()
-                self.pdf_path = pdf
-                self.paragraphs = paragraphs
-                self.illustration_catalogue = illustration_catalogue
-                self.book_module = book_module
-                self.book_event_catalogue = book_module.catalogue('events') if book_module else None
-                self.book_label.setText(book_module.title if book_module else Path(pdf).name)
-                self.book_label.setToolTip(self.book_label.text())
-                if self.paragraphs:
-                    self.goto_spin.setMaximum(max(self.paragraphs))
-            elif pdf_reference:
-                raise ValueError('Le grimoire de cette sauvegarde est introuvable dans donnees/grimoires.')
-            self._restore(data)
-            self.adventure_tracking = read_tracking(data.get("adventure_tracking"))
-            self._update_tracking_badge()
-            self.action_history = data['action_history']
-            self.undo_stack = [(label, state) for label, state in data['undo_stack']]
-            self.redo_stack = [(label, state) for label, state in data['redo_stack']]
-            # Champs facultatifs : une sauvegarde antérieure au carnet se charge carnet vide.
-            self._load_carnet(data)
-            self._update_history_controls()
-            self._remember_book()
-            self.intro_music.fade_out()
-            self._play_book_intro()
-            if announce:
-                QMessageBox.information(self, "Chargement", "Partie chargée.")
-            return True
-        except Exception as exc:
+        session = LoadingSession(self, "Chargement de la sauvegarde…")
+        self.last_loading = session
+        error = None
+        with session:
+            try:
+                data, book = session.run(lambda report: read_save_for_loading(path, self._pdf_hash, report))
+                session.step(.93, "Restauration de l’aventure")
+                self._apply_loaded_save(data, book)
+                session.step(1.0, "Restauration de l’aventure")
+            except Exception as exc:
+                error = exc
+        if error is not None:
             if self.current_paragraph is not None:
                 self.intro_music.fade_out()
             if announce:
-                QMessageBox.critical(self, "Chargement impossible", str(exc))
+                QMessageBox.critical(self, "Chargement impossible", str(error))
             return False
+        self.intro_music.fade_out()
+        self._play_book_intro()
+        if announce:
+            QMessageBox.information(self, "Chargement", "Partie chargée.")
+        return True
 
+    def _apply_loaded_save(self, data, book):
+        """Restaurer dans le thread de l’interface une sauvegarde validée par read_save_for_loading."""
+        if book is not None:
+            pdf, paragraphs, book_module, illustration_catalogue, events = book
+            self._close_book_dialogs()
+            self.pdf_path = pdf
+            self.paragraphs = paragraphs
+            self.illustration_catalogue = illustration_catalogue
+            self.book_module = book_module
+            self.book_event_catalogue = events
+            self.book_label.setText(book_module.title if book_module else Path(pdf).name)
+            self.book_label.setToolTip(self.book_label.text())
+            if self.paragraphs:
+                self.goto_spin.setMaximum(max(self.paragraphs))
+        self._restore(data)
+        self.adventure_tracking = read_tracking(data.get("adventure_tracking"))
+        self._update_tracking_badge()
+        self.action_history = data['action_history']
+        self.undo_stack = [(label, state) for label, state in data['undo_stack']]
+        self.redo_stack = [(label, state) for label, state in data['redo_stack']]
+        # Champs facultatifs : une sauvegarde antérieure au carnet se charge carnet vide.
+        self._load_carnet(data)
+        self._update_history_controls()
+        self._remember_book()
 
 def _track_action(method, label):
     """Envelopper une méthode pour regrouper ses mutations imbriquées en une action.
