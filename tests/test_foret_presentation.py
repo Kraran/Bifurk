@@ -1677,6 +1677,73 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual([enemy['stamina'] for enemy in dialog.roster], [3,4])
         self.assertEqual(self.w._foret_combat()['assaults'], 2)
 
+    def _target_buttons(self):
+        """Boutons « Cibler » réellement présents dans le panneau des événements."""
+        layout = self.w.event_layout
+        return [layout.itemAt(i).widget() for i in range(layout.count())
+                if isinstance(layout.itemAt(i).widget(), QPushButton)
+                and 'Cibler' in layout.itemAt(i).widget().text()]
+
+    def _dialog_target_cards(self):
+        from combat_dialog import CombatDialog
+        dialog = CombatDialog(self.w)
+        self.addCleanup(dialog.deleteLater)
+        dialog._refresh_actions()
+        layout = dialog.actions
+        return dialog, [layout.itemAt(i).widget() for i in range(layout.count())
+                        if 'Cibler' in layout.itemAt(i).widget().text()]
+
+    def test_single_enemy_hides_target_and_frees_combat_actions(self):
+        self.open()
+        self.start()
+        self.w.paragraphs[310] = 'Un troll.'
+        self.w.go_to(310)
+        self.assertEqual(self._target_buttons(), [])
+        self.assertTrue(self.w.event_group.isHidden())
+        self.assertEqual(self.w._foret_combat()['target'], 0)
+        dialog, cards = self._dialog_target_cards()
+        self.assertEqual(cards, [])
+        self.assertTrue(dialog.action_scroll.isHidden())
+
+    def test_two_living_enemies_show_target_in_panel_and_dialog(self):
+        self.open()
+        self.start()
+        self.w.paragraphs[377] = 'Deux adversaires.'
+        self.w.go_to(377)
+        labels = [button.text() for button in self._target_buttons()]
+        self.assertEqual(labels, ['⚔ Cibler Pygmée A', 'Cibler Pygmée B'])
+        self.assertFalse(self.w.event_group.isHidden())
+        dialog, cards = self._dialog_target_cards()
+        self.assertEqual(len(cards), 2)
+        self.assertFalse(dialog.action_scroll.isHidden())
+
+    def test_target_hidden_once_only_one_enemy_remains_and_auto_targets_it(self):
+        self.open()
+        self.start()
+        self.w.character['habilete'] = 20
+        self.w.paragraphs[377] = 'Deux adversaires.'
+        self.w.go_to(377)
+        self.w.perform_foret_action('target', 0)
+        with patch.object(self.w, '_assault_luck_choice', return_value=QMessageBox.No):
+            while self.w._foret_combat()['groups'][0][0]['stamina'] > 0:
+                self.w.combat_round()
+        self.assertEqual(self._target_buttons(), [])
+        self.assertEqual(self.w._foret_combat()['target'], 1)
+        dialog, cards = self._dialog_target_cards()
+        self.assertEqual(cards, [])
+
+    def test_target_reappears_when_a_pair_follows_a_lone_enemy(self):
+        self.open()
+        self.start()
+        self.w.character['habilete'] = 20
+        self.w.paragraphs[104] = 'Les bandits.'
+        self.w.go_to(104)
+        self.assertEqual(self._target_buttons(), [])
+        with patch.object(self.w, '_assault_luck_choice', return_value=QMessageBox.No):
+            while self.w._foret_combat()['group'] == 0:
+                self.w.combat_round()
+        self.assertEqual(len(self._target_buttons()), 2)
+
     def test_rock_beast_flee_is_enabled_after_exactly_three_assaults(self):
         self.open()
         self.start()

@@ -249,9 +249,12 @@ class ForetMechanicsActions(FightingFantasyActions):
         if self.combat_available():
             combat = self._foret_combat()
             group = combat['groups'][combat['group']]
-            for index, enemy in enumerate(group):
-                if enemy['stamina'] > 0:
-                    add(('⚔ ' if index == combat['target'] else '') + 'Cibler ' + enemy['name'],
+            living = [index for index, enemy in enumerate(group) if enemy['stamina'] > 0]
+            # « Cibler » n'a de sens qu'avec au moins deux adversaires debout : seul,
+            # l'ennemi restant est la cible automatique et la place revient au combat.
+            if len(living) >= 2:
+                for index in living:
+                    add(('⚔ ' if index == combat['target'] else '') + 'Cibler ' + group[index]['name'],
                         'target', index, combat=True)
         for name in rules.peek(self.character).get('worn', []):
             if name != 'Anneau de Lenteur':
