@@ -140,6 +140,7 @@ class SheetPanel(QWidget):
         for cx, cy, sx, sy in ((outer.left(), outer.top(), 1, 1), (outer.right(), outer.top(), -1, 1),
                                (outer.left(), outer.bottom(), 1, -1), (outer.right(), outer.bottom(), -1, -1)):
             p.setPen(QPen(GOLD, 1.6))
+            p.setBrush(Qt.NoBrush)
             path = QPainterPath(QPointF(cx + sx * 9, cy + sy * 34))
             path.cubicTo(cx + sx * 9, cy + sy * 16, cx + sx * 16, cy + sy * 9, cx + sx * 34, cy + sy * 9)
             p.drawPath(path)
@@ -469,21 +470,39 @@ class SealButton(QPushButton):
         super().__init__(text, parent)
         self.glyph = glyph
         self.compact = False
+        self.mini = False
         self.setCursor(Qt.PointingHandCursor)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.setFixedHeight(82)
 
+    def _height(self):
+        return 46 if self.mini else (64 if self.compact else 82)
+
     def set_compact(self, compact):
         if compact != self.compact:
             self.compact = compact
-            self.setFixedHeight(64 if compact else 82)
+            self.setFixedHeight(self._height())
+            self.update()
+
+    def set_mini(self, mini):
+        """Sceau seul, sans légende (petits écrans) : le nom passe dans l'info-bulle."""
+        mini = bool(mini)
+        if mini != self.mini:
+            self.mini = mini
+            if mini and not self.toolTip():
+                self.setToolTip(self.text().replace('&&', '&'))
+                self._auto_tip = True
+            elif not mini and getattr(self, '_auto_tip', False):
+                self.setToolTip('')
+                self._auto_tip = False
+            self.setFixedHeight(self._height())
             self.update()
 
     def sizeHint(self):
-        return QSize(76, self.height())
+        return QSize(52 if self.mini else 76, self.height())
 
     def minimumSizeHint(self):
-        return QSize(64, 64 if self.compact else 82)
+        return QSize(44 if self.mini else 64, self._height())
 
     def paintEvent(self, event):
         p = QPainter(self)
@@ -491,8 +510,12 @@ class SealButton(QPushButton):
         enabled = self.isEnabled()
         hover = enabled and self.underMouse()
         down = self.isDown()
-        c = QPointF(self.width() / 2, (23 if self.compact else 30) + (1 if down else 0))
-        R = 19 if self.compact else 25
+        if self.mini:
+            c = QPointF(self.width() / 2, self.height() / 2 - 1 + (1 if down else 0))
+            R = 17
+        else:
+            c = QPointF(self.width() / 2, (23 if self.compact else 30) + (1 if down else 0))
+            R = 19 if self.compact else 25
         if hover or self.hasFocus():
             glow = QRadialGradient(c, R + 12)
             glow.setColorAt(.6, QColor(244, 210, 130, 110))
@@ -522,7 +545,10 @@ class SealButton(QPushButton):
         p.drawEllipse(ring)
         p.setPen(QPen(QColor(0, 0, 0, 90), 1))
         p.drawEllipse(ring.adjusted(3, 3, -3, -3))
-        draw_glyph(p, self.glyph, c, 8 if self.compact else 10, GOLD_LIGHT if enabled else QColor('#a09080'))
+        draw_glyph(p, self.glyph, c, 7 if self.mini else (8 if self.compact else 10),
+                   GOLD_LIGHT if enabled else QColor('#a09080'))
+        if self.mini:
+            return
         p.setFont(font('ui', 10 if self.compact else 11, bold=True, spacing=.6))
         p.setPen(GOLD_LIGHT if hover else (GOLD if enabled else QColor('#8f826f')))
         caption = self.text().replace('&&', '&').replace('…', '')
@@ -716,6 +742,17 @@ class InventoryDelegate(QStyledItemDelegate):
         selected = bool(option.state & QStyle.State_Selected)
         _paint_slot(p, option.rect, True, selected, equipped)
         r = QRectF(option.rect).adjusted(3, 3, -3, -3)
+        if getattr(self.parent(), 'compact', False):
+            # Case icône seule : le nom complet reste dans l'info-bulle de l'objet.
+            draw_item_art(p, _item_kind(name), r.center(), 12)
+            if equipped:
+                badge = QRectF(r.right() - 12, r.top() + 2, 10, 10)
+                p.setPen(Qt.NoPen)
+                p.setBrush(BORDEAUX)
+                p.drawEllipse(badge)
+                draw_glyph(p, 'sword', badge.center(), 3.2, GOLD_LIGHT)
+            p.restore()
+            return
         draw_item_art(p, _item_kind(name), QPointF(r.center().x(), r.top() + 25), 17)
         p.setFont(font('ui', 10, bold=True))
         p.setPen(IVORY)
@@ -755,9 +792,30 @@ class InventoryGrid(QListWidget):
         self.setItemDelegate(InventoryDelegate(self))
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setMouseTracking(True)
+        self.compact = False
+
+    COMPACT_SLOT = 46
+
+    def set_compact(self, compact):
+        """Petits écrans : une rangée de petites cases icône seule (nom en info-bulle)."""
+        compact = bool(compact)
+        if compact == self.compact:
+            return
+        self.compact = compact
+        if compact:
+            self.setFixedHeight(self.COMPACT_SLOT + 4)
+        else:
+            self.setMinimumHeight(90)
+            self.setMaximumHeight(16777215)
+        self.setGridSize(self._slot_size()[0])
+        self.doItemsLayout()
+        self.viewport().update()
 
     def _slot_size(self):
-        width = max(1, self.viewport().width() - 10)
+        width = max(1, self.viewport().width() - (2 if self.compact else 10))
+        if self.compact:
+            cols = max(4, width // self.COMPACT_SLOT)
+            return QSize(width // cols, self.COMPACT_SLOT), cols
         cols = max(3, width // SLOT.width())
         return QSize(width // cols, SLOT.height()), cols
 
@@ -771,7 +829,7 @@ class InventoryGrid(QListWidget):
         p = QPainter(self.viewport())
         p.setRenderHint(QPainter.Antialiasing)
         size, cols = self._slot_size()
-        rows = max(math.ceil(max(self.count(), self.MIN_SLOTS) / cols),
+        rows = max(math.ceil(max(self.count(), 1 if self.compact else self.MIN_SLOTS) / cols),
                    math.ceil(self.viewport().height() / size.height()))
         offset = self.verticalOffset()
         for index in range(self.count(), rows * cols):
@@ -779,3 +837,201 @@ class InventoryGrid(QListWidget):
             _paint_slot(p, QRect(col * size.width(), row * size.height() - offset, size.width(), size.height()), False)
         p.end()
         super().paintEvent(event)
+
+
+class SheetStrip(QAbstractButton):
+    """Fiche repliée en tiroir : bande verticale de cuir avec mini-blasons H/E/C,
+    capsule de vie, or et provisions. Un clic (ou Tab) déplie la fiche complète."""
+
+    WIDTH = 78
+    STATS = (('habilete', 'H'), ('endurance', 'E'), ('chance', 'C'))
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName('sheetStrip')
+        self._leather = QPixmap(str(LEATHER))
+        self.state = {}
+        self.setCheckable(True)
+        self.setFixedWidth(self.WIDTH)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.setAttribute(Qt.WA_Hover)
+        self.setAccessibleName('Fiche d’aventurier')
+        self._refresh_tooltip()
+
+    def sizeHint(self):
+        return QSize(self.WIDTH, 420)
+
+    def minimumSizeHint(self):
+        return QSize(self.WIDTH, 300)
+
+    def set_state(self, **values):
+        """values : habilete/endurance/chance = (valeur, initiale), gold, provisions."""
+        if values != self.state:
+            self.state = values
+            self._refresh_tooltip()
+            self.update()
+
+    def _refresh_tooltip(self):
+        st = self.state
+        parts = []
+        for key, name in (('habilete', 'Habileté'), ('endurance', 'Endurance'), ('chance', 'Chance')):
+            value, initial = st.get(key, ('—', None))
+            parts.append(f"{name} {value}" + (f"/{initial}" if initial is not None else ''))
+        parts.append(f"Or {st.get('gold', '—')}")
+        parts.append(f"Provisions {st.get('provisions', '—')}")
+        action = 'Refermer' if self.isChecked() else 'Ouvrir'
+        self.setToolTip(f"{action} la fiche d’aventurier (Tab)\n" + ' · '.join(parts))
+
+    def nextCheckState(self):
+        super().nextCheckState()
+        self._refresh_tooltip()
+
+    def checkStateSet(self):
+        self._refresh_tooltip()
+
+    def _mini_shield(self, p, r, key, value, initial):
+        path = StatMedallion._shield(None, r)
+        p.setPen(Qt.NoPen)
+        p.setBrush(QColor(0, 0, 0, 110))
+        p.drawPath(StatMedallion._shield(None, r.translated(0, 2)))
+        p.setBrush(QBrush(_gold_gradient(r)))
+        p.drawPath(path)
+        inner = r.adjusted(3, 3, -3, -4)
+        tint = StatMedallion.TINTS[key] if self.isEnabled() else QColor('#4a3f38')
+        g = QRadialGradient(inner.center() - QPointF(0, inner.height() * .2), inner.width() * .85)
+        g.setColorAt(0, tint.lighter(150))
+        g.setColorAt(.6, tint)
+        g.setColorAt(1, tint.darker(220))
+        p.setBrush(g)
+        p.drawPath(StatMedallion._shield(None, inner))
+        draw_glyph(p, StatMedallion.GLYPHS[key], QPointF(inner.center().x(), inner.top() + 9), 4.2,
+                   QColor(244, 220, 158, 230))
+        p.setFont(font('title', 19, bold=True))
+        p.setPen(QColor(0, 0, 0, 150))
+        box = QRectF(inner.left(), inner.top() + 12, inner.width(), inner.height() - 20)
+        p.drawText(box.translated(1, 1), Qt.AlignCenter, str(value))
+        p.setPen(IVORY)
+        p.drawText(box, Qt.AlignCenter, str(value))
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        r = QRectF(self.rect()).adjusted(1, 0, -1, 0)
+        clip = QPainterPath()
+        clip.addRoundedRect(r, 9, 9)
+        p.setClipPath(clip)
+        if not self._leather.isNull():
+            p.drawPixmap(r.toRect(), self._leather)
+        else:
+            p.fillRect(r, QColor('#3e1e1b'))
+        shade = QLinearGradient(r.topLeft(), r.topRight())
+        shade.setColorAt(0, QColor(0, 0, 0, 150))
+        shade.setColorAt(.25, QColor(0, 0, 0, 30))
+        shade.setColorAt(1, QColor(0, 0, 0, 90))
+        p.fillRect(r, shade)
+        hover = self.underMouse()
+        if hover:
+            p.fillRect(r, QColor(244, 220, 158, 18))
+        p.setClipping(False)
+        outer = r.adjusted(2, 2, -2, -2)
+        p.setPen(QPen(GOLD_DARK, 2.4))
+        p.setBrush(Qt.NoBrush)
+        p.drawRoundedRect(outer, 8, 8)
+        p.setPen(QPen(GOLD if not hover else GOLD_LIGHT, 1))
+        p.drawRoundedRect(outer.adjusted(4, 4, -4, -4), 5, 5)
+        cx = r.center().x()
+        # Languette : chevron d'ouverture dans un médaillon.
+        c = QPointF(cx, outer.top() + 24)
+        p.setPen(QPen(GOLD_LIGHT if hover else GOLD, 1.6))
+        p.setBrush(BORDEAUX_DARK)
+        p.drawEllipse(c, 13, 13)
+        p.setPen(QPen(GOLD_LIGHT, 2.2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        k = -1 if self.isChecked() else 1   # ‹ pour ouvrir (la fiche sort vers la gauche)
+        p.drawPolyline(QPolygonF([QPointF(c.x() + 3 * k, c.y() - 6), QPointF(c.x() - 3 * k, c.y()),
+                                  QPointF(c.x() + 3 * k, c.y() + 6)]))
+        y = c.y() + 22
+        draw_diamond(p, QPointF(cx, y), 3, GOLD)
+        y += 10
+        st = self.state
+        sw, sh = 48, 54
+        for key, _letter in self.STATS:
+            value, _initial = st.get(key, ('—', None))
+            self._mini_shield(p, QRectF(cx - sw / 2, y, sw, sh), key, value, _initial)
+            y += sh + 8
+        # Capsule de vie verticale.
+        value, initial = st.get('endurance', (0, None))
+        try:
+            ratio = max(0.0, min(1.0, float(value) / float(initial or value or 1)))
+        except (TypeError, ValueError):
+            ratio = 0.0
+        bottom_reserved = 2 * 40 + 14
+        cap_h = max(40, min(110, outer.bottom() - bottom_reserved - y - 36))
+        heart = QPointF(cx, y + 11)
+        cap = QRectF(cx - 7, heart.y() + 8, 14, cap_h)
+        p.setPen(Qt.NoPen)
+        p.setBrush(QBrush(_gold_gradient(cap)))
+        p.drawRoundedRect(cap, 7, 7)
+        track = cap.adjusted(2.5, 2.5, -2.5, -2.5)
+        p.setBrush(QColor('#1a0d0b'))
+        p.drawRoundedRect(track, 4.5, 4.5)
+        if ratio > 0:
+            fill_h = max(track.width(), track.height() * ratio)
+            fill = QRectF(track.left(), track.bottom() - fill_h, track.width(), fill_h)
+            hue = QColor('#d0384a') if ratio > .35 else QColor('#e0752e')
+            g = QLinearGradient(fill.topLeft(), fill.topRight())
+            g.setColorAt(0, hue.lighter(135))
+            g.setColorAt(.5, hue)
+            g.setColorAt(1, hue.darker(190))
+            p.setBrush(g)
+            p.drawRoundedRect(fill, 4.5, 4.5)
+        p.setBrush(QBrush(_gold_gradient(QRectF(heart.x() - 11, heart.y() - 11, 22, 22))))
+        p.drawEllipse(heart, 11, 11)
+        p.setBrush(BORDEAUX_DARK)
+        p.drawEllipse(heart, 9, 9)
+        draw_glyph(p, 'heart', heart + QPointF(0, 1), 6, QColor('#e8495a'))
+        y = cap.bottom() + 4
+        p.setFont(font('title', 14, bold=True))
+        p.setPen(IVORY)
+        text = f"{value}/{initial}" if initial is not None else str(value)
+        p.drawText(QRectF(r.left(), y, r.width(), 18), Qt.AlignCenter, text)
+        y += 26
+        # Or et provisions.
+        for kind in ('gold', 'provisions'):
+            if y + 36 > outer.bottom() - 6:
+                break
+            box = QRectF(outer.left() + 7, y, outer.width() - 14, 34)
+            p.setPen(QPen(GOLD_DARK, 1))
+            p.setBrush(QColor(20, 10, 8, 170))
+            p.drawRoundedRect(box, 7, 7)
+            p.save()
+            p.translate(box.left() + 17, box.center().y() + 1)
+            p.scale(.62, .62)
+            _paint_resource_icon(p, kind)
+            p.restore()
+            p.setFont(font('title', 17, bold=True))
+            p.setPen(GOLD_LIGHT)
+            p.drawText(box.adjusted(30, 0, -4, 0), Qt.AlignVCenter | Qt.AlignHCenter, str(st.get(kind, '—')))
+            y += 40
+        # Titre vertical si la place le permet.
+        free = outer.bottom() - 14 - y
+        if free > 70:
+            p.save()
+            p.translate(cx, y + free / 2)
+            p.rotate(-90)
+            p.setFont(font('title', 13, bold=True, spacing=3))
+            p.setPen(GOLD)
+            p.drawText(QRectF(-free / 2, -10, free, 20), Qt.AlignCenter, 'FICHE')
+            p.restore()
+            draw_diamond(p, QPointF(cx, outer.bottom() - 4), 3, GOLD)
+
+
+def _paint_resource_icon(p, kind):
+    """Dessiner l'icône de ressource (pièces ou pain) centrée sur l'origine."""
+    class _Fake:
+        pass
+    fake = _Fake()
+    fake.kind, fake.caption = kind, ''
+    fake.isEnabled = lambda: True
+    ResourceToken._icon(fake, p, QPointF(0, 0))

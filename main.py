@@ -33,14 +33,16 @@ from dialog_chrome import DialogHeading, harmonize_standard_dialog
 from stat_feedback import StatFeedback
 import adventurer_sheet
 from adventurer_sheet import (SheetPanel, OrnateHeading, HeroEmblem, StatMedallion, HealthBar,
-                              ResourceToken, ValueLabel, SealButton, RibbonButton, InventoryGrid)
+                              ResourceToken, ValueLabel, SealButton, RibbonButton, InventoryGrid,
+                              SheetStrip)
 from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, PageToolButton,
-                             ParagraphCartouche, ChoiceGroup, illuminated_initial)
+                             ParagraphCartouche, ChoiceGroup, illuminated_initial, DrawerScrim)
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route, WEAPON_BONUSES
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale, QUrl
 from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextDocument
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
+    QAbstractSpinBox, QTextEdit, QPlainTextEdit,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
     QGroupBox, QSlider, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar, QTabWidget, QSizePolicy, QMenu)
 
@@ -318,7 +320,13 @@ class MainWindow(QMainWindow, ModuleActions):
         self._restoring = False
         self.adventure_tracking = read_tracking(None)
         self._feedback_action_id = 0  # Identifiant visuel, hors sauvegardes et règles.
-        self.reader_font_size = 20
+        self.reader_font_size = self.DEFAULT_READER_FONT_SIZE
+        # Taille choisie avec A−/A+ (session) : prime sur la taille automatique.
+        self._user_font_size = None
+        self.reading_mode = False
+        self._drawer_open = False
+        self._sheet_in_drawer = False
+        self._tight_layout = None
         self._load_fonts()
         self._default_fonts = (self.reading_font_family, self.ui_font_family)
         self.reading_font_family = self.theme.data.get("fonts", {}).get("reading", self.reading_font_family)
@@ -331,8 +339,18 @@ class MainWindow(QMainWindow, ModuleActions):
                                           lambda: self.theme)
         self._set_theme()
         QShortcut(QKeySequence("F11"), self, activated=self.toggle_fullscreen)
+        QShortcut(QKeySequence("F10"), self, activated=self.toggle_reading_mode)
+        # Échap ne sert qu'à refermer le tiroir ou quitter le mode lecture ;
+        # le plein écran garde son traitement dans keyPressEvent.
+        self.escape_shortcut = QShortcut(QKeySequence(Qt.Key_Escape), self,
+                                         activated=self._escape_layout_mode)
+        self.escape_shortcut.setEnabled(False)
+        self.sheet_shortcut = QShortcut(QKeySequence(Qt.Key_Tab), self, activated=self._tab_sheet_drawer)
+        self.sheet_shortcut.setEnabled(False)
         self._refresh_character()
         self._show_welcome()
+        # Le focus initial va au texte, pas au premier bouton du bandeau.
+        self.reader.setFocus()
         if startup:
             QTimer.singleShot(0, self._show_startup_menu)
 
@@ -690,9 +708,36 @@ class MainWindow(QMainWindow, ModuleActions):
                         else:
                             self.ui_font_family = family[0]
 
+    DEFAULT_READER_FONT_SIZE = 20
+
+    def _auto_reader_font_size(self):
+        """Taille de lecture par défaut selon la hauteur de fenêtre (petits écrans)."""
+        height = self.height()
+        if height < 690:
+            return 16
+        if height < self.LOW_HEIGHT:
+            return 17
+        return self.DEFAULT_READER_FONT_SIZE
+
+    def _apply_auto_font_size(self):
+        """Suivre la taille automatique tant que le joueur n'a pas choisi la sienne."""
+        if self._user_font_size is not None:
+            return
+        size = self._auto_reader_font_size()
+        if size != self.reader_font_size:
+            self.reader_font_size = size
+            self._rerender_reader()
+
     def change_reader_font_size(self, delta):
         """Ajuster la taille de lecture puis redessiner le texte sans rejouer les événements."""
         self.reader_font_size = max(14, min(34, self.reader_font_size + delta))
+        self._user_font_size = self.reader_font_size
+        self._rerender_reader()
+
+    def _rerender_reader(self):
+        """Redessiner la page courante à la taille de lecture courante."""
+        if not hasattr(self, 'reader'):
+            return
         if self.current_paragraph is not None and self.character['endurance'] <= 0:
             self._show_death_page()
         elif self.current_paragraph in self.paragraphs:
@@ -748,13 +793,16 @@ class MainWindow(QMainWindow, ModuleActions):
         Qt appellent les actions du contrôleur, pas des mutations d’état cachées dans la vue."""
         central = QWidget()
         root = QVBoxLayout(central)
+        self.root_layout = root
         root.setContentsMargins(16, 12, 16, 12)
         root.setSpacing(12)
 
         # Bandeau de cuir et d'or : marque, livre courant puis médaillons dessinés.
         header_frame = LeatherBanner()
         header_frame.setObjectName("grimoireHeader")
+        self.header_frame = header_frame
         header = QHBoxLayout(header_frame)
+        self.header_layout = header
         header.setContentsMargins(22, 7, 22, 5)
         header.setSpacing(6)
         self.about_button = BrandButton()
@@ -773,6 +821,7 @@ class MainWindow(QMainWindow, ModuleActions):
         subtitle = QLabel("CHRONIQUES D’AVENTURE")
         subtitle.setObjectName("subtitle")
         subtitle.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self.subtitle_label = subtitle
         brand.addWidget(subtitle)
         header.addWidget(self.about_button)
         header.addStretch()
@@ -819,6 +868,10 @@ class MainWindow(QMainWindow, ModuleActions):
         settings_menu = QMenu(self.settings_button)
         settings_menu.addAction("♫  Ambiance sonore…", self.show_ambience)
         self.fullscreen_action = settings_menu.addAction("⛶  Plein écran\tF11", self.toggle_fullscreen)
+        self.reading_action = settings_menu.addAction("📖  Mode lecture\tF10")
+        self.reading_action.setCheckable(True)
+        self.reading_action.setToolTip("Masquer le bandeau et la fiche (F10 ou Échap pour revenir)")
+        self.reading_action.triggered.connect(self.toggle_reading_mode)
         settings_menu.addAction("📜  Journal de la partie…", self.show_tracking)
         settings_menu.addAction("ⓘ  À propos de Bifurk", self.show_about)
         settings_menu.addSeparator()
@@ -833,8 +886,10 @@ class MainWindow(QMainWindow, ModuleActions):
         self._update_history_controls()
 
         splitter = QSplitter(Qt.Horizontal)
+        self.splitter = splitter
         reader_panel = IlluminatedPage(self.theme.assets["parchment"], theme=self.theme)
         reader_panel.setObjectName("readerPanel")
+        self.reader_panel = reader_panel
         reader_layout = QVBoxLayout(reader_panel)
         # Marges de livre : le texte respire à l'intérieur du double filet.
         self.reader_layout = reader_layout
@@ -864,6 +919,7 @@ class MainWindow(QMainWindow, ModuleActions):
         self.paragraph_number.setAlignment(Qt.AlignCenter)
         self.paragraph_number.hide()
         title_row = QHBoxLayout()
+        self.title_row = title_row
         title_row.setSpacing(4)
         cover_button = PageToolButton("cover", "Voir la couverture du livre", text="Couverture")
         cover_button.setAccessibleName("Voir la couverture")
@@ -884,6 +940,11 @@ class MainWindow(QMainWindow, ModuleActions):
         plus_btn = PageToolButton("font_plus", "Agrandir la taille du texte", text="A+")
         plus_btn.clicked.connect(lambda: self.change_reader_font_size(2))
         title_row.addWidget(plus_btn)
+        self.reading_exit_button = PageToolButton("close", "Quitter le mode lecture (F10 ou Échap)",
+                                                  text="Quitter le mode lecture")
+        self.reading_exit_button.clicked.connect(lambda: self.toggle_reading_mode(False))
+        self.reading_exit_button.hide()
+        title_row.addWidget(self.reading_exit_button)
         reader_layout.addLayout(title_row)
         self.reader = QTextBrowser()
         # Les liens paragraph:NNN sont gérés par follow_link, jamais par QTextBrowser.
@@ -1111,6 +1172,7 @@ class MainWindow(QMainWindow, ModuleActions):
         seals.setSpacing(2)
         self.care_button = SealButton("Soins", "cross")
         self.care_button.setToolTip("Manger une provision ou boire la potion")
+        self.care_button.clicked.connect(self._close_sheet_drawer)
         self.care_button.clicked.connect(self.show_care_menu)
         self.tools_button = SealButton("Actions…", "dice")
         self.tools_button.setToolTip("Dés libres, aller à un paragraphe, prologue, corrections")
@@ -1125,16 +1187,24 @@ class MainWindow(QMainWindow, ModuleActions):
         self.edit_resources_action.setCheckable(True)
         self.edit_resources_action.toggled.connect(self._set_resources_editable)
         self.tools_button.setMenu(tools)
+        tools.triggered.connect(lambda _action: self._close_sheet_drawer())
         save_btn = SealButton("Sauvegarder", "quill")
         save_btn.setToolTip("Sauvegarder la partie")
+        save_btn.clicked.connect(self._close_sheet_drawer)
         save_btn.clicked.connect(self.save_game)
         load_btn = SealButton("Charger", "book")
         load_btn.setToolTip("Charger une partie")
+        load_btn.clicked.connect(self._close_sheet_drawer)
         load_btn.clicked.connect(self.load_game)
         self.sheet_seals = (self.care_button, self.tools_button, save_btn, load_btn)
         self.side_panel = side
         for seal in self.sheet_seals:
             seals.addWidget(seal)
+        # Ressort repris par la sacoche compacte : les sceaux restent en bas de la fiche.
+        self.sheet_bottom_spacer = QWidget()
+        self.sheet_bottom_spacer.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.sheet_bottom_spacer.hide()
+        side_layout.addWidget(self.sheet_bottom_spacer, 1)
         side_layout.addLayout(seals)
         self.quit_button = QPushButton('Quitter le jeu')
         self.quit_button.setObjectName('quitGameButton')
@@ -1148,6 +1218,7 @@ class MainWindow(QMainWindow, ModuleActions):
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.NoFrame)
         scroll.setWidget(side)
+        self.side_scroll = scroll
         splitter.addWidget(scroll)
         scroll.setMinimumWidth(365)
         splitter.setSizes([300, 880, 340])
@@ -1155,7 +1226,18 @@ class MainWindow(QMainWindow, ModuleActions):
         splitter.setStretchFactor(1, 5)
         splitter.setStretchFactor(2, 1)
         splitter.setChildrenCollapsible(False)
-        root.addWidget(splitter, 1)
+        # Petites largeurs : la fiche se replie en bande verticale et s'ouvre en tiroir.
+        body = QHBoxLayout()
+        body.setContentsMargins(0, 0, 0, 0)
+        body.setSpacing(8)
+        body.addWidget(splitter, 1)
+        self.sheet_strip = SheetStrip()
+        self.sheet_strip.clicked.connect(lambda: self.toggle_sheet_drawer())
+        self.sheet_strip.installEventFilter(self)
+        self.sheet_strip.hide()
+        body.addWidget(self.sheet_strip)
+        root.addLayout(body, 1)
+        self.drawer_scrim = DrawerScrim(self._close_sheet_drawer, central)
         self.setCentralWidget(central)
 
     def _add_adventure_tab(self, content, title):
@@ -1288,6 +1370,8 @@ class MainWindow(QMainWindow, ModuleActions):
             self.tracking_badge.setToolTip(first + '\nCliquer pour consulter le journal.')
 
     def eventFilter(self, obj, event):
+        if obj is getattr(self, 'sheet_strip', None) and event.type() in (QEvent.Resize, QEvent.Move):
+            self._place_sheet_drawer()
         if event.type() == QEvent.FocusIn and obj in (
                 getattr(self, 'enemy_name', None), getattr(self, 'enemy_skill', None),
                 getattr(self, 'enemy_endurance', None)):
@@ -1443,7 +1527,147 @@ class MainWindow(QMainWindow, ModuleActions):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self._apply_scene_art_visibility()
+        self._apply_layout_mode()
         self._apply_sheet_density()
+        self._apply_auto_font_size()
+
+    # ------------------------------------------------------------ petits écrans
+    NARROW_SHEET_WIDTH = 1100   # en dessous : fiche en tiroir
+    LOW_HEIGHT = 760            # en dessous : bandeau fin, en-tête de page sur une ligne
+    DRAWER_WIDTH = 384
+
+    def _apply_layout_mode(self):
+        """Placer la fiche (colonne ou tiroir) et appliquer le mode lecture."""
+        if not hasattr(self, 'sheet_strip'):
+            return
+        drawer = self.width() < self.NARROW_SHEET_WIDTH
+        if drawer != self._sheet_in_drawer:
+            self._sheet_in_drawer = drawer
+            if drawer:
+                sizes = self.splitter.sizes()
+                self._splitter_sizes = sizes if len(sizes) == 3 else None
+                self.side_scroll.setParent(self.centralWidget())
+                self.side_scroll.setObjectName('sideScroll')
+                self.side_scroll.setProperty('drawer', True)
+            else:
+                self._drawer_open = False
+                self.side_scroll.setProperty('drawer', False)
+                self.splitter.insertWidget(2, self.side_scroll)
+                self.splitter.setStretchFactor(0, 2)
+                self.splitter.setStretchFactor(1, 5)
+                self.splitter.setStretchFactor(2, 1)
+                margins = self.root_layout.contentsMargins()
+                total = self.width() - margins.left() - margins.right() - 2 * self.splitter.handleWidth()
+                side = max(365, min(420, total // 4))
+                # Même partage 2:5 que le réglage initial entre l'image et la page.
+                art = min(300, (total - side) * 2 // 7) if self.scene_art.isVisibleTo(self) else 0
+                self.splitter.setSizes([art, max(300, total - side - art), side])
+            self.side_scroll.style().unpolish(self.side_scroll)
+            self.side_scroll.style().polish(self.side_scroll)
+        reading = self.reading_mode
+        if reading:
+            self._drawer_open = False
+        focus = QApplication.focusWidget()
+        hiding = ((reading and self.header_frame.isAncestorOf(focus))
+                  or ((reading or (drawer and not self._drawer_open)) and self.side_scroll.isAncestorOf(focus)))
+        if hiding:
+            self.reader.setFocus()
+        self.header_frame.setVisible(not reading)
+        self.sheet_strip.setVisible(drawer and not reading)
+        self.sheet_strip.setChecked(self._drawer_open)
+        self.sheet_strip._refresh_tooltip()
+        if drawer:
+            self.side_scroll.setVisible(self._drawer_open)
+            self.drawer_scrim.setVisible(self._drawer_open)
+            if self._drawer_open:
+                self._place_sheet_drawer()
+                self.drawer_scrim.raise_()
+                self.side_scroll.raise_()
+        else:
+            self.drawer_scrim.hide()
+            self.side_scroll.setVisible(not reading)
+        self.reading_exit_button.setVisible(reading)
+        self.reading_action.setChecked(reading)
+        self.escape_shortcut.setEnabled(reading or self._drawer_open)
+        self.sheet_shortcut.setEnabled(drawer and not reading)
+
+    def _place_sheet_drawer(self):
+        """Le tiroir sort de la bande, à sa gauche, sur toute la hauteur de la page."""
+        if not getattr(self, '_sheet_in_drawer', False):
+            return
+        strip = self.sheet_strip.geometry()
+        page = self.splitter.geometry()
+        width = min(self.DRAWER_WIDTH, max(365, page.width() - 60))
+        self.side_scroll.setGeometry(strip.left() - width - 2, strip.top(), width, strip.height())
+        self.drawer_scrim.setGeometry(page.left(), page.top(), strip.left() - page.left(), page.height())
+
+    def toggle_sheet_drawer(self, open_=None):
+        """Déplier ou replier la fiche en tiroir (petites largeurs uniquement)."""
+        open_ = (not self._drawer_open) if open_ is None else bool(open_)
+        if not self._sheet_in_drawer or self.reading_mode:
+            open_ = False
+        if open_ != self._drawer_open:
+            self._drawer_open = open_
+            self._apply_layout_mode()
+            if not open_ and self.side_scroll.isAncestorOf(QApplication.focusWidget()):
+                self.reader.setFocus()
+        else:
+            self.sheet_strip.setChecked(open_)
+
+    def _close_sheet_drawer(self, *_args):
+        if getattr(self, '_drawer_open', False):
+            self.toggle_sheet_drawer(False)
+
+    def _tab_sheet_drawer(self):
+        """Tab hors d'un champ de saisie : ouvrir/fermer la fiche ; sinon champ suivant."""
+        focus = QApplication.focusWidget()
+        editable = (isinstance(focus, QLineEdit) or
+                    (isinstance(focus, QAbstractSpinBox) and not focus.isReadOnly()) or
+                    (isinstance(focus, (QTextEdit, QPlainTextEdit)) and not focus.isReadOnly()) or
+                    (isinstance(focus, QComboBox) and focus.isEditable()))
+        if editable:
+            self.focusNextChild()
+            return
+        self.toggle_sheet_drawer()
+
+    def toggle_reading_mode(self, on=None):
+        """Mode lecture (F10) : bandeau et fiche masqués, seule la page reste."""
+        self.reading_mode = (not self.reading_mode) if on is None else bool(on)
+        self._apply_layout_mode()
+        self._apply_sheet_density()
+
+    def _escape_layout_mode(self):
+        if self._drawer_open:
+            self._close_sheet_drawer()
+        elif self.reading_mode:
+            self.toggle_reading_mode(False)
+        elif self.isFullScreen():
+            self.showNormal()
+            self._update_fullscreen_button()
+
+    def _fit_compact_bag(self):
+        """Sacoche compacte : l'onglet prend juste la hauteur de sa rangée d'icônes."""
+        if not hasattr(self, 'sheet_bottom_spacer'):
+            return
+        if self.inventory_list.compact:
+            content = self.inventory_list.parentWidget()
+            height = content.layout().sizeHint().height() if content and content.layout() else 80
+            bar = self.adventure_tabs.tabBar()
+            if bar.isVisible() or not self.adventure_tabs.isVisible():
+                height += bar.sizeHint().height() if bar.count() > 1 else 0
+            height += 14
+            self.adventure_tabs.setMaximumHeight(height)
+        else:
+            self.adventure_tabs.setMaximumHeight(16777215)
+
+    def _refresh_sheet_strip(self):
+        if not hasattr(self, 'sheet_strip'):
+            return
+        initial = self.character.get('initial', {})
+        values = {key: (int(self._ff_stat_value(key)), initial.get(key))
+                  for key in ('habilete', 'endurance', 'chance')}
+        self.sheet_strip.set_state(**values, gold=self.stat_spins['gold'].value(),
+                                   provisions=self.stat_spins['provisions'].value())
 
     COMPACT_SHEET_HEIGHT = 860
 
@@ -1454,6 +1678,18 @@ class MainWindow(QMainWindow, ModuleActions):
         compact = self.height() < self.COMPACT_SHEET_HEIGHT
         for widget in (*self.stat_medallions.values(), *self.sheet_seals, self.hero_emblem):
             widget.set_compact(compact)
+        # Sacoche en une rangée d'icônes et sceaux sans légende : fiche en tiroir ou fenêtre basse.
+        small = self._sheet_in_drawer or self.height() < self.LOW_HEIGHT
+        for seal in self.sheet_seals:
+            seal.set_mini(small)
+        self.inventory_list.set_compact(small)
+        self.adventure_tabs.setSizePolicy(QSizePolicy.Expanding,
+                                          QSizePolicy.Maximum if small else QSizePolicy.Ignored)
+        self.adventure_tabs.setMinimumHeight(60 if small else 110)
+        layout = self.side_panel.layout()
+        layout.setStretchFactor(self.adventure_tabs, 0 if small else 1)
+        self.sheet_bottom_spacer.setVisible(small)
+        self._fit_compact_bag()
         self.purse_heading.setVisible(not compact)
         # Très petite hauteur : le titre des caractéristiques cède sa place aux sceaux.
         self.stats_heading.setVisible(self.height() >= self.TIGHT_SHEET_HEIGHT)
@@ -1463,6 +1699,7 @@ class MainWindow(QMainWindow, ModuleActions):
         # L'emblème compact reste hors du fleuron d'angle de la fiche.
         self.hero_row.setContentsMargins(26 if compact else 0, 4 if compact else 0, 0, 0)
         self._apply_page_density(compact)
+        self._apply_tight_layout(self.height() < self.LOW_HEIGHT)
 
     TIGHT_SHEET_HEIGHT = 720
 
@@ -1477,8 +1714,50 @@ class MainWindow(QMainWindow, ModuleActions):
             layout.setContentsMargins(0, group.header_height(), 0, 2 if compact else 4)
             layout.setSpacing(5 if compact else 8)
         ChoiceCard.compact = compact
+        tight = self.height() < self.LOW_HEIGHT
+        ChoiceCard.tight = tight
         for card in self._visible_choice_cards():
-            card.set_compact(compact)
+            card.set_compact(compact, tight)
+
+    def _apply_tight_layout(self, tight):
+        """Fenêtres basses (< 760 px) : bandeau fin, en-tête de page sur une ligne."""
+        self.reader_panel.set_compact(tight)
+        if tight:
+            self.reader_layout.setContentsMargins(24, 16, 22, 12)
+            self.reader_layout.setSpacing(2)
+            self.paragraph_title.setStyleSheet("font-size: 21px;")
+            self.reader.setMinimumHeight(140)
+        else:
+            self.reader.setMinimumHeight(230)
+        if tight == self._tight_layout:
+            return
+        self._tight_layout = tight
+        for button in (self.undo_btn, self.redo_btn, self.rules_button, self.map_button,
+                       self.open_btn, self.settings_button):
+            button.set_slim(tight)
+        self.subtitle_label.setVisible(not tight)
+        self.header_layout.setContentsMargins(*((18, 3, 18, 3) if tight else (22, 7, 22, 5)))
+        self.root_layout.setContentsMargins(*((10, 6, 10, 8) if tight else (16, 12, 16, 12)))
+        self.root_layout.setSpacing(6 if tight else 12)
+        # Titre du paragraphe dans la rangée d'outils, à côté du cartouche.
+        title = self.paragraph_title
+        if tight == getattr(self, '_title_in_row', False):
+            return
+        self._title_in_row = tight
+        if tight:
+            self.reader_layout.removeWidget(title)
+            self.title_row.insertWidget(self.title_row.indexOf(self.paragraph_number), title)
+            self.title_row.insertSpacing(self.title_row.indexOf(self.paragraph_number), 8)
+            title.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+            title.setMinimumWidth(110)
+        else:
+            index = self.title_row.indexOf(self.paragraph_number)
+            spacer = self.title_row.takeAt(index - 1)
+            del spacer
+            self.title_row.removeWidget(title)
+            self.reader_layout.insertWidget(0, title)
+            title.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+            title.setMinimumWidth(0)
 
     def _update_scene_art(self, prefer_cover=False):
         """Choisir couverture, illustration courante ou décor de repli selon l’écran affiché."""
@@ -2210,6 +2489,8 @@ class MainWindow(QMainWindow, ModuleActions):
         weapon = weapon or "—"
         armor = next((item for item in self.character.get("inventory", []) if "armure" in str(item).casefold() or "bouclier" in str(item).casefold()), "—")
         self.equipment_label.setText(f"⚔  Arme : {weapon}     ◈  Protection : {armor}")
+        self._refresh_sheet_strip()
+        self._fit_compact_bag()
         self._refresh_action_controls()
         if self._combat_dialog is not None:
             self._combat_dialog.refresh_stats()
@@ -2773,6 +3054,8 @@ def _track_action(method, label):
             self._action_depth -= 1
             if depth == 0:
                 self._record(label, before)
+                # Fiche en tiroir : elle se replie d'elle-même après une action de jeu.
+                self._close_sheet_drawer()
     return wrapped
 
 # Registre des mutations suivies. Ajouter ici une nouvelle commande de jeu

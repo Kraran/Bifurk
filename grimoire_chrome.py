@@ -204,6 +204,9 @@ def draw_icon(p, kind, c, s, color=GOLD_LIGHT):
         p.drawLine(QPointF(hx - hw, hy), QPointF(hx + hw, hy))
         if kind == 'font_plus':
             p.drawLine(QPointF(hx, hy - hw), QPointF(hx, hy + hw))
+    elif kind == 'close':
+        p.drawLine(QPointF(x - s * .6, y - s * .6), QPointF(x + s * .6, y + s * .6))
+        p.drawLine(QPointF(x - s * .6, y + s * .6), QPointF(x + s * .6, y - s * .6))
     elif kind == 'arrow':
         p.drawLine(QPointF(x - s, y), QPointF(x + s * .7, y))
         head = QPolygonF([QPointF(x + s, y), QPointF(x + s * .35, y - s * .45), QPointF(x + s * .5, y),
@@ -264,6 +267,32 @@ class LeatherBanner(QFrame):
         draw_diamond(p, QPointF(outer.center().x(), outer.bottom() - 2), 5, GOLD)
 
 
+class DrawerScrim(QWidget):
+    """Voile posé sur la page quand la fiche est ouverte en tiroir : un clic le referme."""
+
+    def __init__(self, on_click, parent=None):
+        super().__init__(parent)
+        self._on_click = on_click
+        self.setObjectName('drawerScrim')
+        self.setCursor(Qt.PointingHandCursor)
+        self.setToolTip('Refermer la fiche')
+        self.hide()
+
+    def mousePressEvent(self, event):
+        event.accept()
+        self._on_click()
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        r = QRectF(self.rect())
+        p.fillRect(r, QColor(14, 8, 6, 120))
+        # Ombre douce portée par le tiroir sur le bord droit.
+        shadow = QLinearGradient(QPointF(r.right() - 40, 0), r.topRight())
+        shadow.setColorAt(0, QColor(0, 0, 0, 0))
+        shadow.setColorAt(1, QColor(0, 0, 0, 150))
+        p.fillRect(QRectF(r.right() - 40, 0, 40, r.height()), shadow)
+
+
 class BannerDivider(QWidget):
     """Séparateur vertical du bandeau : filet doré fondu et losange."""
 
@@ -300,9 +329,23 @@ class MedallionButton(QPushButton):
         self.setFocusPolicy(Qt.TabFocus)
         self.setAccessibleName(caption)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.slim = False
         self.setFixedSize(self.sizeHint())
 
+    def set_slim(self, slim):
+        """Bandeau fin (petite hauteur) : médaillon réduit, légende masquée (l'info-bulle reste)."""
+        slim = bool(slim)
+        if slim != self.slim:
+            self.slim = slim
+            self.setFixedSize(self.sizeHint())
+            self.update()
+
+    def _disc(self):
+        return 34 if self.slim else self.DISC
+
     def sizeHint(self):
+        if getattr(self, 'slim', False):
+            return QSize(self._disc() + 10, self._disc() + 6)
         w = max(self.DISC + 14, QFontMetrics(font('ui', 11, bold=True, spacing=.8)).horizontalAdvance(self.caption) + 10)
         return QSize(w, self.DISC + 22)
 
@@ -315,8 +358,8 @@ class MedallionButton(QPushButton):
         enabled = self.isEnabled()
         hover = enabled and self.underMouse()
         down = self.isDown() or (self.menu() is not None and self.menu().isVisible())
-        d = self.DISC
-        c = QPointF(self.width() / 2, 4 + d / 2 + (1 if down else 0))
+        d = self._disc()
+        c = QPointF(self.width() / 2, (3 if self.slim else 4) + d / 2 + (1 if down else 0))
         r = d / 2 - 2
         if hover or down:
             glow = QRadialGradient(c, r + 9)
@@ -356,6 +399,8 @@ class MedallionButton(QPushButton):
         color = (QColor('#4a141c') if self.primary else (GOLD_LIGHT if hover else GOLD)) if enabled \
             else QColor('#9b8b78')
         draw_icon(p, self.glyph, c, r * .5, color)
+        if self.slim:
+            return
         p.setFont(font('ui', 11, bold=True, spacing=.8))
         p.setPen(GOLD_LIGHT if hover else (GOLD if enabled else QColor('#8d7d6c')))
         p.drawText(QRectF(0, d + 5, self.width(), 16), Qt.AlignHCenter | Qt.AlignTop, self.caption)

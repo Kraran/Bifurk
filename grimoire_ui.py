@@ -10,6 +10,7 @@ from PySide6.QtCore import Qt, QRectF, QSize, Signal, QPointF
 from PySide6.QtGui import QColor, QFont, QFontMetrics, QPalette, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen, QShortcut, QKeySequence
 from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle, QDialog, QMessageBox
 from PySide6.QtGui import QRadialGradient
+import html
 import adventurer_sheet
 from adventurer_sheet import GOLD, GOLD_LIGHT, GOLD_DARK, BORDEAUX, draw_diamond
 from grimoire_chrome import (draw_gold_frame, draw_corner_fleurons, draw_wax_seal, draw_icon,
@@ -140,6 +141,13 @@ class IlluminatedPage(QWidget):
         super().__init__(parent)
         self.theme = theme or default_theme()
         self.texture = QPixmap(str(self._page_texture(texture_path)))
+        self.compact = False
+
+    def set_compact(self, compact):
+        """Petites hauteurs : filets rapprochés du bord et volutes réduites."""
+        if bool(compact) != self.compact:
+            self.compact = bool(compact)
+            self.update()
 
     def _page_texture(self, fallback):
         page = getattr(self.theme, 'assets', {}).get('page')
@@ -187,12 +195,14 @@ class IlluminatedPage(QWidget):
         p.setBrush(Qt.NoBrush)
         p.setPen(QPen(QColor('#7d5a2e'), 1))
         p.drawRoundedRect(page, 8, 8)
-        frame = page.adjusted(11, 11, -11, -11)
+        inset = 7 if self.compact else 11
+        frame = page.adjusted(inset, inset, -inset, -inset)
         p.setPen(QPen(BRONZE, 1.6))
         p.drawRoundedRect(frame, 5, 5)
         p.setPen(QPen(QColor(122, 38, 50, 150), .8))
         p.drawRoundedRect(frame.adjusted(4, 4, -4, -4), 3, 3)
-        draw_corner_fleurons(p, frame.adjusted(-4, -4, 4, 4), color=BRONZE, light=RUBRIC, size=30)
+        draw_corner_fleurons(p, frame.adjusted(-4, -4, 4, 4), color=BRONZE, light=RUBRIC,
+                             size=20 if self.compact else 30)
         for y in (frame.top(), frame.bottom()):
             draw_diamond(p, QPointF(frame.center().x(), y), 4.5, BRONZE)
             draw_diamond(p, QPointF(frame.center().x(), y), 1.8, RUBRIC)
@@ -200,6 +210,7 @@ class IlluminatedPage(QWidget):
 
 class ChoiceCard(QPushButton):
     compact = False  # suivi de la densité de la fenêtre principale (petites hauteurs)
+    tight = False    # très petites hauteurs : plaque basse, « → §N » en fin de texte
 
     """Plaque de choix ornementée : sceau numéroté, destination en cartouche, survol lumineux.
 
@@ -233,13 +244,36 @@ class ChoiceCard(QPushButton):
             "background: transparent; border: none; color: #2e1d14; "
             f"font-family: '{adventurer_sheet.FONTS['title']}'; font-size: 21px;")
         layout.addWidget(caption)
-        self._caption, self._base_text = caption, text
-        self.set_compact(ChoiceCard.compact)
+        self._caption, self._base_text, self._action = caption, text, action
+        self._tight = None
+        self.set_compact(ChoiceCard.compact, ChoiceCard.tight)
 
-    def set_compact(self, compact):
-        """Plaque plus basse sur les petites fenêtres ; le sceau reste lisible."""
+    def set_compact(self, compact, tight=False):
+        """Plaque plus basse sur les petites fenêtres ; le sceau reste lisible.
+
+        En mode serré, la destination quitte sa colonne et suit le texte (« … → §N »)
+        pour que chaque plaque tienne sur une ligne de plus au même encombrement."""
         self._compact = compact
-        self.layout().setContentsMargins(70, 10 if compact else 15, self._right, 11 if compact else 16)
+        tight = bool(tight)
+        if tight:
+            self.layout().setContentsMargins(52, 6, 16, 7)
+        else:
+            self.layout().setContentsMargins(70, 10 if compact else 15, self._right, 11 if compact else 16)
+        if tight != self._tight:
+            self._tight = tight
+            style = self._caption.styleSheet()
+            style = style.replace('font-size: 21px', 'font-size: 18px') if tight else \
+                style.replace('font-size: 18px', 'font-size: 21px')
+            self._caption.setStyleSheet(style)
+            if tight and self._destination:
+                self._caption.setTextFormat(Qt.RichText)
+                self._caption.setText(
+                    f"{html.escape(self._action)}&nbsp;&nbsp;<span style=\"color:#7a2632; font-style:italic; "
+                    f"font-weight:600; white-space:nowrap;\">→&nbsp;{html.escape(self._destination)}</span>")
+            else:
+                self._caption.setTextFormat(Qt.PlainText)
+                self._caption.setText(self._action)
+            self.update()
 
     def set_shortcut_number(self, number):
         """Afficher le numéro dans le sceau ; la touche correspondante active le choix."""
@@ -292,18 +326,21 @@ class ChoiceCard(QPushButton):
         for pt in (inner.topLeft(), inner.topRight(), inner.bottomLeft(), inner.bottomRight()):
             draw_diamond(p, pt, 2.6, GOLD_DARK if enabled else QColor('#b7a37f'))
         # Sceau numéroté.
-        c = QPointF(r.left() + 31, r.center().y())
+        tight = bool(self._tight)
+        c = QPointF(r.left() + (24 if tight else 31), r.center().y())
         seal = BORDEAUX if enabled else QColor('#8b7d70')
-        draw_wax_seal(p, c, (16 if self._compact else 18) + (1 if hover else 0), color=seal, ring=GOLD_LIGHT if hover else GOLD)
+        radius = 13 if tight else (16 if self._compact else 18)
+        draw_wax_seal(p, c, radius + (1 if hover else 0), color=seal, ring=GOLD_LIGHT if hover else GOLD)
         if self._number is not None:
-            p.setFont(adventurer_sheet.font('title', 18 if self._compact else 20, bold=True))
+            p.setFont(adventurer_sheet.font('title', 15 if tight else (18 if self._compact else 20), bold=True))
             p.setPen(GOLD_LIGHT if enabled else QColor('#e2d6c2'))
             p.drawText(QRectF(c.x() - 18, c.y() - 19, 36, 36), Qt.AlignCenter, str(self._number))
         else:
             draw_diamond(p, c, 6, GOLD_LIGHT)
         p.setPen(QPen(QColor(138, 102, 51, 110), 1))
-        p.drawLine(QPointF(r.left() + 60, inner.top() + 9), QPointF(r.left() + 60, inner.bottom() - 9))
-        if self._destination:
+        sep = r.left() + (44 if tight else 60)
+        p.drawLine(QPointF(sep, inner.top() + (5 if tight else 9)), QPointF(sep, inner.bottom() - (5 if tight else 9)))
+        if self._destination and not tight:
             x0 = r.right() - 84
             p.setPen(QPen(QColor(138, 102, 51, 110), 1))
             p.drawLine(QPointF(x0, inner.top() + 8), QPointF(x0, inner.bottom() - 8))
