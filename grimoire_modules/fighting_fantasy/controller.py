@@ -14,6 +14,10 @@ MEAL_ALREADY_TAKEN = ('Vous avez déjà mangé ici. '
                       'Avancez dans l’aventure pour reprendre un repas.')
 
 
+# Seuil d'alerte : à 4 points, un seul assaut perdu (2) ou deux suffisent à tuer.
+LOW_ENDURANCE = 4
+
+
 class FightingFantasyActions:
     """Fournir création, soins, assauts et fuite ; le livre étend seulement les exceptions."""
     def _ff_stat_value(self, key):
@@ -194,6 +198,19 @@ class FightingFantasyActions:
              'reason': 'Aucune dose utile disponible.'},
             meal_option,
         ]
+
+    def low_endurance_alert(self, *, in_combat=False):
+        """Avertir quand l'Endurance est basse (≤ LOW_ENDURANCE) et qu'un soin est utilisable.
+
+        Rien n'est appliqué : le texte nomme seulement le premier soin autorisé."""
+        endurance = self.character.get('endurance', 0)
+        if not 0 < endurance <= LOW_ENDURANCE:
+            return ''
+        usable = [option['label'] for option in self.care_options(in_combat=in_combat)
+                  if option['enabled']]
+        if not usable:
+            return ''
+        return f'Endurance faible : {endurance}. Un soin est à portée : {usable[0]}.'
 
     def ate_here(self):
         """Vrai si une Provision a déjà été mangée depuis l'arrivée au paragraphe courant."""

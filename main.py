@@ -986,6 +986,24 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.reader.setObjectName("reader")
         self.reader.setMinimumHeight(230)
         reader_layout.addWidget(self.reader, 1)
+        # Alerte d'Endurance basse : rappel discret qu'un soin autorisé existe.
+        self.endurance_alert = QFrame()
+        self.endurance_alert.setObjectName("enduranceAlert")
+        alert_row = QHBoxLayout(self.endurance_alert)
+        alert_row.setContentsMargins(12, 6, 8, 6)
+        self.endurance_alert_text = QLabel()
+        self.endurance_alert_text.setObjectName("enduranceAlertText")
+        self.endurance_alert_text.setWordWrap(True)
+        self.endurance_alert_text.setTextFormat(Qt.PlainText)
+        alert_row.addWidget(self.endurance_alert_text, 1)
+        self.endurance_alert_button = QPushButton("✚  Soins")
+        self.endurance_alert_button.setObjectName("alertCare")
+        self.endurance_alert_button.setToolTip("Ouvrir le menu des soins")
+        self.endurance_alert_button.clicked.connect(
+            lambda: self.show_care_menu(anchor=self.endurance_alert_button))
+        alert_row.addWidget(self.endurance_alert_button)
+        self.endurance_alert.hide()
+        reader_layout.addWidget(self.endurance_alert)
         # Cadre de messages : le dernier résultat de règle (jets, pertes, gains),
         # miroir visible du journal interne et vidé au changement de paragraphe.
         self.message_frame = QLabel()
@@ -1203,7 +1221,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.care_button = SealButton("Soins", "cross")
         self.care_button.setToolTip("Manger une provision ou boire la potion")
         self.care_button.clicked.connect(self._close_sheet_drawer)
-        self.care_button.clicked.connect(self.show_care_menu)
+        self.care_button.clicked.connect(lambda: self.show_care_menu())
         self.tools_button = SealButton("Actions…", "dice")
         self.tools_button.setToolTip("Dés libres, aller à un paragraphe, prologue, corrections")
         # Menu hors du panneau peint pour garder le style des menus.
@@ -1329,10 +1347,24 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         meal = next((o for o in self.care_options() if o['id'] == 'meal'), {}) if playing else {}
         self.care_button.setToolTip(meal['reason'] if meal.get('already_ate')
                                     else "Manger une provision ou boire la potion")
+        self._refresh_endurance_alert()
         self.prologue_action.setVisible(bool(getattr(self.book_module, 'intro_pages', ())))
         self.carnet_button.setEnabled(self.current_paragraph is not None)
         self._update_bookmark_ribbon()
 
+
+    def _refresh_endurance_alert(self):
+        """Mettre en avant le sceau Soins et l'alerte de page si l'Endurance est basse."""
+        if not hasattr(self, 'endurance_alert'):
+            return
+        alert = ''
+        if self.care_button.isEnabled() and hasattr(self, 'low_endurance_alert'):
+            alert = self.low_endurance_alert()
+        self.care_button.set_urgent(bool(alert))
+        if alert:
+            self.care_button.setToolTip(alert)
+        self.endurance_alert_text.setText(alert)
+        self.endurance_alert.setVisible(bool(alert))
 
     def _toggle_inventory(self, expanded):
         """Replier la sacoche pour que la fiche tienne sans défilement."""
@@ -1530,8 +1562,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
 
 
-    def show_care_menu(self):
+    def show_care_menu(self, anchor=None):
         """Offrir les soins hors combat sans réintroduire un onglet de commandes."""
+        anchor = anchor if anchor is not None and anchor.isVisible() else self.care_button
         menu = QMenu(self)
         menu.setToolTipsVisible(True)
         for option in self.care_options():
@@ -1539,7 +1572,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             action.setEnabled(option['enabled'])
             action.setToolTip(option['reason'] if not option['enabled'] else '')
             action.triggered.connect(lambda checked=False, kind=option['id']: self.use_care(kind))
-        menu.exec(self.care_button.mapToGlobal(self.care_button.rect().bottomLeft()))
+        menu.exec(anchor.mapToGlobal(anchor.rect().bottomLeft()))
         menu.deleteLater()
 
 

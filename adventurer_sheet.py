@@ -488,6 +488,7 @@ class SealButton(QPushButton):
         self.glyph = glyph
         self.compact = False
         self.mini = False
+        self.urgent = False
         self.setCursor(Qt.PointingHandCursor)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.setFixedHeight(82)
@@ -515,6 +516,13 @@ class SealButton(QPushButton):
             self.setFixedHeight(self._height())
             self.update()
 
+    def set_urgent(self, urgent):
+        """Mettre le sceau en avant (halo et double anneau d'or) sans changer son action."""
+        urgent = bool(urgent)
+        if urgent != self.urgent:
+            self.urgent = urgent
+            self.update()
+
     def sizeHint(self):
         return QSize(52 if self.mini else 76, self.height())
 
@@ -533,9 +541,10 @@ class SealButton(QPushButton):
         else:
             c = QPointF(self.width() / 2, (23 if self.compact else 30) + (1 if down else 0))
             R = 19 if self.compact else 25
-        if hover or self.hasFocus():
+        urgent = self.urgent and enabled
+        if hover or self.hasFocus() or urgent:
             glow = QRadialGradient(c, R + 12)
-            glow.setColorAt(.6, QColor(244, 210, 130, 110))
+            glow.setColorAt(.6, QColor(244, 210, 130, 170 if urgent else 110))
             glow.setColorAt(1, QColor(244, 210, 130, 0))
             p.setPen(Qt.NoPen)
             p.setBrush(glow)
@@ -562,6 +571,9 @@ class SealButton(QPushButton):
         p.drawEllipse(ring)
         p.setPen(QPen(QColor(0, 0, 0, 90), 1))
         p.drawEllipse(ring.adjusted(3, 3, -3, -3))
+        if urgent:
+            p.setPen(QPen(GOLD_LIGHT, 2))
+            p.drawEllipse(c, R + 5, R + 5)
         draw_glyph(p, self.glyph, c, 7 if self.mini else (8 if self.compact else 10),
                    GOLD_LIGHT if enabled else QColor('#a09080'))
         if self.mini:

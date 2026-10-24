@@ -147,5 +147,51 @@ class MessageFrameTests(WindowCase):
         self.assertIn('Épreuve §2', w.message_frame.text())
 
 
+class LowEnduranceAlertTests(WindowCase):
+    def combat_setup(self, endurance):
+        from grimoire_modules.foret.encounters import COMBATS
+        number = min(COMBATS)
+        w = self.begin(paragraphs=(number,))
+        w.go_to(number)
+        w.character.update(endurance=endurance, potion='Potion de Vigueur', potion_doses=2)
+        w.character['initial']['endurance'] = 20
+        w._refresh_character()
+        return w
+
+    def test_main_page_alert_and_urgent_seal(self):
+        w = self.combat_setup(3)
+        self.assertEqual(w.low_endurance_alert(),
+                         'Endurance faible : 3. Un soin est à portée : Potion de Vigueur — 2 dose(s).')
+        self.assertTrue(w.care_button.urgent)
+        self.assertFalse(w.endurance_alert.isHidden())
+        self.assertEqual(w.care_button.toolTip(), w.low_endurance_alert())
+
+    def test_no_alert_above_threshold_or_without_care(self):
+        w = self.combat_setup(5)
+        self.assertEqual(w.low_endurance_alert(), '')
+        self.assertFalse(w.care_button.urgent)
+        self.assertTrue(w.endurance_alert.isHidden())
+        w.character.update(endurance=2, potion_doses=0, provisions=0)
+        w._refresh_character()
+        self.assertEqual(w.low_endurance_alert(), '')
+        self.assertTrue(w.endurance_alert.isHidden())
+
+    def test_combat_dialog_highlights_care(self):
+        from combat_dialog import CombatDialog
+        w = self.combat_setup(4)
+        dialog = CombatDialog(w)
+        self.addCleanup(dialog.deleteLater)
+        w._combat_dialog = dialog
+        self.addCleanup(setattr, w, '_combat_dialog', None)
+        dialog.refresh_stats()
+        self.assertTrue(dialog.care.property('urgent'))
+        self.assertFalse(dialog.alert.isHidden())
+        self.assertIn('Endurance faible : 4', dialog.alert.text())
+        w.character['endurance'] = 12
+        dialog.refresh_stats()
+        self.assertFalse(dialog.care.property('urgent'))
+        self.assertTrue(dialog.alert.isHidden())
+
+
 if __name__ == '__main__':
     unittest.main()
