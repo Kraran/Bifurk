@@ -34,8 +34,6 @@
             QLabel#equipment { background: #4b3727; color: #e8c88d; padding: 11px; border: 1px solid #987648; border-radius: 5px; }
             QLabel#initialStats { color: #c9b08a; font-size: 11px; }
             QLabel#combatState { background: #49301f; color: #f1d59b; padding: 9px; border: 1px solid #aa7b43; border-radius: 5px; }
-            QProgressBar { border: 1px solid #8b6b44; border-radius: 5px; background: #1f1915; color: #fff0ce; height: 20px; text-align: center; font-weight: bold; }
-            QProgressBar::chunk { background: #a17c45; border-radius: 4px; }
             QListWidget#combatJournal { background: #d9c59e; color: #38271a; }
 
             QScrollArea#sideScroll { background: transparent; border: none; }
@@ -106,9 +104,6 @@ QTabBar::tab:hover { color: #fff0cb; background: #51312a; }
 QLabel#heroCrest { background: #55262c; border: 3px double #d1ad69; border-radius: 30px;
     color: #f9dda0; font-size: 30px; min-width: 60px; min-height: 60px; }
 QLabel#heroTitle { font-family: '${reading_font}'; font-size: 23px; color: #f6d99f; }
-QProgressBar#enduranceBar::chunk { background: #963c46; }
-QProgressBar#chanceBar::chunk { background: #52705b; }
-QProgressBar#habileteBar::chunk { background: #a7803e; }
 QListWidget#inventoryCards { background: #35251c; border: none; padding: 4px; }
 QListWidget#inventoryCards::item { background: #eeddbc; color: #432d20; border: 1px solid #ad8953;
     border-radius: 5px; margin: 3px; padding: 12px; }

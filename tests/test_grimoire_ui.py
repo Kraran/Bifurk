@@ -482,5 +482,49 @@ class GrimoireInterfaceTests(unittest.TestCase):
         self.assertEqual(w.title_row.indexOf(w.paragraph_title), -1)
         self.assertEqual(w.reader_layout.indexOf(w.paragraph_title), 0)
 
+    def test_stat_shields_fill_as_gauges_and_replace_the_health_bar(self):
+        from PySide6.QtWidgets import QProgressBar
+        from adventurer_sheet import gauge_ratio
+        w = self.window
+        w.character["initial"] = {"habilete": 11, "endurance": 20, "chance": 9}
+        w.character.update(habilete=11, endurance=10, chance=2)
+        w._refresh_character()
+        self.app.processEvents()
+        self.assertEqual(w.findChildren(QProgressBar), [])
+        self.assertFalse(hasattr(w, "stat_bars"))
+        medals = w.stat_medallions
+        self.assertEqual(medals["habilete"].ratio(), 1.0)
+        self.assertAlmostEqual(medals["endurance"].ratio(), .5)
+        self.assertAlmostEqual(medals["chance"].ratio(), 2 / 9)
+        self.assertEqual(medals["endurance"].gauge_text(), "10 / 20")
+        self.assertIn("10 / 20", medals["endurance"].toolTip())
+        # Bornes : jamais négative, plafonnée au-dessus du départ, pleine sans maximum connu.
+        self.assertEqual(gauge_ratio(0, 20), 0.0)
+        self.assertEqual(gauge_ratio(-3, 20), 0.0)
+        self.assertEqual(gauge_ratio(12, 8), 1.0)
+        self.assertEqual(gauge_ratio(5, None), 1.0)
+        # La couleur occupe le bas de l'écu, le haut reste creux et sombre.
+        image = medals["endurance"].grab().toImage()
+        cx = image.width() // 2
+        low = image.pixelColor(cx - 22, int(image.height() * .78))
+        high = image.pixelColor(cx - 22, int(image.height() * .38))
+        self.assertGreater(low.red(), high.red() + 40)
+        self.assertGreater(low.lightness(), high.lightness())
+        self.assertEqual(w.sheet_strip.state["endurance"], (10, 20))
+
+    def test_banner_icons_keep_clear_of_the_gilded_edge(self):
+        w = self.window
+        header = w.header_frame
+        for size in ((1600, 900), (1280, 720), (930, 650)):
+            w.resize(*size)
+            w.go_to(1)
+            self.app.processEvents()
+            for button in (w.undo_btn, w.settings_button):
+                with self.subTest(size=size, button=button.caption):
+                    geo = button.geometry()
+                    self.assertGreaterEqual(geo.top(), 7)
+                    self.assertGreaterEqual(header.height() - 1 - geo.bottom(), 6)
+                    self.assertGreaterEqual(header.width() - 1 - geo.right(), 26)
+
 if __name__ == "__main__":
     unittest.main()

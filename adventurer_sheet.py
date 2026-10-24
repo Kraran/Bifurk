@@ -1,6 +1,6 @@
 """Fiche d'aventurier illustrée : widgets peints au QPainter (cuir, or patiné, sceaux).
 
-Les widgets de données existants (QSpinBox, QProgressBar, QListWidget…) restent les
+Les widgets de données existants (QSpinBox, QListWidget…) restent les
 sources de vérité de la fenêtre ; ce module ne fait que les habiller ou les dessiner
 autrement. Aucun état de partie n'est stocké ici."""
 import math
@@ -9,7 +9,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt, QRectF, QPointF, QSize, QRect
 from PySide6.QtGui import (QColor, QPainter, QPainterPath, QPen, QBrush, QFont, QPixmap,
                            QLinearGradient, QRadialGradient, QFontMetrics, QPolygonF)
-from PySide6.QtWidgets import (QWidget, QPushButton, QAbstractButton, QProgressBar, QListWidget,
+from PySide6.QtWidgets import (QWidget, QPushButton, QAbstractButton, QListWidget,
                                QStyledItemDelegate, QStyle, QListView, QVBoxLayout, QHBoxLayout,
                                QSizePolicy, QLabel)
 
@@ -47,6 +47,44 @@ def draw_diamond(p, center, r, color=GOLD):
     p.setBrush(color)
     p.drawPolygon(QPolygonF([QPointF(center.x(), center.y() - r), QPointF(center.x() + r, center.y()),
                              QPointF(center.x(), center.y() + r), QPointF(center.x() - r, center.y())]))
+
+
+def gauge_ratio(current, maximum):
+    """Taux de remplissage d'une jauge, borné à [0, 1] ; plein si le maximum est inconnu."""
+    try:
+        current, maximum = float(current), float(maximum)
+    except (TypeError, ValueError):
+        return 1.0
+    if maximum <= 0:
+        return 1.0 if current > 0 else 0.0
+    return max(0.0, min(1.0, current / maximum))
+
+
+def paint_shield_gauge(p, shape, area, tint, ratio):
+    """Intérieur d'écu servant de jauge : creux sombre, puis couleur de la caractéristique
+    montant du bas jusqu'à `ratio` de la hauteur, découpée à la forme de l'écu."""
+    p.save()
+    p.setPen(Qt.NoPen)
+    hollow = QRadialGradient(area.center() - QPointF(0, area.height() * .2), area.width() * .85)
+    hollow.setColorAt(0, tint.darker(320))
+    hollow.setColorAt(1, QColor('#0d0706'))
+    p.setBrush(hollow)
+    p.drawPath(shape)
+    if ratio > 0:
+        level = area.bottom() - area.height() * ratio
+        p.setClipPath(shape)
+        p.setClipRect(QRectF(area.left() - 2, level, area.width() + 4, area.bottom() - level + 2), Qt.IntersectClip)
+        g = QRadialGradient(area.center() - QPointF(0, area.height() * .2), area.width() * .85)
+        g.setColorAt(0, tint.lighter(150))
+        g.setColorAt(.6, tint)
+        g.setColorAt(1, tint.darker(220))
+        p.setBrush(g)
+        p.drawPath(shape)
+        if ratio < 1:
+            # Ligne de niveau claire : la surface du « liquide ».
+            p.setPen(QPen(tint.lighter(185), 1.4))
+            p.drawLine(QPointF(area.left(), level + .7), QPointF(area.right(), level + .7))
+    p.restore()
 
 
 def draw_glyph(p, kind, c, s, color=IVORY):
@@ -246,7 +284,8 @@ class HeroEmblem(QWidget):
 class StatMedallion(QWidget):
     """Blason (écu) contenant le QSpinBox de la caractéristique, rendu sans cadre.
 
-    Le chiffre reste éditable (clavier / molette) ; la valeur initiale est peinte."""
+    Le chiffre reste éditable (clavier / molette) ; la valeur initiale est peinte et
+    l'intérieur de l'écu sert de jauge : sa couleur monte jusqu'à valeur / initiale."""
 
     GLYPHS = {'habilete': 'sword', 'endurance': 'heart', 'chance': 'clover'}
     TINTS = {'habilete': QColor('#7b5a22'), 'endurance': QColor('#8e2633'), 'chance': QColor('#2f5a43')}
@@ -254,6 +293,7 @@ class StatMedallion(QWidget):
     def __init__(self, key, label, spin, parent=None):
         super().__init__(parent)
         self.key, self.label, self.initial, self.compact = key, label, None, None
+        self.current, self.maximum = None, None
         self.spin = spin
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._layout = QVBoxLayout(self)
@@ -277,6 +317,21 @@ class StatMedallion(QWidget):
         if value != self.initial:
             self.initial = value
             self.update()
+
+    def set_gauge(self, current, maximum):
+        """Niveau de la jauge : valeur courante sur valeur de départ."""
+        if (current, maximum) != (self.current, self.maximum):
+            self.current, self.maximum = current, maximum
+            tip = f'{self.label.capitalize()} : {self.gauge_text()}'
+            self.setToolTip(tip)
+            self.spin.setToolTip(f'{tip} — molette ou clavier pour corriger')
+            self.update()
+
+    def ratio(self):
+        return gauge_ratio(self.current, self.maximum) if self.current is not None else 1.0
+
+    def gauge_text(self):
+        return f'{self.current} / {self.maximum}' if self.current is not None else ''
 
     def sizeHint(self):
         return QSize(100, 128)
@@ -305,12 +360,7 @@ class StatMedallion(QWidget):
         p.drawPath(self._shield(r))
         inner = r.adjusted(4, 4, -4, -5)
         tint = self.TINTS[self.key] if self.isEnabled() else QColor('#4a3f38')
-        g = QRadialGradient(inner.center() - QPointF(0, inner.height() * .2), inner.width() * .85)
-        g.setColorAt(0, tint.lighter(150))
-        g.setColorAt(.6, tint)
-        g.setColorAt(1, tint.darker(220))
-        p.setBrush(g)
-        p.drawPath(self._shield(inner))
+        paint_shield_gauge(p, self._shield(inner), inner, tint, self.ratio())
         p.setPen(QPen(QColor(244, 220, 158, 120), 1))
         p.setBrush(Qt.NoBrush)
         p.drawPath(self._shield(inner.adjusted(4, 4, -4, -5)))
@@ -335,54 +385,6 @@ class StatMedallion(QWidget):
             p.setPen(QColor(244, 220, 158, 210))
             p.drawText(QRectF(inner.left(), inner.bottom() - (30 if self.compact else 34), inner.width(), 16), Qt.AlignCenter,
                        f'sur {self.initial}')
-
-
-class HealthBar(QProgressBar):
-    """Barre de vie stylisée : capsule dorée, sang dégradé, cœur et chiffres gravés."""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setMinimumHeight(30)
-        self.setTextVisible(True)
-
-    def sizeHint(self):
-        return QSize(200, 30)
-
-    def paintEvent(self, event):
-        p = QPainter(self)
-        p.setRenderHint(QPainter.Antialiasing)
-        r = QRectF(self.rect()).adjusted(16, 4, -2, -4)
-        p.setPen(Qt.NoPen)
-        p.setBrush(QBrush(_gold_gradient(r)))
-        p.drawRoundedRect(r, r.height() / 2, r.height() / 2)
-        track = r.adjusted(3, 3, -3, -3)
-        p.setBrush(QColor('#1a0d0b'))
-        p.drawRoundedRect(track, track.height() / 2, track.height() / 2)
-        span = max(1, self.maximum() - self.minimum())
-        ratio = max(0.0, min(1.0, (self.value() - self.minimum()) / span))
-        if ratio > 0:
-            fill = QRectF(track.left(), track.top(), max(track.height(), track.width() * ratio), track.height())
-            g = QLinearGradient(fill.topLeft(), fill.bottomLeft())
-            hue = QColor('#d0384a') if ratio > .35 else QColor('#e0752e')
-            g.setColorAt(0, hue.lighter(135))
-            g.setColorAt(.5, hue)
-            g.setColorAt(1, hue.darker(190))
-            p.setBrush(g)
-            p.drawRoundedRect(fill, fill.height() / 2, fill.height() / 2)
-            p.setBrush(QColor(255, 255, 255, 45))
-            p.drawRoundedRect(QRectF(fill.left() + 4, fill.top() + 1.5, fill.width() - 8, fill.height() * .35), 3, 3)
-        # Cœur à gauche, débordant de la capsule.
-        c = QPointF(r.left() - 2, r.center().y())
-        p.setBrush(QBrush(_gold_gradient(QRectF(c.x() - 14, c.y() - 14, 28, 28))))
-        p.drawEllipse(c, 14, 14)
-        p.setBrush(BORDEAUX_DARK)
-        p.drawEllipse(c, 11.5, 11.5)
-        draw_glyph(p, 'heart', c + QPointF(0, 1), 8, QColor('#e8495a'))
-        p.setFont(font('title', 16, bold=True))
-        p.setPen(QColor(0, 0, 0, 160))
-        p.drawText(track.translated(1, 1), Qt.AlignCenter, self.text())
-        p.setPen(IVORY)
-        p.drawText(track, Qt.AlignCenter, self.text())
 
 
 class ResourceToken(QWidget):
@@ -859,8 +861,8 @@ class InventoryGrid(QListWidget):
 
 
 class SheetStrip(QAbstractButton):
-    """Fiche repliée en tiroir : bande verticale de cuir avec mini-blasons H/E/C,
-    capsule de vie, or et provisions. Un clic (ou Tab) déplie la fiche complète."""
+    """Fiche repliée en tiroir : bande verticale de cuir avec mini-blasons-jauges H/E/C,
+    or et provisions. Un clic (ou Tab) déplie la fiche complète."""
 
     WIDTH = 78
     STATS = (('habilete', 'H'), ('endurance', 'E'), ('chance', 'C'))
@@ -919,12 +921,11 @@ class SheetStrip(QAbstractButton):
         p.drawPath(path)
         inner = r.adjusted(3, 3, -3, -4)
         tint = StatMedallion.TINTS[key] if self.isEnabled() else QColor('#4a3f38')
-        g = QRadialGradient(inner.center() - QPointF(0, inner.height() * .2), inner.width() * .85)
-        g.setColorAt(0, tint.lighter(150))
-        g.setColorAt(.6, tint)
-        g.setColorAt(1, tint.darker(220))
-        p.setBrush(g)
-        p.drawPath(StatMedallion._shield(None, inner))
+        ratio = gauge_ratio(value, initial) if initial is not None else 1.0
+        paint_shield_gauge(p, StatMedallion._shield(None, inner), inner, tint, ratio)
+        p.setPen(QPen(QColor(244, 220, 158, 110), 1))
+        p.setBrush(Qt.NoBrush)
+        p.drawPath(StatMedallion._shield(None, inner.adjusted(3, 3, -3, -4)))
         draw_glyph(p, StatMedallion.GLYPHS[key], QPointF(inner.center().x(), inner.top() + 9), 4.2,
                    QColor(244, 220, 158, 230))
         p.setFont(font('title', 19, bold=True))
@@ -976,46 +977,15 @@ class SheetStrip(QAbstractButton):
         st = self.state
         sw, sh = 48, 54
         for key, _letter in self.STATS:
-            value, _initial = st.get(key, ('—', None))
-            self._mini_shield(p, QRectF(cx - sw / 2, y, sw, sh), key, value, _initial)
-            y += sh + 8
-        # Capsule de vie verticale.
-        value, initial = st.get('endurance', (0, None))
-        try:
-            ratio = max(0.0, min(1.0, float(value) / float(initial or value or 1)))
-        except (TypeError, ValueError):
-            ratio = 0.0
-        bottom_reserved = 2 * 40 + 14
-        cap_h = max(40, min(110, outer.bottom() - bottom_reserved - y - 36))
-        heart = QPointF(cx, y + 11)
-        cap = QRectF(cx - 7, heart.y() + 8, 14, cap_h)
-        p.setPen(Qt.NoPen)
-        p.setBrush(QBrush(_gold_gradient(cap)))
-        p.drawRoundedRect(cap, 7, 7)
-        track = cap.adjusted(2.5, 2.5, -2.5, -2.5)
-        p.setBrush(QColor('#1a0d0b'))
-        p.drawRoundedRect(track, 4.5, 4.5)
-        if ratio > 0:
-            fill_h = max(track.width(), track.height() * ratio)
-            fill = QRectF(track.left(), track.bottom() - fill_h, track.width(), fill_h)
-            hue = QColor('#d0384a') if ratio > .35 else QColor('#e0752e')
-            g = QLinearGradient(fill.topLeft(), fill.topRight())
-            g.setColorAt(0, hue.lighter(135))
-            g.setColorAt(.5, hue)
-            g.setColorAt(1, hue.darker(190))
-            p.setBrush(g)
-            p.drawRoundedRect(fill, 4.5, 4.5)
-        p.setBrush(QBrush(_gold_gradient(QRectF(heart.x() - 11, heart.y() - 11, 22, 22))))
-        p.drawEllipse(heart, 11, 11)
-        p.setBrush(BORDEAUX_DARK)
-        p.drawEllipse(heart, 9, 9)
-        draw_glyph(p, 'heart', heart + QPointF(0, 1), 6, QColor('#e8495a'))
-        y = cap.bottom() + 4
-        p.setFont(font('title', 14, bold=True))
-        p.setPen(IVORY)
-        text = f"{value}/{initial}" if initial is not None else str(value)
-        p.drawText(QRectF(r.left(), y, r.width(), 18), Qt.AlignCenter, text)
-        y += 26
+            value, initial = st.get(key, ('—', None))
+            self._mini_shield(p, QRectF(cx - sw / 2, y, sw, sh), key, value, initial)
+            y += sh + 2
+            if initial is not None:
+                p.setFont(font('title', 12, italic=True))
+                p.setPen(QColor(244, 220, 158, 200))
+                p.drawText(QRectF(r.left(), y, r.width(), 15), Qt.AlignCenter, f'sur {initial}')
+            y += 19
+        y += 4
         # Or et provisions.
         for kind in ('gold', 'provisions'):
             if y + 36 > outer.bottom() - 6:

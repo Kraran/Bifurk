@@ -33,7 +33,7 @@ from combat_dialog import CombatDialog
 from dialog_chrome import DialogHeading, harmonize_standard_dialog
 from stat_feedback import StatFeedback
 import adventurer_sheet
-from adventurer_sheet import (SheetPanel, OrnateHeading, HeroEmblem, StatMedallion, HealthBar,
+from adventurer_sheet import (SheetPanel, OrnateHeading, HeroEmblem, StatMedallion,
                               ResourceToken, ValueLabel, SealButton, RibbonButton, InventoryGrid,
                               SheetStrip)
 from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, PageToolButton,
@@ -45,7 +45,7 @@ from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QI
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QAbstractSpinBox, QTextEdit, QPlainTextEdit,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
-    QGroupBox, QSlider, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QProgressBar, QTabWidget, QSizePolicy, QMenu)
+    QGroupBox, QSlider, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QTabWidget, QSizePolicy, QMenu)
 
 # Répertoire portable : à côté de l'exécutable empaqueté ou du script.
 APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
@@ -334,9 +334,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.ui_font_family = self.theme.data.get("fonts", {}).get("ui", self.ui_font_family)
         adventurer_sheet.FONTS.update(title=self.reading_font_family, ui=self.ui_font_family)
         self._build_ui()
-        # Habileté et Chance s'affichent sur leur blason ; l'Endurance sur sa barre de vie.
-        self.stat_feedback = StatFeedback(self, {key: (bar if key == 'endurance' else self.stat_medallions[key], None)
-                                                 for key, bar in self.stat_bars.items()},
+        # Les variations s'affichent sur le blason-jauge de chaque caractéristique.
+        self.stat_feedback = StatFeedback(self, {key: (medallion, None)
+                                                 for key, medallion in self.stat_medallions.items()},
                                           lambda: self.theme)
         self._set_theme()
         QShortcut(QKeySequence("F11"), self, activated=self.toggle_fullscreen)
@@ -804,7 +804,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.header_frame = header_frame
         header = QHBoxLayout(header_frame)
         self.header_layout = header
-        header.setContentsMargins(22, 7, 22, 5)
+        header.setContentsMargins(22, 12, 30, 10)
         header.setSpacing(6)
         self.about_button = BrandButton()
         self.about_button.setObjectName('aboutBrand')
@@ -997,8 +997,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         side_layout.setContentsMargins(18, 18, 18, 18)
         side_layout.setSpacing(8)
 
-        # Fiche peinte (adventurer_sheet) : les QSpinBox/QProgressBar restent les
-        # sources de vérité, habillés en blasons, barre de vie et plaques.
+        # Fiche peinte (adventurer_sheet) : les QSpinBox restent les sources de vérité,
+        # habillés en blasons-jauges (valeur / initiale) et en plaques.
         stats_group = QGroupBox("")
         stats_group.setObjectName("sheetStats")
         self.stats_group = stats_group
@@ -1007,7 +1007,6 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         stats_grid.setVerticalSpacing(6)
         stats_grid.setContentsMargins(0, 0, 0, 0)
         self.stat_spins = {}
-        self.stat_bars = {}
         self.stat_medallions = {}
         stats = [("HABILETÉ", "habilete"), ("ENDURANCE", "endurance"), ("CHANCE", "chance")]
         self.stats_heading = OrnateHeading("CARACTÉRISTIQUES")
@@ -1025,16 +1024,6 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             stats_grid.addWidget(medallion, 1, column)
             self.stat_medallions[key] = medallion
             self.stat_spins[key] = spin
-            bar = HealthBar() if key == "endurance" else QProgressBar()
-            bar.setObjectName(key + "Bar")
-            bar.setRange(0, 100)
-            if key == "endurance":
-                bar.setToolTip("Points d’Endurance restants / initiaux")
-                stats_grid.addWidget(bar, 2, 0, 1, 3)
-            else:
-                # Valeur courante / initiale déjà peinte sur le blason.
-                bar.hide()
-            self.stat_bars[key] = bar
         self.purse_heading = OrnateHeading("BOURSE & VIVRES")
         stats_grid.addWidget(self.purse_heading, 3, 0, 1, 3)
         resources = QHBoxLayout()
@@ -1750,7 +1739,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                        self.open_btn, self.settings_button):
             button.set_slim(tight)
         self.subtitle_label.setVisible(not tight)
-        self.header_layout.setContentsMargins(*((18, 3, 18, 3) if tight else (22, 7, 22, 5)))
+        self.header_layout.setContentsMargins(*((18, 7, 26, 6) if tight else (22, 12, 30, 10)))
         self.root_layout.setContentsMargins(*((10, 6, 10, 8) if tight else (16, 12, 16, 12)))
         self.root_layout.setSpacing(6 if tight else 12)
         # Titre du paragraphe dans la rangée d'outils, à côté du cartouche.
@@ -2495,11 +2484,10 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         for key, medallion in self.stat_medallions.items():
             medallion.set_initial(initial.get(key))
             medallion.setEnabled(not self.character.get('book_facts', {}).get('adventure_ended'))
-        for key, bar in self.stat_bars.items():
+        for key, medallion in self.stat_medallions.items():
             maximum = max(1, int(initial.get(key, self.character.get(key, 1))))
             current = max(0, int(self._ff_stat_value(key)))
-            bar.setValue(min(100, round(100 * current / maximum)))
-            bar.setFormat(f"{current} / {maximum}")
+            medallion.set_gauge(current, maximum)
         self.initial_label.setText("Départ  •  Habileté {habilete}  |  Endurance {endurance}  |  Chance {chance}".format(
             **{key: initial.get(key, "—") for key in ("habilete", "endurance", "chance")}))
         weapon = weapon or "—"
