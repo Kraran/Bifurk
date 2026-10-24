@@ -207,6 +207,11 @@ class FightingFantasyActions:
         déplacement ; recharger ou annuler (restauration) ne modifie rien."""
         if not self._restoring and self.character.get('meal_paragraph') not in (None, number):
             self.character.pop('meal_paragraph', None)
+        # Le cadre de messages ne garde pas au nouveau paragraphe le résultat
+        # d'une action antérieure ; celui de l'action qui déplace reste visible.
+        clear = getattr(self.rules_log, 'clear_if_stale', None)
+        if not self._restoring and self.current_paragraph != number and clear is not None:
+            clear()
 
     def can_flee_combat(self):
         """Partager les restrictions de fuite entre le lecteur et le bouton permanent du combat."""

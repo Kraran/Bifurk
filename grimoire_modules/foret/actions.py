@@ -7,7 +7,7 @@ physique de ce mixin. Aucune décision persistante n’est conservée dans un wi
 from copy import deepcopy
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QComboBox, QSpinBox,
                                QPushButton, QInputDialog, QMessageBox, QListWidget, QAbstractItemView)
-from . import rules
+from . import rules, feedback
 from .encounters import COMBATS
 from ..fighting_fantasy.controller import FightingFantasyActions
 from ..fighting_fantasy.rules import spend_luck, combat_damage, escape_damage
@@ -455,7 +455,34 @@ class ForetMechanicsActions(FightingFantasyActions):
             FightingFantasyActions.use_care(self, kind)
 
     def perform_foret_action(self, action, payload=None):
-        """Commande transactionnelle : ne jamais faire confiance au bouton ou à un ancien signal."""
+        """Commande transactionnelle, suivie d’un compte rendu dans le cadre de messages.
+
+        Le relevé précède les dés ; le message est écrit après la navigation pour
+        survivre au changement de paragraphe que la commande a elle-même causé."""
+        if self._adventurer_draft is not None or self.current_paragraph is None:
+            return
+        number = self.current_paragraph
+        before = feedback.snapshot(self.character)
+        self._roll_trace = []
+        try:
+            outcome = self._foret_action_body(action, payload)
+        finally:
+            trace, self._roll_trace = self._roll_trace, None
+        if outcome == 'error':
+            return
+        kind = feedback.ROLL_KINDS.get(action)
+        if action == 'branch_test' and number in rules.BRANCH_TESTS:
+            kind = rules.BRANCH_TESTS[number][0]
+        moved = self.current_paragraph if self.current_paragraph != number else None
+        message = feedback.summary(before, feedback.snapshot(self.character),
+                                   kind=kind, trace=trace, destination=moved)
+        if action == 'emergency_exit' and message:
+            message = self.rules_log.text() + ' ' + message
+        if message:
+            self.rules_log.setText(message)
+
+    def _foret_action_body(self, action, payload=None):
+        """Résoudre la commande ; renvoyer 'error' si une règle l’a refusée."""
         if self._adventurer_draft is not None or self.current_paragraph is None:
             return
         # Le dialogue d’achat ne doit pas envelopper plusieurs achats dans une
@@ -641,7 +668,7 @@ class ForetMechanicsActions(FightingFantasyActions):
                 return
         except ValueError as error:
             self.rules_log.setText(str(error))
-            return
+            return 'error'
         if action in expected and action not in ('buy','goblin_loot') and not (action == 'lift' and target == 372):
             self._book_state(number, True)['foret_resolved'] = True
         if target is not None and not (action == 'lift' and target == 372):
