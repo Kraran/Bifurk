@@ -244,5 +244,61 @@ class EventLabelTests(WindowCase):
         self.assertIn('+1', button.toolTip())
 
 
+class CareMenuTests(WindowCase):
+    def menu_entries(self, w):
+        from PySide6.QtWidgets import QMenu
+        seen = {}
+
+        case = self
+
+        class CaptureMenu(QMenu):
+            def exec(self, *args):
+                case.assertTrue(self.toolTipsVisible())
+                seen.update({a.text(): (a.isEnabled(), a.toolTip()) for a in self.actions()})
+        with patch.object(main, 'QMenu', CaptureMenu):
+            w.show_care_menu()
+        return seen
+
+    def test_owned_cares_only_and_real_reasons(self):
+        w = self.begin(paragraphs=(2,))
+        w.go_to(2)
+        w.character.update(endurance=20, provisions=3, potion='Potion de Vigueur', potion_doses=2)
+        w.character['initial']['endurance'] = 20
+        entries = self.menu_entries(w)
+        self.assertEqual(set(entries), {'Potion de Vigueur — 2 dose(s)', 'Prendre un repas'})
+        self.assertEqual(entries['Prendre un repas'], (False, 'Endurance déjà à son maximum (20/20).'))
+        self.assertEqual(entries['Potion de Vigueur — 2 dose(s)'][1], 'Endurance déjà à son maximum (20/20).')
+        w.character.update(endurance=12, provisions=0, potion_doses=0)
+        w.character['inventory'].append(rules.ELVEN_BREAD)
+        entries = self.menu_entries(w)
+        self.assertEqual(entries['Prendre un repas'], (False, 'Plus de provisions.'))
+        self.assertEqual(entries['Potion de Vigueur — 0 dose(s)'], (False, 'Fiole vide : plus aucune dose.'))
+        self.assertTrue(entries['Pain elfique (+4 Endurance)'][0])
+        self.assertNotIn('Potion de Force (+5 Endurance)', entries)
+
+    def test_already_ate_tooltip_and_combat_reason(self):
+        from grimoire_modules.fighting_fantasy.controller import MEAL_ALREADY_TAKEN
+        from grimoire_modules.foret.encounters import COMBATS
+        w = self.begin(paragraphs=(2, min(COMBATS)))
+        w.go_to(2)
+        w.character.update(endurance=10, provisions=3)
+        w.use_care('meal')
+        entries = self.menu_entries(w)
+        self.assertEqual(entries['Prendre un repas — déjà mangé ici'], (False, MEAL_ALREADY_TAKEN))
+        w.go_to(min(COMBATS))
+        meal = next(o for o in w.care_options() if o['id'] == 'meal')
+        self.assertEqual(meal['reason'], 'Pas de repas pendant un combat.')
+        self.assertEqual(next(o for o in w.care_options(in_combat=True) if o['id'] == 'meal')['reason'],
+                         'Pas de repas pendant un combat.')
+
+    def test_special_meal_paragraph_reason(self):
+        w = self.begin(paragraphs=(328,))
+        w.go_to(328)
+        w.character.update(endurance=10, provisions=3)
+        meal = next(o for o in w.care_options() if o['id'] == 'meal')
+        self.assertFalse(meal['enabled'])
+        self.assertIn('commande du passage', meal['reason'])
+
+
 if __name__ == '__main__':
     unittest.main()

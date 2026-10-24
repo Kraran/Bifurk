@@ -585,6 +585,8 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
                 self.actions.addWidget(button)
         if self._care_open:
             for option in self.owner.care_options(in_combat=not bool(self.outcome)):
+                if option.get('hidden'):
+                    continue
                 button = ChoiceCard(option['label'])
                 button.setEnabled(option['enabled'])
                 button.setToolTip(option['reason'] if not option['enabled'] else '')

@@ -1568,6 +1568,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         menu = QMenu(self)
         menu.setToolTipsVisible(True)
         for option in self.care_options():
+            if option.get('hidden'):
+                continue
             action = menu.addAction(option['label'])
             action.setEnabled(option['enabled'])
             action.setToolTip(option['reason'] if not option['enabled'] else '')

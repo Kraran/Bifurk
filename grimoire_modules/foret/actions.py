@@ -427,23 +427,40 @@ class ForetMechanicsActions(FightingFantasyActions):
                 if option['id'] == 'meal')['enabled']:
             FightingFantasyActions.eat_meal(self)
 
+    def _ff_meal_not_allowed_reason(self):
+        """Nommer la règle de la Forêt qui interdit le repas ici."""
+        if self.combat_available():
+            return 'Pas de repas pendant un combat.'
+        if self.character.get('book_facts', {}).get('adventure_ended'):
+            return 'L’aventure est terminée.'
+        if self.current_paragraph in (304, 328):
+            return 'Ce passage impose son propre repas : utilisez la commande du passage.'
+        return 'Ce passage n’autorise pas de repas.'
+
     def care_options(self, *, in_combat=False):
+        """Soins du socle, plus la Potion de Force et le Pain elfique trouvés.
+
+        Un soin trouvé mais absent du sac reste décrit (pour les règles) avec
+        « hidden » : les menus ne proposent pas ce que le héros ne possède pas."""
         options = FightingFantasyActions.care_options(self, in_combat=in_combat)
-        meal = next(option for option in options if option['id'] == 'meal')
-        if not meal.get('already_ate'):
-            meal['reason'] = ('Repas indisponible : combat, repas spécial, fin de partie, '
-                              'Endurance au maximum ou provisions épuisées.')
+        char = self.character
+        alive = char['endurance'] > 0 and self._adventurer_draft is None
+        inventory = char.get('inventory', [])
+        full = self._ff_full()
+        force = 'Potion de Force' in inventory
         options.append({'id':'force_potion', 'label':'Potion de Force (+5 Endurance)',
-                        'enabled':self.character['endurance'] > 0 and self._adventurer_draft is None
-                                  and 'Potion de Force' in self.character.get('inventory', [])
-                                  and self.character['endurance'] < self.character['initial']['endurance'],
-                        'reason':'Aucune Potion de Force utile disponible.'})
+                        'enabled':alive and force and not full,
+                        'reason':(self._ff_unavailable() if not alive else
+                                  'Pas de Potion de Force dans le sac.' if not force else full),
+                        'hidden':not force})
+        bread = rules.ELVEN_BREAD in inventory
+        fighting = in_combat or self.combat_available()
         options.append({'id':'elven_bread', 'label':'Pain elfique (+4 Endurance)',
-                        'enabled':self.character['endurance'] > 0 and self._adventurer_draft is None
-                                  and not in_combat and not self.combat_available()
-                                  and rules.ELVEN_BREAD in self.character.get('inventory', [])
-                                  and self.character['endurance'] < self.character['initial']['endurance'],
-                        'reason':'Pain absent, sans effet utile, ou repas interdit pendant le combat.'})
+                        'enabled':alive and bread and not fighting and not full,
+                        'reason':(self._ff_unavailable() if not alive else
+                                  'Pas de Pain elfique dans le sac.' if not bread else
+                                  'Pas de Pain elfique pendant un combat.' if fighting else full),
+                        'hidden':not bread})
         return options
 
     def use_care(self, kind):
