@@ -148,7 +148,8 @@ class ForetController(ForetMechanicsActions):
             notice.setWordWrap(True)
             self.event_layout.addWidget(notice)
         self.choice_group.setVisible(self.choice_layout.count() > 0)
-        self.event_group.show()
+        # Sans commande (ex. un seul adversaire, donc rien à cibler), la page récupère la place.
+        self.event_group.setVisible(self.event_layout.count() > 0)
         self.condition_group.hide()
 
     def follow_link(self, url):
