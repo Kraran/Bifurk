@@ -14,6 +14,10 @@ MEAL_ALREADY_TAKEN = ('Vous avez déjà mangé ici. '
                       'Avancez dans l’aventure pour reprendre un repas.')
 
 
+# Seuil d'alerte : à 4 points, un seul assaut perdu (2) ou deux suffisent à tuer.
+LOW_ENDURANCE = 4
+
+
 class FightingFantasyActions:
     """Fournir création, soins, assauts et fuite ; le livre étend seulement les exceptions."""
     def _ff_stat_value(self, key):
@@ -184,16 +188,77 @@ class FightingFantasyActions:
         meal, meal_useful, taken = self._ff_meal_status()
         meal_option = {'id': 'meal', 'label': 'Prendre un repas',
              'enabled': bool(alive and not in_combat and meal and meal_useful and not taken and char.get('provisions', 0) > 0),
-             'reason': 'Repas interdit pendant le combat, non autorisé ici, déjà pris ou provisions épuisées.'}
+             'reason': self._ff_meal_reason(alive=alive, in_combat=in_combat, meal=meal,
+                                            useful=meal_useful, taken=taken)}
         if self.ate_here():
             meal_option.update(enabled=False, label='Prendre un repas — déjà mangé ici',
                                reason=MEAL_ALREADY_TAKEN, already_ate=True)
         return [
             {'id': 'potion', 'label': f'{potion} — {doses} dose(s)',
              'enabled': bool(alive and useful and doses > 0),
-             'reason': 'Aucune dose utile disponible.'},
+             'reason': self._ff_potion_reason(alive=alive)},
             meal_option,
         ]
+
+    def _ff_unavailable(self):
+        """Raison commune à tous les soins : héros mort ou personnage en création."""
+        if self._adventurer_draft is not None:
+            return 'Le personnage est encore en création.'
+        if self.character['endurance'] <= 0:
+            return 'Le héros est mort : aucun soin ne s’applique.'
+        return ''
+
+    def _ff_full(self, key='endurance', label='Endurance'):
+        """Libellé « Endurance pleine (20/20) » si la caractéristique est à son total initial."""
+        value = self.character.get(key, 0)
+        maximum = self.character.get('initial', {}).get(key, value)
+        return f'{label} déjà à son maximum ({value}/{maximum}).' if value >= maximum else ''
+
+    def _ff_potion_reason(self, *, alive=True):
+        """Dire pourquoi la potion de départ est grisée, sans rien appliquer."""
+        char = self.character
+        key = POTION_STATS.get(char.get('potion'))
+        if not alive:
+            return self._ff_unavailable()
+        if key is None:
+            return 'Aucune potion choisie à la création.'
+        if char.get('potion_doses', 0) <= 0:
+            return 'Fiole vide : plus aucune dose.'
+        label = {'habilete': 'Habileté', 'endurance': 'Endurance', 'chance': 'Chance'}[key]
+        return self._ff_full(key, label) or 'Potion sans effet utile pour le moment.'
+
+    def _ff_meal_not_allowed_reason(self):
+        """Raison quand le passage n'autorise pas de repas ; le livre peut la préciser."""
+        return 'Ce passage n’autorise pas de repas.'
+
+    def _ff_meal_reason(self, *, alive, in_combat, meal, useful, taken):
+        """Première raison réelle d'un repas grisé, dans l'ordre où le joueur peut agir."""
+        if not alive:
+            return self._ff_unavailable()
+        if in_combat:
+            return 'Pas de repas pendant un combat.'
+        if not meal:
+            return self._ff_meal_not_allowed_reason()
+        if taken:
+            return 'Le repas de ce passage a déjà été pris.'
+        if self.character.get('provisions', 0) <= 0:
+            return 'Plus de provisions.'
+        if not useful:
+            return self._ff_full() or 'Repas sans effet utile pour le moment.'
+        return ''
+
+    def low_endurance_alert(self, *, in_combat=False):
+        """Avertir quand l'Endurance est basse (≤ LOW_ENDURANCE) et qu'un soin est utilisable.
+
+        Rien n'est appliqué : le texte nomme seulement le premier soin autorisé."""
+        endurance = self.character.get('endurance', 0)
+        if not 0 < endurance <= LOW_ENDURANCE:
+            return ''
+        usable = [option['label'] for option in self.care_options(in_combat=in_combat)
+                  if option['enabled']]
+        if not usable:
+            return ''
+        return f'Endurance faible : {endurance}. Un soin est à portée : {usable[0]}.'
 
     def ate_here(self):
         """Vrai si une Provision a déjà été mangée depuis l'arrivée au paragraphe courant."""
@@ -207,6 +272,11 @@ class FightingFantasyActions:
         déplacement ; recharger ou annuler (restauration) ne modifie rien."""
         if not self._restoring and self.character.get('meal_paragraph') not in (None, number):
             self.character.pop('meal_paragraph', None)
+        # Le cadre de messages ne garde pas au nouveau paragraphe le résultat
+        # d'une action antérieure ; celui de l'action qui déplace reste visible.
+        clear = getattr(self.rules_log, 'clear_if_stale', None)
+        if not self._restoring and self.current_paragraph != number and clear is not None:
+            clear()
 
     def can_flee_combat(self):
         """Partager les restrictions de fuite entre le lecteur et le bouton permanent du combat."""

@@ -79,6 +79,10 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             QPushButton#heroRoll { background: $page; color: $ink;
                 font-size: 17px; font-weight: bold; padding: 13px; min-width: 170px; }
             QPushButton#heroRoll:disabled { background: $scene_background; color: $ornament; }
+            QLabel#combatAlert { font-size: 15px; font-style: italic; color: $gold;
+                border-top: 1px solid $ornament; border-bottom: 1px solid $ornament; padding: 5px; }
+            QPushButton#combatCare[urgent="true"] { background: #7c303b; color: #fff0cd;
+                border: 2px solid $gold; font-weight: bold; }
         ''').substitute({**owner.theme.colors, 'ui_font': owner.ui_font_family}))
         layout = QVBoxLayout(self)
         layout.setContentsMargins(18, 18, 18, 18)
@@ -157,6 +161,14 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.prompt.setObjectName('combatPrompt')
         self.prompt.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.prompt)
+        # Alerte sobre d'Endurance basse : le bouton Soins est alors mis en avant.
+        self.alert = QLabel('')
+        self.alert.setObjectName('combatAlert')
+        self.alert.setWordWrap(True)
+        self.alert.setTextFormat(Qt.PlainText)
+        self.alert.setAlignment(Qt.AlignCenter)
+        self.alert.hide()
+        layout.addWidget(self.alert)
         controls = QHBoxLayout()
         self.pause = QPushButton('Revenir au livre')
         self.pause.setToolTip('Un assaut commencé est terminé avant de revenir au livre.')
@@ -378,6 +390,16 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
         self.care.setEnabled(care_pause and self.outcome != 'Défaite' and any(o['enabled'] for o in options))
         self.care.setToolTip('Choisir un soin autorisé.' if self.care.isEnabled()
                              else 'Aucun soin utilisable ou lancer en cours.')
+        alert = (self.owner.low_endurance_alert(in_combat=not bool(self.outcome))
+                 if self.care.isEnabled() and hasattr(self.owner, 'low_endurance_alert') else '')
+        self.alert.setText('✚  ' + alert if alert else '')
+        self.alert.setVisible(bool(alert))
+        if bool(self.care.property('urgent')) != bool(alert):
+            self.care.setProperty('urgent', bool(alert))
+            self.care.style().unpolish(self.care)
+            self.care.style().polish(self.care)
+        if alert:
+            self.care.setToolTip(alert)
         self.weapon.setEnabled(can_act)
         self.shield.setEnabled(can_act)
 
@@ -563,6 +585,8 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
                 self.actions.addWidget(button)
         if self._care_open:
             for option in self.owner.care_options(in_combat=not bool(self.outcome)):
+                if option.get('hidden'):
+                    continue
                 button = ChoiceCard(option['label'])
                 button.setEnabled(option['enabled'])
                 button.setToolTip(option['reason'] if not option['enabled'] else '')

@@ -5,9 +5,10 @@ explicitement le socle plutôt que super(), puisque self n’est pas une instanc
 physique de ce mixin. Aucune décision persistante n’est conservée dans un widget.
 """
 from copy import deepcopy
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QComboBox, QSpinBox,
                                QPushButton, QInputDialog, QMessageBox, QListWidget, QAbstractItemView)
-from . import rules
+from . import rules, feedback, labels
 from .encounters import COMBATS
 from ..fighting_fantasy.controller import FightingFantasyActions
 from ..fighting_fantasy.rules import spend_luck, combat_damage, escape_damage
@@ -199,8 +200,10 @@ class ForetMechanicsActions(FightingFantasyActions):
 
     def _foret_mechanics_buttons(self):
         """Afficher les seules commandes implantées, en revérifiant tout au clic."""
-        def add(label, action, payload=None, enabled=True, combat=False):
+        def add(label, action, payload=None, enabled=True, combat=False, tooltip=''):
             button = QPushButton(label)
+            if tooltip:
+                button.setToolTip(tooltip)
             button.setEnabled(enabled and self.character['endurance'] > 0)
             button.setProperty('combatAction', combat)
             if action == 'shop':
@@ -226,20 +229,17 @@ class ForetMechanicsActions(FightingFantasyActions):
                 and 'bear_silver_dart' not in rules.peek(self.character).get('rewards', [])):
             add('Prendre la fléchette d’argent (facultatif)', 'silver_dart')
         if number in rules.BRANCH_TESTS and not self._book_state(number).get('foret_resolved'):
-            stat = rules.BRANCH_TESTS[number][0]
-            add('Utiliser le Bandeau et tenter sa Chance' if number == 158 else
-                'Résoudre l’épreuve — ' + ('Chance' if stat == 'chance' else 'Habileté'), 'branch_test')
+            label, tip = labels.branch_button(number, self.character)
+            add(label, 'branch_test', tooltip=tip)
         if number in rules.GAS_PARAGRAPHS and not rules.gas_resolved(self.character,number):
-            add('Résoudre le gaz toxique (1d6)', 'gas')
+            label, tip = labels.gas_button(number)
+            add(label, 'gas', tooltip=tip)
         if number in rules.ENTRY_RULES and not rules.entry_resolved(self.character, number):
             rule = rules.ENTRY_RULES[number]
-            label = rule.get('label') or ('Utiliser ' + rule['use'] if rule.get('use') else
-                     'Employer ' + ', '.join(rule['remove']) if rule.get('remove') else
-                     'Appliquer la perte de ressources' if rule.get('empty_resources') else
-                     'Appliquer la blessure' if rule.get('damage') else
-                     'Appliquer la perte de Chance' if rule.get('luck',0) < 0 else 'Recueillir la trouvaille')
+            label, tip = labels.entry_button(rule, self.character)
             add(label, 'entry', enabled=(not rule.get('use') or rules.available(self.character, rule['use']) > 0)
-                and all(name in self.character.get('inventory', []) for name in rule.get('remove', [])))
+                and all(name in self.character.get('inventory', []) for name in rule.get('remove', [])),
+                tooltip=tip)
         if number in rules.PAYMENT_PARAGRAPHS and not rules.payment_resolved(self.character, number):
             add('Choisir le paiement…', 'payment_dialog')
         if number == 388 and not self._book_state(number).get('foret_resolved'):
@@ -258,10 +258,10 @@ class ForetMechanicsActions(FightingFantasyActions):
                         'target', index, combat=True)
         for name in rules.peek(self.character).get('worn', []):
             if name != 'Anneau de Lenteur':
-                add('Retirer ' + name, 'unwear', name)
+                add(labels.equipment_label(name, False), 'unwear', name, tooltip=labels.equipment_tip(name))
         for name in rules.EQUIPMENT:
             if name in self.character.get('inventory', []) and name not in rules.peek(self.character).get('worn', []):
-                add('Porter ' + name, 'wear', name)
+                add(labels.equipment_label(name, True), 'wear', name, tooltip=labels.equipment_tip(name))
         if 'Potion de Force' in self.character.get('inventory', []):
             add('Boire la Potion de Force (+5 Endurance)', 'force_potion')
         commands = {242:('Prendre le lingot en abandonnant un objet (facultatif)…','gold_ingot'),34:('Choisir le vœu du génie…', 'wish'),308:('Intervertir Habileté et Chance', 'swap'),98:('Échapper à l’embuscade — Chance', 'ambush'),
@@ -285,32 +285,75 @@ class ForetMechanicsActions(FightingFantasyActions):
         if (number in commands and not self._book_state(number).get('foret_resolved')
                 and not (number == 242 and 'gold_ingot' in rules.peek(self.character).get('rewards', []))):
             label, action = commands[number]
-            add(label, action, enabled=number != 204 or rules.hammer_complete(self.character))
+            label, tip = labels.command_button(number, self.character) or (label, '')
+            add(label, action, enabled=number != 204 or rules.hammer_complete(self.character), tooltip=tip)
 
     def _foret_shop(self):
-        """Panier explicite : le choix seul ne dépense rien ; chaque achat est une transaction."""
+        """Panier explicite : le choix seul ne dépense rien ; chaque achat est une transaction.
+
+        Chaque article porte une description neutre tirée des règles codées ; un objet
+        durable ne s’achète qu’en un exemplaire et plus du tout s’il est déjà dans le sac."""
         dialog = QDialog(self)
         dialog.setWindowTitle('Yaztromo — objets magiques')
         layout = QVBoxLayout(dialog)
-        layout.addWidget(QLabel('Chaque article acheté ne peut servir qu’une fois.'))
+        header = QLabel('Chaque article acheté ne peut servir qu’une fois. '
+                        'Un objet durable ne s’achète qu’en un seul exemplaire.')
+        header.setWordWrap(True)
+        layout.addWidget(header)
         selector = QComboBox()
         for name, price in rules.SHOP:
-            selector.addItem(f'{name} — {price} pièces d’or', name)
+            selector.addItem('', name)
         layout.addWidget(selector)
+        description = QLabel()
+        description.setObjectName('shopDescription')
+        description.setWordWrap(True)
+        layout.addWidget(description)
         quantity = QSpinBox()
         quantity.setRange(1,99)
         quantity.setPrefix('Quantité : ')
         layout.addWidget(quantity)
         balance = QLabel()
+        balance.setObjectName('shopBalance')
         layout.addWidget(balance)
         buy = QPushButton('Acheter')
         layout.addWidget(buy)
+
+        def label_items():
+            model = selector.model()
+            for index, (name, price) in enumerate(rules.SHOP):
+                owned = rules.owned_durable(self.character, name)
+                selector.setItemText(index, f'{name} — {price} pièce{"s" if price > 1 else ""} d’or'
+                                     + (' — déjà dans le sac' if owned else ''))
+                selector.setItemData(index, rules.shop_description(name), Qt.ToolTipRole)
+                item = model.item(index) if hasattr(model, 'item') else None
+                if item is not None:
+                    item.setEnabled(not owned)
+
         def refresh():
-            price = rules.PRICES[selector.currentData()] * quantity.value()
-            balance.setText(f'Or disponible : {self.character.get("gold",0)} — total : {price}')
-            buy.setEnabled(self.character.get('gold',0) >= price)
+            name = selector.currentData()
+            limit = rules.shop_limit(self.character, name)
+            quantity.blockSignals(True)
+            quantity.setRange(1, max(1, min(99, limit)))
+            quantity.blockSignals(False)
+            quantity.setEnabled(limit > 1)
+            text = rules.shop_description(name)
+            if limit == 0:
+                text += ' Vous l’avez déjà : il ne se rachète pas.'
+            description.setText(text)
+            unit = rules.PRICES[name]
+            count = quantity.value()
+            price = unit * count
+            gold = self.character.get('gold', 0)
+            balance.setText(f'Or disponible : {gold} — total : {count} × {unit} = {price} '
+                            f'pièce{"s" if price > 1 else ""} d’or')
+            buy.setEnabled(limit >= count and gold >= price and self.character['endurance'] > 0)
+            buy.setToolTip('' if buy.isEnabled() else
+                           'Objet durable déjà possédé.' if limit == 0 else
+                           'Pas assez de pièces d’or.' if gold < price else '')
+
         def purchase():
             self.perform_foret_action('buy', (selector.currentData(), quantity.value()))
+            label_items()
             refresh()
         selector.currentIndexChanged.connect(refresh)
         quantity.valueChanged.connect(refresh)
@@ -318,6 +361,7 @@ class ForetMechanicsActions(FightingFantasyActions):
         close = QPushButton('Revenir au grimoire')
         close.clicked.connect(dialog.accept)
         layout.addWidget(close)
+        label_items()
         refresh()
         dialog.exec()
         dialog.deleteLater()
@@ -427,23 +471,40 @@ class ForetMechanicsActions(FightingFantasyActions):
                 if option['id'] == 'meal')['enabled']:
             FightingFantasyActions.eat_meal(self)
 
+    def _ff_meal_not_allowed_reason(self):
+        """Nommer la règle de la Forêt qui interdit le repas ici."""
+        if self.combat_available():
+            return 'Pas de repas pendant un combat.'
+        if self.character.get('book_facts', {}).get('adventure_ended'):
+            return 'L’aventure est terminée.'
+        if self.current_paragraph in (304, 328):
+            return 'Ce passage impose son propre repas : utilisez la commande du passage.'
+        return 'Ce passage n’autorise pas de repas.'
+
     def care_options(self, *, in_combat=False):
+        """Soins du socle, plus la Potion de Force et le Pain elfique trouvés.
+
+        Un soin trouvé mais absent du sac reste décrit (pour les règles) avec
+        « hidden » : les menus ne proposent pas ce que le héros ne possède pas."""
         options = FightingFantasyActions.care_options(self, in_combat=in_combat)
-        meal = next(option for option in options if option['id'] == 'meal')
-        if not meal.get('already_ate'):
-            meal['reason'] = ('Repas indisponible : combat, repas spécial, fin de partie, '
-                              'Endurance au maximum ou provisions épuisées.')
+        char = self.character
+        alive = char['endurance'] > 0 and self._adventurer_draft is None
+        inventory = char.get('inventory', [])
+        full = self._ff_full()
+        force = 'Potion de Force' in inventory
         options.append({'id':'force_potion', 'label':'Potion de Force (+5 Endurance)',
-                        'enabled':self.character['endurance'] > 0 and self._adventurer_draft is None
-                                  and 'Potion de Force' in self.character.get('inventory', [])
-                                  and self.character['endurance'] < self.character['initial']['endurance'],
-                        'reason':'Aucune Potion de Force utile disponible.'})
+                        'enabled':alive and force and not full,
+                        'reason':(self._ff_unavailable() if not alive else
+                                  'Pas de Potion de Force dans le sac.' if not force else full),
+                        'hidden':not force})
+        bread = rules.ELVEN_BREAD in inventory
+        fighting = in_combat or self.combat_available()
         options.append({'id':'elven_bread', 'label':'Pain elfique (+4 Endurance)',
-                        'enabled':self.character['endurance'] > 0 and self._adventurer_draft is None
-                                  and not in_combat and not self.combat_available()
-                                  and rules.ELVEN_BREAD in self.character.get('inventory', [])
-                                  and self.character['endurance'] < self.character['initial']['endurance'],
-                        'reason':'Pain absent, sans effet utile, ou repas interdit pendant le combat.'})
+                        'enabled':alive and bread and not fighting and not full,
+                        'reason':(self._ff_unavailable() if not alive else
+                                  'Pas de Pain elfique dans le sac.' if not bread else
+                                  'Pas de Pain elfique pendant un combat.' if fighting else full),
+                        'hidden':not bread})
         return options
 
     def use_care(self, kind):
@@ -455,7 +516,34 @@ class ForetMechanicsActions(FightingFantasyActions):
             FightingFantasyActions.use_care(self, kind)
 
     def perform_foret_action(self, action, payload=None):
-        """Commande transactionnelle : ne jamais faire confiance au bouton ou à un ancien signal."""
+        """Commande transactionnelle, suivie d’un compte rendu dans le cadre de messages.
+
+        Le relevé précède les dés ; le message est écrit après la navigation pour
+        survivre au changement de paragraphe que la commande a elle-même causé."""
+        if self._adventurer_draft is not None or self.current_paragraph is None:
+            return
+        number = self.current_paragraph
+        before = feedback.snapshot(self.character)
+        self._roll_trace = []
+        try:
+            outcome = self._foret_action_body(action, payload)
+        finally:
+            trace, self._roll_trace = self._roll_trace, None
+        if outcome == 'error':
+            return
+        kind = feedback.ROLL_KINDS.get(action)
+        if action == 'branch_test' and number in rules.BRANCH_TESTS:
+            kind = rules.BRANCH_TESTS[number][0]
+        moved = self.current_paragraph if self.current_paragraph != number else None
+        message = feedback.summary(before, feedback.snapshot(self.character),
+                                   kind=kind, trace=trace, destination=moved)
+        if action == 'emergency_exit' and message:
+            message = self.rules_log.text() + ' ' + message
+        if message:
+            self.rules_log.setText(message)
+
+    def _foret_action_body(self, action, payload=None):
+        """Résoudre la commande ; renvoyer 'error' si une règle l’a refusée."""
         if self._adventurer_draft is not None or self.current_paragraph is None:
             return
         # Le dialogue d’achat ne doit pas envelopper plusieurs achats dans une
@@ -545,7 +633,7 @@ class ForetMechanicsActions(FightingFantasyActions):
             elif action == 'entry':
                 rules.resolve_entry(self.character, number)
             elif action == 'buy':
-                rules.buy(self.character, *payload)
+                rules.shop_buy(self.character, *payload)
             elif action == 'target':
                 combat = self._foret_combat()
                 if not self.combat_available() or type(payload) is not int:
@@ -641,7 +729,7 @@ class ForetMechanicsActions(FightingFantasyActions):
                 return
         except ValueError as error:
             self.rules_log.setText(str(error))
-            return
+            return 'error'
         if action in expected and action not in ('buy','goblin_loot') and not (action == 'lift' and target == 372):
             self._book_state(number, True)['foret_resolved'] = True
         if target is not None and not (action == 'lift' and target == 372):

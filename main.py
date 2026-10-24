@@ -245,6 +245,32 @@ def set_bronze_titlebar(widget):
         pass
 
 
+class RulesLog(QLabel):
+    """Journal de règles daté par l'action qui l'écrit, recopié dans le cadre visible.
+
+    Le cachet permet de vider au changement de paragraphe un message laissé par
+    une action antérieure (« Victoire ! »), sans effacer celui de l'action qui
+    provoque elle-même le déplacement."""
+
+    def __init__(self, text, parent, window):
+        super().__init__(text, parent)
+        self._window = window
+        self.action_stamp = None
+
+    def setText(self, text):
+        super().setText(text)
+        self.action_stamp = getattr(self._window, '_feedback_action_id', 0)
+        frame = getattr(self._window, 'message_frame', None)
+        if frame is not None:
+            frame.setText(text)
+            frame.setVisible(bool(text.strip()))
+
+    def clear_if_stale(self):
+        """Vider un message qui n'appartient pas à l'action en cours."""
+        if self.action_stamp != getattr(self._window, '_feedback_action_id', 0) and self.text():
+            self.setText('')
+
+
 class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     """Contrôleur principal et propriétaire Qt des vues et services de l’aventure.
 
@@ -960,6 +986,33 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.reader.setObjectName("reader")
         self.reader.setMinimumHeight(230)
         reader_layout.addWidget(self.reader, 1)
+        # Alerte d'Endurance basse : rappel discret qu'un soin autorisé existe.
+        self.endurance_alert = QFrame()
+        self.endurance_alert.setObjectName("enduranceAlert")
+        alert_row = QHBoxLayout(self.endurance_alert)
+        alert_row.setContentsMargins(12, 6, 8, 6)
+        self.endurance_alert_text = QLabel()
+        self.endurance_alert_text.setObjectName("enduranceAlertText")
+        self.endurance_alert_text.setWordWrap(True)
+        self.endurance_alert_text.setTextFormat(Qt.PlainText)
+        alert_row.addWidget(self.endurance_alert_text, 1)
+        self.endurance_alert_button = QPushButton("✚  Soins")
+        self.endurance_alert_button.setObjectName("alertCare")
+        self.endurance_alert_button.setToolTip("Ouvrir le menu des soins")
+        self.endurance_alert_button.clicked.connect(
+            lambda: self.show_care_menu(anchor=self.endurance_alert_button))
+        alert_row.addWidget(self.endurance_alert_button)
+        self.endurance_alert.hide()
+        reader_layout.addWidget(self.endurance_alert)
+        # Cadre de messages : le dernier résultat de règle (jets, pertes, gains),
+        # miroir visible du journal interne et vidé au changement de paragraphe.
+        self.message_frame = QLabel()
+        self.message_frame.setObjectName("messageFrame")
+        self.message_frame.setWordWrap(True)
+        self.message_frame.setTextFormat(Qt.PlainText)
+        self.message_frame.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.message_frame.hide()
+        reader_layout.addWidget(self.message_frame)
 
         self.choice_group = ChoiceGroup("⚜  QUELLE SERA VOTRE VOIE ?")
         self.choice_layout = QVBoxLayout(self.choice_group)
@@ -1168,7 +1221,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.care_button = SealButton("Soins", "cross")
         self.care_button.setToolTip("Manger une provision ou boire la potion")
         self.care_button.clicked.connect(self._close_sheet_drawer)
-        self.care_button.clicked.connect(self.show_care_menu)
+        self.care_button.clicked.connect(lambda: self.show_care_menu())
         self.tools_button = SealButton("Actions…", "dice")
         self.tools_button.setToolTip("Dés libres, aller à un paragraphe, prologue, corrections")
         # Menu hors du panneau peint pour garder le style des menus.
@@ -1267,7 +1320,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         for widget in (self.enemy_name, self.enemy_skill, self.enemy_endurance):
             widget.installEventFilter(self)
             widget.editingFinished.connect(self._finish_manual_enemy_edit)
-        self.rules_log = QLabel('Préparez le combat lorsque le récit le demande.', fields)
+        self.rules_log = RulesLog('Préparez le combat lorsque le récit le demande.', fields, self)
         self.combat_state = QLabel('Aucun combat engagé', fields)
         self.combat_journal = QListWidget(fields)
         self.dice_combo = QComboBox(fields)
@@ -1294,10 +1347,24 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         meal = next((o for o in self.care_options() if o['id'] == 'meal'), {}) if playing else {}
         self.care_button.setToolTip(meal['reason'] if meal.get('already_ate')
                                     else "Manger une provision ou boire la potion")
+        self._refresh_endurance_alert()
         self.prologue_action.setVisible(bool(getattr(self.book_module, 'intro_pages', ())))
         self.carnet_button.setEnabled(self.current_paragraph is not None)
         self._update_bookmark_ribbon()
 
+
+    def _refresh_endurance_alert(self):
+        """Mettre en avant le sceau Soins et l'alerte de page si l'Endurance est basse."""
+        if not hasattr(self, 'endurance_alert'):
+            return
+        alert = ''
+        if self.care_button.isEnabled() and hasattr(self, 'low_endurance_alert'):
+            alert = self.low_endurance_alert()
+        self.care_button.set_urgent(bool(alert))
+        if alert:
+            self.care_button.setToolTip(alert)
+        self.endurance_alert_text.setText(alert)
+        self.endurance_alert.setVisible(bool(alert))
 
     def _toggle_inventory(self, expanded):
         """Replier la sacoche pour que la fiche tienne sans défilement."""
@@ -1495,16 +1562,19 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
 
 
-    def show_care_menu(self):
+    def show_care_menu(self, anchor=None):
         """Offrir les soins hors combat sans réintroduire un onglet de commandes."""
+        anchor = anchor if anchor is not None and anchor.isVisible() else self.care_button
         menu = QMenu(self)
         menu.setToolTipsVisible(True)
         for option in self.care_options():
+            if option.get('hidden'):
+                continue
             action = menu.addAction(option['label'])
             action.setEnabled(option['enabled'])
             action.setToolTip(option['reason'] if not option['enabled'] else '')
             action.triggered.connect(lambda checked=False, kind=option['id']: self.use_care(kind))
-        menu.exec(self.care_button.mapToGlobal(self.care_button.rect().bottomLeft()))
+        menu.exec(anchor.mapToGlobal(anchor.rect().bottomLeft()))
         menu.deleteLater()
 
 
@@ -2517,6 +2587,11 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if self._combat_dialog is None:
             self.sounds.play("dice")
         rolls = [random.randint(1, sides) for _ in range(count)]
+        trace = getattr(self, '_roll_trace', None)
+        if isinstance(trace, list):
+            # Relevé pour le cadre de messages : la Chance lue avant sa dépense.
+            trace.append({'rolls': list(rolls), 'total': sum(rolls),
+                          'chance': self.character.get('chance')})
         if (sides == 6 and count in (1, 2, 3)) or (sides == 20 and count == 1):
             label = context or (f'Épreuve — § {self.current_paragraph}'
                                 if self.current_paragraph is not None else 'Création de l’aventurier')

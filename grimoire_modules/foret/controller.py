@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QLabel, QMessageBox
 from grimoire_ui import ChoiceCard
 from navigation import choice_caption
 from .actions import ForetMechanicsActions
-from . import rules
+from . import rules, feedback
 
 
 class ForetController(ForetMechanicsActions):
@@ -69,6 +69,8 @@ class ForetController(ForetMechanicsActions):
             return
         previous = self.current_paragraph
         self._ff_note_move(number)
+        arrival = (feedback.snapshot(self.character)
+                   if not self._restoring and previous != number else None)
         if not self._restoring and previous != number:
             self.sounds.play('page')
             if previous is not None:
@@ -96,6 +98,10 @@ class ForetController(ForetMechanicsActions):
         if number == 156 and previous != number and not self._restoring:
             rules.damage_hero(self.character, 3)
             self._refresh_character()
+        if arrival is not None:
+            changes = feedback.describe_changes(arrival, feedback.snapshot(self.character))
+            if changes:
+                self.rules_log.setText(f'À l’arrivée au §{number} : ' + ', '.join(changes) + '.')
         self.goto_spin.setValue(number)
         self.paragraph_title.setText(self._paragraph_name(number) or 'La Forêt de la Malédiction')
         self.paragraph_number.setText(f'§ {number}')
@@ -163,6 +169,7 @@ class ForetController(ForetMechanicsActions):
         """Revérifier la route et payer son éventuel coût dans la transaction de navigation."""
         if self._adventurer_draft is not None or target not in self._reading_link_targets():
             return
+        before = feedback.snapshot(self.character)
         try:
             rules.pay_route(self.character,self.current_paragraph,target)
         except ValueError as error:
@@ -170,3 +177,6 @@ class ForetController(ForetMechanicsActions):
             return
         self._refresh_character()
         self.go_to(target)
+        changes = feedback.describe_changes(before, feedback.snapshot(self.character))
+        if changes and self.current_paragraph == target:
+            self.rules_log.setText(f'Passage vers le §{target} : ' + ', '.join(changes) + '.')

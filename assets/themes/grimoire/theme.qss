@@ -302,3 +302,14 @@ QPushButton#aboutBrand:focus { background: transparent; border: 1px dotted rgba(
 QWidget#readerPanel QLabel#choiceCaption,
 QWidget#readerPanel QPushButton#choiceCard QLabel#choiceCaption { font-family: 'EB Garamond'; font-size: 21px; color: #2e1d14; }
 QWidget#readerPanel QPushButton:disabled QLabel#choiceCaption { color: #8a7a64; }
+/* Cadre de messages : résultat de la dernière règle, sobre, comme une glose en marge. */
+QWidget#readerPanel QLabel#messageFrame { background: #efdfbd; color: #4a2a1f;
+    border: 1px solid #b49360; border-left: 4px solid #823842; border-radius: 6px;
+    padding: 8px 12px; font-size: 15px; font-style: italic; }
+/* Alerte d'Endurance basse : liseré or sur cire, sans clignotement. */
+QWidget#readerPanel QFrame#enduranceAlert { background: #f1e0bb; border: 1px solid #a67e45;
+    border-left: 4px solid #b8892f; border-radius: 6px; }
+QWidget#readerPanel QLabel#enduranceAlertText { color: #642a2e; font-weight: bold; font-size: 15px; }
+QWidget#readerPanel QPushButton#alertCare { background: #7c303b; color: #fff0cd;
+    border: 2px solid #d8b46c; border-radius: 6px; padding: 6px 14px; font-weight: bold; }
+QWidget#readerPanel QPushButton#alertCare:hover { background: #9a414d; }
