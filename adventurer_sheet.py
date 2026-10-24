@@ -706,6 +706,20 @@ def _item_kind(name):
     return 'gem'
 
 
+def paint_item(p, name, c, s):
+    """Icône d'un objet de sacoche : dessin dédié s'il est répertorié, sinon vignette générique."""
+    import item_icons
+    icon = item_icons.item_icon_id(name)
+    if icon:
+        item_icons.draw_item_icon(p, icon, QPointF(c), s, exhausted=item_icons.is_exhausted(name))
+        return
+    kind = _item_kind(name)
+    draw_item_art(p, kind, QPointF(c), s)
+    number = item_icons.generic_key_number(name) if kind == 'key' else None
+    if number:
+        item_icons.draw_generic_key_number(p, number, QPointF(c), s)
+
+
 def draw_item_art(p, kind, c, s):
     """Vignettes d'objets en couleurs (centre c, demi-taille s)."""
     steel = QLinearGradient(c - QPointF(s, s), c + QPointF(s, s))
@@ -881,7 +895,7 @@ class InventoryDelegate(QStyledItemDelegate):
         r = QRectF(option.rect).adjusted(3, 3, -3, -3)
         if getattr(self.parent(), 'compact', False):
             # Case icône seule : le nom complet reste dans l'info-bulle de l'objet.
-            draw_item_art(p, _item_kind(name), r.center(), 12)
+            paint_item(p, name, r.center(), 12)
             if equipped:
                 badge = QRectF(r.right() - 12, r.top() + 2, 10, 10)
                 p.setPen(Qt.NoPen)
@@ -891,7 +905,7 @@ class InventoryDelegate(QStyledItemDelegate):
             _paint_quantity(p, r, index.data(INVENTORY_QUANTITY_ROLE), compact=True)
             p.restore()
             return
-        draw_item_art(p, _item_kind(name), QPointF(r.center().x(), r.top() + 25), 17)
+        paint_item(p, name, QPointF(r.center().x(), r.top() + 25), 17)
         p.setFont(font('ui', 10, bold=True))
         p.setPen(IVORY)
         box = QRectF(r.left() + 3, r.top() + 47, r.width() - 6, r.bottom() - r.top() - 50)
