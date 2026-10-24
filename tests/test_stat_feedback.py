@@ -32,7 +32,7 @@ class StatFeedbackTests(unittest.TestCase):
         badge = self.w.stat_feedback.active['endurance'][0]
         self.assertEqual(badge.text(), '−2')
         self.assertEqual(self.w.stat_spins['endurance'].value(), 18)
-        self.assertEqual(self.w.stat_bars['endurance'].value(), 90)
+        self.assertAlmostEqual(self.w.stat_medallions['endurance'].ratio(), .9)
         self.assertTrue(badge.testAttribute(Qt.WA_TransparentForMouseEvents))
         badge.animation.setCurrentTime(400)
         self.w._refresh_character()
