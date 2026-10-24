@@ -1291,6 +1291,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self._update_tracking_badge()
         self.tools_button.setEnabled(playing)
         self.care_button.setEnabled(playing and any(option['enabled'] for option in self.care_options()))
+        meal = next((o for o in self.care_options() if o['id'] == 'meal'), {}) if playing else {}
+        self.care_button.setToolTip(meal['reason'] if meal.get('already_ate')
+                                    else "Manger une provision ou boire la potion")
         self.prologue_action.setVisible(bool(getattr(self.book_module, 'intro_pages', ())))
         self.carnet_button.setEnabled(self.current_paragraph is not None)
         self._update_bookmark_ribbon()
@@ -1495,6 +1498,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def show_care_menu(self):
         """Offrir les soins hors combat sans réintroduire un onglet de commandes."""
         menu = QMenu(self)
+        menu.setToolTipsVisible(True)
         for option in self.care_options():
             action = menu.addAction(option['label'])
             action.setEnabled(option['enabled'])

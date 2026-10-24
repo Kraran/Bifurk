@@ -104,38 +104,74 @@ class ForetPresentationTests(unittest.TestCase):
             self.w.show_cover()
             play.assert_called_once_with('foret-1983')
 
-    def test_forest_ordinary_meals_repeat_save_and_undo(self):
+    def _meal_setup(self):
         self.open()
         self.start()
         w = self.w
-        w.paragraphs[55] = 'Un chemin tranquille.'
+        w.paragraphs.update({55: 'Un chemin tranquille.', 56: 'Une clairière.'})
         w.go_to(55)
-        w.character['endurance'] = 10
+        w.character['endurance'] = 8
         w.character['initial']['endurance'] = 20
-        w.character['provisions'] = 3
-        meal = lambda: next(o for o in w.care_options() if o['id'] == 'meal')
+        w.character['provisions'] = 4
+        return w, (lambda: next(o for o in w.care_options() if o['id'] == 'meal'))
+
+    def test_second_meal_refused_until_the_hero_moves(self):
+        from grimoire_modules.fighting_fantasy.controller import MEAL_ALREADY_TAKEN
+        w, meal = self._meal_setup()
         self.assertTrue(meal()['enabled'])
         w.use_care('meal')
-        self.assertEqual((w.character['endurance'], w.character['provisions']), (14, 2))
+        self.assertEqual((w.character['endurance'], w.character['provisions']), (12, 3))
+        self.assertFalse(meal()['enabled'])
+        self.assertEqual(meal()['reason'], MEAL_ALREADY_TAKEN)
+        self.assertIn('déjà mangé ici', meal()['label'])
+        self.assertEqual(w.care_button.toolTip(), MEAL_ALREADY_TAKEN)
+        before = copy.deepcopy(w.character)
+        w.use_care('meal')  # appel direct : toujours refusé
+        w.eat_meal()
+        self.assertEqual(w.character, before)
+
+    def test_meal_allowed_again_after_moving_even_back_to_same_paragraph(self):
+        w, meal = self._meal_setup()
+        w.use_care('meal')
+        w.go_to(55)  # rester sur place n'est pas un déplacement
+        self.assertFalse(meal()['enabled'])
+        w.go_to(56)
         self.assertTrue(meal()['enabled'])
+        self.assertNotIn('meal_paragraph', w.character)
+        w.go_to(55)
+        self.assertTrue(meal()['enabled'])
+        w.use_care('meal')
+        self.assertEqual((w.character['endurance'], w.character['provisions']), (16, 2))
+        self.assertFalse(meal()['enabled'])
+
+    def test_meal_lock_survives_save_load_and_follows_undo_redo(self):
+        w, meal = self._meal_setup()
+        w.use_care('meal')
         path = main.SAVES_DIR/'repas-foret.json'
         w._write_atomic(path, w._save_data())
+        self.assertEqual(json.loads(path.read_text(encoding='utf-8'))['character']['meal_paragraph'], 55)
+        w.go_to(56)
+        self.assertTrue(meal()['enabled'])
+        with patch('main.extract_paragraphs', return_value=dict(w.paragraphs)):
+            self.assertTrue(w.load_game(path, announce=False))
+        self.assertEqual(w.current_paragraph, 55)
+        self.assertFalse(meal()['enabled'])
+        w.undo_action()
+        self.assertEqual((w.character['endurance'], w.character['provisions']), (8, 4))
+        self.assertTrue(meal()['enabled'])
+        w.redo_action()
+        self.assertEqual((w.character['endurance'], w.character['provisions']), (12, 3))
+        self.assertFalse(meal()['enabled'])
+
+    def test_old_saves_without_meal_marker_still_allow_a_meal(self):
+        w, meal = self._meal_setup()
+        path = main.SAVES_DIR/'ancienne.json'
+        data = w._save_data()
+        data['character'].pop('meal_paragraph', None)
+        w._write_atomic(path, data)
         with patch('main.extract_paragraphs', return_value=dict(w.paragraphs)):
             self.assertTrue(w.load_game(path, announce=False))
         self.assertTrue(meal()['enabled'])
-        w.use_care('meal')
-        self.assertEqual((w.character['endurance'], w.character['provisions']), (18, 1))
-        w.undo_action()
-        self.assertEqual((w.character['endurance'], w.character['provisions']), (14, 2))
-        w.redo_action()
-        self.assertEqual((w.character['endurance'], w.character['provisions']), (18, 1))
-        w.use_care('meal')
-        self.assertEqual((w.character['endurance'], w.character['provisions']), (20, 0))
-        w.character['endurance'] = 12
-        before = copy.deepcopy(w.character)
-        w.use_care('meal')
-        self.assertFalse(meal()['enabled'])
-        self.assertEqual(w.character, before)
 
     def test_forest_meals_reject_combat_special_passages_and_full_health(self):
         from types import SimpleNamespace

@@ -68,6 +68,7 @@ class ForetController(ForetMechanicsActions):
             QMessageBox.information(self, 'Paragraphe absent', f'Le paragraphe {number} est introuvable.')
             return
         previous = self.current_paragraph
+        self._ff_note_move(number)
         if not self._restoring and previous != number:
             self.sounds.play('page')
             if previous is not None:

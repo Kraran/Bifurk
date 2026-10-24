@@ -498,6 +498,7 @@ class SorcierCombatActions(FightingFantasyActions):
             QMessageBox.information(self, "Paragraphe absent", f"Le paragraphe {number} n'a pas été détecté dans le PDF chargé.")
             return
         previous = self.current_paragraph
+        self._ff_note_move(number)
         if previous != number and not self._restoring:
             self.sounds.play("page")
         if previous is not None and previous != number and not self._restoring:

@@ -10,6 +10,9 @@ from .rules import (POTION_STATS, POTION_DOSES, adventurer_stats, spend_luck,
                     combat_damage, potion_useful, drink_potion, eat_meal,
                     flee_available, escape_damage)
 
+MEAL_ALREADY_TAKEN = ('Vous avez déjà mangé ici. '
+                      'Avancez dans l’aventure pour reprendre un repas.')
+
 
 class FightingFantasyActions:
     """Fournir création, soins, assauts et fuite ; le livre étend seulement les exceptions."""
@@ -56,6 +59,8 @@ class FightingFantasyActions:
         else:
             self._ff_take_meal()
             self._book_state(self.current_paragraph, True)['care_meal_taken'] = True
+            # Un seul repas par étape : il faut changer de paragraphe pour remanger.
+            self.character['meal_paragraph'] = self.current_paragraph
         self._refresh_character()
         if self.current_paragraph in self.paragraphs:
             self._render_choices_and_events(self.paragraphs[self.current_paragraph])
@@ -177,14 +182,31 @@ class FightingFantasyActions:
         doses = char.get('potion_doses', 0)
         useful = potion_useful(char)
         meal, meal_useful, taken = self._ff_meal_status()
+        meal_option = {'id': 'meal', 'label': 'Prendre un repas',
+             'enabled': bool(alive and not in_combat and meal and meal_useful and not taken and char.get('provisions', 0) > 0),
+             'reason': 'Repas interdit pendant le combat, non autorisé ici, déjà pris ou provisions épuisées.'}
+        if self.ate_here():
+            meal_option.update(enabled=False, label='Prendre un repas — déjà mangé ici',
+                               reason=MEAL_ALREADY_TAKEN, already_ate=True)
         return [
             {'id': 'potion', 'label': f'{potion} — {doses} dose(s)',
              'enabled': bool(alive and useful and doses > 0),
              'reason': 'Aucune dose utile disponible.'},
-            {'id': 'meal', 'label': 'Prendre un repas',
-             'enabled': bool(alive and not in_combat and meal and meal_useful and not taken and char.get('provisions', 0) > 0),
-             'reason': 'Repas interdit pendant le combat, non autorisé ici, déjà pris ou provisions épuisées.'},
+            meal_option,
         ]
+
+    def ate_here(self):
+        """Vrai si une Provision a déjà été mangée depuis l'arrivée au paragraphe courant."""
+        return (self.current_paragraph is not None
+                and self.character.get('meal_paragraph') == self.current_paragraph)
+
+    def _ff_note_move(self, number):
+        """Un vrai déplacement vers un autre paragraphe réautorise un repas.
+
+        Revenir plus tard au même numéro après être passé ailleurs compte comme un
+        déplacement ; recharger ou annuler (restauration) ne modifie rien."""
+        if not self._restoring and self.character.get('meal_paragraph') not in (None, number):
+            self.character.pop('meal_paragraph', None)
 
     def can_flee_combat(self):
         """Partager les restrictions de fuite entre le lecteur et le bouton permanent du combat."""
