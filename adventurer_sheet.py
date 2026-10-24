@@ -6,7 +6,7 @@ autrement. Aucun état de partie n'est stocké ici."""
 import math
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QRectF, QPointF, QSize, QRect
+from PySide6.QtCore import Qt, QRectF, QPointF, QSize, QRect, QObject, QTimer, QElapsedTimer
 from PySide6.QtGui import (QColor, QPainter, QPainterPath, QPen, QBrush, QFont, QPixmap,
                            QLinearGradient, QRadialGradient, QFontMetrics, QPolygonF)
 from PySide6.QtWidgets import (QWidget, QPushButton, QAbstractButton, QListWidget,
@@ -164,6 +164,69 @@ def draw_glyph(p, kind, c, s, color=IVORY):
         draw_diamond(p, c, s * .6, color)
 
 
+# Caractéristique en péril : à ce seuil ou en dessous, l'écu pulse doucement.
+ALERT_THRESHOLD = 2
+PULSE_PERIOD_MS = 1800
+
+
+class ShieldPulse(QObject):
+    """Battement lent (≈ 1,8 s par cycle) d'un halo rouge autour des écus en péril.
+
+    Le niveau suit une sinusoïde 0 → 1 → 0 ; l'horloge ne tourne que tant qu'une
+    alerte est active, et ne fait que redemander une peinture au widget porteur."""
+
+    def __init__(self, widget):
+        super().__init__(widget)
+        self._widget = widget
+        self._clock = QElapsedTimer()
+        self._timer = QTimer(self)
+        self._timer.setInterval(40)
+        self._timer.timeout.connect(widget.update)
+        self.frozen = None   # niveau imposé (aperçus, captures) ; None : animation réelle
+
+    @property
+    def active(self):
+        return self._timer.isActive()
+
+    def set_active(self, active):
+        if active and not self._timer.isActive():
+            self._clock.start()
+            self._timer.start()
+        elif not active and self._timer.isActive():
+            self._timer.stop()
+        else:
+            return
+        self._widget.update()
+
+    def level(self):
+        if not self.active:
+            return 0.0
+        if self.frozen is not None:
+            return float(self.frozen)
+        phase = (self._clock.elapsed() % PULSE_PERIOD_MS) / PULSE_PERIOD_MS
+        return .5 - .5 * math.cos(2 * math.pi * phase)
+
+
+def paint_alert_halo(p, shape, level, scale=1.0):
+    """Halo rouge sous l'écu (à peindre avant la bordure dorée) ; level de 0 à 1."""
+    p.save()
+    p.setBrush(Qt.NoBrush)
+    for width, alpha in ((11, 45), (7, 80), (3.5, 150)):
+        p.setPen(QPen(QColor(214, 38, 38, int(alpha * (.25 + .75 * level))), width * scale,
+                      Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        p.drawPath(shape)
+    p.restore()
+
+
+def paint_alert_rim(p, shape, level, scale=1.0):
+    """Liseré rouge sur la bordure dorée, qui s'allume et s'éteint avec le halo."""
+    p.save()
+    p.setBrush(Qt.NoBrush)
+    p.setPen(QPen(QColor(255, 92, 72, int(60 + 170 * level)), 1.8 * scale))
+    p.drawPath(shape)
+    p.restore()
+
+
 class SheetPanel(QWidget):
     """Fond de la fiche : cuir grainé, vignettage et double filet doré à fleurons."""
 
@@ -294,6 +357,8 @@ class StatMedallion(QWidget):
         super().__init__(parent)
         self.key, self.label, self.initial, self.compact = key, label, None, None
         self.current, self.maximum = None, None
+        self.alert = False
+        self.pulse = ShieldPulse(self)
         self.spin = spin
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._layout = QVBoxLayout(self)
@@ -327,6 +392,11 @@ class StatMedallion(QWidget):
             self.spin.setToolTip(f'{tip} — molette ou clavier pour corriger')
             self.update()
 
+    def set_alert(self, alert):
+        """Écu en péril (valeur ≤ ALERT_THRESHOLD) : pulsation lente jusqu'à la remontée."""
+        self.alert = bool(alert)
+        self.pulse.set_active(self.alert)
+
     def ratio(self):
         return gauge_ratio(self.current, self.maximum) if self.current is not None else 1.0
 
@@ -356,8 +426,14 @@ class StatMedallion(QWidget):
         p.setPen(Qt.NoPen)
         p.setBrush(QColor(0, 0, 0, 110))
         p.drawPath(self._shield(r.translated(0, 3)))
+        if self.alert:
+            paint_alert_halo(p, self._shield(r), self.pulse.level())
+            p.setPen(Qt.NoPen)
         p.setBrush(QBrush(_gold_gradient(r)))
         p.drawPath(self._shield(r))
+        if self.alert:
+            paint_alert_rim(p, self._shield(r.adjusted(1, 1, -1, -1)), self.pulse.level())
+            p.setPen(Qt.NoPen)
         inner = r.adjusted(4, 4, -4, -5)
         tint = self.TINTS[self.key] if self.isEnabled() else QColor('#4a3f38')
         paint_shield_gauge(p, self._shield(inner), inner, tint, self.ratio())
@@ -742,6 +818,34 @@ def draw_item_art(p, kind, c, s):
 
 
 SLOT = QSize(74, 90)
+# Nombre d'exemplaires regroupés dans une même case de la sacoche.
+INVENTORY_QUANTITY_ROLE = Qt.UserRole + 1
+
+
+def _paint_quantity(p, r, quantity, compact=False):
+    """Pastille de parchemin cerclée d'or, coin haut gauche : nombre d'exemplaires.
+
+    Le coin haut droit reste à la marque de l'arme équipée."""
+    if not quantity or int(quantity) < 2:
+        return
+    text = str(int(quantity)) if int(quantity) < 100 else '99+'
+    size = 13 if compact else 17
+    p.save()
+    p.setFont(font('title', 10 if compact else 13, bold=True))
+    width = max(size, QFontMetrics(p.font()).horizontalAdvance(text) + (5 if compact else 7))
+    badge = QRectF(r.left() + (1 if compact else 2), r.top() + (1 if compact else 2), width, size)
+    p.setPen(Qt.NoPen)
+    p.setBrush(QColor(0, 0, 0, 120))
+    p.drawRoundedRect(badge.translated(0, 1), size / 2, size / 2)
+    fill = QLinearGradient(badge.topLeft(), badge.bottomLeft())
+    fill.setColorAt(0, IVORY)
+    fill.setColorAt(1, QColor('#d9c08a'))
+    p.setBrush(QBrush(fill))
+    p.setPen(QPen(GOLD_DARK, 1.2))
+    p.drawRoundedRect(badge, size / 2, size / 2)
+    p.setPen(BORDEAUX_DARK)
+    p.drawText(badge.adjusted(0, -1 if compact else 0, 0, 0), Qt.AlignCenter, text)
+    p.restore()
 
 
 def _paint_slot(p, rect, filled, selected=False, equipped=False):
@@ -784,6 +888,7 @@ class InventoryDelegate(QStyledItemDelegate):
                 p.setBrush(BORDEAUX)
                 p.drawEllipse(badge)
                 draw_glyph(p, 'sword', badge.center(), 3.2, GOLD_LIGHT)
+            _paint_quantity(p, r, index.data(INVENTORY_QUANTITY_ROLE), compact=True)
             p.restore()
             return
         draw_item_art(p, _item_kind(name), QPointF(r.center().x(), r.top() + 25), 17)
@@ -803,6 +908,7 @@ class InventoryDelegate(QStyledItemDelegate):
             p.setBrush(BORDEAUX)
             p.drawEllipse(badge)
             draw_glyph(p, 'sword', badge.center(), 4.5, GOLD_LIGHT)
+        _paint_quantity(p, r, index.data(INVENTORY_QUANTITY_ROLE))
         p.restore()
 
 
@@ -884,6 +990,8 @@ class SheetStrip(QAbstractButton):
         self.setObjectName('sheetStrip')
         self._leather = QPixmap(str(LEATHER))
         self.state = {}
+        self.alerts = frozenset()
+        self.pulse = ShieldPulse(self)
         self.setCheckable(True)
         self.setFixedWidth(self.WIDTH)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
@@ -905,6 +1013,14 @@ class SheetStrip(QAbstractButton):
             self.state = values
             self._refresh_tooltip()
             self.update()
+
+    def set_alerts(self, keys):
+        """Mini-écus en péril : même pulsation lente que les écus de la fiche dépliée."""
+        keys = frozenset(keys)
+        if keys != self.alerts:
+            self.alerts = keys
+            self.update()
+        self.pulse.set_active(bool(keys))
 
     def _refresh_tooltip(self):
         st = self.state
@@ -929,8 +1045,15 @@ class SheetStrip(QAbstractButton):
         p.setPen(Qt.NoPen)
         p.setBrush(QColor(0, 0, 0, 110))
         p.drawPath(StatMedallion._shield(None, r.translated(0, 2)))
+        alert = key in self.alerts
+        if alert:
+            paint_alert_halo(p, path, self.pulse.level(), .7)
+            p.setPen(Qt.NoPen)
         p.setBrush(QBrush(_gold_gradient(r)))
         p.drawPath(path)
+        if alert:
+            paint_alert_rim(p, StatMedallion._shield(None, r.adjusted(1, 1, -1, -1)), self.pulse.level(), .8)
+            p.setPen(Qt.NoPen)
         inner = r.adjusted(3, 3, -3, -4)
         tint = StatMedallion.TINTS[key] if self.isEnabled() else QColor('#4a3f38')
         ratio = gauge_ratio(value, initial) if initial is not None else 1.0

@@ -10,6 +10,7 @@ Les chemins portables dérivent du script ou de l'exécutable, jamais du répert
 courant du terminal. Voir docs/maintenance.md avant de modifier les sauvegardes,
 la navigation ou le cycle création / partie / mort."""
 import sys, re, json, random, copy, os, tempfile, hashlib, shutil, html
+from collections import Counter
 from pathlib import Path
 from navigation import destinations, render_links
 from illustrations import images_for_paragraph, cover
@@ -35,7 +36,7 @@ from stat_feedback import StatFeedback
 import adventurer_sheet
 from adventurer_sheet import (SheetPanel, OrnateHeading, HeroEmblem, StatMedallion,
                               ResourceToken, ValueLabel, SealButton, RibbonButton, InventoryGrid,
-                              SheetStrip)
+                              SheetStrip, INVENTORY_QUANTITY_ROLE, ALERT_THRESHOLD)
 from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, PageToolButton,
                              ParagraphCartouche, ChoiceGroup, illuminated_initial, DrawerScrim)
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
@@ -1369,9 +1370,21 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def _toggle_inventory(self, expanded):
         """Replier la sacoche pour que la fiche tienne sans défilement."""
         self.adventure_tabs.setVisible(expanded)
-        count = self.inventory_list.count()
+        count = len(self.character.get('inventory', []))   # exemplaires, non cases
+        noun = 'objet' if count == 1 else 'objets'
         self.inventory_toggle.setText(("▾" if expanded else "▸") + "  SACOCHE && TRÉSORS"
-                                      + ("" if expanded else f"  ({count} objets)"))
+                                      + ("" if expanded else f"  ({count} {noun})"))
+
+    def _selected_inventory_index(self):
+        """Position dans l'inventaire du dernier exemplaire de la case choisie, ou -1.
+
+        Une case regroupe les exemplaires identiques : retirer ou employer l'objet
+        n'en ôte qu'un, ce qui décrémente le nombre affiché."""
+        item = self.inventory_list.currentItem()
+        items = self.character.get('inventory', [])
+        if item is None or self.inventory_list.currentRow() < 0 or item.text() not in items:
+            return -1
+        return len(items) - 1 - items[::-1].index(item.text())
 
     def _equip_from_grid(self, item):
         """Double-clic sur une case de la sacoche : équiper l'arme correspondante."""
@@ -1519,9 +1532,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
     def manual_inventory(self, removing):
         if removing:
-            row = self.inventory_list.currentRow()
+            row = self._selected_inventory_index()
             items = self.character.get('inventory', [])
-            if row < 0 or row >= len(items):
+            if row < 0:
                 return False
             if items[row] in self.character.get('locked_items', []):
                 self.remove_item()
@@ -1745,6 +1758,20 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                   for key in ('habilete', 'endurance', 'chance')}
         self.sheet_strip.set_state(**values, gold=self.stat_spins['gold'].value(),
                                    provisions=self.stat_spins['provisions'].value())
+        self.sheet_strip.set_alerts(self._stat_alerts())
+
+    def _stat_alerts(self):
+        """Caractéristiques en péril (≤ ALERT_THRESHOLD) dont l'écu doit pulser.
+
+        Rien ne pulse sans aventure en cours, une fois le héros mort (Endurance à 0)
+        ou l'aventure close : l'alerte prévient d'un danger, la fin est déjà annoncée.
+        Habileté ou Chance à 0 chez un héros vivant restent en alerte."""
+        if (getattr(self, 'current_paragraph', None) is None
+                or int(self.character.get('endurance', 0)) <= 0
+                or self.character.get('book_facts', {}).get('adventure_ended')):
+            return frozenset()
+        return frozenset(key for key in ('habilete', 'endurance', 'chance')
+                         if int(self._ff_stat_value(key)) <= ALERT_THRESHOLD)
 
     COMPACT_SHEET_HEIGHT = 860
 
@@ -2535,11 +2562,18 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                                ('icon_background', 'icon_border', 'icon_ink')))
         if inventory_signature != getattr(self, '_inventory_signature', None):
             self.inventory_list.clear()
-            for name in inventory:
+            # Exemplaires identiques regroupés dans une seule case, avec leur nombre.
+            counts = Counter(inventory)
+            for name in dict.fromkeys(inventory):
                 item = QListWidgetItem(inventory_icon(name, self.theme), name)
-                item.setToolTip(name + (' — Arme équipée' if name == weapon else ''))
+                quantity = counts[name]
+                item.setData(INVENTORY_QUANTITY_ROLE, quantity)
+                item.setToolTip(name + (f' — {quantity} exemplaires' if quantity > 1 else '')
+                                + (' — Arme équipée' if name == weapon else ''))
                 self.inventory_list.addItem(item)
             self._inventory_signature = inventory_signature
+            if not self.inventory_toggle.isChecked():
+                self._toggle_inventory(False)
         self.shield_check.blockSignals(True)
         self.shield_check.setVisible(SHIELD_NAME in self.character.get("inventory", []))
         self.shield_check.setChecked(bool(self.character.get("shield_equipped", False)))
@@ -2562,6 +2596,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             maximum = max(1, int(initial.get(key, self.character.get(key, 1))))
             current = max(0, int(self._ff_stat_value(key)))
             medallion.set_gauge(current, maximum)
+        alerts = self._stat_alerts()
+        for key, medallion in self.stat_medallions.items():
+            medallion.set_alert(key in alerts)
         self.initial_label.setText("Départ  •  Habileté {habilete}  |  Endurance {endurance}  |  Chance {chance}".format(
             **{key: initial.get(key, "—") for key in ("habilete", "endurance", "chance")}))
         weapon = weapon or "—"
@@ -2725,7 +2762,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
         Le retrait d’une épée magique doit retirer son bonus courant et initial ; un
         bouclier absent ne doit pas rester équipé dans l’état."""
-        row = self.inventory_list.currentRow()
+        row = self._selected_inventory_index()
         if row >= 0:
             item = self.character["inventory"][row]
             if item in self.character.get("locked_items", []):
@@ -2733,7 +2770,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                     self, "Objet maudit",
                     f"Vous ne pouvez pas retirer {item} : cet objet est ensorcelé.")
                 return
-            if equipped_weapon(self.character) == item:
+            if equipped_weapon(self.character) == item and self.character["inventory"].count(item) == 1:
                 other = next((name for name in WEAPON_BONUSES
                               if name != item and name in self.character["inventory"]), None)
                 if other:
@@ -2745,9 +2782,11 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                     self.character["magic_sword_bonus_active"] = False
             self.character["inventory"].pop(row)
             self._ff_item_removed(item)
-            if item == SHIELD_NAME:
+            # Un autre exemplaire resté dans la sacoche garde l'équipement en place.
+            remaining = item in self.character["inventory"]
+            if item == SHIELD_NAME and not remaining:
                 self.character["shield_equipped"] = False
-            if self.character.get("equipped_weapon") == item:
+            if self.character.get("equipped_weapon") == item and not remaining:
                 self.character["equipped_weapon"] = None
             self._refresh_character()
 
