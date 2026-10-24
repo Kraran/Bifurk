@@ -10,6 +10,7 @@ Les chemins portables dérivent du script ou de l'exécutable, jamais du répert
 courant du terminal. Voir docs/maintenance.md avant de modifier les sauvegardes,
 la navigation ou le cycle création / partie / mort."""
 import sys, re, json, random, copy, os, tempfile, hashlib, shutil, html
+import shiboken6
 from collections import Counter
 from pathlib import Path
 from navigation import destinations, render_links
@@ -465,11 +466,24 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         from intro_video import IntroVideoDialog
         dialog = IntroVideoDialog(path, self)
         self._intro_dialog = dialog  # Garder le lecteur vivant pendant la cinématique.
+        done = []
 
         def continue_to_game():
+            # finished peut être réémis (closeEvent rejette encore le dialogue
+            # avant sa destruction différée) : l'enchaînement ne vaut qu'une fois.
+            if done:
+                return
+            done.append(True)
+            try:
+                dialog.finished.disconnect(continue_to_game)
+            except (RuntimeError, TypeError):  # dialogue déjà détruit ou déjà déconnecté
+                pass
             self._intro_dialog = None
+            if shiboken6.isValid(dialog):
+                dialog.deleteLater()
+            if not self._can_open_startup_menu():
+                return  # fenêtre en cours de fermeture : ne rien relancer
             self.showFullScreen()
-            dialog.deleteLater()
             # Attendre le retrait de la vidéo avant d'ouvrir le menu modal.
             QTimer.singleShot(0, self._show_startup_menu)
 
@@ -490,15 +504,39 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self.preferences["last_book"] = str(Path(self.pdf_path).resolve().relative_to(BOOKS_DIR.resolve()))
             self._save_preferences()
 
+    # Fermeture demandée (closeEvent) : plus aucun menu de démarrage ne s'ouvre.
+    _closing = False
+    # Menu de démarrage affiché : un second déclenchement n'en ouvre pas un autre.
+    _startup_menu_open = False
+
+    def _can_open_startup_menu(self):
+        """Vrai tant que la fenêtre vit et n'est pas en train de se fermer."""
+        return shiboken6.isValid(self) and not self._closing
+
     def _show_startup_menu(self):
-        """Proposer les cinq emplacements ou une nouvelle aventure ; ne pas charger l’autosave."""
+        """Proposer les cinq emplacements ou une nouvelle aventure ; ne pas charger l’autosave.
+
+        Appelé par minuterie : la fenêtre peut s'être fermée entre-temps, voire être
+        détruite pendant exec() (destruction différée traitée par la boucle locale).
+        Le résultat est lu avant toute destruction et plus rien n'est touché ensuite."""
+        if not self._can_open_startup_menu() or self._startup_menu_open:
+            return
+        self._startup_menu_open = True
+        try:
+            self._run_startup_menu()
+        finally:
+            if shiboken6.isValid(self):
+                self._startup_menu_open = False
+
+    def _run_startup_menu(self):
         self.intro_music.menu()
         while True:
             dialog = SaveSlotsDialog(SAVES_DIR, False, self, startup=True)
             accepted = dialog.exec() == QDialog.Accepted
             selected, new_game = dialog.selected_path, dialog.new_game_requested
-            dialog.deleteLater()
-            if not accepted:
+            if shiboken6.isValid(dialog):
+                dialog.deleteLater()
+            if not accepted or not self._can_open_startup_menu():
                 return
             if new_game:
                 self._start_new_game()
@@ -578,6 +616,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
     def closeEvent(self, event):
         """Fermer les vues et arrêter les flux avant la fermeture native Qt."""
+        # Avant de rejeter les dialogues : leur signal finished ne doit plus rien relancer.
+        self._closing = True
         for dialog in self.findChildren(QDialog):
             dialog.reject()
         self.intro_music.set_enabled(False)
@@ -784,6 +824,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
     def showEvent(self, event):
         """Appliquer les ajustements natifs une fois la fenêtre effectivement créée."""
+        self._closing = False  # fenêtre réaffichée après une fermeture : de nouveau active
         super().showEvent(event)
         self._set_windows_titlebar_color()
 

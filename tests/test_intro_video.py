@@ -100,10 +100,15 @@ class IntroVideoTests(unittest.TestCase):
     def test_game_interface_waits_for_intro_without_stopping_music(self):
         from main import MainWindow
         window = MainWindow()
+        # Nettoyage complet (ordre inverse) : détruire le faux dialogue d'intro,
+        # fermer puis détruire la fenêtre et vider les destructions différées,
+        # pour que rien ne survive au test (menu de démarrage réel, minuterie…).
+        self.addCleanup(QApplication.sendPostedEvents, None, QEvent.DeferredDelete)
         self.addCleanup(window.deleteLater)
         self.addCleanup(window.close)
         dialog = QDialog(window)
         dialog.start = lambda: None
+        self.addCleanup(QApplication.sendPostedEvents, None, QEvent.DeferredDelete)
         with patch('main.QApplication.platformName', return_value='windows'), \
              patch('intro_video.IntroVideoDialog', return_value=dialog), \
              patch.object(window.intro_music, 'menu') as music, \
