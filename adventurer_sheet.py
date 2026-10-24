@@ -107,6 +107,21 @@ def draw_glyph(p, kind, c, s, color=IVORY):
         path.cubicTo(x + s * .8, y - s * .7, x + s * .4, y - s * .75, x, y - s * .45)
         p.drawPath(path)
         p.drawLine(QPointF(x, y - s * .45), QPointF(x, y + s * .8))
+    elif kind == 'notebook':
+        # Carnet fermé : couverture, dos, fermoir et ruban qui dépasse.
+        body = QRectF(x - s * .7, y - s * .9, s * 1.4, s * 1.6)
+        p.drawRoundedRect(body, s * .12, s * .12)
+        p.drawLine(QPointF(x - s * .45, y - s * .9), QPointF(x - s * .45, y + s * .7))
+        p.drawLine(QPointF(x - s * .2, y - s * .45), QPointF(x + s * .45, y - s * .45))
+        p.drawLine(QPointF(x - s * .2, y - s * .15), QPointF(x + s * .45, y - s * .15))
+        ribbon = QPainterPath(QPointF(x + s * .15, y + s * .7))
+        ribbon.lineTo(x + s * .15, y + s * 1.05)
+        ribbon.lineTo(x + s * .27, y + s * .93)
+        ribbon.lineTo(x + s * .39, y + s * 1.05)
+        ribbon.lineTo(x + s * .39, y + s * .7)
+        p.setBrush(color)
+        p.drawPath(ribbon)
+        p.setBrush(Qt.NoBrush)
     else:
         draw_diamond(p, c, s * .6, color)
 
@@ -549,9 +564,13 @@ class SealButton(QPushButton):
                    GOLD_LIGHT if enabled else QColor('#a09080'))
         if self.mini:
             return
-        p.setFont(font('ui', 10 if self.compact else 11, bold=True, spacing=.6))
-        p.setPen(GOLD_LIGHT if hover else (GOLD if enabled else QColor('#8f826f')))
         caption = self.text().replace('&&', '&').replace('…', '')
+        # Légende resserrée plutôt que tronquée quand cinq sceaux partagent la rangée.
+        size, spacing = (10 if self.compact else 11), .6
+        while size > 8 and QFontMetrics(font('ui', size, bold=True, spacing=spacing)).horizontalAdvance(caption) > self.width() - 2:
+            size, spacing = size - 1, 0
+        p.setFont(font('ui', size, bold=True, spacing=spacing))
+        p.setPen(GOLD_LIGHT if hover else (GOLD if enabled else QColor('#8f826f')))
         p.drawText(QRectF(0, self.height() - 21, self.width(), 20), Qt.AlignCenter,
                    QFontMetrics(p.font()).elidedText(caption, Qt.ElideRight, self.width()))
 
