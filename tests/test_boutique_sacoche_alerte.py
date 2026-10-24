@@ -8,7 +8,8 @@ from PySide6.QtGui import QImage, QPainter, QColor
 from PySide6.QtWidgets import QStyleOptionViewItem
 
 import adventurer_sheet
-from adventurer_sheet import INVENTORY_QUANTITY_ROLE
+from adventurer_sheet import (INVENTORY_QUANTITY_ROLE, ALERT_THRESHOLD, PULSE_PERIOD_MS,
+                              StatMedallion, SheetStrip)
 from grimoire_modules.foret import rules, labels
 from test_ameliorations_partie import WindowCase
 
@@ -177,6 +178,79 @@ class InventoryStackTests(WindowCase):
         for compact in (False, True):
             self.assertTrue(self.corner_has_parchment(self.paint_slot(3, compact, equipped=True), compact))
             self.assertFalse(self.corner_has_parchment(self.paint_slot(1, compact), compact))
+
+
+class ShieldAlertTests(WindowCase):
+    def test_pulse_level_is_slow_and_soft(self):
+        self.assertGreaterEqual(PULSE_PERIOD_MS, 1500)
+        self.assertLessEqual(PULSE_PERIOD_MS, 2000)
+        self.assertEqual(ALERT_THRESHOLD, 2)
+
+    def test_shields_pulse_at_two_or_less_and_stop_above(self):
+        w = self.begin(paragraphs=(55,))
+        w.go_to(55)
+        w.character['endurance'] = 2
+        w._refresh_character()
+        self.assertTrue(w.stat_medallions['endurance'].pulse.active)
+        self.assertFalse(w.stat_medallions['habilete'].pulse.active)
+        self.assertEqual(w.sheet_strip.alerts, {'endurance'})
+        self.assertTrue(w.sheet_strip.pulse.active)
+        w.character['chance'] = 0
+        w._refresh_character()
+        self.assertTrue(w.stat_medallions['chance'].pulse.active)
+        w.character.update(endurance=3, chance=5)
+        w._refresh_character()
+        self.assertFalse(any(m.pulse.active for m in w.stat_medallions.values()))
+        self.assertFalse(w.sheet_strip.pulse.active)
+        self.assertEqual(w.sheet_strip.alerts, set())
+
+    def test_dead_or_finished_hero_does_not_pulse(self):
+        w = self.begin(paragraphs=(55,))
+        w.go_to(55)
+        w.character.update(endurance=1, chance=1)
+        w._refresh_character()
+        self.assertTrue(w.stat_medallions['chance'].pulse.active)
+        w.character['endurance'] = 0
+        w._refresh_character()
+        self.assertFalse(any(m.pulse.active for m in w.stat_medallions.values()))
+        self.assertFalse(w.sheet_strip.pulse.active)
+        w.character.update(endurance=5, chance=1)
+        w.character.setdefault('book_facts', {})['adventure_ended'] = True
+        w._refresh_character()
+        self.assertFalse(w.stat_medallions['chance'].pulse.active)
+
+    def test_halo_follows_the_pulse(self):
+        def redness(level, alert=True):
+            from PySide6.QtWidgets import QSpinBox
+            medallion = StatMedallion('endurance', 'ENDURANCE', QSpinBox())
+            medallion.resize(100, 128)
+            medallion.set_gauge(2, 20)
+            medallion.set_alert(alert)
+            medallion.pulse.frozen = level
+            image = medallion.grab().toImage()
+            medallion.set_alert(False)
+            medallion.deleteLater()
+            return sum(1 for x in range(image.width()) for y in range(image.height())
+                       if (c := QColor(image.pixel(x, y))).red() > 150 and c.green() < 110 and c.blue() < 110)
+        off, low, high = redness(0, alert=False), redness(0.0), redness(1.0)
+        self.assertGreater(high, low)
+        self.assertGreaterEqual(low, off)
+
+    def test_pulse_clock_cycles(self):
+        strip = SheetStrip()
+        strip.set_alerts({'chance'})
+        levels = []
+        with patch.object(strip.pulse._clock, 'elapsed',
+                          side_effect=[0, PULSE_PERIOD_MS // 2, PULSE_PERIOD_MS]):
+            levels = [strip.pulse.level() for _ in range(3)]
+        self.assertAlmostEqual(levels[0], 0.0)
+        self.assertAlmostEqual(levels[1], 1.0)
+        self.assertAlmostEqual(levels[2], 0.0)
+        strip.set_alerts(())
+        self.assertFalse(strip.pulse.active)
+        self.assertEqual(strip.pulse.level(), 0.0)
+        strip.deleteLater()
+
 
 if __name__ == '__main__':
     unittest.main()

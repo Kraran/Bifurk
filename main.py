@@ -36,7 +36,7 @@ from stat_feedback import StatFeedback
 import adventurer_sheet
 from adventurer_sheet import (SheetPanel, OrnateHeading, HeroEmblem, StatMedallion,
                               ResourceToken, ValueLabel, SealButton, RibbonButton, InventoryGrid,
-                              SheetStrip, INVENTORY_QUANTITY_ROLE)
+                              SheetStrip, INVENTORY_QUANTITY_ROLE, ALERT_THRESHOLD)
 from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, PageToolButton,
                              ParagraphCartouche, ChoiceGroup, illuminated_initial, DrawerScrim)
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
@@ -1758,6 +1758,20 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                   for key in ('habilete', 'endurance', 'chance')}
         self.sheet_strip.set_state(**values, gold=self.stat_spins['gold'].value(),
                                    provisions=self.stat_spins['provisions'].value())
+        self.sheet_strip.set_alerts(self._stat_alerts())
+
+    def _stat_alerts(self):
+        """Caractéristiques en péril (≤ ALERT_THRESHOLD) dont l'écu doit pulser.
+
+        Rien ne pulse sans aventure en cours, une fois le héros mort (Endurance à 0)
+        ou l'aventure close : l'alerte prévient d'un danger, la fin est déjà annoncée.
+        Habileté ou Chance à 0 chez un héros vivant restent en alerte."""
+        if (getattr(self, 'current_paragraph', None) is None
+                or int(self.character.get('endurance', 0)) <= 0
+                or self.character.get('book_facts', {}).get('adventure_ended')):
+            return frozenset()
+        return frozenset(key for key in ('habilete', 'endurance', 'chance')
+                         if int(self._ff_stat_value(key)) <= ALERT_THRESHOLD)
 
     COMPACT_SHEET_HEIGHT = 860
 
@@ -2582,6 +2596,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             maximum = max(1, int(initial.get(key, self.character.get(key, 1))))
             current = max(0, int(self._ff_stat_value(key)))
             medallion.set_gauge(current, maximum)
+        alerts = self._stat_alerts()
+        for key, medallion in self.stat_medallions.items():
+            medallion.set_alert(key in alerts)
         self.initial_label.setText("Départ  •  Habileté {habilete}  |  Endurance {endurance}  |  Chance {chance}".format(
             **{key: initial.get(key, "—") for key in ("habilete", "endurance", "chance")}))
         weapon = weapon or "—"
