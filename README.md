@@ -113,7 +113,7 @@ chargement d’un des cinq emplacements. Une sauvegarde automatique technique
 comme sixième emplacement et n’est pas reprise automatiquement.
 
 **⚙ → Ambiance sonore…** permet de couper les effets sonores, d’activer
-l’ambiance de caverne, de régler la musique d’accueil, d’écouter chaque effet et
+l’ambiance de caverne, de régler la musique d’accueil ou de la garder pendant la partie, d’écouter chaque effet et
 de choisir l’habillage du grimoire. Une annonce propre au livre accompagne sa
 couverture et le chargement d’une sauvegarde ; elle suit le réglage des effets
 sonores. [Reprise, sons et préparation de thèmes](docs/themes-et-ambiance.md).
@@ -240,7 +240,9 @@ dans les sauvegardes. Une dose sans effet n'est pas consommée.
 
 `FantasyFair.m4a`, fourni par l’utilisateur, accompagne en boucle l’accueil, la
 création du personnage et le choix d’une sauvegarde. À l’entrée dans l’aventure,
-le volume diminue sur dix secondes puis la musique s’arrête. Le curseur rétro
+le volume diminue sur dix secondes puis la musique s’arrête, sauf si la case
+**Garder la musique en fond pendant la partie** est cochée (décochée par défaut) :
+la boucle continue alors toute la session, sous les effets, les dés et les combats. Le curseur rétro
 **Musique d’accueil** de **⚙ → Ambiance sonore…** règle et mémorise le volume indépendamment des effets et
 de l’ambiance de caverne (0 % = muet). Par défaut, 70 % du niveau précédent est utilisé.
 Le M4A audio est diffusé en continu par Qt Multimedia
