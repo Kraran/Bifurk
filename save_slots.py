@@ -184,9 +184,11 @@ class SaveSlotsDialog(QDialog):
             delete.setProperty('dialogAction', 'danger')
             delete.setAccessibleName(f'Supprimer la sauvegarde de l’emplacement {number}')
             delete.setEnabled(exists)
-            delete.setVisible(exists)
             delete.clicked.connect(lambda checked=False, p=path: self.delete_save(p))
             row_layout.addWidget(delete)
+            # Seulement après l'ajout à la ligne : rendu visible sans parent, le
+            # bouton deviendrait une petite fenêtre Windows le temps de la construction.
+            delete.setVisible(exists)
             self.slots.addWidget(row)
             button.ensurePolished()
             button.setMinimumHeight(button.minimumSizeHint().height())
