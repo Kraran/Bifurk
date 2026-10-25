@@ -32,8 +32,8 @@ dist/
 │       ├── assets/          # icônes, textures, thèmes, polices, sons et crédits
 │       ├── catalogues/
 │       └── ...              # Python, Qt, PyMuPDF, plugins et métadonnées
-├── Bifurk-v1.2.0-windows-x64.zip
-└── Bifurk-v1.2.0-windows-x64.zip.sha256
+├── Bifurk-v1.2.1-windows-x64.zip
+└── Bifurk-v1.2.1-windows-x64.zip.sha256
 ```
 
 La version du nom d'archive et des propriétés Windows est lue dans `app_info.py`.
@@ -59,7 +59,7 @@ sans utiliser les modules ni les ressources du dépôt Python.
 
 Vérifier :
 
-1. L'icône dans l'Explorateur, la fenêtre et la barre des tâches ; la version 1.2.0
+1. L'icône dans l'Explorateur, la fenêtre et la barre des tâches ; la version 1.2.1
    dans les propriétés du fichier et À propos.
 2. Nouvelle partie, importation de votre PDF, couverture, nom et tirage du héros.
 3. Lecture, illustrations, zoom et fenêtre des règles ; boutons français.
@@ -71,6 +71,8 @@ Vérifier :
    ou défaite et mise à jour des caractéristiques.
 5. Sauvegarde, fermeture, relance et chargement depuis un emplacement.
 6. Déplacement du dossier complet après fermeture : les données restent portables.
+7. Dossier `musique_perso` présent à côté de `Bifurk.exe` avec son `LISEZMOI.txt` ;
+   option « Jouer ma musique » dans ⚙ → Ambiance sonore… avec un morceau déposé.
 
 Au premier lancement, `donnees` apparaît à côté de `Bifurk.exe`, **hors de
 `_internal`**. Pour une vérification d'autonomie complète, essayer aussi le ZIP
@@ -96,7 +98,7 @@ sur un poste sans Python. Ces points exigent le contrôle du ZIP sur Windows.
 
 La compilation ne téléverse rien. Après avoir testé le ZIP, deux possibilités :
 
-- Sur GitHub, ouvrir **Releases → Draft a new release**, créer le tag `v1.2.0`
+- Sur GitHub, ouvrir **Releases → Draft a new release**, créer le tag `v1.2.1`
   sur la révision compilée, copier les notes de `RELEASE_NOTES.md`, joindre le ZIP
   et son fichier `.sha256` puis publier quand les contrôles sont terminés.
 - Avec le script, installer GitHub CLI, s'authentifier puis lancer :

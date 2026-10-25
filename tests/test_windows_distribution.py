@@ -39,6 +39,8 @@ class WindowsDistributionTests(unittest.TestCase):
         for relative in ('Bifurk.exe', '_internal/assets/bifurk.ico',
                          '_internal/assets/themes/grimoire/theme.json',
                          '_internal/assets/themes/grimoire/theme.qss',
+                         '_internal/assets/themes/grimoire/page-parchment.jpg',
+                         '_internal/assets/themes/grimoire/sheet-leather.png',
                          '_internal/assets/check-bronze.svg',
                          '_internal/assets/illustration-background.jpg',
                          '_internal/assets/sounds/FantasyFair.m4a',
@@ -91,9 +93,10 @@ class WindowsDistributionTests(unittest.TestCase):
             self.package()
 
     def test_new_interface_and_music_assets_are_required_for_release(self):
-        """Refuser un ancien dossier dist auquel manquent les ressources de la 1.1.2."""
+        """Refuser un ancien dossier dist auquel manquent les ressources de la 1.1.2 ou de la 1.2.1."""
         for name in ('themes/grimoire/theme.qss', 'check-bronze.svg',
-                     'illustration-background.jpg', 'sounds/FantasyFair.m4a'):
+                     'illustration-background.jpg', 'sounds/FantasyFair.m4a',
+                     'themes/grimoire/page-parchment.jpg', 'themes/grimoire/sheet-leather.png'):
             with self.subTest(asset=name):
                 path = self.bundle / '_internal/assets' / name
                 path.unlink()
