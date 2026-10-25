@@ -1,4 +1,4 @@
-"""Cité des Voleurs, phase 1 : reconnaissance et consultation avec PDF synthétiques.
+"""Cité des Voleurs : reconnaissance et consultation avec PDF synthétiques.
 
 Aucun texte du livre n'est utilisé ; un contrôle conditionnel vérifie l'édition privée
 si elle est présente localement.
@@ -33,14 +33,19 @@ from grimoire_modules.registry import (
 CATALOGUES = Path(__file__).resolve().parents[1] / 'catalogues'
 
 
+# Notes éditoriales rédigées pour Bifurk : elles décrivent une source sans la citer.
+EDITORIAL_KEYS = {'details', 'notes', 'resolution_source'}
+
+
 def _strings(value):
-    """Parcourir clés et valeurs textuelles d'un catalogue JSON."""
+    """Parcourir clés et valeurs textuelles d'un catalogue JSON, hors notes éditoriales."""
     if isinstance(value, str):
         yield value
     elif isinstance(value, dict):
         for key, item in value.items():
             yield key
-            yield from _strings(item)
+            if key not in EDITORIAL_KEYS:
+                yield from _strings(item)
     elif isinstance(value, list):
         for item in value:
             yield from _strings(item)
@@ -63,9 +68,13 @@ class CiteCatalogueTests(unittest.TestCase):
         art = module.catalogue('illustrations')
         self.assertEqual(events['pdf_sha256'], module.pdf_sha256)
         self.assertEqual(art['pdf_sha256'], module.pdf_sha256)
-        self.assertEqual(events['paragraphs'], {})
-        self.assertEqual((events['total_paragraphs'], events['reviewed_count']), (400, 0))
-        self.assertEqual(events['review_pending'], list(range(1, 401)))
+        # Phase 2 : renvois relus, sans aucune règle ni effet exécutable.
+        self.assertEqual((events['total_paragraphs'], events['reviewed_count']), (400, 400))
+        self.assertEqual(events['review_pending'], [])
+        self.assertFalse(events['analysis_contract']['conditions_are_executable'])
+        for entry in events['paragraphs'].values():
+            self.assertEqual(entry['status'], 'renvois_verifies')
+            self.assertLessEqual(set(entry), {'status', 'mode', 'title', 'routes', 'source_page_pdf'})
         self.assertEqual([entry['type'] for entry in art['illustrations']], ['couverture'])
         self.assertEqual(art['pdf_pages'], 177)
 
@@ -122,8 +131,9 @@ class CitePresentationTests(unittest.TestCase):
                     if index == 0:
                         page.draw_rect(page.rect, color=(.2,.2,.3), fill=(.5,.5,.6))
                     if index == 19:
-                        page.insert_text((30,40), '1\nUne route. Rendez-vous au 2.\n2\nUne porte.'
-                                                  '\n86\nUn quai.\n156\nUne ruelle.\n350\nUn pont.')
+                        page.insert_text((30,40), '1\nUne route. Rendez-vous au 202.\n2\nUne porte.'
+                                                  '\n86\nUn quai.\n156\nUne ruelle.\n202\nUne place.'
+                                                  '\n350\nUn pont.')
                 document.save(path)
             self.sources[name] = path
         engines = {'cite': 'cite-1983', 'foret': 'foret-1983'}
@@ -205,10 +215,11 @@ class CitePresentationTests(unittest.TestCase):
         before = copy.deepcopy(self.w.character)
         dice = self.roll.call_count
         # Ces numéros déclenchent des règles du Sorcier ou de la Forêt ; ici, rien.
+        titles = self.w.book_module.catalogue('events')['paragraphs']
         for number in (2, 86, 156, 350):
             self.w.go_to(number)
             self.assertEqual(self.w.current_paragraph, number)
-            self.assertEqual(self.w.paragraph_title.text(), 'La Cité des Voleurs')
+            self.assertEqual(self.w.paragraph_title.text(), titles[str(number)]['title'])
         self.assertEqual(self.w.character, before)
         self.assertEqual(self.roll.call_count, dice)
         self.assertIsNone(self.w.piranha_combat)
@@ -219,15 +230,22 @@ class CitePresentationTests(unittest.TestCase):
         self.open()
         self.start()
         self.assertEqual(self.w.current_paragraph, 1)
-        self.assertTrue(any(b.isEnabled() and '2' in b.text() for b in self.buttons()))
+        cards = {b.text(): b for b in self.buttons()}
+        # Les cartes suivent le catalogue relu : libellé rédigé, destination absente grisée.
+        self.assertTrue(any(b.isEnabled() and '202' in text and 'Nicodème' in text for text, b in cards.items()))
+        absent = next(b for text, b in cards.items() if '33' in text)
+        self.assertFalse(absent.isEnabled())
+        self.assertIn('non détectée', absent.toolTip())
         self.assertTrue(any('en préparation' in label.text().casefold()
                             for label in self.w.event_group.findChildren(QLabel)))
         self.w.follow_link(QUrl('paragraph:2'))
-        self.assertEqual(self.w.current_paragraph, 2)
+        self.assertEqual(self.w.current_paragraph, 1)
+        self.w.follow_link(QUrl('paragraph:202'))
+        self.assertEqual(self.w.current_paragraph, 202)
         self.w.follow_link(QUrl('paragraph:399'))
-        self.assertEqual(self.w.current_paragraph, 2)
+        self.assertEqual(self.w.current_paragraph, 202)
         self.w.follow_link(QUrl('https://example.org'))
-        self.assertEqual(self.w.current_paragraph, 2)
+        self.assertEqual(self.w.current_paragraph, 202)
 
     def test_meal_allowed_anywhere_outside_combat_once_per_passage(self):
         from grimoire_modules.fighting_fantasy.controller import MEAL_ALREADY_TAKEN
@@ -261,7 +279,8 @@ class CitePresentationTests(unittest.TestCase):
             self.assertTrue(self.w.load_game(path, announce=False))
         self.assertEqual(self.w.book_module.engine, 'cite-1983')
         self.assertEqual((self.w.character['gold'], self.w.current_paragraph), (12, 86))
-        self.assertEqual(self.w.paragraph_title.text(), 'La Cité des Voleurs')
+        title = self.w.book_module.catalogue('events')['paragraphs']['86']['title']
+        self.assertEqual(self.w.paragraph_title.text(), title)
 
 
 if __name__ == '__main__':

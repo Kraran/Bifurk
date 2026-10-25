@@ -13,7 +13,7 @@ from pathlib import Path
 
 CATALOGUES = Path(__file__).resolve().parent.parent / 'catalogues'
 SUPPORTED_ENGINES = {'sorcier-1982', 'foret-1983', 'cite-1983'}
-SUPPORTED_REPAIRS = {'misplaced-fragment-253', 'foret-confirmed-186-267'}
+SUPPORTED_REPAIRS = {'misplaced-fragment-253', 'foret-confirmed-186-267', 'cite-ocr-1983'}
 
 
 def pdf_digest(path):
@@ -57,6 +57,9 @@ class GrimoireModule:
         if 'foret-confirmed-186-267' in self.text_repairs:
             from pdf_text_repairs import repair_foret_confirmed_errata
             repair_foret_confirmed_errata(paragraphs)
+        if 'cite-ocr-1983' in self.text_repairs:
+            from pdf_text_repairs import repair_cite_ocr
+            repair_cite_ocr(paragraphs)
 
 
 def available_modules(catalogue_root=None):

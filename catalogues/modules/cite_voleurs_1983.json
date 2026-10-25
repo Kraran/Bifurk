@@ -21,5 +21,7 @@
     "events": "evenements_cite_1983.json",
     "illustrations": "cite_voleurs_1983.json"
   },
-  "text_repairs": []
+  "text_repairs": [
+    "cite-ocr-1983"
+  ]
 }

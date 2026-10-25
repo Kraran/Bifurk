@@ -3,408 +3,6203 @@
   "book": "La Cité des Voleurs",
   "pdf_sha256": "686607e4c9a86c72d39d3a101f2681df83d71ecba6d858a2f8e062d2f5357616",
   "total_paragraphs": 400,
-  "reviewed_count": 0,
-  "review_pending": [
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22,
-    23,
-    24,
-    25,
-    26,
-    27,
-    28,
-    29,
-    30,
-    31,
-    32,
-    33,
-    34,
-    35,
-    36,
-    37,
-    38,
-    39,
-    40,
-    41,
-    42,
-    43,
-    44,
-    45,
-    46,
-    47,
-    48,
-    49,
-    50,
-    51,
-    52,
-    53,
-    54,
-    55,
-    56,
-    57,
-    58,
-    59,
-    60,
-    61,
-    62,
-    63,
-    64,
-    65,
-    66,
-    67,
-    68,
-    69,
-    70,
-    71,
-    72,
-    73,
-    74,
-    75,
-    76,
-    77,
-    78,
-    79,
-    80,
-    81,
-    82,
-    83,
-    84,
-    85,
-    86,
-    87,
-    88,
-    89,
-    90,
-    91,
-    92,
-    93,
-    94,
-    95,
-    96,
-    97,
-    98,
-    99,
-    100,
-    101,
-    102,
-    103,
-    104,
-    105,
-    106,
-    107,
-    108,
-    109,
-    110,
-    111,
-    112,
-    113,
-    114,
-    115,
-    116,
-    117,
-    118,
-    119,
-    120,
-    121,
-    122,
-    123,
-    124,
-    125,
-    126,
-    127,
-    128,
-    129,
-    130,
-    131,
-    132,
-    133,
-    134,
-    135,
-    136,
-    137,
-    138,
-    139,
-    140,
-    141,
-    142,
-    143,
-    144,
-    145,
-    146,
-    147,
-    148,
-    149,
-    150,
-    151,
-    152,
-    153,
-    154,
-    155,
-    156,
-    157,
-    158,
-    159,
-    160,
-    161,
-    162,
-    163,
-    164,
-    165,
-    166,
-    167,
-    168,
-    169,
-    170,
-    171,
-    172,
-    173,
-    174,
-    175,
-    176,
-    177,
-    178,
-    179,
-    180,
-    181,
-    182,
-    183,
-    184,
-    185,
-    186,
-    187,
-    188,
-    189,
-    190,
-    191,
-    192,
-    193,
-    194,
-    195,
-    196,
-    197,
-    198,
-    199,
-    200,
-    201,
-    202,
-    203,
-    204,
-    205,
-    206,
-    207,
-    208,
-    209,
-    210,
-    211,
-    212,
-    213,
-    214,
-    215,
-    216,
-    217,
-    218,
-    219,
-    220,
-    221,
-    222,
-    223,
-    224,
-    225,
-    226,
-    227,
-    228,
-    229,
-    230,
-    231,
-    232,
-    233,
-    234,
-    235,
-    236,
-    237,
-    238,
-    239,
-    240,
-    241,
-    242,
-    243,
-    244,
-    245,
-    246,
-    247,
-    248,
-    249,
-    250,
-    251,
-    252,
-    253,
-    254,
-    255,
-    256,
-    257,
-    258,
-    259,
-    260,
-    261,
-    262,
-    263,
-    264,
-    265,
-    266,
-    267,
-    268,
-    269,
-    270,
-    271,
-    272,
-    273,
-    274,
-    275,
-    276,
-    277,
-    278,
-    279,
-    280,
-    281,
-    282,
-    283,
-    284,
-    285,
-    286,
-    287,
-    288,
-    289,
-    290,
-    291,
-    292,
-    293,
-    294,
-    295,
-    296,
-    297,
-    298,
-    299,
-    300,
-    301,
-    302,
-    303,
-    304,
-    305,
-    306,
-    307,
-    308,
-    309,
-    310,
-    311,
-    312,
-    313,
-    314,
-    315,
-    316,
-    317,
-    318,
-    319,
-    320,
-    321,
-    322,
-    323,
-    324,
-    325,
-    326,
-    327,
-    328,
-    329,
-    330,
-    331,
-    332,
-    333,
-    334,
-    335,
-    336,
-    337,
-    338,
-    339,
-    340,
-    341,
-    342,
-    343,
-    344,
-    345,
-    346,
-    347,
-    348,
-    349,
-    350,
-    351,
-    352,
-    353,
-    354,
-    355,
-    356,
-    357,
-    358,
-    359,
-    360,
-    361,
-    362,
-    363,
-    364,
-    365,
-    366,
-    367,
-    368,
-    369,
-    370,
-    371,
-    372,
-    373,
-    374,
-    375,
-    376,
-    377,
-    378,
-    379,
-    380,
-    381,
-    382,
-    383,
-    384,
-    385,
-    386,
-    387,
-    388,
-    389,
-    390,
-    391,
-    392,
-    393,
-    394,
-    395,
-    396,
-    397,
-    398,
-    399,
-    400
+  "reviewed_count": 400,
+  "review_pending": [],
+  "paragraphs": {
+    "1": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La porte du Port du Sable Noir",
+      "routes": [
+        {
+          "target": 202,
+          "label": "Demander à voir Nicodème"
+        },
+        {
+          "target": 33,
+          "label": "Prétendre vendre un butin volé"
+        },
+        {
+          "target": 49,
+          "label": "Attaquer le garde"
+        }
+      ],
+      "source_page_pdf": 20
+    },
+    "2": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le bracelet sur la carapace",
+      "routes": [
+        {
+          "target": 377,
+          "label": "Enlever la grille"
+        },
+        {
+          "target": 174,
+          "label": "Retourner à l'entrée"
+        }
+      ],
+      "source_page_pdf": 21
+    },
+    "3": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le joueur de lyre",
+      "routes": [
+        {
+          "target": 37,
+          "label": "Payer la chanson",
+          "condition_text": "3 Pièces d'Or"
+        },
+        {
+          "target": 398,
+          "label": "Passer au stand suivant"
+        }
+      ],
+      "source_page_pdf": 21
+    },
+    "4": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le domestique blafard",
+      "routes": [
+        {
+          "target": 339,
+          "label": "Se dire voyageur égaré"
+        },
+        {
+          "target": 35,
+          "label": "Attaquer le domestique"
+        }
+      ],
+      "source_page_pdf": 21
+    },
+    "5": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'Homme Orque à la hache",
+      "routes": [
+        {
+          "target": 371,
+          "label": "Continuer après la victoire",
+          "condition_text": "Homme Orque vaincu"
+        }
+      ],
+      "source_page_pdf": 22
+    },
+    "6": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Une hôtesse peu aimable",
+      "routes": [
+        {
+          "target": 333,
+          "label": "Repartir vers le nord"
+        },
+        {
+          "target": 88,
+          "label": "Franchir les rideaux"
+        }
+      ],
+      "source_page_pdf": 22
+    },
+    "7": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les perles noires",
+      "routes": [
+        {
+          "target": 232,
+          "label": "Ouvrir l'autre porte",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 78,
+          "label": "Quitter le navire vers le nord"
+        }
+      ],
+      "source_page_pdf": 22
+    },
+    "8": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La broche porte-bonheur",
+      "routes": [
+        {
+          "target": 334,
+          "label": "Partir vers le nord"
+        }
+      ],
+      "source_page_pdf": 22
+    },
+    "9": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "Le dernier rire de Zanbar Bone",
+      "routes": [],
+      "source_page_pdf": 23
+    },
+    "10": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le garde furieux",
+      "routes": [
+        {
+          "target": 212,
+          "label": "Victoire rapide",
+          "condition_text": "Vainqueur en six Assauts au plus"
+        },
+        {
+          "target": 130,
+          "label": "Combat prolongé",
+          "condition_text": "Plus de six Assauts"
+        }
+      ],
+      "source_page_pdf": 23
+    },
+    "11": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Réfugié dans l'arbre",
+      "routes": [
+        {
+          "target": 358,
+          "label": "Sauter de l'arbre"
+        }
+      ],
+      "source_page_pdf": 23
+    },
+    "12": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'homme au bain",
+      "routes": [
+        {
+          "target": 176,
+          "label": "Le surprendre l'épée à la main"
+        },
+        {
+          "target": 383,
+          "label": "Ressortir en catimini"
+        }
+      ],
+      "source_page_pdf": 24
+    },
+    "13": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La broche scorpion",
+      "routes": [
+        {
+          "target": 273,
+          "label": "Ramasser le scorpion d'or",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 80,
+          "label": "Monter l'escalier"
+        },
+        {
+          "target": 334,
+          "label": "Quitter la maison vers le nord"
+        }
+      ],
+      "source_page_pdf": 24
+    },
+    "14": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les haies vivantes",
+      "routes": [
+        {
+          "target": 237,
+          "label": "Utiliser l'Anneau de Feu",
+          "condition_text": "Anneau de Feu"
+        },
+        {
+          "target": 191,
+          "label": "Faire face sans anneau",
+          "condition_text": "Pas d'Anneau de Feu"
+        }
+      ],
+      "source_page_pdf": 24
+    },
+    "15": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La course entre les serpents",
+      "routes": [
+        {
+          "target": 75,
+          "label": "Atteindre la porte",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 298,
+          "label": "Être mordu",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 25
+    },
+    "16": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le sac de pièces",
+      "routes": [
+        {
+          "target": 333,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 25
+    },
+    "17": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'homme en haillons",
+      "routes": [
+        {
+          "target": 331,
+          "label": "Lui parler"
+        },
+        {
+          "target": 161,
+          "label": "Continuer vers l'est"
+        }
+      ],
+      "source_page_pdf": 25
+    },
+    "18": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le couteau lancé",
+      "routes": [
+        {
+          "target": 102,
+          "label": "Lancer réussi",
+          "condition_text": "Deux dés ≤ Habileté"
+        },
+        {
+          "target": 225,
+          "label": "Lancer manqué",
+          "condition_text": "Deux dés > Habileté"
+        }
+      ],
+      "source_page_pdf": 27
+    },
+    "19": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les javelots empoisonnés",
+      "routes": [
+        {
+          "target": 340,
+          "label": "Continuer à crocheter",
+          "condition_text": "Si vous survivez"
+        },
+        {
+          "target": 60,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 27
+    },
+    "20": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les poches du pirate",
+      "routes": [
+        {
+          "target": 84,
+          "label": "Fouiller le pont"
+        }
+      ],
+      "source_page_pdf": 27
+    },
+    "21": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La chambre de la tour",
+      "routes": [
+        {
+          "target": 288,
+          "label": "Dormir porte fermée"
+        },
+        {
+          "target": 77,
+          "label": "Explorer la tour"
+        }
+      ],
+      "source_page_pdf": 27
+    },
+    "22": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les Lutins querelleurs",
+      "routes": [
+        {
+          "target": 198,
+          "label": "Continuer après la victoire",
+          "condition_text": "Deux Lutins vaincus"
+        }
+      ],
+      "source_page_pdf": 28
+    },
+    "23": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'orfèvre au gourdin",
+      "routes": [
+        {
+          "target": 146,
+          "label": "Continuer après la victoire",
+          "condition_text": "Orfèvre vaincu"
+        }
+      ],
+      "source_page_pdf": 28
+    },
+    "24": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La boutique au rideau de fer",
+      "routes": [
+        {
+          "target": 336,
+          "label": "Entrer dans la boutique"
+        },
+        {
+          "target": 196,
+          "label": "Poursuivre vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 28
+    },
+    "25": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le forgeron de l'écurie",
+      "routes": [
+        {
+          "target": 169,
+          "label": "Parler au forgeron"
+        },
+        {
+          "target": 323,
+          "label": "Attaquer le forgeron"
+        },
+        {
+          "target": 115,
+          "label": "Poursuivre vers le nord"
+        }
+      ],
+      "source_page_pdf": 29
+    },
+    "26": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les spectateurs calmés",
+      "routes": [
+        {
+          "target": 296,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 29
+    },
+    "27": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'homme à la cagoule",
+      "routes": [
+        {
+          "target": 223,
+          "label": "Accepter le jeu des pilules"
+        },
+        {
+          "target": 165,
+          "label": "Remonter vers la rue de la Bougie"
+        }
+      ],
+      "source_page_pdf": 31
+    },
+    "28": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Une ombre dans le tunnel",
+      "routes": [
+        {
+          "target": 265,
+          "label": "Continuer vers le nord"
+        },
+        {
+          "target": 104,
+          "label": "Revenir à l'entrée"
+        }
+      ],
+      "source_page_pdf": 31
+    },
+    "29": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Réflexion en cellule",
+      "routes": [
+        {
+          "target": 143,
+          "label": "Simuler une maladie"
+        },
+        {
+          "target": 230,
+          "label": "Chercher une issue secrète"
+        }
+      ],
+      "source_page_pdf": 31
+    },
+    "30": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le croisement de la rue de l'Écurie",
+      "routes": [
+        {
+          "target": 76,
+          "label": "Tourner vers le nord"
+        }
+      ],
+      "source_page_pdf": 31
+    },
+    "31": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le pont sur la rivière",
+      "routes": [
+        {
+          "target": 329,
+          "label": "Descendre sous le pont"
+        },
+        {
+          "target": 364,
+          "label": "Attendre l'unijambiste"
+        }
+      ],
+      "source_page_pdf": 33
+    },
+    "32": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La morsure de la Reine Serpent",
+      "routes": [
+        {
+          "target": 249,
+          "label": "Attaquer la Reine Serpent",
+          "condition_text": "Si vous survivez"
+        }
+      ],
+      "source_page_pdf": 33
+    },
+    "33": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le prétendu butin",
+      "routes": [
+        {
+          "target": 381,
+          "label": "Parler de coupes maudites"
+        },
+        {
+          "target": 291,
+          "label": "Forcer le passage"
+        },
+        {
+          "target": 49,
+          "label": "Attaquer le garde"
+        }
+      ],
+      "source_page_pdf": 33
+    },
+    "34": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La voiture lancée",
+      "routes": [
+        {
+          "target": 171,
+          "label": "Continuer vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 34
+    },
+    "35": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le domestique insensible",
+      "routes": [
+        {
+          "target": 189,
+          "label": "Tirer la flèche d'argent"
+        },
+        {
+          "target": 305,
+          "label": "Utiliser le miroir",
+          "condition_text": "Miroir"
+        },
+        {
+          "target": 382,
+          "label": "Jeter l'Anneau de Glace",
+          "condition_text": "Anneau de Glace"
+        }
+      ],
+      "source_page_pdf": 34
+    },
+    "36": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le marchand d'anneaux",
+      "routes": [
+        {
+          "target": 196,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 35
+    },
+    "37": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La chanson porte-bonheur",
+      "routes": [
+        {
+          "target": 398,
+          "label": "Aller au stand suivant"
+        }
+      ],
+      "source_page_pdf": 35
+    },
+    "38": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le bracelet-insecte",
+      "routes": [
+        {
+          "target": 296,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 35
+    },
+    "39": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La Reine Serpent impatiente",
+      "routes": [
+        {
+          "target": 32,
+          "label": "Courir vers la porte"
+        },
+        {
+          "target": 249,
+          "label": "Attaquer la Reine Serpent"
+        }
+      ],
+      "source_page_pdf": 36
+    },
+    "40": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le jeu derrière le mur",
+      "routes": [
+        {
+          "target": 168,
+          "label": "Demander à jouer"
+        },
+        {
+          "target": 91,
+          "label": "Repartir par la rue du Port"
+        }
+      ],
+      "source_page_pdf": 36
+    },
+    "41": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le prix de l'entrée",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Entrer dans la ville"
+        }
+      ],
+      "source_page_pdf": 38
+    },
+    "42": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Payé en provisions",
+      "routes": [
+        {
+          "target": 100,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 38
+    },
+    "43": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La coupe brûlante",
+      "routes": [
+        {
+          "target": 175,
+          "label": "Soulever la coupe A",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 209,
+          "label": "Soulever la coupe B",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 107,
+          "label": "Passer sous l'arc"
+        },
+        {
+          "target": 60,
+          "label": "Monter l'escalier"
+        }
+      ],
+      "source_page_pdf": 38
+    },
+    "44": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les trois vagabonds",
+      "routes": [
+        {
+          "target": 18,
+          "label": "Lancer le Poignard de Jet",
+          "condition_text": "Poignard de Jet"
+        },
+        {
+          "target": 225,
+          "label": "Combattre à l'épée",
+          "condition_text": "Pas de Poignard de Jet"
+        }
+      ],
+      "source_page_pdf": 39
+    },
+    "45": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le casque de fumée",
+      "routes": [
+        {
+          "target": 376,
+          "label": "Poser le casque sur la tête"
+        },
+        {
+          "target": 161,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 39
+    },
+    "46": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La cotte de mailles",
+      "routes": [
+        {
+          "target": 115,
+          "label": "Poursuivre vers le nord"
+        }
+      ],
+      "source_page_pdf": 39
+    },
+    "47": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'éclair",
+      "routes": [
+        {
+          "target": 313,
+          "label": "Lancer réussi",
+          "condition_text": "Deux dés ≤ Habileté"
+        },
+        {
+          "target": 81,
+          "label": "Lancer manqué",
+          "condition_text": "Deux dés > Habileté"
+        }
+      ],
+      "source_page_pdf": 40
+    },
+    "48": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'échelle du tunnel",
+      "routes": [
+        {
+          "target": 321,
+          "label": "Descendre l'échelle"
+        },
+        {
+          "target": 205,
+          "label": "Poursuivre vers l'est"
+        }
+      ],
+      "source_page_pdf": 40
+    },
+    "49": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La cloche du corps de garde",
+      "routes": [
+        {
+          "target": 10,
+          "label": "Le garde manque la cloche",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 311,
+          "label": "La cloche sonne",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 40
+    },
+    "50": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La cale du navire",
+      "routes": [
+        {
+          "target": 271,
+          "label": "Ouvrir la porte de gauche"
+        },
+        {
+          "target": 232,
+          "label": "Ouvrir la porte de droite"
+        }
+      ],
+      "source_page_pdf": 41
+    },
+    "51": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le vieil homme relevé",
+      "routes": [
+        {
+          "target": 325,
+          "label": "Accepter un verre"
+        },
+        {
+          "target": 348,
+          "label": "Poursuivre la quête"
+        }
+      ],
+      "source_page_pdf": 41
+    },
+    "52": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'étal des petites armes",
+      "routes": [
+        {
+          "target": 200,
+          "label": "Partir vers le nord"
+        }
+      ],
+      "source_page_pdf": 41
+    },
+    "53": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La Reine Serpent attend un présent",
+      "routes": [
+        {
+          "target": 328,
+          "label": "Offrir un article en argent",
+          "condition_text": "Article en argent"
+        },
+        {
+          "target": 39,
+          "label": "Avouer n'avoir rien",
+          "condition_text": "Aucun article en argent"
+        }
+      ],
+      "source_page_pdf": 42
+    },
+    "54": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La fouille du corps de garde",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Entrer dans la ville"
+        }
+      ],
+      "source_page_pdf": 42
+    },
+    "55": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les pétales trempés",
+      "routes": [
+        {
+          "target": 180,
+          "label": "Tourner dans la rue du Port"
+        }
+      ],
+      "source_page_pdf": 42
+    },
+    "56": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "Enchaîné dans la tour",
+      "routes": [],
+      "source_page_pdf": 43
+    },
+    "57": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les chiens du Nain",
+      "routes": [
+        {
+          "target": 360,
+          "label": "Continuer après la victoire",
+          "condition_text": "Deux Chiens Loups vaincus"
+        }
+      ],
+      "source_page_pdf": 43
+    },
+    "58": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le coup de fouet",
+      "routes": [
+        {
+          "target": 171,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 44
+    },
+    "59": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "Le poignard de la Sorcière",
+      "routes": [],
+      "source_page_pdf": 44
+    },
+    "60": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le palier aux deux portes",
+      "routes": [
+        {
+          "target": 349,
+          "label": "Tirer l'épée"
+        },
+        {
+          "target": 192,
+          "label": "Sauter par la fenêtre"
+        }
+      ],
+      "source_page_pdf": 44
+    },
+    "61": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les fleurs du Seigneur Azzur",
+      "routes": [
+        {
+          "target": 172,
+          "label": "Présenter le bouquet",
+          "condition_text": "Bouquet de fleurs"
+        },
+        {
+          "target": 350,
+          "label": "Avouer n'avoir aucun bouquet",
+          "condition_text": "Pas de bouquet"
+        }
+      ],
+      "source_page_pdf": 45
+    },
+    "62": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La taverne enfumée",
+      "routes": [
+        {
+          "target": 136,
+          "label": "Parler à l'aubergiste"
+        },
+        {
+          "target": 173,
+          "label": "S'asseoir avec les Nains"
+        },
+        {
+          "target": 22,
+          "label": "S'asseoir avec les Lutins"
+        },
+        {
+          "target": 190,
+          "label": "S'asseoir avec les lanceurs de dagues"
+        },
+        {
+          "target": 296,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 45
+    },
+    "63": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les chandelles pourpres",
+      "routes": [
+        {
+          "target": 280,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 47
+    },
+    "64": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le loup du chenil",
+      "routes": [
+        {
+          "target": 353,
+          "label": "La chaîne retient le loup",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 309,
+          "label": "Mordu au bras",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 47
+    },
+    "65": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La porte blanche et la porte noire",
+      "routes": [
+        {
+          "target": 319,
+          "label": "Ouvrir la porte blanche"
+        },
+        {
+          "target": 96,
+          "label": "Ouvrir la porte noire"
+        },
+        {
+          "target": 197,
+          "label": "Continuer à monter"
+        }
+      ],
+      "source_page_pdf": 47
+    },
+    "66": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les clefs du Nain",
+      "routes": [
+        {
+          "target": 300,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 48
+    },
+    "67": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La question derrière les rideaux",
+      "routes": [
+        {
+          "target": 195,
+          "label": "Donner un nom"
+        },
+        {
+          "target": 79,
+          "label": "Dire ne pas savoir"
+        }
+      ],
+      "source_page_pdf": 48
+    },
+    "68": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La soupe répugnante",
+      "routes": [
+        {
+          "target": 380,
+          "label": "Avaler la soupe"
+        },
+        {
+          "target": 262,
+          "label": "Recracher la soupe"
+        }
+      ],
+      "source_page_pdf": 48
+    },
+    "69": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Échapper aux gardes",
+      "routes": [
+        {
+          "target": 355,
+          "label": "Se dégager",
+          "condition_text": "Deux dés ≤ Habileté"
+        },
+        {
+          "target": 151,
+          "label": "Être emmené",
+          "condition_text": "Deux dés > Habileté"
+        }
+      ],
+      "source_page_pdf": 48
+    },
+    "70": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "Le reflet dans le miroir",
+      "routes": [],
+      "source_page_pdf": 49
+    },
+    "71": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La chambre de l'Ogre",
+      "routes": [
+        {
+          "target": 324,
+          "label": "Éventrer la boîte"
+        },
+        {
+          "target": 282,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 49
+    },
+    "72": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le faux garçon blessé",
+      "routes": [
+        {
+          "target": 208,
+          "label": "Continuer après la victoire",
+          "condition_text": "Lutin vaincu"
+        }
+      ],
+      "source_page_pdf": 49
+    },
+    "73": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les deux Trolls",
+      "routes": [
+        {
+          "target": 110,
+          "label": "Continuer après la victoire",
+          "condition_text": "Deux Trolls vaincus"
+        },
+        {
+          "target": 239,
+          "label": "Fuir par la rue du Moulin",
+          "condition_text": "Fuite"
+        }
+      ],
+      "source_page_pdf": 50
+    },
+    "74": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les rues du port",
+      "routes": [
+        {
+          "target": 95,
+          "label": "Prendre la rue de la Clef"
+        },
+        {
+          "target": 116,
+          "label": "Prendre la rue du Marché"
+        },
+        {
+          "target": 17,
+          "label": "Prendre la rue de l'Horloge"
+        }
+      ],
+      "source_page_pdf": 50
+    },
+    "75": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La pluie s'arrête",
+      "routes": [
+        {
+          "target": 31,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 51
+    },
+    "76": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La vieille grange",
+      "routes": [
+        {
+          "target": 25,
+          "label": "Entrer dans la grange"
+        },
+        {
+          "target": 115,
+          "label": "Poursuivre vers le nord"
+        }
+      ],
+      "source_page_pdf": 51
+    },
+    "77": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le deuxième étage",
+      "routes": [
+        {
+          "target": 292,
+          "label": "Ouvrir la porte"
+        },
+        {
+          "target": 310,
+          "label": "Monter au troisième étage"
+        }
+      ],
+      "source_page_pdf": 51
+    },
+    "78": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'embranchement du quai",
+      "routes": [
+        {
+          "target": 256,
+          "label": "Remonter la rue du Port"
+        },
+        {
+          "target": 216,
+          "label": "Prendre la rue du Sabot"
+        }
+      ],
+      "source_page_pdf": 51
+    },
+    "79": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La Reine Serpent surgit",
+      "routes": [
+        {
+          "target": 295,
+          "label": "Continuer après la victoire",
+          "condition_text": "Reine Serpent vaincue"
+        }
+      ],
+      "source_page_pdf": 52
+    },
+    "80": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La créature au long museau",
+      "routes": [
+        {
+          "target": 392,
+          "label": "Porter la broche scorpion",
+          "condition_text": "Broche scorpion"
+        },
+        {
+          "target": 215,
+          "label": "Sans broche",
+          "condition_text": "Pas de broche scorpion"
+        }
+      ],
+      "source_page_pdf": 52
+    },
+    "81": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La fuite sous l'éclair",
+      "routes": [
+        {
+          "target": 392,
+          "label": "L'éclair manque",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 243,
+          "label": "L'éclair frappe",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 52
+    },
+    "82": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La potion contre la Sorcière",
+      "routes": [
+        {
+          "target": 104,
+          "label": "Retourner à l'orifice d'accès"
+        }
+      ],
+      "source_page_pdf": 54
+    },
+    "83": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La jarre bien étiquetée",
+      "routes": [
+        {
+          "target": 322,
+          "label": "Poursuivre la fouille"
+        },
+        {
+          "target": 93,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 54
+    },
+    "84": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les tonneaux et les caisses",
+      "routes": [
+        {
+          "target": 50,
+          "label": "Descendre aux ponts inférieurs"
+        },
+        {
+          "target": 78,
+          "label": "Quitter le navire vers la rue du Port"
+        }
+      ],
+      "source_page_pdf": 54
+    },
+    "85": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La flèche d'argent",
+      "routes": [
+        {
+          "target": 100,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 55
+    },
+    "86": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La boule de fumée",
+      "routes": [
+        {
+          "target": 45,
+          "label": "Fracasser la boule"
+        },
+        {
+          "target": 194,
+          "label": "Garder la boule"
+        },
+        {
+          "target": 161,
+          "label": "Abandonner la boule"
+        }
+      ],
+      "source_page_pdf": 55
+    },
+    "87": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le pont du navire",
+      "routes": [
+        {
+          "target": 120,
+          "label": "S'occuper du pirate de garde"
+        },
+        {
+          "target": 50,
+          "label": "Se faufiler jusqu'à l'escalier"
+        }
+      ],
+      "source_page_pdf": 55
+    },
+    "88": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le boudoir",
+      "routes": [
+        {
+          "target": 295,
+          "label": "Continuer après la victoire",
+          "condition_text": "Reine Serpent vaincue"
+        },
+        {
+          "target": 333,
+          "label": "Fuir par la rue de l'Écurie",
+          "condition_text": "Fuite après trois Assauts"
+        }
+      ],
+      "source_page_pdf": 57
+    },
+    "89": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le gant brûlant",
+      "routes": [
+        {
+          "target": 282,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 57
+    },
+    "90": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La chaîne trop solide",
+      "routes": [
+        {
+          "target": 199,
+          "label": "Prétendre avoir rattrapé l'évadé"
+        },
+        {
+          "target": 187,
+          "label": "Offrir un pot-de-vin"
+        }
+      ],
+      "source_page_pdf": 58
+    },
+    "91": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le mendiant",
+      "routes": [
+        {
+          "target": 332,
+          "label": "Donner une Pièce d'Or",
+          "condition_text": "1 Pièce d'Or"
+        },
+        {
+          "target": 124,
+          "label": "Poursuivre son chemin"
+        }
+      ],
+      "source_page_pdf": 58
+    },
+    "92": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le miroir dans le mur",
+      "routes": [
+        {
+          "target": 174,
+          "label": "Retourner à l'orifice d'accès"
+        }
+      ],
+      "source_page_pdf": 58
+    },
+    "93": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La taverne du Chien Tacheté",
+      "routes": [
+        {
+          "target": 62,
+          "label": "Entrer dans la taverne"
+        },
+        {
+          "target": 296,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 58
+    },
+    "94": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La poussière étincelante",
+      "routes": [
+        {
+          "target": 234,
+          "label": "Demander où est Zanbar Bone"
+        }
+      ],
+      "source_page_pdf": 59
+    },
+    "95": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La boutique du serrurier",
+      "routes": [
+        {
+          "target": 224,
+          "label": "Entrer dans la boutique"
+        },
+        {
+          "target": 300,
+          "label": "Continuer à avancer"
+        }
+      ],
+      "source_page_pdf": 59
+    },
+    "96": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La pièce macabre",
+      "routes": [
+        {
+          "target": 257,
+          "label": "S'approcher du coffre"
+        },
+        {
+          "target": 319,
+          "label": "Ouvrir la porte blanche",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 197,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 59
+    },
+    "97": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La clef du chenil",
+      "routes": [
+        {
+          "target": 353,
+          "label": "Continuer"
+        }
+      ],
+      "source_page_pdf": 60
+    },
+    "98": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La bouteille d'endurance",
+      "routes": [
+        {
+          "target": 363,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 60
+    },
+    "99": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'arrestation",
+      "routes": [
+        {
+          "target": 285,
+          "label": "Continuer après la victoire",
+          "condition_text": "Deux gardes vaincus"
+        }
+      ],
+      "source_page_pdf": 60
+    },
+    "100": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'embranchement de la rue de la Tour",
+      "routes": [
+        {
+          "target": 127,
+          "label": "Prendre la rue de la Tour"
+        },
+        {
+          "target": 246,
+          "label": "Continuer par la rue de l'Écurie"
+        }
+      ],
+      "source_page_pdf": 60
+    },
+    "101": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'Homme Orque narquois",
+      "routes": [
+        {
+          "target": 5,
+          "label": "Attaquer l'Homme Orque"
+        },
+        {
+          "target": 93,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 61
+    },
+    "102": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les vagabonds hésitent",
+      "routes": [
+        {
+          "target": 372,
+          "label": "Filer vers le nord"
+        }
+      ],
+      "source_page_pdf": 61
+    },
+    "103": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le carrefour de la rue du Marché",
+      "routes": [
+        {
+          "target": 148,
+          "label": "Suivre la foule"
+        }
+      ],
+      "source_page_pdf": 61
+    },
+    "104": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Retour à l'orifice d'accès",
+      "routes": [
+        {
+          "target": 205,
+          "label": "Remonter vers la rue"
+        },
+        {
+          "target": 118,
+          "label": "Suivre l'égout vers le sud",
+          "condition_text": "Si ce n'est déjà fait"
+        }
+      ],
+      "source_page_pdf": 61
+    },
+    "105": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La maison isolée",
+      "routes": [
+        {
+          "target": 64,
+          "label": "S'approcher de la porte"
+        },
+        {
+          "target": 304,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 62
+    },
+    "106": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La Momie en flammes",
+      "routes": [
+        {
+          "target": 163,
+          "label": "Examiner le sarcophage"
+        },
+        {
+          "target": 231,
+          "label": "Quitter la pièce"
+        }
+      ],
+      "source_page_pdf": 62
+    },
+    "107": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le coffre boulonné",
+      "routes": [
+        {
+          "target": 128,
+          "label": "Crocheter la serrure"
+        },
+        {
+          "target": 60,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 62
+    },
+    "108": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Hors des remparts",
+      "routes": [
+        {
+          "target": 201,
+          "label": "Tous les objets et le tatouage",
+          "condition_text": "Objets réunis et tatouage"
+        },
+        {
+          "target": 299,
+          "label": "Il manque quelque chose",
+          "condition_text": "Objet ou tatouage manquant"
+        }
+      ],
+      "source_page_pdf": 62
+    },
+    "109": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le pot-de-vin refusé",
+      "routes": [
+        {
+          "target": 151,
+          "label": "Être conduit au donjon"
+        }
+      ],
+      "source_page_pdf": 63
+    },
+    "110": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les badauds",
+      "routes": [
+        {
+          "target": 239,
+          "label": "Fuir par la rue du Moulin"
+        }
+      ],
+      "source_page_pdf": 63
+    },
+    "111": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La bourse du pirate",
+      "routes": [
+        {
+          "target": 232,
+          "label": "Ouvrir l'autre porte",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 78,
+          "label": "Quitter le navire vers la rue du Port"
+        }
+      ],
+      "source_page_pdf": 63
+    },
+    "112": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La maison rouge",
+      "routes": [
+        {
+          "target": 154,
+          "label": "Entrer dans la maison"
+        },
+        {
+          "target": 134,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 64
+    },
+    "113": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La pièce aux jouets",
+      "routes": [
+        {
+          "target": 141,
+          "label": "Offrir un objet"
+        },
+        {
+          "target": 175,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 64
+    },
+    "114": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le tiroir de la boutique",
+      "routes": [
+        {
+          "target": 196,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 65
+    },
+    "115": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le prisonnier enchaîné",
+      "routes": [
+        {
+          "target": 90,
+          "label": "Briser ses chaînes"
+        },
+        {
+          "target": 274,
+          "label": "Le livrer aux gardes"
+        }
+      ],
+      "source_page_pdf": 65
+    },
+    "116": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'herboristerie",
+      "routes": [
+        {
+          "target": 250,
+          "label": "Entrer dans la boutique"
+        },
+        {
+          "target": 93,
+          "label": "Continuer par la rue du Marché"
+        }
+      ],
+      "source_page_pdf": 66
+    },
+    "117": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La rue du Pont sous la pluie",
+      "routes": [
+        {
+          "target": 188,
+          "label": "S'abriter dans la maison abandonnée"
+        },
+        {
+          "target": 31,
+          "label": "Continuer à avancer"
+        }
+      ],
+      "source_page_pdf": 66
+    },
+    "118": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Une ombre dans l'égout",
+      "routes": [
+        {
+          "target": 2,
+          "label": "Utiliser le bracelet-insecte",
+          "condition_text": "Bracelet-insecte"
+        },
+        {
+          "target": 166,
+          "label": "Sans bracelet",
+          "condition_text": "Pas de bracelet-insecte"
+        }
+      ],
+      "source_page_pdf": 66
+    },
+    "119": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'eau pétillante",
+      "routes": [
+        {
+          "target": 233,
+          "label": "Boire l'eau",
+          "condition_text": "3 Pièces d'Or"
+        },
+        {
+          "target": 247,
+          "label": "Garder son or"
+        }
+      ],
+      "source_page_pdf": 67
+    },
+    "120": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La bûche",
+      "routes": [
+        {
+          "target": 84,
+          "label": "Assommer le pirate",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 152,
+          "label": "Trébucher",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 67
+    },
+    "121": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'Ogre repu",
+      "routes": [
+        {
+          "target": 282,
+          "label": "Obéir et partir vers le nord"
+        },
+        {
+          "target": 140,
+          "label": "Donner une leçon à l'Ogre"
+        }
+      ],
+      "source_page_pdf": 67
+    },
+    "122": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les deux hommes hagards",
+      "routes": [
+        {
+          "target": 277,
+          "label": "Les enfermer"
+        },
+        {
+          "target": 361,
+          "label": "Les attaquer"
+        }
+      ],
+      "source_page_pdf": 67
+    },
+    "123": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le passe-partout",
+      "routes": [
+        {
+          "target": 300,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 68
+    },
+    "124": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La ruelle vers le sud",
+      "routes": [
+        {
+          "target": 326,
+          "label": "Prendre la ruelle"
+        },
+        {
+          "target": 180,
+          "label": "Continuer par la rue du Port"
+        }
+      ],
+      "source_page_pdf": 68
+    },
+    "125": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le bouclier maudit",
+      "routes": [
+        {
+          "target": 21,
+          "label": "Monter l'escalier en colimaçon"
+        }
+      ],
+      "source_page_pdf": 68
+    },
+    "126": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La peau de mouton",
+      "routes": [
+        {
+          "target": 112,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 68
+    },
+    "127": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La rixe",
+      "routes": [
+        {
+          "target": 177,
+          "label": "Secourir le vieil homme"
+        },
+        {
+          "target": 348,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 69
+    },
+    "128": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les fléchettes du coffre",
+      "routes": [
+        {
+          "target": 340,
+          "label": "Indemne",
+          "condition_text": "Chanceux deux fois"
+        },
+        {
+          "target": 149,
+          "label": "Une fléchette",
+          "condition_text": "Malchanceux une fois"
+        },
+        {
+          "target": 19,
+          "label": "Deux fléchettes",
+          "condition_text": "Malchanceux deux fois"
+        }
+      ],
+      "source_page_pdf": 69
+    },
+    "129": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "Le mauvais choix",
+      "routes": [],
+      "source_page_pdf": 69
+    },
+    "130": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les renforts du corps de garde",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Entrer dans la ville",
+          "condition_text": "Deux gardes vaincus"
+        }
+      ],
+      "source_page_pdf": 70
+    },
+    "131": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La voix derrière les rideaux",
+      "routes": [
+        {
+          "target": 67,
+          "label": "Annoncer des fleurs"
+        },
+        {
+          "target": 6,
+          "label": "Demander de vieux chiffons"
+        },
+        {
+          "target": 179,
+          "label": "Se dire receveur des impôts"
+        }
+      ],
+      "source_page_pdf": 70
+    },
+    "132": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La broche en argent",
+      "routes": [
+        {
+          "target": 334,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 70
+    },
+    "133": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le croisement de la rue du Moulin",
+      "routes": [
+        {
+          "target": 182,
+          "label": "Prendre l'allée"
+        },
+        {
+          "target": 160,
+          "label": "Acheter des fruits"
+        }
+      ],
+      "source_page_pdf": 71
+    },
+    "134": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La bosse sur la tête",
+      "routes": [
+        {
+          "target": 396,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 71
+    },
+    "135": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'homme à l'œuf",
+      "routes": [
+        {
+          "target": 229,
+          "label": "L'attaquer"
+        },
+        {
+          "target": 100,
+          "label": "Fuir par la rue du Sabot"
+        }
+      ],
+      "source_page_pdf": 71
+    },
+    "136": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'aubergiste hostile",
+      "routes": [
+        {
+          "target": 270,
+          "label": "Attaquer l'aubergiste"
+        },
+        {
+          "target": 296,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 73
+    },
+    "137": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La volée de flèches",
+      "routes": [
+        {
+          "target": 327,
+          "label": "Avancer",
+          "condition_text": "Si vous survivez"
+        }
+      ],
+      "source_page_pdf": 73
+    },
+    "138": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Selon l'adversaire",
+      "routes": [
+        {
+          "target": 312,
+          "label": "Combat contre l'Homme-Singe",
+          "condition_text": "Homme-Singe combattu"
+        },
+        {
+          "target": 283,
+          "label": "Autre combat",
+          "condition_text": "Autre créature combattue"
+        }
+      ],
+      "source_page_pdf": 73
+    },
+    "139": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le pot de fleurs",
+      "routes": [
+        {
+          "target": 113,
+          "label": "Entrer dans la maison"
+        },
+        {
+          "target": 375,
+          "label": "Continuer vers l'est"
+        }
+      ],
+      "source_page_pdf": 73
+    },
+    "140": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'Ogre armé d'un os",
+      "routes": [
+        {
+          "target": 71,
+          "label": "Fouiller après la victoire",
+          "condition_text": "Ogre vaincu"
+        },
+        {
+          "target": 282,
+          "label": "Fuir vers le nord",
+          "condition_text": "Fuite après trois Assauts"
+        }
+      ],
+      "source_page_pdf": 74
+    },
+    "141": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La dispute des vieilles dames",
+      "routes": [
+        {
+          "target": 68,
+          "label": "Goûter la soupe"
+        },
+        {
+          "target": 375,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 74
+    },
+    "142": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "Le carreau d'arbalète",
+      "routes": [],
+      "source_page_pdf": 74
+    },
+    "143": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le prisonnier gémissant",
+      "routes": [
+        {
+          "target": 306,
+          "label": "Prétendre avoir la peste"
+        },
+        {
+          "target": 157,
+          "label": "Combattre à mains nues"
+        }
+      ],
+      "source_page_pdf": 75
+    },
+    "144": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le sortilège rompu",
+      "routes": [
+        {
+          "target": 303,
+          "label": "Continuer après la victoire",
+          "condition_text": "Sorcière vaincue"
+        }
+      ],
+      "source_page_pdf": 75
+    },
+    "145": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La boutique de Mme Pipe",
+      "routes": [
+        {
+          "target": 293,
+          "label": "Voir ses fleurs"
+        },
+        {
+          "target": 14,
+          "label": "Refuser et partir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 75
+    },
+    "146": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le placard vitré",
+      "routes": [
+        {
+          "target": 220,
+          "label": "Utiliser le passe-partout",
+          "condition_text": "Passe-partout"
+        },
+        {
+          "target": 388,
+          "label": "Sans clef",
+          "condition_text": "Pas de passe-partout"
+        }
+      ],
+      "source_page_pdf": 76
+    },
+    "147": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le butin des voleurs",
+      "routes": [
+        {
+          "target": 338,
+          "label": "Boire le liquide vert"
+        },
+        {
+          "target": 105,
+          "label": "Prendre l'or et partir vers le nord"
+        }
+      ],
+      "source_page_pdf": 76
+    },
+    "148": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La foule en liesse",
+      "routes": [
+        {
+          "target": 287,
+          "label": "Examiner les étals"
+        }
+      ],
+      "source_page_pdf": 76
+    },
+    "149": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La fléchette empoisonnée",
+      "routes": [
+        {
+          "target": 340,
+          "label": "Continuer à forcer la serrure",
+          "condition_text": "Si vous survivez"
+        },
+        {
+          "target": 60,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 78
+    },
+    "150": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La rue du Poivre",
+      "routes": [
+        {
+          "target": 367,
+          "label": "Payer l'amende"
+        },
+        {
+          "target": 73,
+          "label": "Résister à l'arrestation"
+        }
+      ],
+      "source_page_pdf": 78
+    },
+    "151": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les cellules du sous-sol",
+      "routes": [
+        {
+          "target": 351,
+          "label": "Donner 10 Pièces d'Or",
+          "condition_text": "10 Pièces d'Or"
+        },
+        {
+          "target": 29,
+          "label": "L'ignorer"
+        }
+      ],
+      "source_page_pdf": 78
+    },
+    "152": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le pirate au sabre",
+      "routes": [
+        {
+          "target": 20,
+          "label": "Fouiller après la victoire",
+          "condition_text": "Pirate vaincu"
+        }
+      ],
+      "source_page_pdf": 79
+    },
+    "153": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La chouette d'or",
+      "routes": [
+        {
+          "target": 65,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 79
+    },
+    "154": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les deux scorpions",
+      "routes": [
+        {
+          "target": 273,
+          "label": "Prendre le scorpion d'or"
+        },
+        {
+          "target": 13,
+          "label": "Prendre le scorpion d'argent"
+        },
+        {
+          "target": 80,
+          "label": "Monter l'escalier"
+        },
+        {
+          "target": 334,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 79
+    },
+    "155": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Renversé par la voiture",
+      "routes": [
+        {
+          "target": 171,
+          "label": "Repartir vers l'ouest",
+          "condition_text": "Si vous survivez"
+        }
+      ],
+      "source_page_pdf": 80
+    },
+    "156": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Escorté jusqu'à la Porte Nord",
+      "routes": [
+        {
+          "target": 201,
+          "label": "Tous les objets et le tatouage",
+          "condition_text": "Objets réunis et tatouage"
+        },
+        {
+          "target": 299,
+          "label": "Il manque quelque chose",
+          "condition_text": "Objet ou tatouage manquant"
+        }
+      ],
+      "source_page_pdf": 80
+    },
+    "157": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le combat dans la cellule",
+      "routes": [
+        {
+          "target": 54,
+          "label": "Monter l'escalier",
+          "condition_text": "Deux gardes vaincus"
+        }
+      ],
+      "source_page_pdf": 80
+    },
+    "158": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'Armure en marche",
+      "routes": [
+        {
+          "target": 122,
+          "label": "Ouvrir la porte"
+        },
+        {
+          "target": 207,
+          "label": "Monter à l'étage suivant"
+        }
+      ],
+      "source_page_pdf": 81
+    },
+    "159": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La pièce au sol de marbre",
+      "routes": [
+        {
+          "target": 278,
+          "label": "Fouiller la pièce"
+        },
+        {
+          "target": 107,
+          "label": "Franchir la porte cintrée"
+        },
+        {
+          "target": 60,
+          "label": "Monter l'escalier"
+        }
+      ],
+      "source_page_pdf": 81
+    },
+    "160": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La charrette de fruits",
+      "routes": [
+        {
+          "target": 211,
+          "label": "Acheter des prunes",
+          "condition_text": "1 Pièce d'Or"
+        },
+        {
+          "target": 242,
+          "label": "Acheter des pommes",
+          "condition_text": "1 Pièce d'Or"
+        }
+      ],
+      "source_page_pdf": 81
+    },
+    "161": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La porte ouverte",
+      "routes": [
+        {
+          "target": 245,
+          "label": "Entrer dans la maison"
+        },
+        {
+          "target": 282,
+          "label": "Poursuivre vers le nord"
+        }
+      ],
+      "source_page_pdf": 82
+    },
+    "162": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La bourse du dormeur",
+      "routes": [
+        {
+          "target": 7,
+          "label": "Prendre la bourse",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 226,
+          "label": "Le pirate se réveille",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 82
+    },
+    "163": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le sarcophage",
+      "routes": [
+        {
+          "target": 231,
+          "label": "Quitter la pièce"
+        }
+      ],
+      "source_page_pdf": 82
+    },
+    "164": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "À l'abri des archers",
+      "routes": [
+        {
+          "target": 112,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 83
+    },
+    "165": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La rue de la Bougie",
+      "routes": [
+        {
+          "target": 139,
+          "label": "Tourner dans la rue de la Bougie"
+        },
+        {
+          "target": 91,
+          "label": "Redescendre la rue du Port"
+        }
+      ],
+      "source_page_pdf": 83
+    },
+    "166": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le Mille-Pattes Géant",
+      "routes": [
+        {
+          "target": 272,
+          "label": "Continuer après la victoire",
+          "condition_text": "Mille-Pattes vaincu"
+        }
+      ],
+      "source_page_pdf": 83
+    },
+    "167": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'emplâtre d'herbes",
+      "routes": [
+        {
+          "target": 93,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 83
+    },
+    "168": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La partie de balle",
+      "routes": [
+        {
+          "target": 359,
+          "label": "Frapper la balle",
+          "condition_text": "Deux dés ≤ Habileté"
+        },
+        {
+          "target": 266,
+          "label": "Éliminé",
+          "condition_text": "Deux dés > Habileté"
+        }
+      ],
+      "source_page_pdf": 84
+    },
+    "169": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La cotte de mailles cachée",
+      "routes": [
+        {
+          "target": 46,
+          "label": "Payer la cotte de mailles",
+          "condition_text": "20 Pièces d'Or"
+        },
+        {
+          "target": 115,
+          "label": "Quitter l'écurie"
+        }
+      ],
+      "source_page_pdf": 84
+    },
+    "170": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le joaillier à la hache",
+      "routes": [
+        {
+          "target": 114,
+          "label": "Fouiller après la victoire",
+          "condition_text": "Joaillier vaincu"
+        },
+        {
+          "target": 196,
+          "label": "Fuir vers l'ouest",
+          "condition_text": "Fuite"
+        }
+      ],
+      "source_page_pdf": 85
+    },
+    "171": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La taverne du Homard Noir",
+      "routes": [
+        {
+          "target": 399,
+          "label": "Monter à bord du navire"
+        },
+        {
+          "target": 78,
+          "label": "Remonter la rue du Port"
+        }
+      ],
+      "source_page_pdf": 85
+    },
+    "172": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le bouquet remis",
+      "routes": [
+        {
+          "target": 333,
+          "label": "Repartir par la rue de l'Écurie"
+        }
+      ],
+      "source_page_pdf": 85
+    },
+    "173": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les Nains joueurs de dés",
+      "routes": [
+        {
+          "target": 206,
+          "label": "Miser quelques Pièces d'Or"
+        },
+        {
+          "target": 296,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 87
+    },
+    "174": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Retour à l'orifice d'accès",
+      "routes": [
+        {
+          "target": 205,
+          "label": "Remonter vers la rue"
+        },
+        {
+          "target": 356,
+          "label": "Suivre l'égout vers le nord",
+          "condition_text": "Si ce n'est déjà fait"
+        }
+      ],
+      "source_page_pdf": 87
+    },
+    "175": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le scorpion sous le gobelet",
+      "routes": [
+        {
+          "target": 204,
+          "label": "Le dard manque",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 373,
+          "label": "Piqué à la main",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 87
+    },
+    "176": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le baigneur inquiet",
+      "routes": [
+        {
+          "target": 271,
+          "label": "Ouvrir l'autre porte",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 78,
+          "label": "Quitter le navire vers la rue du Port"
+        }
+      ],
+      "source_page_pdf": 87
+    },
+    "177": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Au secours du vieillard",
+      "routes": [
+        {
+          "target": 51,
+          "label": "Continuer après la victoire",
+          "condition_text": "Deux voleurs vaincus"
+        }
+      ],
+      "source_page_pdf": 88
+    },
+    "178": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'Ogre inquiet",
+      "routes": [
+        {
+          "target": 264,
+          "label": "Lui parler"
+        },
+        {
+          "target": 140,
+          "label": "L'attaquer"
+        },
+        {
+          "target": 282,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 88
+    },
+    "179": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le sac jeté",
+      "routes": [
+        {
+          "target": 16,
+          "label": "Ouvrir le sac"
+        },
+        {
+          "target": 333,
+          "label": "Repartir par la rue de l'Écurie"
+        }
+      ],
+      "source_page_pdf": 89
+    },
+    "180": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le bruit de sabots",
+      "routes": [
+        {
+          "target": 344,
+          "label": "Voir qui arrive"
+        },
+        {
+          "target": 34,
+          "label": "Se cacher derrière un tonneau"
+        }
+      ],
+      "source_page_pdf": 89
+    },
+    "181": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La clef dans la serrure",
+      "routes": [
+        {
+          "target": 159,
+          "label": "Entrer"
+        }
+      ],
+      "source_page_pdf": 89
+    },
+    "182": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le tatoueur",
+      "routes": [
+        {
+          "target": 279,
+          "label": "Payer le tatouage",
+          "condition_text": "10 Pièces d'Or"
+        },
+        {
+          "target": 354,
+          "label": "Renoncer",
+          "condition_text": "Moins de 10 Pièces d'Or"
+        }
+      ],
+      "source_page_pdf": 89
+    },
+    "183": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les mélanges de l'herboriste",
+      "routes": [
+        {
+          "target": 366,
+          "label": "Acheter du mélange à fumer",
+          "condition_text": "1 Pièce d'Or"
+        },
+        {
+          "target": 167,
+          "label": "Acheter du mélange curatif",
+          "condition_text": "4 Pièces d'Or"
+        },
+        {
+          "target": 93,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 90
+    },
+    "184": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les fleurs de Mme Pipe",
+      "routes": [
+        {
+          "target": 55,
+          "label": "Utiliser les fleurs d'or",
+          "condition_text": "Fleurs d'or"
+        },
+        {
+          "target": 308,
+          "label": "Sans fleurs",
+          "condition_text": "Pas de fleurs d'or"
+        }
+      ],
+      "source_page_pdf": 90
+    },
+    "185": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'armure brisée",
+      "routes": [
+        {
+          "target": 122,
+          "label": "Ouvrir la porte"
+        },
+        {
+          "target": 207,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 90
+    },
+    "186": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La table de la Lézardine",
+      "routes": [
+        {
+          "target": 387,
+          "label": "Épingler la broche"
+        },
+        {
+          "target": 334,
+          "label": "Prendre l'or et repartir"
+        }
+      ],
+      "source_page_pdf": 90
+    },
+    "187": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le marchandage avec les gardes",
+      "routes": [
+        {
+          "target": 260,
+          "label": "Donner un objet demandé",
+          "condition_text": "Objet magique exigé"
+        },
+        {
+          "target": 341,
+          "label": "Avouer n'en avoir aucun",
+          "condition_text": "Aucun objet exigé"
+        }
+      ],
+      "source_page_pdf": 91
+    },
+    "188": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La maison abandonnée",
+      "routes": [
+        {
+          "target": 253,
+          "label": "Attaquer les serpents"
+        },
+        {
+          "target": 15,
+          "label": "Courir vers la porte"
+        }
+      ],
+      "source_page_pdf": 91
+    },
+    "189": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La flèche dans la poitrine",
+      "routes": [
+        {
+          "target": 125,
+          "label": "Prendre le bouclier à la tour"
+        },
+        {
+          "target": 374,
+          "label": "Prendre le bouclier à la licorne"
+        },
+        {
+          "target": 21,
+          "label": "Monter l'escalier"
+        }
+      ],
+      "source_page_pdf": 91
+    },
+    "190": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le jeu des poignards",
+      "routes": [
+        {
+          "target": 38,
+          "label": "Réussir",
+          "condition_text": "Deux dés ≤ Habileté"
+        },
+        {
+          "target": 296,
+          "label": "Payer et partir vers le nord",
+          "condition_text": "Deux dés > Habileté"
+        }
+      ],
+      "source_page_pdf": 92
+    },
+    "191": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les Bêtes-Feuilles",
+      "routes": [
+        {
+          "target": 133,
+          "label": "S'échapper par la rue de l'Écurie"
+        }
+      ],
+      "source_page_pdf": 93
+    },
+    "192": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le saut depuis le nid",
+      "routes": [
+        {
+          "target": 304,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 93
+    },
+    "193": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La Momie",
+      "routes": [
+        {
+          "target": 286,
+          "label": "Utiliser l'Anneau de Feu",
+          "condition_text": "Anneau de Feu"
+        },
+        {
+          "target": 163,
+          "label": "Combattre à l'épée",
+          "condition_text": "Pas d'Anneau de Feu"
+        }
+      ],
+      "source_page_pdf": 93
+    },
+    "194": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La boule rangée",
+      "routes": [
+        {
+          "target": 161,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 94
+    },
+    "195": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'expéditeur des fleurs",
+      "routes": [
+        {
+          "target": 61,
+          "label": "Nommer le Seigneur Azzur"
+        },
+        {
+          "target": 268,
+          "label": "Nommer Mme Pipe"
+        },
+        {
+          "target": 53,
+          "label": "Nommer Ben Borryman"
+        }
+      ],
+      "source_page_pdf": 94
+    },
+    "196": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le carrefour de la rue de la Clef",
+      "routes": [
+        {
+          "target": 148,
+          "label": "Suivre la foule"
+        }
+      ],
+      "source_page_pdf": 94
+    },
+    "197": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'armure noire",
+      "routes": [
+        {
+          "target": 301,
+          "label": "Inspecter l'armure"
+        },
+        {
+          "target": 122,
+          "label": "Ouvrir la porte"
+        },
+        {
+          "target": 207,
+          "label": "Continuer à monter"
+        }
+      ],
+      "source_page_pdf": 94
+    },
+    "198": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La fouille des Lutins",
+      "routes": [
+        {
+          "target": 296,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 95
+    },
+    "199": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le chasseur de primes",
+      "routes": [
+        {
+          "target": 222,
+          "label": "Filer vers le nord"
+        }
+      ],
+      "source_page_pdf": 95
+    },
+    "200": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La tente de Madame Étoile",
+      "routes": [
+        {
+          "target": 394,
+          "label": "Entrer dans la tente"
+        },
+        {
+          "target": 117,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 95
+    },
+    "201": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La marche vers la tour",
+      "routes": [
+        {
+          "target": 138,
+          "label": "Continuer après la victoire",
+          "condition_text": "Créature vaincue"
+        }
+      ],
+      "source_page_pdf": 95
+    },
+    "202": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le maître du corps de garde",
+      "routes": [
+        {
+          "target": 151,
+          "label": "Se laisser emmener"
+        },
+        {
+          "target": 69,
+          "label": "Affronter les gardes"
+        },
+        {
+          "target": 276,
+          "label": "Acheter les gardes"
+        }
+      ],
+      "source_page_pdf": 97
+    },
+    "203": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La flèche d'argent décochée",
+      "routes": [
+        {
+          "target": 244,
+          "label": "La flèche atteint son but",
+          "condition_text": "Chance réussie"
+        }
+      ],
+      "source_page_pdf": 99
+    },
+    "204": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le scorpion écrasé",
+      "routes": [
+        {
+          "target": 209,
+          "label": "Soulever le gobelet B",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 43,
+          "label": "Soulever le gobelet C",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 107,
+          "label": "Franchir la porte cintrée"
+        },
+        {
+          "target": 60,
+          "label": "Monter l'escalier"
+        }
+      ],
+      "source_page_pdf": 99
+    },
+    "205": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La rue de l'Écurie oblique",
+      "routes": [
+        {
+          "target": 44,
+          "label": "Suivre la rue"
+        },
+        {
+          "target": 127,
+          "label": "Revenir vers la rue de la Tour"
+        }
+      ],
+      "source_page_pdf": 99
+    },
+    "206": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "« Qui gagne prend »",
+      "routes": [
+        {
+          "target": 296,
+          "label": "Quitter la taverne vers le nord"
+        }
+      ],
+      "source_page_pdf": 100
+    },
+    "207": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le toit de la tour",
+      "routes": [
+        {
+          "target": 314,
+          "label": "Continuer après la victoire",
+          "condition_text": "Deux Faucons vaincus"
+        }
+      ],
+      "source_page_pdf": 100
+    },
+    "208": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La poche du Lutin",
+      "routes": [
+        {
+          "target": 317,
+          "label": "Partir par la rue du Sabot"
+        }
+      ],
+      "source_page_pdf": 101
+    },
+    "209": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les pièces sous le gobelet",
+      "routes": [
+        {
+          "target": 175,
+          "label": "Soulever le gobelet A",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 43,
+          "label": "Soulever le gobelet C",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 107,
+          "label": "Franchir la porte cintrée"
+        },
+        {
+          "target": 60,
+          "label": "Monter l'escalier"
+        }
+      ],
+      "source_page_pdf": 101
+    },
+    "210": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "Le regard hypnotique",
+      "routes": [],
+      "source_page_pdf": 101
+    },
+    "211": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les prunes",
+      "routes": [
+        {
+          "target": 307,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 101
+    },
+    "212": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Vers la ville",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Entrer dans la ville"
+        }
+      ],
+      "source_page_pdf": 101
+    },
+    "213": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'orfèvre",
+      "routes": [
+        {
+          "target": 248,
+          "label": "Parler à l'orfèvre"
+        },
+        {
+          "target": 135,
+          "label": "Attaquer l'orfèvre"
+        },
+        {
+          "target": 100,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 102
+    },
+    "214": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La hache de l'Armure",
+      "routes": [
+        {
+          "target": 158,
+          "label": "Bondir en arrière",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 379,
+          "label": "Entaillé au bras",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 102
+    },
+    "215": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les broches scorpions",
+      "routes": [
+        {
+          "target": 315,
+          "label": "Acheter une broche"
+        },
+        {
+          "target": 334,
+          "label": "Refuser et repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 102
+    },
+    "216": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La rue du Sabot",
+      "routes": [
+        {
+          "target": 72,
+          "label": "Porter secours"
+        },
+        {
+          "target": 317,
+          "label": "Continuer à avancer"
+        }
+      ],
+      "source_page_pdf": 102
+    },
+    "217": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les Chiens de Lune",
+      "routes": [
+        {
+          "target": 259,
+          "label": "Continuer après la victoire",
+          "condition_text": "Deux Chiens de Lune vaincus"
+        }
+      ],
+      "source_page_pdf": 103
+    },
+    "218": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'ennemi de Nicodème",
+      "routes": [
+        {
+          "target": 300,
+          "label": "Repartir par la rue de la Clef"
+        }
+      ],
+      "source_page_pdf": 103
+    },
+    "219": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le Troll Grincheux",
+      "routes": [
+        {
+          "target": 150,
+          "label": "Répondre « oui »"
+        },
+        {
+          "target": 393,
+          "label": "Répondre « non »"
+        }
+      ],
+      "source_page_pdf": 104
+    },
+    "220": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La grille de la vitrine",
+      "routes": [
+        {
+          "target": 100,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 104
+    },
+    "221": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'impasse",
+      "routes": [
+        {
+          "target": 396,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 104
+    },
+    "222": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le Jardin Public",
+      "routes": [
+        {
+          "target": 370,
+          "label": "Entrer dans le jardin",
+          "condition_text": "1 Pièce d'Or"
+        },
+        {
+          "target": 133,
+          "label": "Continuer son chemin"
+        }
+      ],
+      "source_page_pdf": 105
+    },
+    "223": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La pilule",
+      "routes": [
+        {
+          "target": 165,
+          "label": "Pilule inoffensive",
+          "condition_text": "Dé de 2 à 6"
+        }
+      ],
+      "source_page_pdf": 105
+    },
+    "224": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le vieux Nain serrurier",
+      "routes": [
+        {
+          "target": 66,
+          "label": "Demander un passe-partout"
+        },
+        {
+          "target": 236,
+          "label": "Demander où habite Nicodème"
+        }
+      ],
+      "source_page_pdf": 105
+    },
+    "225": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les vagabonds à tour de rôle",
+      "routes": [
+        {
+          "target": 397,
+          "label": "Continuer après la victoire",
+          "condition_text": "Trois vagabonds vaincus"
+        }
+      ],
+      "source_page_pdf": 107
+    },
+    "226": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les pirates réveillés",
+      "routes": [
+        {
+          "target": 111,
+          "label": "Continuer après la victoire",
+          "condition_text": "Trois pirates vaincus"
+        },
+        {
+          "target": 78,
+          "label": "Fuir vers la rue du Port",
+          "condition_text": "Fuite"
+        }
+      ],
+      "source_page_pdf": 107
+    },
+    "227": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les vieilles bottes",
+      "routes": [
+        {
+          "target": 362,
+          "label": "Essayer les bottes"
+        },
+        {
+          "target": 103,
+          "label": "Continuer vers l'est"
+        }
+      ],
+      "source_page_pdf": 108
+    },
+    "228": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'entrée aux portraits",
+      "routes": [
+        {
+          "target": 125,
+          "label": "Prendre le bouclier à la tour"
+        },
+        {
+          "target": 374,
+          "label": "Prendre le bouclier à la licorne"
+        },
+        {
+          "target": 21,
+          "label": "Monter l'escalier"
+        }
+      ],
+      "source_page_pdf": 108
+    },
+    "229": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'œuf lancé",
+      "routes": [
+        {
+          "target": 23,
+          "label": "L'œuf manque son but",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 343,
+          "label": "L'œuf se brise sur vous",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 108
+    },
+    "230": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La pierre descellée",
+      "routes": [
+        {
+          "target": 54,
+          "label": "Monter l'escalier",
+          "condition_text": "Deux gardes vaincus"
+        }
+      ],
+      "source_page_pdf": 109
+    },
+    "231": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Retour sur le palier",
+      "routes": [
+        {
+          "target": 96,
+          "label": "Franchir la porte noire"
+        },
+        {
+          "target": 197,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 109
+    },
+    "232": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La baignoire",
+      "routes": [
+        {
+          "target": 12,
+          "label": "Se cacher derrière la porte"
+        },
+        {
+          "target": 383,
+          "label": "Refermer la porte"
+        }
+      ],
+      "source_page_pdf": 109
+    },
+    "233": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'eau ordinaire",
+      "routes": [
+        {
+          "target": 247,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 110
+    },
+    "234": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le renseignement du petit homme",
+      "routes": [
+        {
+          "target": 96,
+          "label": "Ouvrir la porte noire"
+        }
+      ],
+      "source_page_pdf": 110
+    },
+    "235": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "À plat ventre",
+      "routes": [
+        {
+          "target": 65,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 110
+    },
+    "236": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le Nain soupçonneux",
+      "routes": [
+        {
+          "target": 57,
+          "label": "Parler de la mission"
+        },
+        {
+          "target": 218,
+          "label": "Prétendre vouloir tuer Nicodème"
+        }
+      ],
+      "source_page_pdf": 110
+    },
+    "237": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le jet de feu",
+      "routes": [
+        {
+          "target": 133,
+          "label": "S'échapper par la rue de l'Écurie"
+        }
+      ],
+      "source_page_pdf": 111
+    },
+    "238": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La porte aux six crânes",
+      "routes": [
+        {
+          "target": 27,
+          "label": "Ouvrir la porte"
+        },
+        {
+          "target": 139,
+          "label": "Continuer vers l'est"
+        }
+      ],
+      "source_page_pdf": 111
+    },
+    "239": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La poursuite",
+      "routes": [
+        {
+          "target": 201,
+          "label": "Tous les objets et le tatouage",
+          "condition_text": "Objets réunis et tatouage"
+        },
+        {
+          "target": 299,
+          "label": "Il manque quelque chose",
+          "condition_text": "Objet ou tatouage manquant"
+        }
+      ],
+      "source_page_pdf": 111
+    },
+    "240": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les pierres vendues",
+      "routes": [
+        {
+          "target": 36,
+          "label": "Demander le prix des anneaux"
+        },
+        {
+          "target": 196,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 113
+    },
+    "241": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le fabricant de bougies",
+      "routes": [
+        {
+          "target": 63,
+          "label": "Voir une bougie magique"
+        },
+        {
+          "target": 280,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 113
+    },
+    "242": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les pommes acides",
+      "routes": [
+        {
+          "target": 307,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 114
+    },
+    "243": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Feindre la mort",
+      "routes": [
+        {
+          "target": 304,
+          "label": "Ramper dehors"
+        }
+      ],
+      "source_page_pdf": 114
+    },
+    "244": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le Prince de la Nuit paralysé",
+      "routes": [
+        {
+          "target": 9,
+          "label": "Cheveux de Sorcière et perles noires"
+        },
+        {
+          "target": 129,
+          "label": "Perles noires et lotus"
+        },
+        {
+          "target": 337,
+          "label": "Lotus et cheveux de Sorcière"
+        }
+      ],
+      "source_page_pdf": 115
+    },
+    "245": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La pièce au sol de paille",
+      "routes": [
+        {
+          "target": 178,
+          "label": "Franchir la porte"
+        },
+        {
+          "target": 282,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 115
+    },
+    "246": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La potion du petit homme",
+      "routes": [
+        {
+          "target": 98,
+          "label": "Payer la potion",
+          "condition_text": "2 Pièces d'Or"
+        },
+        {
+          "target": 363,
+          "label": "Poursuivre vers l'est"
+        }
+      ],
+      "source_page_pdf": 115
+    },
+    "247": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'embuscade",
+      "routes": [
+        {
+          "target": 384,
+          "label": "Éviter le coup",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 134,
+          "label": "Assommé",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 116
+    },
+    "248": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La commande de flèche",
+      "routes": [
+        {
+          "target": 85,
+          "label": "Payer la flèche",
+          "condition_text": "10 Pièces d'Or ou deux objets magiques"
+        },
+        {
+          "target": 42,
+          "label": "Sans les moyens",
+          "condition_text": "Prix impossible à payer"
+        }
+      ],
+      "source_page_pdf": 116
+    },
+    "249": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'assaut de la Reine Serpent",
+      "routes": [
+        {
+          "target": 295,
+          "label": "Continuer après la victoire",
+          "condition_text": "Reine Serpent vaincue"
+        }
+      ],
+      "source_page_pdf": 116
+    },
+    "250": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'herboristerie de l'Homme Orque",
+      "routes": [
+        {
+          "target": 183,
+          "label": "Se renseigner sur les herbes"
+        },
+        {
+          "target": 342,
+          "label": "Demander s'il connaît Nicodème"
+        },
+        {
+          "target": 5,
+          "label": "Attaquer l'Homme-Orque"
+        }
+      ],
+      "source_page_pdf": 118
+    },
+    "251": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le petit arbalétrier",
+      "routes": [
+        {
+          "target": 269,
+          "label": "Le carreau manque",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 330,
+          "label": "Touché à l'épaule",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 118
+    },
+    "252": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La voiture qui ne s'arrête pas",
+      "routes": [
+        {
+          "target": 275,
+          "label": "Plonger dans le caniveau",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 155,
+          "label": "Piétiné",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 118
+    },
+    "253": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les serpents",
+      "routes": [
+        {
+          "target": 75,
+          "label": "Sortir par la porte principale",
+          "condition_text": "Serpents vaincus"
+        }
+      ],
+      "source_page_pdf": 119
+    },
+    "254": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La gousse d'ail",
+      "routes": [
+        {
+          "target": 310,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 119
+    },
+    "255": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le laissez-passer présenté",
+      "routes": [
+        {
+          "target": 227,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 119
+    },
+    "256": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les pêcheuses",
+      "routes": [
+        {
+          "target": 320,
+          "label": "Parler aux femmes"
+        },
+        {
+          "target": 369,
+          "label": "Poursuivre jusqu'à la bifurcation"
+        }
+      ],
+      "source_page_pdf": 119
+    },
+    "257": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le coffre et le crâne d'or",
+      "routes": [
+        {
+          "target": 385,
+          "label": "Porter l'Anneau de l'Œil d'Or",
+          "condition_text": "Anneau de l'Œil d'Or"
+        },
+        {
+          "target": 70,
+          "label": "Sans l'anneau",
+          "condition_text": "Pas d'Anneau de l'Œil d'Or"
+        }
+      ],
+      "source_page_pdf": 120
+    },
+    "258": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le maître du Diablotin",
+      "routes": [
+        {
+          "target": 318,
+          "label": "Porter le crâne d'ivoire",
+          "condition_text": "Crâne d'ivoire au cou"
+        },
+        {
+          "target": 47,
+          "label": "Sans crâne d'ivoire",
+          "condition_text": "Pas de crâne d'ivoire"
+        }
+      ],
+      "source_page_pdf": 120
+    },
+    "259": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La porte fermée à clef",
+      "routes": [
+        {
+          "target": 228,
+          "label": "Utiliser le passe-partout",
+          "condition_text": "Passe-partout"
+        },
+        {
+          "target": 4,
+          "label": "Tirer la corde",
+          "condition_text": "Pas de passe-partout"
+        },
+        {
+          "target": 365,
+          "label": "Enfoncer la porte",
+          "condition_text": "Pas de passe-partout"
+        }
+      ],
+      "source_page_pdf": 120
+    },
+    "260": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le pot-de-vin accepté",
+      "routes": [
+        {
+          "target": 222,
+          "label": "Filer vers le nord"
+        }
+      ],
+      "source_page_pdf": 120
+    },
+    "261": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le Seigneur Azzur",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Entrer dans la ville"
+        }
+      ],
+      "source_page_pdf": 121
+    },
+    "262": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La soupe recrachée",
+      "routes": [
+        {
+          "target": 375,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 121
+    },
+    "263": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La pièce obscure",
+      "routes": [
+        {
+          "target": 153,
+          "label": "Utiliser la chouette d'or",
+          "condition_text": "Chouette d'or"
+        },
+        {
+          "target": 281,
+          "label": "Sans chouette",
+          "condition_text": "Pas de chouette d'or"
+        }
+      ],
+      "source_page_pdf": 121
+    },
+    "264": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'Ogre affamé",
+      "routes": [
+        {
+          "target": 121,
+          "label": "Partager ses vivres",
+          "condition_text": "2 Provisions"
+        },
+        {
+          "target": 357,
+          "label": "Refuser"
+        }
+      ],
+      "source_page_pdf": 121
+    },
+    "265": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La Sorcière du tunnel",
+      "routes": [
+        {
+          "target": 82,
+          "label": "Boire la Potion de Contrôle Mental",
+          "condition_text": "Potion de Contrôle Mental"
+        },
+        {
+          "target": 390,
+          "label": "Sans potion",
+          "condition_text": "Pas de potion"
+        }
+      ],
+      "source_page_pdf": 123
+    },
+    "266": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le match perdu",
+      "routes": [
+        {
+          "target": 91,
+          "label": "Fuir par la rue du Port"
+        }
+      ],
+      "source_page_pdf": 123
+    },
+    "267": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le prix de l'entrée",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Entrer dans la ville"
+        }
+      ],
+      "source_page_pdf": 123
+    },
+    "268": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La colère de la Reine Serpent",
+      "routes": [
+        {
+          "target": 32,
+          "label": "Courir vers la porte"
+        },
+        {
+          "target": 249,
+          "label": "Attaquer la Reine Serpent"
+        }
+      ],
+      "source_page_pdf": 124
+    },
+    "269": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'arbalétrier s'enfuit",
+      "routes": [
+        {
+          "target": 30,
+          "label": "Continuer vers l'est"
+        }
+      ],
+      "source_page_pdf": 124
+    },
+    "270": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le Troll de la trappe",
+      "routes": [
+        {
+          "target": 26,
+          "label": "Continuer après la victoire",
+          "condition_text": "Troll vaincu"
+        }
+      ],
+      "source_page_pdf": 124
+    },
+    "271": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les pirates endormis",
+      "routes": [
+        {
+          "target": 162,
+          "label": "S'approcher de la bourse"
+        },
+        {
+          "target": 284,
+          "label": "Refermer la porte"
+        }
+      ],
+      "source_page_pdf": 126
+    },
+    "272": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La herse de l'égout",
+      "routes": [
+        {
+          "target": 377,
+          "label": "Enlever la herse"
+        },
+        {
+          "target": 174,
+          "label": "Revenir à l'orifice d'accès"
+        }
+      ],
+      "source_page_pdf": 126
+    },
+    "273": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le scorpion porte-bonheur",
+      "routes": [
+        {
+          "target": 13,
+          "label": "Prendre le scorpion d'argent",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 80,
+          "label": "Monter l'escalier"
+        },
+        {
+          "target": 334,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 126
+    },
+    "274": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le meurtrier livré",
+      "routes": [
+        {
+          "target": 222,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 127
+    },
+    "275": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Indemne dans le caniveau",
+      "routes": [
+        {
+          "target": 171,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 127
+    },
+    "276": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le prix de la liberté",
+      "routes": [
+        {
+          "target": 109,
+          "label": "Offrir cinq Pièces d'Or",
+          "condition_text": "5 Pièces d'Or"
+        },
+        {
+          "target": 267,
+          "label": "Offrir dix Pièces d'Or",
+          "condition_text": "10 Pièces d'Or"
+        },
+        {
+          "target": 41,
+          "label": "Offrir quinze Pièces d'Or",
+          "condition_text": "15 Pièces d'Or"
+        }
+      ],
+      "source_page_pdf": 127
+    },
+    "277": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Vers l'étage",
+      "routes": [
+        {
+          "target": 207,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 127
+    },
+    "278": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les trois gobelets",
+      "routes": [
+        {
+          "target": 175,
+          "label": "Prendre le gobelet A"
+        },
+        {
+          "target": 209,
+          "label": "Prendre le gobelet B"
+        },
+        {
+          "target": 43,
+          "label": "Prendre le gobelet C"
+        },
+        {
+          "target": 107,
+          "label": "Franchir la porte cintrée"
+        },
+        {
+          "target": 60,
+          "label": "Monter l'escalier"
+        }
+      ],
+      "source_page_pdf": 128
+    },
+    "279": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La séance de tatouage",
+      "routes": [
+        {
+          "target": 307,
+          "label": "Rejoindre la rue du Moulin"
+        }
+      ],
+      "source_page_pdf": 128
+    },
+    "280": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'enseigne de l'orfèvre",
+      "routes": [
+        {
+          "target": 213,
+          "label": "Entrer dans la boutique"
+        },
+        {
+          "target": 100,
+          "label": "Continuer vers l'est"
+        }
+      ],
+      "source_page_pdf": 129
+    },
+    "281": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "À tâtons",
+      "routes": [
+        {
+          "target": 391,
+          "label": "Entrer à tâtons"
+        },
+        {
+          "target": 65,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 129
+    },
+    "282": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le petit garçon au tonneau",
+      "routes": [
+        {
+          "target": 119,
+          "label": "Parler à l'enfant"
+        },
+        {
+          "target": 247,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 129
+    },
+    "283": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le cadavre de la créature",
+      "routes": [
+        {
+          "target": 217,
+          "label": "Poursuivre vers le nord"
+        }
+      ],
+      "source_page_pdf": 129
+    },
+    "284": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Dans la coursive",
+      "routes": [
+        {
+          "target": 232,
+          "label": "Ouvrir l'autre porte",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 78,
+          "label": "Quitter le navire vers la rue du Port"
+        }
+      ],
+      "source_page_pdf": 129
+    },
+    "285": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La fouille des gardes",
+      "routes": [
+        {
+          "target": 227,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 130
+    },
+    "286": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'Anneau de Feu contre la Momie",
+      "routes": [
+        {
+          "target": 163,
+          "label": "Examiner le sarcophage"
+        }
+      ],
+      "source_page_pdf": 130
+    },
+    "287": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les étals du marché",
+      "routes": [
+        {
+          "target": 3,
+          "label": "Écouter le joueur de lyre"
+        },
+        {
+          "target": 398,
+          "label": "Passer son chemin"
+        }
+      ],
+      "source_page_pdf": 130
+    },
+    "288": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "La nuit dans la tour",
+      "routes": [],
+      "source_page_pdf": 131
+    },
+    "289": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La pièce envolée",
+      "routes": [
+        {
+          "target": 5,
+          "label": "Affronter l'Homme Orque"
+        },
+        {
+          "target": 93,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 131
+    },
+    "290": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les Trolls soupçonneux",
+      "routes": [
+        {
+          "target": 219,
+          "label": "Montrer le laissez-passer",
+          "condition_text": "Laissez-passer de marchand"
+        },
+        {
+          "target": 335,
+          "label": "Sans laissez-passer",
+          "condition_text": "Pas de laissez-passer"
+        }
+      ],
+      "source_page_pdf": 131
+    },
+    "291": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La lance jetée",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Passer en courant",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 10,
+          "label": "Touché au bras",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 131
+    },
+    "292": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La dame en noir",
+      "routes": [
+        {
+          "target": 254,
+          "label": "Brandir l'ail",
+          "condition_text": "Ail"
+        },
+        {
+          "target": 210,
+          "label": "Sans ail",
+          "condition_text": "Pas d'ail"
+        }
+      ],
+      "source_page_pdf": 133
+    },
+    "293": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La fleur dorée",
+      "routes": [
+        {
+          "target": 24,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 133
+    },
+    "294": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le pirate de l'échelle",
+      "routes": [
+        {
+          "target": 78,
+          "label": "Redescendre vers la rue du Port"
+        },
+        {
+          "target": 386,
+          "label": "Attaquer le pirate"
+        }
+      ],
+      "source_page_pdf": 133
+    },
+    "295": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le sac de la Reine Serpent",
+      "routes": [
+        {
+          "target": 333,
+          "label": "Continuer par la rue de l'Écurie"
+        }
+      ],
+      "source_page_pdf": 134
+    },
+    "296": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les hommes en robe noire",
+      "routes": [
+        {
+          "target": 147,
+          "label": "Continuer après la victoire",
+          "condition_text": "Deux voleurs vaincus"
+        }
+      ],
+      "source_page_pdf": 134
+    },
+    "297": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'odeur des zombies",
+      "routes": [
+        {
+          "target": 207,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 134
+    },
+    "298": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le venin",
+      "routes": [
+        {
+          "target": 75,
+          "label": "Atteindre la porte",
+          "condition_text": "Si vous survivez"
+        }
+      ],
+      "source_page_pdf": 135
+    },
+    "299": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "Le retour impossible",
+      "routes": [],
+      "source_page_pdf": 135
+    },
+    "300": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les présences invisibles",
+      "routes": [
+        {
+          "target": 347,
+          "label": "Laisser l'or demandé"
+        },
+        {
+          "target": 137,
+          "label": "Continuer sans laisser d'or"
+        }
+      ],
+      "source_page_pdf": 135
+    },
+    "301": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La hache de l'armure",
+      "routes": [
+        {
+          "target": 214,
+          "label": "Prendre la hache"
+        },
+        {
+          "target": 185,
+          "label": "Renverser l'armure"
+        }
+      ],
+      "source_page_pdf": 135
+    },
+    "302": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les pierres précieuses",
+      "routes": [
+        {
+          "target": 240,
+          "label": "Accepter l'offre"
+        },
+        {
+          "target": 345,
+          "label": "Marchander"
+        }
+      ],
+      "source_page_pdf": 136
+    },
+    "303": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La mèche de cheveux",
+      "routes": [
+        {
+          "target": 104,
+          "label": "Retourner à l'orifice d'accès"
+        }
+      ],
+      "source_page_pdf": 136
+    },
+    "304": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le carrefour à quatre voies",
+      "routes": [
+        {
+          "target": 148,
+          "label": "Suivre la foule vers le nord"
+        }
+      ],
+      "source_page_pdf": 136
+    },
+    "305": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le miroir sans effet",
+      "routes": [
+        {
+          "target": 189,
+          "label": "Tirer la flèche d'argent"
+        },
+        {
+          "target": 382,
+          "label": "Utiliser l'Anneau de Glace"
+        }
+      ],
+      "source_page_pdf": 136
+    },
+    "306": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La ruse de la peste",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Gagner les rues de la ville"
+        }
+      ],
+      "source_page_pdf": 138
+    },
+    "307": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les gardes Trolls",
+      "routes": [
+        {
+          "target": 290,
+          "label": "Croiser les Trolls"
+        },
+        {
+          "target": 11,
+          "label": "Escalader l'arbre"
+        }
+      ],
+      "source_page_pdf": 138
+    },
+    "308": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La ruelle vide",
+      "routes": [
+        {
+          "target": 180,
+          "label": "Tourner dans la rue du Port"
+        }
+      ],
+      "source_page_pdf": 138
+    },
+    "309": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le loup",
+      "routes": [
+        {
+          "target": 97,
+          "label": "Continuer après la victoire",
+          "condition_text": "Loup vaincu"
+        }
+      ],
+      "source_page_pdf": 138
+    },
+    "310": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le troisième étage",
+      "routes": [
+        {
+          "target": 263,
+          "label": "Ouvrir la porte du palier"
+        },
+        {
+          "target": 65,
+          "label": "Monter à l'étage suivant"
+        }
+      ],
+      "source_page_pdf": 139
+    },
+    "311": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les gardes du portail",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Entrer dans la ville",
+          "condition_text": "Gardes vaincus"
+        }
+      ],
+      "source_page_pdf": 139
+    },
+    "312": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La chouette d'or",
+      "routes": [
+        {
+          "target": 217,
+          "label": "Continuer le voyage"
+        }
+      ],
+      "source_page_pdf": 140
+    },
+    "313": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Hors de la maison",
+      "routes": [
+        {
+          "target": 304,
+          "label": "Partir vers le nord"
+        }
+      ],
+      "source_page_pdf": 140
+    },
+    "314": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le bocal renversé",
+      "routes": [
+        {
+          "target": 234,
+          "label": "Demander où trouver Zanbar Bone"
+        },
+        {
+          "target": 94,
+          "label": "Demander des soins"
+        }
+      ],
+      "source_page_pdf": 140
+    },
+    "315": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les broches magiques",
+      "routes": [
+        {
+          "target": 8,
+          "label": "Choisir la chance"
+        },
+        {
+          "target": 132,
+          "label": "Choisir la santé"
+        }
+      ],
+      "source_page_pdf": 140
+    },
+    "316": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Retour chez le tatoueur",
+      "routes": [
+        {
+          "target": 279,
+          "label": "Se faire tatouer"
+        }
+      ],
+      "source_page_pdf": 141
+    },
+    "317": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le fabricant de bougies",
+      "routes": [
+        {
+          "target": 241,
+          "label": "Entrer dans la boutique"
+        },
+        {
+          "target": 280,
+          "label": "Continuer vers l'est"
+        }
+      ],
+      "source_page_pdf": 141
+    },
+    "318": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'éclair absorbé",
+      "routes": [
+        {
+          "target": 304,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 141
+    },
+    "319": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le sarcophage",
+      "routes": [
+        {
+          "target": 352,
+          "label": "Ouvrir le sarcophage"
+        },
+        {
+          "target": 231,
+          "label": "Ressortir à l'air libre"
+        }
+      ],
+      "source_page_pdf": 141
+    },
+    "320": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les poissonnières",
+      "routes": [
+        {
+          "target": 216,
+          "label": "Prendre la rue du Sabot"
+        }
+      ],
+      "source_page_pdf": 143
+    },
+    "321": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'égout",
+      "routes": [
+        {
+          "target": 356,
+          "label": "Suivre le tunnel vers le nord"
+        },
+        {
+          "target": 118,
+          "label": "Partir vers le sud"
+        }
+      ],
+      "source_page_pdf": 143
+    },
+    "322": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La tirelire",
+      "routes": [
+        {
+          "target": 93,
+          "label": "Partir vers le nord"
+        }
+      ],
+      "source_page_pdf": 143
+    },
+    "323": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le forgeron furieux",
+      "routes": [
+        {
+          "target": 395,
+          "label": "Continuer après la victoire",
+          "condition_text": "Forgeron vaincu"
+        }
+      ],
+      "source_page_pdf": 144
+    },
+    "324": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La boîte fracassée",
+      "routes": [
+        {
+          "target": 89,
+          "label": "Essayer le gant"
+        },
+        {
+          "target": 282,
+          "label": "Quitter la maison vers le nord"
+        }
+      ],
+      "source_page_pdf": 144
+    },
+    "325": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La Taverne du Porc et de la Grenouille",
+      "routes": [
+        {
+          "target": 348,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 144
+    },
+    "326": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La ruelle aux ordures",
+      "routes": [
+        {
+          "target": 184,
+          "label": "Continuer après la victoire",
+          "condition_text": "Chiens vaincus"
+        },
+        {
+          "target": 180,
+          "label": "Fuir vers la rue du Port",
+          "condition_text": "Fuite"
+        }
+      ],
+      "source_page_pdf": 145
+    },
+    "327": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La pelote d'épingles",
+      "routes": [
+        {
+          "target": 126,
+          "label": "Entrer dans la maison"
+        },
+        {
+          "target": 164,
+          "label": "Poursuivre vers le nord"
+        }
+      ],
+      "source_page_pdf": 145
+    },
+    "328": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le cadeau à la Reine Serpent",
+      "routes": [
+        {
+          "target": 333,
+          "label": "Continuer par la rue de l'Écurie"
+        }
+      ],
+      "source_page_pdf": 146
+    },
+    "329": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La cabane sous le pont",
+      "routes": [
+        {
+          "target": 91,
+          "label": "Avancer vers l'ouest par la rue du Port"
+        },
+        {
+          "target": 238,
+          "label": "Tourner vers l'est par la rue de la Bougie"
+        }
+      ],
+      "source_page_pdf": 146
+    },
+    "330": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le carreau dans l'épaule",
+      "routes": [
+        {
+          "target": 30,
+          "label": "Continuer vers l'est"
+        }
+      ],
+      "source_page_pdf": 148
+    },
+    "331": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le dément",
+      "routes": [
+        {
+          "target": 86,
+          "label": "Continuer après la victoire",
+          "condition_text": "Dément vaincu"
+        }
+      ],
+      "source_page_pdf": 149
+    },
+    "332": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La bénédiction du mendiant",
+      "routes": [
+        {
+          "target": 124,
+          "label": "Poursuivre vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 149
+    },
+    "333": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le croisement de la rue de l'Écurie",
+      "routes": [
+        {
+          "target": 76,
+          "label": "Poursuivre vers le nord"
+        }
+      ],
+      "source_page_pdf": 149
+    },
+    "334": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le contrôle des papiers",
+      "routes": [
+        {
+          "target": 255,
+          "label": "Montrer le laissez-passer",
+          "condition_text": "Laissez-passer de marchand"
+        },
+        {
+          "target": 99,
+          "label": "Sans laissez-passer",
+          "condition_text": "Pas de laissez-passer"
+        }
+      ],
+      "source_page_pdf": 149
+    },
+    "335": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'arrestation",
+      "routes": [
+        {
+          "target": 367,
+          "label": "Payer l'amende"
+        },
+        {
+          "target": 73,
+          "label": "Refuser l'arrestation"
+        }
+      ],
+      "source_page_pdf": 149
+    },
+    "336": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La bijouterie",
+      "routes": [
+        {
+          "target": 36,
+          "label": "Demander le prix des bagues"
+        },
+        {
+          "target": 302,
+          "label": "Vendre des pierreries",
+          "condition_text": "Si vous en avez"
+        },
+        {
+          "target": 170,
+          "label": "Attaquer le bijoutier"
+        }
+      ],
+      "source_page_pdf": 150
+    },
+    "337": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La chute du Prince de la Nuit",
+      "routes": [
+        {
+          "target": 400,
+          "label": "Poursuivre"
+        }
+      ],
+      "source_page_pdf": 150
+    },
+    "338": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La Potion d'Infortune",
+      "routes": [
+        {
+          "target": 105,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 150
+    },
+    "339": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'hospitalité de la tour",
+      "routes": [
+        {
+          "target": 288,
+          "label": "Se mettre au lit"
+        },
+        {
+          "target": 77,
+          "label": "Explorer la tour"
+        }
+      ],
+      "source_page_pdf": 151
+    },
+    "340": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le coffre ouvert",
+      "routes": [
+        {
+          "target": 60,
+          "label": "Monter à l'étage"
+        },
+        {
+          "target": 304,
+          "label": "Quitter la maison vers le nord"
+        }
+      ],
+      "source_page_pdf": 151
+    },
+    "341": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les pièces jetées",
+      "routes": [
+        {
+          "target": 222,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 152
+    },
+    "342": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les renseignements de l'Homme-Orque",
+      "routes": [
+        {
+          "target": 289,
+          "label": "Payer les renseignements",
+          "condition_text": "1 Pièce d'Or"
+        },
+        {
+          "target": 93,
+          "label": "Quitter la boutique vers le nord"
+        }
+      ],
+      "source_page_pdf": 152
+    },
+    "343": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'évanouissement",
+      "routes": [
+        {
+          "target": 100,
+          "label": "Repartir le long de la rue",
+          "condition_text": "Si vous survivez"
+        }
+      ],
+      "source_page_pdf": 152
+    },
+    "344": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le carrosse doré",
+      "routes": [
+        {
+          "target": 58,
+          "label": "S'écarter"
+        },
+        {
+          "target": 252,
+          "label": "Rester au milieu de la rue"
+        }
+      ],
+      "source_page_pdf": 154
+    },
+    "345": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le bijoutier en colère",
+      "routes": [
+        {
+          "target": 240,
+          "label": "Accepter sa proposition"
+        },
+        {
+          "target": 196,
+          "label": "Sortir vers l'ouest"
+        },
+        {
+          "target": 170,
+          "label": "Attaquer le bijoutier"
+        }
+      ],
+      "source_page_pdf": 154
+    },
+    "346": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "Le saut des remparts",
+      "routes": [],
+      "source_page_pdf": 154
+    },
+    "347": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'or abandonné",
+      "routes": [
+        {
+          "target": 112,
+          "label": "Presser le pas vers le nord"
+        }
+      ],
+      "source_page_pdf": 154
+    },
+    "348": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le pont métallique",
+      "routes": [
+        {
+          "target": 251,
+          "label": "Interpeller les passants"
+        },
+        {
+          "target": 30,
+          "label": "Passer sous le pont"
+        }
+      ],
+      "source_page_pdf": 156
+    },
+    "349": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le Lutin de Feu",
+      "routes": [
+        {
+          "target": 258,
+          "label": "Continuer après la victoire",
+          "condition_text": "Lutin de Feu vaincu"
+        },
+        {
+          "target": 192,
+          "label": "Sauter par la fenêtre",
+          "condition_text": "Fuite"
+        }
+      ],
+      "source_page_pdf": 156
+    },
+    "350": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La recherche des fleurs",
+      "routes": [
+        {
+          "target": 32,
+          "label": "Courir vers la porte"
+        },
+        {
+          "target": 249,
+          "label": "Attaquer la Reine Serpent"
+        }
+      ],
+      "source_page_pdf": 156
+    },
+    "351": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La clef du vieillard",
+      "routes": [
+        {
+          "target": 54,
+          "label": "Poursuivre après la victoire",
+          "condition_text": "Gardes vaincus"
+        }
+      ],
+      "source_page_pdf": 156
+    },
+    "352": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La Momie",
+      "routes": [
+        {
+          "target": 193,
+          "label": "Combattre la Momie"
+        },
+        {
+          "target": 106,
+          "label": "Jeter la Lanterne",
+          "condition_text": "Lanterne"
+        }
+      ],
+      "source_page_pdf": 157
+    },
+    "353": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La grosse poignée en cuivre",
+      "routes": [
+        {
+          "target": 181,
+          "label": "Utiliser la clef métallique",
+          "condition_text": "Clef métallique"
+        },
+        {
+          "target": 389,
+          "label": "Forcer la porte"
+        },
+        {
+          "target": 304,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 157
+    },
+    "354": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le tatouage impayable",
+      "routes": [
+        {
+          "target": 316,
+          "label": "Revenir avec l'argent",
+          "condition_text": "De quoi payer le tatouage"
+        },
+        {
+          "target": 307,
+          "label": "Rejoindre la rue du Moulin"
+        }
+      ],
+      "source_page_pdf": 158
+    },
+    "355": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les gardes assommés",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Gagner la ville"
+        }
+      ],
+      "source_page_pdf": 159
+    },
+    "356": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les rats de l'égout",
+      "routes": [
+        {
+          "target": 28,
+          "label": "Continuer après la victoire",
+          "condition_text": "Rats vaincus"
+        }
+      ],
+      "source_page_pdf": 159
+    },
+    "357": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'Ogre",
+      "routes": [
+        {
+          "target": 71,
+          "label": "Continuer après la victoire",
+          "condition_text": "Ogre vaincu"
+        },
+        {
+          "target": 282,
+          "label": "Fuir vers le nord",
+          "condition_text": "Fuite"
+        }
+      ],
+      "source_page_pdf": 161
+    },
+    "358": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Sur les remparts",
+      "routes": [
+        {
+          "target": 346,
+          "label": "Sauter"
+        },
+        {
+          "target": 108,
+          "label": "Descendre à la corde",
+          "condition_text": "Corde à Grimper"
+        },
+        {
+          "target": 56,
+          "label": "Affronter les gardes"
+        }
+      ],
+      "source_page_pdf": 161
+    },
+    "359": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La victoire des Bays",
+      "routes": [
+        {
+          "target": 91,
+          "label": "Prendre la rue du Port"
+        }
+      ],
+      "source_page_pdf": 161
+    },
+    "360": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La fuite de Wraggins",
+      "routes": [
+        {
+          "target": 123,
+          "label": "Fouiller la boutique"
+        },
+        {
+          "target": 300,
+          "label": "Partir par la rue de la Clef"
+        }
+      ],
+      "source_page_pdf": 162
+    },
+    "361": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les zombis",
+      "routes": [
+        {
+          "target": 297,
+          "label": "Continuer après la victoire",
+          "condition_text": "Zombis vaincus"
+        }
+      ],
+      "source_page_pdf": 162
+    },
+    "362": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les bottes magiques",
+      "routes": [
+        {
+          "target": 103,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 163
+    },
+    "363": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le trou d'homme",
+      "routes": [
+        {
+          "target": 48,
+          "label": "Soulever le couvercle"
+        },
+        {
+          "target": 205,
+          "label": "Continuer vers l'est"
+        }
+      ],
+      "source_page_pdf": 163
+    },
+    "364": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "L'homme au visage émacié",
+      "routes": [
+        {
+          "target": 329,
+          "label": "Descendre sous le pont"
+        }
+      ],
+      "source_page_pdf": 163
+    },
+    "365": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La porte enfoncée",
+      "routes": [
+        {
+          "target": 339,
+          "label": "Présenter des excuses"
+        },
+        {
+          "target": 35,
+          "label": "Attaquer l'homme"
+        }
+      ],
+      "source_page_pdf": 163
+    },
+    "366": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le mélange à fumer",
+      "routes": [
+        {
+          "target": 101,
+          "label": "Retourner se plaindre"
+        },
+        {
+          "target": 93,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 164
+    },
+    "367": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'amende payée",
+      "routes": [
+        {
+          "target": 201,
+          "label": "Affronter le Prince de la Nuit",
+          "condition_text": "Objets réunis et tatouage"
+        },
+        {
+          "target": 299,
+          "label": "Poursuivre",
+          "condition_text": "Objets manquants ou pas de tatouage"
+        }
+      ],
+      "source_page_pdf": 164
+    },
+    "368": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La boule de cristal",
+      "routes": [
+        {
+          "target": 117,
+          "label": "Sortir vers le nord"
+        }
+      ],
+      "source_page_pdf": 165
+    },
+    "369": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Retour à l'embranchement",
+      "routes": [
+        {
+          "target": 216,
+          "label": "Prendre la rue du Sabot"
+        }
+      ],
+      "source_page_pdf": 165
+    },
+    "370": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Les jardins",
+      "routes": [
+        {
+          "target": 14,
+          "label": "Cueillir une fleur"
+        },
+        {
+          "target": 133,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 165
+    },
+    "371": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le Baume Cicatrisant",
+      "routes": [
+        {
+          "target": 83,
+          "label": "Utiliser le baume"
+        },
+        {
+          "target": 322,
+          "label": "Continuer la fouille"
+        }
+      ],
+      "source_page_pdf": 167
+    },
+    "372": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La maison blanche",
+      "routes": [
+        {
+          "target": 131,
+          "label": "Entrer dans la maison blanche"
+        },
+        {
+          "target": 333,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 167
+    },
+    "373": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le poison du gobelet",
+      "routes": [
+        {
+          "target": 209,
+          "label": "Prendre le gobelet B",
+          "condition_text": "Si vous survivez et ne l'avez pas déjà fait"
+        },
+        {
+          "target": 43,
+          "label": "Prendre le gobelet C",
+          "condition_text": "Si vous survivez et ne l'avez pas déjà fait"
+        },
+        {
+          "target": 107,
+          "label": "Franchir la porte cintrée"
+        },
+        {
+          "target": 60,
+          "label": "Monter l'escalier"
+        }
+      ],
+      "source_page_pdf": 167
+    },
+    "374": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le bouclier du chevalier",
+      "routes": [
+        {
+          "target": 21,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 167
+    },
+    "375": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le haut mur",
+      "routes": [
+        {
+          "target": 40,
+          "label": "Grimper sur le mur"
+        },
+        {
+          "target": 91,
+          "label": "Retourner à l'embranchement"
+        }
+      ],
+      "source_page_pdf": 168
+    },
+    "376": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le casque magique",
+      "routes": [
+        {
+          "target": 161,
+          "label": "Repartir vers l'est"
+        }
+      ],
+      "source_page_pdf": 168
+    },
+    "377": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La grille boulonnée",
+      "routes": [
+        {
+          "target": 92,
+          "label": "Glisser la main dans le trou"
+        },
+        {
+          "target": 174,
+          "label": "Revenir à l'orifice d'accès"
+        }
+      ],
+      "source_page_pdf": 168
+    },
+    "378": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La balle au chasseur",
+      "routes": [
+        {
+          "target": 52,
+          "label": "Avancer après la partie"
+        }
+      ],
+      "source_page_pdf": 169
+    },
+    "379": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le bras blessé",
+      "routes": [
+        {
+          "target": 122,
+          "label": "Ouvrir la porte"
+        },
+        {
+          "target": 207,
+          "label": "Monter à l'étage"
+        }
+      ],
+      "source_page_pdf": 169
+    },
+    "380": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La soupe bénéfique",
+      "routes": [
+        {
+          "target": 375,
+          "label": "Partir vers l'est"
+        }
+      ],
+      "source_page_pdf": 169
+    },
+    "381": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le garde sceptique",
+      "routes": [
+        {
+          "target": 74,
+          "label": "Entrer dans la ville"
+        },
+        {
+          "target": 261,
+          "label": "Acheter les conseils",
+          "condition_text": "3 Pièces d'Or"
+        }
+      ],
+      "source_page_pdf": 169
+    },
+    "382": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'Anneau de Glace",
+      "routes": [
+        {
+          "target": 189,
+          "label": "Tirer la flèche d'argent"
+        },
+        {
+          "target": 305,
+          "label": "Utiliser le miroir"
+        }
+      ],
+      "source_page_pdf": 170
+    },
+    "383": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le navire",
+      "routes": [
+        {
+          "target": 271,
+          "label": "Ouvrir l'autre porte",
+          "condition_text": "Si ce n'est déjà fait"
+        },
+        {
+          "target": 78,
+          "label": "Remonter la rue du Port"
+        }
+      ],
+      "source_page_pdf": 170
+    },
+    "384": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le Nain au gourdin",
+      "routes": [
+        {
+          "target": 221,
+          "label": "Poursuivre les nains"
+        },
+        {
+          "target": 396,
+          "label": "Repartir vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 170
+    },
+    "385": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les squelettes",
+      "routes": [
+        {
+          "target": 203,
+          "label": "Continuer après la victoire",
+          "condition_text": "Squelettes vaincus"
+        }
+      ],
+      "source_page_pdf": 170
+    },
+    "386": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le pirate",
+      "routes": [
+        {
+          "target": 20,
+          "label": "Continuer après la victoire",
+          "condition_text": "Pirate vaincu"
+        }
+      ],
+      "source_page_pdf": 171
+    },
+    "387": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "La broche de cuivre",
+      "routes": [
+        {
+          "target": 334,
+          "label": "Repartir vers le nord"
+        }
+      ],
+      "source_page_pdf": 171
+    },
+    "388": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les barreaux du placard",
+      "routes": [
+        {
+          "target": 100,
+          "label": "Continuer vers l'est"
+        }
+      ],
+      "source_page_pdf": 172
+    },
+    "389": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'épaule contre la porte",
+      "routes": [
+        {
+          "target": 159,
+          "label": "Entrer",
+          "condition_text": "Deux dés ≤ Habileté"
+        },
+        {
+          "target": 304,
+          "label": "Repartir vers le nord",
+          "condition_text": "Deux dés > Habileté"
+        }
+      ],
+      "source_page_pdf": 172
+    },
+    "390": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La Sorcière",
+      "routes": [
+        {
+          "target": 144,
+          "label": "Frapper",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 59,
+          "label": "Frapper le vide",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 172
+    },
+    "391": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le fil tendu",
+      "routes": [
+        {
+          "target": 235,
+          "label": "Éviter le carreau",
+          "condition_text": "Chance réussie"
+        },
+        {
+          "target": 142,
+          "label": "Recevoir le carreau",
+          "condition_text": "Chance ratée"
+        }
+      ],
+      "source_page_pdf": 172
+    },
+    "392": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La créature outrée",
+      "routes": [
+        {
+          "target": 334,
+          "label": "Fuir vers le nord",
+          "condition_text": "Fuite"
+        },
+        {
+          "target": 186,
+          "label": "Continuer après la victoire",
+          "condition_text": "Créature vaincue"
+        }
+      ],
+      "source_page_pdf": 173
+    },
+    "393": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "Le fabricant d'armes",
+      "routes": [
+        {
+          "target": 156,
+          "label": "Se laisser escorter"
+        },
+        {
+          "target": 73,
+          "label": "Attaquer les Trolls"
+        }
+      ],
+      "source_page_pdf": 173
+    },
+    "394": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La diseuse de bonne aventure",
+      "routes": [
+        {
+          "target": 368,
+          "label": "Payer les prédictions",
+          "condition_text": "2 Pièces d'Or"
+        },
+        {
+          "target": 117,
+          "label": "Sortir vers le nord"
+        }
+      ],
+      "source_page_pdf": 174
+    },
+    "395": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Le remords",
+      "routes": [
+        {
+          "target": 115,
+          "label": "Continuer vers le nord"
+        }
+      ],
+      "source_page_pdf": 174
+    },
+    "396": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "La boutique du fleuriste",
+      "routes": [
+        {
+          "target": 145,
+          "label": "Entrer dans la boutique"
+        },
+        {
+          "target": 24,
+          "label": "Continuer vers l'ouest"
+        }
+      ],
+      "source_page_pdf": 174
+    },
+    "397": {
+      "status": "renvois_verifies",
+      "mode": "suite",
+      "title": "Les poches des vagabonds",
+      "routes": [
+        {
+          "target": 372,
+          "label": "Prendre la rue de l'Écurie"
+        }
+      ],
+      "source_page_pdf": 174
+    },
+    "398": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'homme au torse nu",
+      "routes": [
+        {
+          "target": 378,
+          "label": "Relever le défi"
+        },
+        {
+          "target": 52,
+          "label": "Continuer son chemin"
+        }
+      ],
+      "source_page_pdf": 176
+    },
+    "399": {
+      "status": "renvois_verifies",
+      "mode": "choix",
+      "title": "L'échelle de corde",
+      "routes": [
+        {
+          "target": 87,
+          "label": "Grimper à l'échelle"
+        },
+        {
+          "target": 294,
+          "label": "Emprunter la passerelle"
+        }
+      ],
+      "source_page_pdf": 176
+    },
+    "400": {
+      "status": "renvois_verifies",
+      "mode": "fin",
+      "title": "Le départ de la tour",
+      "routes": [],
+      "source_page_pdf": 177
+    }
+  },
+  "source_issues": [
+    {
+      "paragraph": 110,
+      "severity": "information",
+      "kind": "broken_reference",
+      "printed_reference": "ai 239",
+      "confirmed_target": 239,
+      "details": "La préposition « au » a été lue « ai » ; le numéro imprimé est intact.",
+      "status": "resolved",
+      "resolution_source": "Réparation OCR ciblée (cite-ocr-1983)"
+    },
+    {
+      "paragraph": 258,
+      "severity": "information",
+      "kind": "broken_reference",
+      "printed_reference": "an 318",
+      "confirmed_target": 318,
+      "details": "La préposition « au » a été lue « an » ; le numéro imprimé est intact.",
+      "status": "resolved",
+      "resolution_source": "Réparation OCR ciblée (cite-ocr-1983)"
+    },
+    {
+      "paragraph": 262,
+      "severity": "information",
+      "kind": "broken_reference",
+      "printed_reference": "»u 375",
+      "confirmed_target": 375,
+      "details": "La préposition « au » a été lue « »u » ; le numéro imprimé est intact.",
+      "status": "resolved",
+      "resolution_source": "Réparation OCR ciblée (cite-ocr-1983)"
+    },
+    {
+      "paragraph": 168,
+      "severity": "warning",
+      "kind": "invalid_reference",
+      "printed_reference": "159",
+      "candidate_target": 359,
+      "candidate_confirmed": false,
+      "confirmed_target": 359,
+      "details": "La balle frappée par-dessus le mur renvoie au §159, sans rapport (intérieur d’une maison). Le §359, victoire des Bays, n’est atteint par aucun autre renvoi : lecture « 1 » pour « 3 ».",
+      "status": "resolved",
+      "resolution_source": "Réparation OCR ciblée (cite-ocr-1983) ; à confirmer sur un exemplaire papier"
+    },
+    {
+      "paragraph": 182,
+      "severity": "warning",
+      "kind": "invalid_reference",
+      "printed_reference": "351",
+      "candidate_target": 354,
+      "candidate_confirmed": false,
+      "confirmed_target": 354,
+      "details": "Le tatouage impayable renvoie au §351, sans rapport (cellule du vieillard). Le §354, refus du tatoueur, n’est atteint par aucun autre renvoi : lecture « 1 » pour « 4 ».",
+      "status": "resolved",
+      "resolution_source": "Réparation OCR ciblée (cite-ocr-1983) ; à confirmer sur un exemplaire papier"
+    },
+    {
+      "paragraph": 27,
+      "severity": "information",
+      "kind": "reviewed_reference",
+      "details": "Cas douteux relevé au plan : relu, les deux renvois sont lisibles et cohérents.",
+      "status": "resolved",
+      "resolution_source": "Relecture P2"
+    },
+    {
+      "paragraph": 1,
+      "severity": "information",
+      "kind": "ocr_conjecture",
+      "details": "« .moindre » lu « rejoindre » d’après le contexte.",
+      "status": "to_confirm"
+    },
+    {
+      "paragraph": 73,
+      "severity": "information",
+      "kind": "ocr_conjecture",
+      "details": "Nom du Troll « Grincheux » conservé tel qu’imprimé ; à confirmer.",
+      "status": "to_confirm"
+    },
+    {
+      "paragraph": 119,
+      "severity": "information",
+      "kind": "ocr_conjecture",
+      "details": "« Il en route 3 » lu « Il en coûte 3 » d’après le contexte.",
+      "status": "to_confirm"
+    },
+    {
+      "paragraph": 180,
+      "severity": "information",
+      "kind": "ocr_conjecture",
+      "details": "« II voiture » lu « la voiture » d’après le contexte.",
+      "status": "to_confirm"
+    },
+    {
+      "paragraph": 342,
+      "severity": "information",
+      "kind": "ocr_conjecture",
+      "details": "Prix « I Pièce » lu « 1 Pièce » d’après le contexte.",
+      "status": "to_confirm"
+    },
+    {
+      "paragraph": 109,
+      "severity": "warning",
+      "kind": "unreadable_value",
+      "details": "Fragment « ramas: 5 » illisible, conservé tel quel ; sans renvoi en jeu.",
+      "status": "open"
+    },
+    {
+      "paragraph": 217,
+      "severity": "warning",
+      "kind": "ambiguous_value",
+      "details": "Caractéristiques du second Chien de Lune mal alignées dans le texte reconnu ; à relire avant l’analyse du combat (P3).",
+      "status": "open"
+    }
   ],
-  "paragraphs": {}
+  "analysis_contract": {
+    "runtime_effects_enabled": false,
+    "conditions_are_executable": false,
+    "notes": "Catalogue des renvois (P2) : titres neutres, libellés rédigés et conditions résumées. Une condition affichée ne signifie pas qu’elle est satisfaite ; les effets de jeu viendront avec l’analyse (P3).",
+    "modes": {
+      "choix": "plusieurs renvois",
+      "suite": "un seul renvoi",
+      "fin": "aucun renvoi : mort ou victoire"
+    }
+  }
 }
