@@ -31,7 +31,9 @@ def normalize(path, trim_attack=False):
     if sys.byteorder != 'little': samples.byteswap()
     peak = max(map(abs, samples)) or 1
     if trim_attack:
-        window = max(1, int(params.framerate * .005))
+        # Fenêtre de 5 ms comptée en trames : les échantillons sont entrelacés par
+        # canal, et un multiple de nchannels garde chaque coupe alignée sur une trame.
+        window = max(1, int(params.framerate * .005)) * params.nchannels
         for index in range(0, len(samples)-window, window):
             rms = math.sqrt(sum(v*v for v in samples[index:index+window]) / window)
             if rms >= peak * .025:

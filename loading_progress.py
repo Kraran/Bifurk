@@ -443,7 +443,9 @@ class LoadingSession:
         sessions.append(self)  # closeEvent les abandonne
         self.clock.start()
         overlay = getattr(self.owner, 'loading_overlay', None)
-        if overlay is None:
+        # Une carte détruite côté Qt (deleteLater, parent recréé) reste référencée
+        # en Python : la recréer plutôt que de lever RuntimeError à set_title.
+        if overlay is None or not shiboken6.isValid(overlay):
             overlay = LoadingOverlay(self.owner)
             self.owner.loading_overlay = overlay
         overlay.set_title(self.title)

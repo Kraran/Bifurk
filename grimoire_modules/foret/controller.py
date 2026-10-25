@@ -67,7 +67,7 @@ class ForetController(ForetMechanicsActions):
                 return set(), PENDING_REASON
             # Marteau incomplet : le retour au §400 garde sa condition imprimée.
             return {381} & paragraphs, None
-        if number in (48,73,309,52,266,304,328,262,204,388,98,259,278,34,308,395,154,370,192,60,182,358,178) and not self._book_state(number).get('foret_resolved'):
+        if number in rules.BLOCKING_EVENT_PARAGRAPHS and not self._book_state(number).get('foret_resolved'):
             return set(), PENDING_REASON
         if number == 372 and not self._book_state(372).get('foret_resolved'):
             return {288} & paragraphs, PENDING_REASON
