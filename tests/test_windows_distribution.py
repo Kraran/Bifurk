@@ -79,6 +79,7 @@ class WindowsDistributionTests(unittest.TestCase):
             self.assertIn('Bifurk/_internal/assets/sounds/swords.wav', names)
             self.assertIn('Bifurk/LISEZ-MOI.txt', names)
             self.assertIn('Bifurk/NOUVEAUTES.md', names)
+            self.assertIn('Bifurk/musique_perso/LISEZMOI.txt', names)
             self.assertFalse(any('donnees' in n or n.endswith('.pdf') or 'sans-rapport' in n for n in names))
             manifest = json.loads(content.read('Bifurk/COMPILATION.json'))
             self.assertEqual(manifest['source_commit'], 'a' * 40)

@@ -113,7 +113,8 @@ chargement d’un des cinq emplacements. Une sauvegarde automatique technique
 comme sixième emplacement et n’est pas reprise automatiquement.
 
 **⚙ → Ambiance sonore…** permet de couper les effets sonores, d’activer
-l’ambiance de caverne, de régler la musique d’accueil ou de la garder pendant la partie, d’écouter chaque effet et
+l’ambiance de caverne, de régler la musique d’accueil ou de la garder pendant la partie, de jouer sa propre musique
+(dossier `musique_perso`), d’écouter chaque effet et
 de choisir l’habillage du grimoire. Une annonce propre au livre accompagne sa
 couverture et le chargement d’une sauvegarde ; elle suit le réglage des effets
 sonores. [Reprise, sons et préparation de thèmes](docs/themes-et-ambiance.md).
@@ -179,6 +180,7 @@ Bifurk/
 ├── main.py
 ├── assets/
 ├── catalogues/
+├── musique_perso/       # vos morceaux, lus en ordre aléatoire si l’option est cochée
 └── donnees/
     ├── grimoires/       # copies locales des PDF importés
     ├── sauvegardes/     # cinq emplacements manuels et autosave.json
@@ -249,6 +251,17 @@ Le M4A audio est diffusé en continu par Qt Multimedia
 et inclus automatiquement dans la distribution Windows avec les autres assets.
 La pochette intégrée a été retirée sans réencoder ni modifier le son, afin de ne pas
 solliciter les décodeurs vidéo. La licence des packs CC0 d’effets sonores ne s’applique pas à ce fichier musical.
+
+**Ma musique.** Le dossier `musique_perso`, à côté de `main.py` (ou de `Bifurk.exe`) et créé
+au démarrage s’il manque, accueille vos propres morceaux (MP3, M4A, AAC, OGG, OGA, OPUS, FLAC,
+WAV, WMA ; sous-dossiers ignorés). La case **Jouer ma musique (dossier musique_perso)**, décochée
+par défaut, les fait enchaîner en ordre aléatoire à la place de FantasyFair : chaque morceau
+passe une fois avant un nouveau tirage, jamais deux fois de suite. Le bouton **Ouvrir le dossier**
+l’affiche dans l’explorateur. Le dossier est relu à chaque reprise et à chaque tour complet ; un
+fichier illisible est sauté et, sans morceau lisible, la musique habituelle est jouée (un court
+message le signale dans la fenêtre). Le volume, la sourdine et la musique permanente s’appliquent
+de la même façon. Seul `musique_perso/LISEZMOI.txt` est versionné et livré dans le ZIP : les
+morceaux personnels sont ignorés par Git.
 
 Le [compte rendu de la partie et des corrections du 22 octobre 2026](docs/reviews/2026-10-22-partie-et-corrections.md) détaille les règles observées, les corrections éditoriales et les limites de validation.
 

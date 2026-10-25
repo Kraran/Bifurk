@@ -9,3 +9,7 @@ donnees/
 *-sauvegarde.json
 audit-output/
 tmp/
+# Morceaux personnels du joueur : seuls le mode d'emploi et le marqueur sont suivis.
+musique_perso/*
+!musique_perso/LISEZMOI.txt
+!musique_perso/.gitkeep
