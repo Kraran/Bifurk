@@ -44,7 +44,7 @@ from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, Page
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route, WEAPON_BONUSES
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale, QUrl
-from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextDocument
+from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QAbstractSpinBox, QTextEdit, QPlainTextEdit,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
@@ -353,6 +353,76 @@ class RulesLog(QLabel):
         """Vider un message qui n'appartient pas à l'action en cours."""
         if self.action_stamp != getattr(self._window, '_feedback_action_id', 0) and self.text():
             self.setText('')
+
+
+DROP_CAP_SCHEME = 'bifurk-initial'
+
+
+def drop_cap_letter(name):
+    """Lettre d'une lettrine d'après le nom de son image (bifurk-initial:<code>-<px>), sinon None."""
+    prefix = DROP_CAP_SCHEME + ':'
+    if not name.startswith(prefix):
+        return None
+    code = name[len(prefix):].split('-', 1)[0]
+    try:
+        return chr(int(code))
+    except (ValueError, OverflowError):
+        return None
+
+
+class ReaderBrowser(QTextBrowser):
+    """Zone de lecture dont la copie rend la vraie lettre de la lettrine.
+
+    Le texte brut de Qt remplace toute image par U+FFFC (l'attribut alt est ignoré) :
+    « Votre » se copiait U+FFFC puis « otre ». Copier (Ctrl+C, menu contextuel) et glisser
+    passent tous par createMimeDataFromSelection ; l'affichage n'est pas touché."""
+
+    def createMimeDataFromSelection(self):
+        mime = super().createMimeDataFromSelection()
+        cursor = self.textCursor()
+        if not cursor.hasSelection():
+            return mime
+        copy = QTextDocument()
+        copy.setDefaultFont(self.document().defaultFont())
+        QTextCursor(copy).insertFragment(cursor.selection())
+        caps = []  # (position, lettre) des images de lettrine dans la copie
+        block = copy.begin()
+        while block.isValid():
+            it = block.begin()
+            while not it.atEnd():
+                fragment = it.fragment()
+                fmt = fragment.charFormat()
+                if fmt.isImageFormat():
+                    letter = drop_cap_letter(fmt.toImageFormat().name())
+                    if letter:
+                        caps.extend((fragment.position() + i, letter) for i in range(fragment.length()))
+                it += 1
+            block = block.next()
+        if not caps:
+            return mime
+        edit = QTextCursor(copy)
+        for position, letter in caps:  # une image = un caractère : les positions ne bougent pas
+            # La lettre prend la mise en forme du texte qui la suit (police, couleur).
+            text_format = QTextCharFormat()
+            if position + 2 <= copy.characterCount() - 1:
+                edit.setPosition(position + 2)
+                if not edit.charFormat().isImageFormat():
+                    text_format = edit.charFormat()
+            edit.setPosition(position)
+            edit.setPosition(position + 1, QTextCursor.KeepAnchor)
+            edit.insertText(letter, text_format)
+        # Les données sont produites par Qt à partir de la copie corrigée : un QMimeData
+        # créé en Python, cédé au presse-papiers, fait planter la sortie du programme.
+        return _MimeExporter().mime_for(copy)
+
+
+class _MimeExporter(QTextEdit):
+    """Fabrique Qt de QMimeData (texte brut, HTML…) pour un document entier."""
+
+    def mime_for(self, document):
+        self.setDocument(document)
+        self.selectAll()
+        return super().createMimeDataFromSelection()
 
 
 class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
@@ -931,15 +1001,16 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def _drop_cap(self, text):
         """Lettrine enluminée flottante pour un récit commençant par une lettre.
 
-        L'image est une ressource du document (bifurk-initial:) : le texte copié garde
-        sa première lettre via l'attribut alt, et les textes courts restent sobres."""
+        L'image est une ressource du document (bifurk-initial:<code>-<px>) : ReaderBrowser
+        relit la lettre dans ce nom à la copie (Qt ignore alt), et les textes courts
+        restent sobres."""
         stripped = text.lstrip()
         if len(stripped) < self.DROP_CAP_MIN_LENGTH or not stripped[0].isalpha():
             return ''
         letter = stripped[0]
         px = round(self.reader_font_size * 1.333 * 2.05)
         image = illuminated_initial(letter.upper(), px)
-        url = QUrl(f'bifurk-initial:{ord(letter)}-{px}')
+        url = QUrl(f'{DROP_CAP_SCHEME}:{ord(letter)}-{px}')
         self.reader.document().addResource(QTextDocument.ImageResource, url, image)
         width = round(image.width() / image.devicePixelRatio())
         height = round(image.height() / image.devicePixelRatio())
@@ -1111,7 +1182,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.reading_exit_button.hide()
         title_row.addWidget(self.reading_exit_button)
         reader_layout.addLayout(title_row)
-        self.reader = QTextBrowser()
+        self.reader = ReaderBrowser()
         # Les liens paragraph:NNN sont gérés par follow_link, jamais par QTextBrowser.
         self.reader.setOpenLinks(False)
         self.reader.setOpenExternalLinks(False)
