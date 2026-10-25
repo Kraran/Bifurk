@@ -2252,6 +2252,47 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(w.adventure_tracking['status'], 'assisted')
         self.assertEqual(w._snapshot(),after)
 
+    # --- passages bloqués tant que leur événement imprimé n’est pas résolu ---
+    def test_blocking_paragraphs_match_declared_event_commands(self):
+        from grimoire_modules.foret import rules
+        from grimoire_modules.foret.actions import EVENT_COMMANDS
+        # 242 : lingot facultatif ; 204 et 372 : marteau et coffre traités à part.
+        handled_apart = {242, 204, 372}
+        self.assertEqual(rules.BLOCKING_EVENT_PARAGRAPHS,
+                         (set(EVENT_COMMANDS) - handled_apart) | {388})
+        self.assertNotIn(204, rules.BLOCKING_EVENT_PARAGRAPHS)
+        self.assertTrue(handled_apart <= set(EVENT_COMMANDS))
+
+    def test_blocking_paragraph_opens_its_routes_once_resolved(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        base = w._snapshot()
+        for number in sorted(rules.BLOCKING_EVENT_PARAGRAPHS):
+            with self.subTest(paragraph=number):
+                w._restore(base)
+                w.paragraphs[number] = 'Événement.'
+                w.go_to(number)
+                routes = {route['target'] for route in w._analysed_reading_entry().get('routes', [])}
+                w.paragraphs.update({target: 'Suite.' for target in routes})
+                self.assertEqual(w._reading_link_targets(), set())
+                w._book_state(number, True)['foret_resolved'] = True
+                if number in rules.ENTRY_RULES:  # §262 : la condition d’entrée reste à remplir
+                    continue
+                self.assertTrue(w._reading_link_targets())
+                self.assertLessEqual(w._reading_link_targets(), routes)
+
+    def test_unresolved_hammer_keeps_its_own_rule(self):
+        from grimoire_modules.foret import rules
+        self.open()
+        self.start()
+        w = self.w
+        w.paragraphs.update({204: 'Village.', 381: 'Nouvelle tentative.', 400: 'Victoire.'})
+        w.go_to(204)
+        self.assertFalse(rules.hammer_complete(w.character))
+        self.assertEqual(w._reading_link_targets(), {381})
+
 
 class ForetEditionContractTests(unittest.TestCase):
     def test_illustrations_have_verified_associations_and_exclude_ornaments(self):

@@ -14,6 +14,28 @@ from ..fighting_fantasy.controller import FightingFantasyActions
 from ..fighting_fantasy.rules import spend_luck, combat_damage, escape_damage
 
 
+# Commandes du panneau d’événement : paragraphe → (libellé par défaut, action).
+# rules.BLOCKING_EVENT_PARAGRAPHS doit rester cohérent avec ces déclarations (testé).
+EVENT_COMMANDS = {242:('Prendre le lingot en abandonnant un objet (facultatif)…','gold_ingot'),34:('Choisir le vœu du génie…', 'wish'),308:('Intervertir Habileté et Chance', 'swap'),98:('Échapper à l’embuscade — Chance', 'ambush'),
+                  259:('Affronter la fièvre — perte de 3 Endurance puis Chance', 'fever'),
+                  278:('Tomber dans la fosse — Chance', 'spiked_pit'),73:('Éprouver la porte (2d6)', 'door'),309:('Éviter les deux fléchettes', 'darts'),
+                  372:('Soulever le coffre (2d6)', 'lift'),266:('Choisir la mise du bras de fer…', 'wrestle'),
+                  52:('Choisir la mise — utiliser le Brassard…', 'bracelet'),
+                  304:('Attendre la guérison — cinq rations', 'convalescence'),
+                  328:('Prendre le repas sur la chaise', 'cursed_meal'),
+                  262:('Boire la potion des deux combats', 'combat_potion'),
+                  204:('Remettre les deux parties du marteau', 'hammer'),
+                  395:('Résister à l’éclair de la lanterne — Chance', 'lantern_flash'),
+                  154:('Abandonner la lanterne noircie', 'discard_lantern'),
+                  370:('Choisir l’objet perdu…', 'lose_item'),
+                  192:('Constater la transformation de l’épée', 'gnome_sword'),
+                  60:('Chercher les Filtres à Nez — Chance', 'find_filters'),
+                  182:('Dégager l’épée du rocher — Habileté', 'stone_sword'),
+                  358:('Se libérer du nœud coulant — Chance', 'snare'),
+                  178:('Utiliser le sel d’une ration', 'leech_salt'),
+                  48:('Résoudre l’explosion de l’œuf (1d6)', 'egg_explosion')}
+
+
 class ForetMechanicsActions(FightingFantasyActions):
     def _ff_stat_value(self, key):
         return rules.effective_skill(self.character) if key == 'habilete' else self.character.get(key, 0)
@@ -264,24 +286,7 @@ class ForetMechanicsActions(FightingFantasyActions):
                 add(labels.equipment_label(name, True), 'wear', name, tooltip=labels.equipment_tip(name))
         if 'Potion de Force' in self.character.get('inventory', []):
             add('Boire la Potion de Force (+5 Endurance)', 'force_potion')
-        commands = {242:('Prendre le lingot en abandonnant un objet (facultatif)…','gold_ingot'),34:('Choisir le vœu du génie…', 'wish'),308:('Intervertir Habileté et Chance', 'swap'),98:('Échapper à l’embuscade — Chance', 'ambush'),
-                    259:('Affronter la fièvre — perte de 3 Endurance puis Chance', 'fever'),
-                    278:('Tomber dans la fosse — Chance', 'spiked_pit'),73:('Éprouver la porte (2d6)', 'door'),309:('Éviter les deux fléchettes', 'darts'),
-                    372:('Soulever le coffre (2d6)', 'lift'),266:('Choisir la mise du bras de fer…', 'wrestle'),
-                    52:('Choisir la mise — utiliser le Brassard…', 'bracelet'),
-                    304:('Attendre la guérison — cinq rations', 'convalescence'),
-                    328:('Prendre le repas sur la chaise', 'cursed_meal'),
-                    262:('Boire la potion des deux combats', 'combat_potion'),
-                    204:('Remettre les deux parties du marteau', 'hammer'),
-                    395:('Résister à l’éclair de la lanterne — Chance', 'lantern_flash'),
-                    154:('Abandonner la lanterne noircie', 'discard_lantern'),
-                    370:('Choisir l’objet perdu…', 'lose_item'),
-                    192:('Constater la transformation de l’épée', 'gnome_sword'),
-                    60:('Chercher les Filtres à Nez — Chance', 'find_filters'),
-                    182:('Dégager l’épée du rocher — Habileté', 'stone_sword'),
-                    358:('Se libérer du nœud coulant — Chance', 'snare'),
-                    178:('Utiliser le sel d’une ration', 'leech_salt'),
-                    48:('Résoudre l’explosion de l’œuf (1d6)', 'egg_explosion')}
+        commands = EVENT_COMMANDS
         if (number in commands and not self._book_state(number).get('foret_resolved')
                 and not (number == 242 and 'gold_ingot' in rules.peek(self.character).get('rewards', []))):
             label, action = commands[number]

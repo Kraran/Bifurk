@@ -40,11 +40,11 @@ def runtime_inventory():
     add((a for a,b in rules.FIXED_PAYMENT_ROUTES),'condition')
     # Effets automatiques relus dans ForetController.go_to, hors commandes.
     add((2,156,215,333,399,400),'automatique')
-    # Commande affichée hors de la table commands (issue du Loup-Garou).
+    # Commande affichée hors de la table EVENT_COMMANDS (issue du Loup-Garou).
     add((388,),'commande')
     tree = ast.parse((ROOT/'grimoire_modules/foret/actions.py').read_text(encoding='utf-8'))
     for node in ast.walk(tree):
-        if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id in ('commands','expected') for t in node.targets):
+        if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id in ('EVENT_COMMANDS','expected') for t in node.targets):
             value = ast.literal_eval(node.value)
             add(value if all(type(k) is int for k in value) else value.values(),'commande')
     tree = ast.parse((ROOT/'grimoire_modules/foret/rules.py').read_text(encoding='utf-8'))

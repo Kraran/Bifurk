@@ -88,6 +88,13 @@ BRANCH_TESTS = {57:('chance',132,35,0),81:('chance',49,4,0),
                 90:('chance',210,348,3),158:('chance',47,353,0),229:('chance',165,45,0),
                 251:('habilete',63,260,4),256:('chance',122,295,0),
                 376:('chance',74,310,0)}
+# Passages dont l’événement imprimé (un bouton du panneau d’événement) doit être
+# résolu avant que leurs renvois deviennent praticables. Ce sont les commandes
+# déclarées dans actions.EVENT_COMMANDS, plus la morsure du Loup-Garou (§388, bouton
+# propre), moins trois cas traités à part par le contrôleur : le lingot facultatif
+# (§242), le marteau (§204) et le coffre répétable (§372).
+BLOCKING_EVENT_PARAGRAPHS = frozenset({34,48,52,60,73,98,154,178,182,192,259,262,266,
+                                       278,304,308,309,328,358,370,388,395})
 
 
 def resolve_branch_test(character, paragraph, total):
