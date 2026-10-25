@@ -123,7 +123,7 @@ class CarnetWindowTests(unittest.TestCase):
         book.insert_button.click()
         self.assertEqual(self.w.notes.strip(), 'Voir §1')
         cursor = book.editor.document().find('§1')
-        self.assertEqual(cursor.charFormat().anchorHref(), 'paragraph:1')
+        self.assertEqual(book.editor.link_target(cursor.selectionStart()), 1)
         book.entry_button.click()
         self.assertIn('✦ §1 — ', self.w.notes)
         with patch.object(self.w, '_visible_choice_cards') as cards:
