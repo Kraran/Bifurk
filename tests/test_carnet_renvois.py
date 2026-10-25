@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch
 
 from PySide6.QtCore import QEvent, QPoint, Qt
-from PySide6.QtGui import QKeyEvent, QKeySequence, QTextCursor
+from PySide6.QtGui import QKeyEvent, QTextCursor
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QMessageBox, QTextEdit
 

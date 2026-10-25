@@ -8,13 +8,13 @@ natifs malgré le dessin personnalisé."""
 from themes import default_theme
 from PySide6.QtCore import Qt, QRectF, QSize, Signal, QPointF
 from PySide6.QtGui import QColor, QFont, QFontMetrics, QPalette, QPainter, QPainterPath, QLinearGradient, QPixmap, QIcon, QPen, QShortcut, QKeySequence
-from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle, QDialog, QMessageBox
+from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QDialog, QMessageBox
 from PySide6.QtGui import QRadialGradient
 import html
 import adventurer_sheet
 from adventurer_sheet import GOLD, GOLD_LIGHT, GOLD_DARK, BORDEAUX, draw_diamond
 from grimoire_chrome import (draw_gold_frame, draw_corner_fleurons, draw_wax_seal, draw_icon,
-                             RUBRIC, PAGE_INK, BRONZE)
+                             RUBRIC, BRONZE)
 
 
 def message_icon(kind, theme, device_pixel_ratio=1):

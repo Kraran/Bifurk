@@ -11,7 +11,7 @@ from PySide6.QtWidgets import QMessageBox, QInputDialog, QPushButton, QLabel
 from navigation import choice_caption
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from grimoire_ui import ChoiceCard
-from book_events import (verified_entry, apply_effects, apply_entry, available_routes, available_options, routes_with_requirements, options_with_requirements, combat_skill, piranha_stamina, shield_damage, SHIELD_NAME, take_moon_shield, shared_meal, enchanted_bench_meal, trade_inventory_item, throw_diversion_item)
+from book_events import (verified_entry, apply_effects, apply_entry, routes_with_requirements, options_with_requirements, combat_skill, piranha_stamina, shield_damage, SHIELD_NAME, take_moon_shield, shared_meal, enchanted_bench_meal, trade_inventory_item, throw_diversion_item)
 
 
 from grimoire_modules.fighting_fantasy.controller import FightingFantasyActions

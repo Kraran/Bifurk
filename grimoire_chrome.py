@@ -5,12 +5,12 @@ ivoire, EB Garamond / Lato. Les widgets restent des QPushButton/QLabel/QGroupBox
 textes, menus, info-bulles, raccourcis et accessibilité ne changent pas, seul le dessin change."""
 import math
 
-from PySide6.QtCore import Qt, QRectF, QPointF, QSize, QEvent
+from PySide6.QtCore import Qt, QRectF, QPointF, QSize
 from PySide6.QtGui import (QColor, QPainter, QPainterPath, QPen, QBrush, QPixmap, QImage,
                            QLinearGradient, QRadialGradient, QFontMetrics, QPolygonF, QTransform)
 from PySide6.QtWidgets import QFrame, QPushButton, QLabel, QGroupBox, QWidget, QSizePolicy
 
-from adventurer_sheet import (GOLD, GOLD_LIGHT, GOLD_DARK, BORDEAUX, BORDEAUX_DARK, IVORY, INK,
+from adventurer_sheet import (GOLD, GOLD_LIGHT, GOLD_DARK, BORDEAUX, BORDEAUX_DARK,
                               LEATHER, font, draw_diamond, draw_glyph)
 
 RUBRIC = QColor('#7a2632')

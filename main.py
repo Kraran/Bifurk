@@ -44,7 +44,7 @@ from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, Page
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route, WEAPON_BONUSES
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale, QUrl
-from PySide6.QtGui import QFont, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
+from PySide6.QtGui import QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QAbstractSpinBox, QTextEdit, QPlainTextEdit,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
@@ -253,7 +253,7 @@ def franciser_message(dialog):
 
 def franciser_selecteur(dialog):
     """Appliquer les libellés français de secours au sélecteur Qt non natif."""
-    from PySide6.QtWidgets import QToolButton, QAbstractButton
+    from PySide6.QtWidgets import QAbstractButton
     tooltips = {
         "Back": "Dossier précédent", "Forward": "Dossier suivant",
         "Parent Directory": "Dossier parent", "Go to parent directory": "Dossier parent",

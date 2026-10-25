@@ -3,7 +3,6 @@
 La numérotation affichée est celle des pages physiques du PDF, pas des paragraphes.
 Le rendu réutilise le zoom et le déplacement d'une illustration. Les pixels sont
 copiés dans QImage avant fermeture du document PyMuPDF pour garder leur validité."""
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QComboBox, QLabel
 from grimoire_ui import IllustrationDialog, GrimoireScene

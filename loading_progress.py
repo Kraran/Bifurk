@@ -14,7 +14,6 @@ s'interrompre à sa prochaine étape et son résultat tardif n'est jamais livré
 Le thread reste référencé jusqu'à sa fin réelle (puis deleteLater) pour ne jamais
 être détruit en cours d'exécution.
 """
-import math
 import threading
 import time
 from pathlib import Path
@@ -24,7 +23,7 @@ from PySide6.QtCore import QElapsedTimer, QEvent, QEventLoop, QRectF, QThread, Q
 from PySide6.QtGui import QColor, QFont, QFontMetrics, QLinearGradient, QPainter, QPainterPath, QPen, QPixmap
 from PySide6.QtWidgets import QApplication, QWidget
 
-from adventurer_sheet import BORDEAUX, BORDEAUX_DARK, FONTS, GOLD, GOLD_DARK, GOLD_LIGHT, IVORY, INK
+from adventurer_sheet import BORDEAUX_DARK, FONTS, GOLD, GOLD_DARK, GOLD_LIGHT, IVORY, INK
 
 SHOW_DELAY_MS = 300
 MIN_VISIBLE_MS = 250

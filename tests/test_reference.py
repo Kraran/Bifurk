@@ -55,7 +55,6 @@ class Reference(unittest.TestCase):
             self.assertIsNone(load_book_events(path))
 
     def test_verified_events_once_and_undo(self):
-        from book_events import apply_entry
         w = self.window
         w.book_event_catalogue = {"paragraphs": {
             "49": {"status": "verifie", "mode": "automatique",

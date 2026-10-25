@@ -5,7 +5,6 @@ et indices de combat. Elles peuvent manquer une formulation ou une condition :
 leurs résultats sont des aides à confirmer, pas les règles vérifiées du catalogue.
 La normalisation des césures PDF ne modifie jamais le fichier source."""
 import re
-import unicodedata
 
 STAT = {"HABILETÉ":"habilete", "HABILITÉ":"habilete", "ENDURANCE":"endurance", "CHANCE":"chance"}
 

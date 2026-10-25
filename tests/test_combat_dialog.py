@@ -12,7 +12,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QApplication
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))

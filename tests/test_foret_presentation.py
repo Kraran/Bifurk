@@ -2134,7 +2134,6 @@ class ForetPresentationTests(unittest.TestCase):
         self.assertEqual(w._reading_link_targets(),{88})
 
     def test_emergency_exits_save_undo_and_normal_paths_are_not_bypassed(self):
-        from grimoire_modules.foret import rules
         self.open(); self.start()
         w = self.w
         w.paragraphs.update({int(n):e['title'] for n,e in w.book_event_catalogue['paragraphs'].items()})
