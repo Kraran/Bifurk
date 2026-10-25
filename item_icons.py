@@ -269,7 +269,7 @@ def _gem(p, x, y, r, color, facets=True):
     _sparkle(p, x - r * .35, y - r * .45, r * .32)
 
 
-def _key(p, metal='gold', bow='ring', small=False, tag_color=None):
+def _key(p, metal='gold', bow='ring', small=False):
     """Clé en diagonale : anneau en haut à gauche, panneton en bas à droite."""
     k = .8 if small else 1.0
     brush = _metal(metal)

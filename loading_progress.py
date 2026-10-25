@@ -52,12 +52,6 @@ def _prune_abandoned():
             _ABANDONED_WORKERS.discard(worker)
 
 
-def abandoned_workers():
-    """Lectures abandonnées encore en cours (diagnostic et tests)."""
-    _prune_abandoned()
-    return list(_ABANDONED_WORKERS)
-
-
 def wait_for_abandoned_workers(timeout_ms=QUIT_WAIT_MS):
     """Attendre, au plus timeout_ms au total, la fin des lectures abandonnées."""
     deadline = time.monotonic() + max(0, timeout_ms) / 1000

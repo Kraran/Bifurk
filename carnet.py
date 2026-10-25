@@ -947,12 +947,11 @@ class CarnetMixin:
 
     # --- interactions ----------------------------------------------------------
     def _carnet_blocked(self):
-        from PySide6.QtWidgets import QApplication
         return (QApplication.activeModalWidget() is not None
                 or self.current_paragraph is None or not self.paragraphs)
 
     def _ask_label(self, number, current=''):
-        title = self._paragraph_name(number) or ''
+        """Demander le libellé facultatif d’un marque-page ; None si l’on annule."""
         label, ok = QInputDialog.getText(
             self, 'Marque-page', f'Libellé du marque-page au §{number} (facultatif) :',
             text=current or '')

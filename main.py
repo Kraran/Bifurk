@@ -1840,8 +1840,6 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if drawer != self._sheet_in_drawer:
             self._sheet_in_drawer = drawer
             if drawer:
-                sizes = self.splitter.sizes()
-                self._splitter_sizes = sizes if len(sizes) == 3 else None
                 self.side_scroll.setParent(self.centralWidget())
                 self.side_scroll.setObjectName('sideScroll')
                 self.side_scroll.setProperty('drawer', True)
