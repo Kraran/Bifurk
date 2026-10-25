@@ -6,7 +6,6 @@ sur une classe du registre. Les commandes sont déléguées à chaque appel, don
 changer de livre ne laisse pas de méthodes liées à l'ancien module.
 """
 from functools import wraps
-from .fighting_fantasy.controller import FightingFantasyActions
 from .foret.controller import ForetController
 from .sorcier.actions import BookActions
 from .sorcier.controller import SorcierCombatActions

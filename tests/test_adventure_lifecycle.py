@@ -5,14 +5,13 @@ pour une session sans écran. Les cas pilotent explicitement les jets et dialogu
 nécessaires ; conserver ces contrôles pour éviter un test aléatoire ou bloquant.
 Les tests nécessitant le PDF privé sont conditionnels et ne doivent pas embarquer
 son texte ni publier leurs captures. Voir docs/maintenance.md pour les conventions."""
-import json
 import tempfile
 import unittest
 import pymupdf
 from pathlib import Path
 from unittest.mock import patch
 
-from PySide6.QtWidgets import QApplication, QComboBox, QLineEdit, QPushButton, QMessageBox
+from PySide6.QtWidgets import QApplication, QComboBox, QPushButton, QMessageBox
 
 import main
 from save_slots import SaveSlotsDialog

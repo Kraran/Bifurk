@@ -35,7 +35,7 @@ def normalize(path, trim_attack=False):
         for index in range(0, len(samples)-window, window):
             rms = math.sqrt(sum(v*v for v in samples[index:index+window]) / window)
             if rms >= peak * .025:
-                # Keep 10 ms of the attack, rather than the recording's faint handling noise.
+                # Garder 10 ms avant l'attaque et couper le faible bruit de manipulation qui la précède.
                 samples = samples[max(0, index-window*2):]
                 break
     samples = array.array('h', (round(v * 27500 / peak) for v in samples))

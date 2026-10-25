@@ -301,7 +301,7 @@ class ForetMechanicsActions(FightingFantasyActions):
         header.setWordWrap(True)
         layout.addWidget(header)
         selector = QComboBox()
-        for name, price in rules.SHOP:
+        for name, _price in rules.SHOP:
             selector.addItem('', name)
         layout.addWidget(selector)
         description = QLabel()

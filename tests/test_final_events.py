@@ -17,7 +17,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import main as bifurk
-from book_events import DATA_PATH, available_routes, available_options, combat_skill, condition_met
+from book_events import DATA_PATH, available_routes, available_options, combat_skill
 from navigation import destinations
 from PySide6.QtCore import QUrl
 from PySide6.QtWidgets import QApplication, QMessageBox, QInputDialog

@@ -8,7 +8,7 @@ non vérifiée ne doit jamais devenir une règle automatique par déduction du t
 Voir catalogues/README_evenements.md pour le vocabulaire des données."""
 import re
 # Réexporter les règles communes pour préserver les imports des outils et tests.
-from grimoire_modules.fighting_fantasy.rules import flee_available, escape_damage
+from grimoire_modules.fighting_fantasy.rules import flee_available, escape_damage  # noqa: F401
 from pathlib import Path
 
 DATA_PATH = Path(__file__).resolve().parent / "catalogues" / "evenements_sorcier_1982.json"

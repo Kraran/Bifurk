@@ -269,7 +269,7 @@ def _gem(p, x, y, r, color, facets=True):
     _sparkle(p, x - r * .35, y - r * .45, r * .32)
 
 
-def _key(p, metal='gold', bow='ring', small=False, tag_color=None):
+def _key(p, metal='gold', bow='ring', small=False):
     """Clé en diagonale : anneau en haut à gauche, panneton en bas à droite."""
     k = .8 if small else 1.0
     brush = _metal(metal)
@@ -479,7 +479,7 @@ def _d_spear(p):
 
 
 def _d_stakes(p):
-    for i, dx in enumerate((-.6, -.3, 0, .3, .6)):
+    for dx in (-.6, -.3, 0, .3, .6):
         top, bottom = -.85 + abs(dx) * .25, .85
         _outline(p)
         p.setBrush(_grad(dx - .12, 0, dx + .12, 0, '#e2b06d', '#8a5a2a'))

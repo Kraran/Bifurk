@@ -13,7 +13,7 @@ l'historique (annulable) et marqué « Partie assistée » comme toute navigatio
 import re
 from datetime import datetime
 
-from PySide6.QtCore import Qt, QRectF, QPointF, QSize, QEvent, Signal, QTimer, QElapsedTimer
+from PySide6.QtCore import Qt, QRectF, QPointF, QSize, QEvent, Signal, QElapsedTimer
 from PySide6.QtGui import (QColor, QPainter, QPainterPath, QPen, QPixmap, QLinearGradient,
                            QRadialGradient, QTextCursor, QTextCharFormat, QTextBlockFormat, QKeySequence,
                            QShortcut, QFontMetricsF, QSyntaxHighlighter)
@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (QWidget, QAbstractButton, QPushButton, QTextEdit,
                                QVBoxLayout, QHBoxLayout, QScrollArea, QFrame, QCheckBox,
                                QMenu, QInputDialog, QMessageBox, QSizePolicy, QApplication)
 
-from adventurer_sheet import (GOLD, GOLD_LIGHT, GOLD_DARK, BORDEAUX, BORDEAUX_DARK, IVORY,
+from adventurer_sheet import (GOLD, GOLD_LIGHT, GOLD_DARK, IVORY,
                               font, draw_diamond)
 from grimoire_chrome import RUBRIC, PAGE_INK, BRONZE, draw_corner_fleurons, draw_fleuron_rule
 
@@ -947,12 +947,11 @@ class CarnetMixin:
 
     # --- interactions ----------------------------------------------------------
     def _carnet_blocked(self):
-        from PySide6.QtWidgets import QApplication
         return (QApplication.activeModalWidget() is not None
                 or self.current_paragraph is None or not self.paragraphs)
 
     def _ask_label(self, number, current=''):
-        title = self._paragraph_name(number) or ''
+        """Demander le libellé facultatif d’un marque-page ; None si l’on annule."""
         label, ok = QInputDialog.getText(
             self, 'Marque-page', f'Libellé du marque-page au §{number} (facultatif) :',
             text=current or '')

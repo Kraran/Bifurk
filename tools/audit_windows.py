@@ -16,8 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import main as b
 from PySide6.QtCore import QTimer, QLibraryInfo
-from PySide6.QtWidgets import QApplication, QDialog, QWidget, QMessageBox, QToolTip
-from PySide6.QtGui import QCursor
+from PySide6.QtWidgets import QApplication, QDialog, QWidget, QMessageBox
 from PySide6.QtTest import QTest
 
 OUT = ROOT / 'audit-output'

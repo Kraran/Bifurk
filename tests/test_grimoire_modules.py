@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from grimoire_modules.registry import available_modules, module_for_pdf, CATALOGUES
+from grimoire_modules.registry import available_modules, module_for_pdf
 from grimoire_modules.controller import ModuleActions, CONTROLLERS
 
 

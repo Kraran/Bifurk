@@ -1,6 +1,5 @@
 """Suivi et confirmations des interventions, sans modifier les règles normales."""
 import copy
-import json
 from pathlib import Path
 import tempfile
 import unittest

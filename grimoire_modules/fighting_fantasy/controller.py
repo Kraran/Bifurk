@@ -406,7 +406,7 @@ class FightingFantasyActions:
                 "Voulez-vous tenter votre Chance pour aggraver la blessure ?")
             damage = base_damage
             if answer == QMessageBox.Yes:
-                luck_rolls, luck_total = self._roll(2, context='Chance — Aggraver la blessure')
+                _luck_rolls, luck_total = self._roll(2, context='Chance — Aggraver la blessure')
                 was_lucky = spend_luck(self.character, luck_total)
                 if was_lucky:
                     damage = combat_damage(base_damage, attacking=True, lucky=True)
@@ -436,7 +436,7 @@ class FightingFantasyActions:
                 "Voulez-vous tenter votre Chance pour minimiser la blessure ?")
             damage = base_damage
             if answer == QMessageBox.Yes:
-                luck_rolls, luck_total = self._roll(2, context='Chance — Réduire la blessure')
+                _luck_rolls, luck_total = self._roll(2, context='Chance — Réduire la blessure')
                 was_lucky = spend_luck(self.character, luck_total)
                 if was_lucky:
                     damage = combat_damage(base_damage, attacking=False, lucky=True)

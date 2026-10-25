@@ -131,7 +131,7 @@ class ClosingDuringLoadTests(unittest.TestCase):
     def test_late_book_result_after_close_is_ignored(self):
         read = BlockedRead(result={1: 'Une porte.', 2: 'Une salle.'})
         a, b, c = self.book_patches(read)
-        with a, b, c as module, patch.object(main.MainWindow, '_install_opened_book') as install:
+        with a, b, c, patch.object(main.MainWindow, '_install_opened_book') as install:
             self.close_once_started(read)
             self.w.open_pdf(str(self.pdf))
             self.wait_background(read)

@@ -26,7 +26,7 @@ def destinations(text):
 
 
 def choice_caption(label, target):
-    """Keep the action separate from the single destination reference."""
+    """Séparer l’action de son unique renvoi de destination."""
     label = ' '.join(label.split()).strip()
     if re.fullmatch(r'(?i)(?:continuer|aller|poursuivre)(?:\s+vers|\s+au)?\s*'
                     r'(?:le\s+)?(?:paragraphe\s*|§\s*)?\d+', label):

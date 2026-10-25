@@ -11,7 +11,7 @@ from PySide6.QtWidgets import QMessageBox, QInputDialog, QPushButton, QLabel
 from navigation import choice_caption
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from grimoire_ui import ChoiceCard
-from book_events import (verified_entry, apply_effects, apply_entry, available_routes, available_options, routes_with_requirements, options_with_requirements, combat_skill, piranha_stamina, shield_damage, SHIELD_NAME, take_moon_shield, shared_meal, enchanted_bench_meal, trade_inventory_item, throw_diversion_item)
+from book_events import (verified_entry, apply_effects, apply_entry, routes_with_requirements, options_with_requirements, combat_skill, piranha_stamina, shield_damage, SHIELD_NAME, take_moon_shield, shared_meal, enchanted_bench_meal, trade_inventory_item, throw_diversion_item)
 
 
 from grimoire_modules.fighting_fantasy.controller import FightingFantasyActions
@@ -503,7 +503,7 @@ class SorcierCombatActions(FightingFantasyActions):
         events = [e for i,e in enumerate(events) if not any(x['key']==e['key'] and x['amount']==e['amount'] for x in events[:i])]
         for event in events:
             amount = event["amount"]
-            # Show an explicit confirmation before applying any extracted effect.
+            # Un bouton explicite : aucun effet extrait du texte n'est appliqué sans confirmation.
             button = QPushButton(f"Appliquer : {event['label']} ({amount:+d})")
             button.clicked.connect(lambda checked=False, e=event: self.apply_detected_event(e))
             self.event_layout.addWidget(button)
@@ -516,7 +516,7 @@ class SorcierCombatActions(FightingFantasyActions):
         En restauration, afficher l’état fourni sans rejouer effets, visites ni préparation.
         Les appels imbriqués font partie de l’action extérieure suivie par _track_action."""
         if self._adventurer_draft is not None and not self._restoring:
-            return  # The map and manual navigation cannot skip character validation.
+            return  # La carte et la navigation manuelle ne contournent pas la validation du héros.
         if (self.character['endurance'] <= 0 and not self._restoring
                 and getattr(self, '_action_depth', 0) <= 1):
             self._show_death_page()
