@@ -1,0 +1,25 @@
+BIFURK - Ma musique
+===================
+
+Deposez ici vos propres morceaux pour les entendre en fond sonore.
+
+1. Copiez vos fichiers audio directement dans ce dossier musique_perso
+   (les sous-dossiers ne sont pas lus).
+2. Dans Bifurk, ouvrez le menu (roue dentee) > Ambiance sonore...
+   puis cochez "Jouer ma musique (dossier musique_perso)".
+   Le bouton "Ouvrir le dossier" affiche ce dossier.
+
+Formats reconnus : MP3, M4A, AAC, OGG, OGA, OPUS, FLAC, WAV, WMA.
+
+Les morceaux s'enchainent dans un ordre aleatoire : chacun passe une fois
+avant un nouveau tirage, et le meme morceau n'est jamais joue deux fois
+de suite. Le dossier est relu a chaque reprise de la musique : un fichier
+ajoute est pris en compte sans redemarrer.
+
+Le curseur de volume et l'option "Garder la musique en fond pendant la
+partie" s'appliquent aussi a votre musique. Un fichier illisible est
+saute ; si aucun morceau n'est lisible, la musique habituelle de Bifurk
+est jouee.
+
+Pour mettre a jour Bifurk, recopiez ce dossier a cote du nouvel exe,
+comme le dossier donnees.

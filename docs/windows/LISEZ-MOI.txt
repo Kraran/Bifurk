@@ -18,6 +18,11 @@ Pour mettre a jour : fermez Bifurk, sauvegardez ce dossier, extrayez la
 nouvelle version ailleurs puis recopiez votre dossier donnees a cote du nouvel exe.
 Seul le format actuel des sauvegardes est pris en charge.
 
+Le dossier musique_perso accueille vos propres morceaux (MP3, M4A, OGG,
+FLAC, WAV...) : cochez "Jouer ma musique" dans Ambiance sonore pour les
+entendre en ordre aleatoire. Recopiez-le aussi lors d'une mise a jour.
+Voir musique_perso/LISEZMOI.txt.
+
 Aucun livre PDF, aucune sauvegarde personnelle n'est fourni dans cette archive.
 Les images du livre et les pages de regles viennent de votre propre PDF.
 Un executable non signe peut declencher un avertissement Windows SmartScreen.

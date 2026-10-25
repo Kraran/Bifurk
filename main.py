@@ -44,7 +44,7 @@ from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, Page
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route, WEAPON_BONUSES
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale, QUrl
-from PySide6.QtGui import QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
+from PySide6.QtGui import QDesktopServices, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QAbstractSpinBox, QTextEdit, QPlainTextEdit,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
@@ -60,11 +60,14 @@ DATA_DIR = APP_DIR / "donnees"
 SAVES_DIR = DATA_DIR / "sauvegardes"
 BOOKS_DIR = DATA_DIR / "grimoires"
 SETTINGS_DIR = DATA_DIR / "parametres"
+# Morceaux du joueur, lus en fond sonore si l'option « Jouer ma musique » est cochée :
+# à la racine (à côté de main.py en développement, de Bifurk.exe une fois compilé).
+MUSIC_DIR = APP_DIR / "musique_perso"
 
 
 def init_portable_dirs():
     """Créer les dossiers de données portables avant toute importation ou écriture."""
-    for directory in (SAVES_DIR, BOOKS_DIR, SETTINGS_DIR):
+    for directory in (SAVES_DIR, BOOKS_DIR, SETTINGS_DIR, MUSIC_DIR):
         directory.mkdir(parents=True, exist_ok=True)
 
 
@@ -454,7 +457,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.intro_music = IntroMusic(ASSET_DIR / 'sounds' / 'FantasyFair.m4a',
                                       self.preferences.get('music_enabled', True), self,
                                       volume_percent=self.preferences.get('music_volume', 70),
-                                      persistent=self.preferences.get('music_persistent', False) is True)
+                                      persistent=self.preferences.get('music_persistent', False) is True,
+                                      custom_folder=MUSIC_DIR,
+                                      custom=self.preferences.get('custom_music', False) is True)
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
         self._fullscreen = False
@@ -839,6 +844,41 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self._save_preferences()
         persistent.toggled.connect(set_persistent)
         audio_layout.addWidget(persistent)
+        custom_row = QHBoxLayout()
+        custom = QCheckBox('Jouer ma musique (dossier musique_perso)')
+        custom.setObjectName('customMusic')
+        custom.setToolTip('Remplace la musique d’accueil par les morceaux du dossier musique_perso, '
+                          'à côté de Bifurk, enchaînés dans un ordre aléatoire (MP3, M4A, OGG, FLAC, WAV…).')
+        custom.setChecked(self.intro_music.custom)
+        open_folder = QPushButton('Ouvrir le dossier')
+        open_folder.setObjectName('openCustomMusic')
+        open_folder.setToolTip(str(MUSIC_DIR))
+        def open_music_folder():
+            """Recréer le dossier s’il a été supprimé, puis l’ouvrir dans l’explorateur."""
+            try:
+                MUSIC_DIR.mkdir(parents=True, exist_ok=True)
+            except OSError:
+                pass
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(MUSIC_DIR)))
+        open_folder.clicked.connect(open_music_folder)
+        custom_row.addWidget(custom, 1)
+        custom_row.addWidget(open_folder)
+        audio_layout.addLayout(custom_row)
+        custom_hint = QLabel('Aucun morceau lisible dans musique_perso : la musique habituelle est jouée.')
+        custom_hint.setObjectName('customMusicHint')
+        custom_hint.setWordWrap(True)
+        def refresh_custom_hint():
+            """Signaler un dossier vide (ou sans format reconnu) tant que l’option est cochée."""
+            custom_hint.setVisible(custom.isChecked() and not self.intro_music.playable_tracks())
+        def set_custom(enabled):
+            """Basculer en direct entre le dossier personnel et la musique d’accueil."""
+            self.intro_music.set_custom(enabled)
+            self.preferences['custom_music'] = enabled
+            self._save_preferences()
+            refresh_custom_hint()
+        custom.toggled.connect(set_custom)
+        audio_layout.addWidget(custom_hint)   # parent avant setVisible : pas de fenêtre isolée
+        refresh_custom_hint()
         preview = QHBoxLayout()
         effects = QComboBox()
         for name, label in EFFECT_LABELS.items():

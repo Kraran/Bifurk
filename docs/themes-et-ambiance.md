@@ -102,6 +102,18 @@ combats se mélangent par-dessus sans atténuation : la musique plafonne à 0,45
 (0,315 par défaut) quand les effets jouent entre 0,50 et 0,80. Cocher la case en cours de partie relance la
 musique ; la décocher reprend le fondu habituel.
 
+La case **Jouer ma musique (dossier musique_perso)** (`custom_music`, décochée par défaut)
+remplace FantasyFair par les fichiers audio du dossier `musique_perso` (à côté de `main.py`
+ou de `Bifurk.exe`, voir `APP_DIR`), lus à plat. `custom_music.py` filtre les extensions et
+tire les morceaux « sans remise » (sac mélangé, sans doublon à la jointure de deux tirages) avec
+son propre `random.Random` : le hasard des dés n’est pas consommé. Chaque morceau est joué une
+fois (`setLoops(1)`) ; `EndOfMedia` enchaîne le suivant, `errorOccurred` écarte le fichier
+pour la session et passe au suivant au tour de boucle suivant. Sans morceau lisible, la boucle
+FantasyFair reprend sans dialogue. Le dossier est relu à chaque reprise, à chaque bascule et à
+chaque nouveau tirage. Fondu, permanence, curseur et sourdine sont inchangés. Basculer la case
+change de musique immédiatement dans les menus ou si la musique est permanente, sinon à la
+prochaine reprise.
+
 `scripts/prepare_sounds.py` convertit les archives créditées avec FFmpeg, uniquement
 pour préparer les assets. FFmpeg n’est pas requis pour jouer. Un flux PCM stéréo
 continu via `QAudioSink` (QtMultimedia, inclus dans PySide6) mélange les effets et
@@ -129,6 +141,9 @@ Dans **⚙ → Ambiance sonore…**, tester les effets avec **Écouter**, puis u
 Vérifier le choc avant la boîte de résultat et la réaction immédiate de la page.
 Activer puis couper la caverne séparément des effets. Cocher **Garder la musique en fond
 pendant la partie**, commencer l’aventure : la musique continue. Relancer pour vérifier la mémorisation.
+Déposer quelques MP3/M4A/OGG (et un fichier corrompu renommé en `.mp3`) dans `musique_perso`, cocher
+**Jouer ma musique** : vérifier l’enchaînement aléatoire, le saut du fichier corrompu, puis le retour
+à FantasyFair avec le dossier vidé.
 
 ```powershell
 $env:QT_QPA_PLATFORM = "offscreen"

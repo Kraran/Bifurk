@@ -23,6 +23,8 @@ DOCUMENTS = {
     'LISEZ-MOI.txt': 'docs/windows/LISEZ-MOI.txt',
     'COMPOSANTS-TIERS.md': 'docs/windows/COMPOSANTS-TIERS.md',
     'NOUVEAUTES.md': 'docs/windows/RELEASE_NOTES.md',
+    # Livre le dossier de musique personnelle (vide) avec son mode d'emploi.
+    'musique_perso/LISEZMOI.txt': 'musique_perso/LISEZMOI.txt',
 }
 
 
