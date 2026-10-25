@@ -138,9 +138,10 @@ bandeaux et les couleurs du grimoire, des sauvegardes au sélecteur de PDF.
 
 ### Livres pris en charge
 
-Deux éditions sont reconnues par l’empreinte SHA-256 de leur PDF :
-**Le Sorcier de la Montagne de Feu** (édition 1982) et **La Forêt de la
-Malédiction** (édition 1983). Le PDF doit être fourni par l’utilisateur ; il
+Trois éditions sont reconnues par l’empreinte SHA-256 de leur PDF :
+**Le Sorcier de la Montagne de Feu** (édition 1982), **La Forêt de la
+Malédiction** (édition 1983) et **La Cité des Voleurs** (édition 1983, en
+préparation : consultation seulement). Le PDF doit être fourni par l’utilisateur ; il
 n’est pas distribué avec Bifurk et ne doit pas être ajouté au dépôt.
 
 ## Démarrage
@@ -285,3 +286,11 @@ Les 400 paragraphes et 641 renvois ont été audités. Les cas limites suivent l
 règles de projet validées ; une partie interne sans triche a atteint la victoire.
 Voir le [bilan de clôture](docs/reviews/2026-10-23-foret-cloture.md) et les
 [mécaniques particulières](docs/foret-mecaniques-particulieres.md).
+
+### La Cité des Voleurs — en préparation
+
+Le troisième module est reconnu : couverture, prologue « Les terribles messagers
+de Zanbar Bone », règles et profil de départ (30 pièces d'or, potion au choix,
+10 repas pris à tout moment hors combat). Les renvois permettent de consulter le
+livre ; les événements et combats seront intégrés par tranches de 100 paragraphes.
+Voir [La Cité — présentation](docs/cite-module-presentation.md).

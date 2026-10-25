@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 CATALOGUES = Path(__file__).resolve().parent.parent / 'catalogues'
-SUPPORTED_ENGINES = {'sorcier-1982', 'foret-1983'}
+SUPPORTED_ENGINES = {'sorcier-1982', 'foret-1983', 'cite-1983'}
 SUPPORTED_REPAIRS = {'misplaced-fragment-253', 'foret-confirmed-186-267'}
 
 

@@ -56,7 +56,10 @@ arrêter l'archivage que publier un fichier privé par accident.
                 '_internal/catalogues/sorcier_montagne_feu_1982.json',
                 '_internal/catalogues/modules/foret_malediction_1983.json',
                 '_internal/catalogues/foret_malediction_1983.json',
-                '_internal/catalogues/evenements_foret_1983.json')
+                '_internal/catalogues/evenements_foret_1983.json',
+                '_internal/catalogues/modules/cite_voleurs_1983.json',
+                '_internal/catalogues/cite_voleurs_1983.json',
+                '_internal/catalogues/evenements_cite_1983.json')
     for name in required:
         if not (bundle / name).is_file():
             raise ValueError(f'Compilation incomplète : {name}')
