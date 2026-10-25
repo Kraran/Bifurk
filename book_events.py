@@ -365,6 +365,84 @@ def condition_met(character, condition):
     raise ValueError("Condition inconnue : " + str(kind))
 
 
+_STAT_NAMES = {"gold": ("pièce d’or", "pièces d’or"), "provisions": ("Provision", "Provisions")}
+
+
+def _missing_phrase(character, condition):
+    """Ce qui manque, en quelques mots, ou None si la condition n’est pas une ressource."""
+    kind = condition["kind"]
+    if kind == "min_stat" and condition["key"] in _STAT_NAMES:
+        one, many = _STAT_NAMES[condition["key"]]
+        value, have = int(condition["value"]), int(character.get(condition["key"], 0))
+        return f"{value} {one if value == 1 else many} (vous en avez {have})"
+    if kind == "has_item":
+        # Le nom d’inventaire peut porter une estimation entre parenthèses.
+        return "« " + re.sub(r"\s*\([^)]*\)\s*$", "", condition["name"]) + " »"
+    if kind == "has_weapon":
+        return "une arme en main"
+    if kind == "silver_weapon":
+        return "une arme en argent"
+    if kind == "min_keys":
+        return f"au moins {condition['count']} clés"
+    if kind in ("all", "any"):
+        parts = []
+        for part in condition["conditions"]:
+            if kind == "all" and condition_met(character, part):
+                continue
+            phrase = _missing_phrase(character, part)
+            if phrase is None:
+                return None
+            if phrase not in parts:
+                parts.append(phrase)
+        return (" et " if kind == "all" else " ou ").join(parts) or None
+    return None
+
+
+def missing_requirement(character, condition):
+    """Expliquer une condition de ressource non remplie, ou None pour la masquer.
+
+    Seules les ressources que le texte demande lui-même (or, provisions, objets,
+    arme, clés) donnent une raison : le choix reste visible, grisé. Les faits et
+    visites décrivent l'état caché de l'aventure ; les révéler serait un spoiler,
+    ces choix restent donc masqués. Une condition remplie renvoie aussi None."""
+    if condition is None or condition_met(character, condition):
+        return None
+    phrase = _missing_phrase(character, condition)
+    return f"Il vous faut {phrase}." if phrase else None
+
+
+def routes_with_requirements(character, entry):
+    """Itinéraires affichables : (route, None) si praticable, (route, raison) si grisé."""
+    if not entry:
+        return []
+    shown = []
+    for route in entry.get("routes", []):
+        if condition_met(character, route.get("when")):
+            shown.append((route, None))
+        else:
+            reason = missing_requirement(character, route.get("when"))
+            if reason:
+                shown.append((route, reason))
+    return shown
+
+
+def options_with_requirements(character, entry, completed_options, paragraph):
+    """Actions facultatives restantes, avec la raison quand une ressource manque."""
+    if not entry:
+        return []
+    shown = []
+    for option in entry.get("options", []):
+        if f"{paragraph}:{option['id']}" in completed_options:
+            continue
+        if condition_met(character, option.get("when")):
+            shown.append((option, None))
+        else:
+            reason = missing_requirement(character, option.get("when"))
+            if reason:
+                shown.append((option, reason))
+    return shown
+
+
 def available_options(character, entry, completed_options, paragraph):
     """N'affiche que les actions réellement réalisables et encore disponibles."""
     if not entry:

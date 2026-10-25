@@ -339,6 +339,16 @@ class RulesLog(QLabel):
             frame.setText(text)
             frame.setVisible(bool(text.strip()))
 
+    def append(self, text):
+        """Ajouter une ligne au message de l'action en cours, sinon le remplacer.
+
+        Un jet suivi d'un saut automatique reste ainsi lisible à côté des effets
+        appliqués à l'arrivée."""
+        earlier = self.text().strip()
+        if earlier and self.action_stamp == getattr(self._window, '_feedback_action_id', 0):
+            text = f"{earlier} {text}"
+        self.setText(text)
+
     def clear_if_stale(self):
         """Vider un message qui n'appartient pas à l'action en cours."""
         if self.action_stamp != getattr(self._window, '_feedback_action_id', 0) and self.text():
@@ -1465,6 +1475,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.prologue_action.setVisible(bool(getattr(self.book_module, 'intro_pages', ())))
         self.carnet_button.setEnabled(self.current_paragraph is not None)
         self._update_bookmark_ribbon()
+        if getattr(self, 'carnet_overlay', None) is not None and self.carnet_is_open():
+            self.carnet_overlay.book.refresh()
 
 
     def _refresh_endurance_alert(self):
@@ -2511,6 +2523,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             return
         dice = entry["roll"]["dice"]
         rolls, total = self._roll(dice)
+        # Valeur comparée lue avant toute dépense, pour l'afficher avec le jet.
+        tested = next((b["key"] for b in entry["roll"]["branches"] if b.get("when") == "lte_stat"), None)
+        tested_value = self.character.get(tested) if tested else None
         outcome = resolve_roll(entry["roll"], total, self.character)
         if outcome["target"] not in self.paragraphs:
             QMessageBox.warning(self, "Paragraphe absent",
@@ -2534,8 +2549,13 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             for effect in entry["roll"].get("roll_effects", [])])
         apply_effects(self.character, extra_effects)
         self._refresh_character()
+        comparison = ""
+        if tested:
+            names = {"chance": "Chance", "habilete": "Habileté", "endurance": "Endurance"}
+            verdict = "réussite" if total <= tested_value else "échec"
+            comparison = f" contre {names.get(tested, tested)} {tested_value} : {verdict}"
         self.rules_log.setText(
-            f"Épreuve §{number} : dés {rolls} = {total}{extra_text} ; destination §{outcome['target']}.")
+            f"Épreuve §{number} : dés {rolls} = {total}{comparison}{extra_text} ; destination §{outcome['target']}.")
         if self.character["endurance"] > 0:
             self.go_to(outcome["target"])
         else:
@@ -2823,6 +2843,19 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             popup.exec()
         finally:
             self._combat_dialog = None
+            self._refresh_after_combat_dialog()
+
+    def _refresh_after_combat_dialog(self):
+        """Reconstruire choix et commandes une fois la fenêtre de combat fermée.
+
+        Pendant le combat, les sorties de victoire sont masquées (_combat_exit_pending) ;
+        un soin ou une victoire sans saut automatique (§249) laissait sinon la page
+        sans aucun choix visible ni bouton Combattre."""
+        if (self.current_paragraph in self.paragraphs and self._adventurer_draft is None
+                and self.character['endurance'] > 0
+                and not self.character.get('book_facts', {}).get('adventure_ended')):
+            self._render_choices_and_events(self.paragraphs[self.current_paragraph])
+        self._refresh_action_controls()
 
     def _discard_combat_popup(self):
         """Abandonner la chronique visuelle après restauration, nouvelle partie ou nouvelle rencontre."""

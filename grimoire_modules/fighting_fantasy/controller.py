@@ -345,7 +345,7 @@ class FightingFantasyActions:
         self._refresh_character()
         self.rules_log.setText(f"Repas consommé : Endurance {current} → {self.character['endurance']} (maximum {cap}). Provisions -1.")
         entry = self._combat_entry(self.current_paragraph)
-        if (entry and entry.get("optional_meal")
+        if (entry and (entry.get("optional_meal") or entry.get("optional_meal_from"))
                 and self.current_paragraph in self.paragraphs):
             self._render_choices_and_events(self.paragraphs[self.current_paragraph])
 

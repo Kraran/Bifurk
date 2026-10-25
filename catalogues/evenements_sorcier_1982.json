@@ -146,7 +146,7 @@
         "escape_target": 189,
         "escape_after_assaults": 0
       },
-      "title": "La chambre du Barbare"
+      "title": "La pièce derrière la porte solide"
     },
     "9": {
       "status": "verifie",
@@ -410,7 +410,7 @@
           "label": "Explorer le passage inconnu"
         }
       ],
-      "title": "Le réduit au gaz"
+      "title": "La recherche d’une porte secrète"
     },
     "23": {
       "status": "verifie",
@@ -444,7 +444,7 @@
         "mode": "silver",
         "escape_target": 360
       },
-      "title": "Le combat contre l’Être"
+      "title": "La troisième blessure"
     },
     "25": {
       "status": "verifie",
@@ -646,7 +646,7 @@
         "escape_target": 320,
         "escape_after_assaults": 0
       },
-      "title": "Le réveil du Farfadet"
+      "title": "Le réveil de la créature"
     },
     "34": {
       "status": "verifie",
@@ -684,7 +684,7 @@
           "label": "Retenir son souffle et saisir la clé"
         }
       ],
-      "title": "La pièce au gaz"
+      "title": "La porte qui se referme"
     },
     "36": {
       "status": "verifie",
@@ -1156,7 +1156,7 @@
         "escape_target": 375,
         "escape_after_assaults": 2
       },
-      "title": "L’Araignée dans la caverne"
+      "title": "Des pas dans la caverne"
     },
     "62": {
       "status": "verifie",
@@ -1379,7 +1379,8 @@
         }
       ],
       "note": "Butin et récompense après le combat ; le repas reste facultatif.",
-      "title": "La statue du Cyclope"
+      "title": "La statue du Cyclope",
+      "optional_meal": true
     },
     "76": {
       "status": "verifie",
@@ -1750,7 +1751,7 @@
           "target": 374
         }
       ],
-      "title": "Le couloir des Squelettes"
+      "title": "Le petit couloir aux deux portes"
     },
     "97": {
       "status": "verifie",
@@ -1810,7 +1811,7 @@
           "target": 91
         }
       ],
-      "title": "La table de jeu des Nains"
+      "title": "La partie avec les petits hommes"
     },
     "101": {
       "status": "verifie",
@@ -2060,7 +2061,7 @@
       "routes": [
         {
           "target": 142,
-          "label": "Affronter le Sorcier à l’épée"
+          "label": "Affronter votre adversaire à l’épée"
         },
         {
           "target": 105,
@@ -2390,7 +2391,7 @@
           "target": 291
         }
       ],
-      "title": "Les confidences des Nains"
+      "title": "Les confidences des petits hommes"
     },
     "132": {
       "status": "verifie",
@@ -2608,7 +2609,7 @@
         ],
         "victory_target": 396
       },
-      "title": "Le duel contre le Sorcier"
+      "title": "Le duel"
     },
     "143": {
       "status": "verifie",
@@ -2784,7 +2785,7 @@
     "151": {
       "status": "verifie",
       "mode": "conditionnel",
-      "note": "Retour épuisé vers §218 (Endurance -1), Crocodile §86 ou détour §158.",
+      "note": "Retour épuisé vers §218 (Endurance -1), affronter les yeux §86 ou détour §158.",
       "routes": [
         {
           "target": 218,
@@ -2945,7 +2946,7 @@
           "label": "Faire face aux Farfadets"
         }
       ],
-      "title": "La salle à manger des Farfadets"
+      "title": "La grande salle à manger"
     },
     "160": {
       "status": "verifie",
@@ -3076,7 +3077,7 @@
     "166": {
       "status": "verifie",
       "mode": "des",
-      "note": "Traversée à la nage : un dé. 1 à 4 → rive sud §218 ; 5 ou 6 → Piranhas §158. Aucune perte supplémentaire indiquée ici.",
+      "note": "Traversée à la nage : un dé. 1 à 4 → rive sud §218 ; 5 ou 6 → §158. Aucune perte supplémentaire indiquée ici.",
       "roll": {
         "dice": 1,
         "branches": [
@@ -3127,7 +3128,7 @@
           "target": 293
         }
       ],
-      "title": "La salle du Chef des Farfadets"
+      "title": "La vaste pièce au coffre"
     },
     "169": {
       "status": "verifie",
@@ -3328,7 +3329,7 @@
           }
         }
       ],
-      "title": "La salle du Minotaure"
+      "title": "La grande pièce carrée"
     },
     "180": {
       "status": "verifie",
@@ -3583,14 +3584,14 @@
       "routes": [
         {
           "target": 142,
-          "label": "Dégainer l'épée contre le Sorcier"
+          "label": "Dégainer l'épée contre votre adversaire"
         },
         {
           "target": 105,
           "label": "Chercher un autre moyen dans le sac"
         }
       ],
-      "note": "La flèche échoue : affronter le Sorcier §142 ou examiner le sac §105.",
+      "note": "La flèche échoue : affronter votre adversaire §142 ou examiner le sac §105.",
       "title": "La flèche arrêtée"
     },
     "195": {
@@ -3744,10 +3745,10 @@
       "routes": [
         {
           "target": 293,
-          "label": "Quitter la salle des Farfadets"
+          "label": "Quitter la salle"
         }
       ],
-      "title": "Le contenu du coffre des Farfadets"
+      "title": "Le contenu du coffre"
     },
     "202": {
       "status": "verifie",
@@ -3776,7 +3777,7 @@
           "amount": 1
         }
       ],
-      "note": "Victoire contre le Loup-Garou : Chance +1 ; clés facultatives.",
+      "note": "Victoire contre le Loup-Garou : Chance +1 ; repas et clés facultatifs.",
       "options": [
         {
           "id": "cles_hangar",
@@ -3799,7 +3800,8 @@
           "label": "Aller au sud"
         }
       ],
-      "title": "La chambre du Loup-Garou"
+      "title": "La chambre du Loup-Garou",
+      "optional_meal": true
     },
     "204": {
       "status": "verifie",
@@ -4058,7 +4060,7 @@
       "routes": [
         {
           "target": 142,
-          "label": "Attaquer le Sorcier à l'épée"
+          "label": "Attaquer votre adversaire à l'épée"
         },
         {
           "target": 105,
@@ -4110,7 +4112,7 @@
     "218": {
       "status": "verifie",
       "mode": "conditionnel",
-      "note": "Quatre manières de traverser la rivière : bac §3, radeau §386, pont §209, nage §316. Les coûts et épreuves sont gérés aux paragraphes correspondants.",
+      "note": "Quatre manières de traverser la rivière : bac §3, radeau §386, pont §209, nage §316. Les coûts et épreuves sont gérés aux paragraphes correspondants. Un repas est permis en arrivant des §158 ou §316.",
       "routes": [
         {
           "target": 3,
@@ -4129,7 +4131,11 @@
           "label": "Traverser à la nage"
         }
       ],
-      "title": "La berge sud"
+      "title": "La berge sud",
+      "optional_meal_from": [
+        158,
+        316
+      ]
     },
     "219": {
       "status": "verifie",
@@ -4238,7 +4244,7 @@
       "routes": [
         {
           "target": 131,
-          "label": "Demander des renseignements aux Nains",
+          "label": "Demander des renseignements aux petits hommes",
           "when": {
             "kind": "visit_count",
             "paragraph": 227,
@@ -4256,7 +4262,7 @@
         },
         {
           "target": 20,
-          "label": "Attaquer le chef des Nains",
+          "label": "Attaquer le chef des petits hommes",
           "when": {
             "kind": "visit_count",
             "paragraph": 227,
@@ -4265,7 +4271,7 @@
         },
         {
           "target": 291,
-          "label": "Quitter la salle des Nains"
+          "label": "Quitter la petite pièce enfumée"
         }
       ],
       "title": "La salle des joueurs de cartes"
@@ -4311,7 +4317,7 @@
         "wound_limit": 4,
         "defeat_target": 64
       },
-      "title": "Le combat contre la Goule"
+      "title": "La créature aux chairs décomposées"
     },
     "231": {
       "status": "verifie",
@@ -4681,7 +4687,7 @@
           }
         }
       ],
-      "title": "Le chien au souffle de feu"
+      "title": "Le chien qui bondit"
     },
     "250": {
       "status": "verifie",
@@ -4756,7 +4762,7 @@
       "routes": [
         {
           "target": 352,
-          "label": "S'approcher du Vampire"
+          "label": "S'approcher de l’homme au visage livide"
         },
         {
           "target": 333,
@@ -5065,7 +5071,7 @@
         },
         {
           "target": 282,
-          "label": "Affronter les Zombies"
+          "label": "Affronter les créatures"
         }
       ],
       "title": "Face aux silhouettes muettes"
@@ -6765,7 +6771,7 @@
     "352": {
       "status": "verifie",
       "mode": "automatique",
-      "note": "Regard du Vampire : Endurance -1 ; épée §74 ou sac §279.",
+      "note": "Regard implacable : Endurance -1 ; épée §74 ou sac §279.",
       "effects": [
         {
           "kind": "stat",
@@ -6879,7 +6885,7 @@
       "routes": [
         {
           "target": 142,
-          "label": "Avancer sur le Sorcier, l’épée à la main"
+          "label": "Avancer sur lui, l’épée à la main"
         },
         {
           "target": 105,
@@ -7256,11 +7262,11 @@
       "routes": [
         {
           "target": 291,
-          "label": "Quitter la salle des Nains"
+          "label": "Quitter la petite pièce enfumée"
         }
       ],
       "optional_meal": true,
-      "title": "La table des Nains"
+      "title": "La table des petits hommes"
     },
     "377": {
       "status": "verifie",
