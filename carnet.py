@@ -16,7 +16,7 @@ from datetime import datetime
 from PySide6.QtCore import Qt, QRectF, QPointF, QSize, QEvent, Signal, QTimer
 from PySide6.QtGui import (QColor, QPainter, QPainterPath, QPen, QPixmap, QLinearGradient,
                            QRadialGradient, QTextCursor, QTextCharFormat, QTextBlockFormat, QKeySequence,
-                           QShortcut, QFontMetricsF)
+                           QShortcut, QFontMetricsF, QSyntaxHighlighter)
 from PySide6.QtWidgets import (QWidget, QAbstractButton, QPushButton, QTextEdit, QLabel,
                                QVBoxLayout, QHBoxLayout, QScrollArea, QFrame, QCheckBox,
                                QMenu, QInputDialog, QMessageBox, QSizePolicy)
@@ -193,8 +193,36 @@ class BookmarkRibbon(QAbstractButton):
             p.drawRect(QRectF(self.rect()).adjusted(.5, .5, -.5, -.5))
 
 
+class ReferenceHighlighter(QSyntaxHighlighter):
+    """Mise en forme vivante du carnet : en-têtes « ✦ » à la rubrique, renvois §N en lien.
+
+    Les formats d'un QSyntaxHighlighter vivent dans la mise en page, pas dans le document :
+    ils ne passent ni par la pile Annuler/Rétablir ni par contentsChange, et Qt ne recalcule
+    que les blocs touchés par une modification. Le document lui-même ne contient que du
+    texte à l'encre ordinaire : aucun format d'ancre ne peut donc « déborder » sur le texte
+    tapé juste après un lien.
+    """
+
+    def highlightBlock(self, text):
+        if text.startswith('✦'):
+            header = QTextCharFormat()
+            header.setForeground(RUBRIC)
+            header.setFontItalic(True)
+            self.setFormat(0, len(text), header)
+        for match in REFERENCE.finditer(text):
+            link = QTextCharFormat(self.format(match.start()))
+            link.setForeground(RUBRIC)
+            link.setFontWeight(600)
+            self.setFormat(match.start(), match.end() - match.start(), link)
+
+
 class LinedNotes(QTextEdit):
-    """Feuille lignée : texte libre, renvois §N cliquables sans quitter l'édition."""
+    """Feuille lignée : texte libre, renvois §N cliquables sans quitter l'édition.
+
+    La cible d'un renvoi se lit toujours dans le texte (« §12 » mène au 12) au moment du
+    survol ou du clic ; elle ne dépend d'aucun format stocké, donc éditer §12 en §123,
+    effacer le « § » ou taper après un lien donne immédiatement la bonne cible.
+    """
     referenceActivated = Signal(int)
 
     def __init__(self, parent=None):
@@ -211,6 +239,7 @@ class LinedNotes(QTextEdit):
         self.viewport().setMouseTracking(True)
         self._press = None
         self._keep_margin()
+        self.highlighter = ReferenceHighlighter(self.document())
 
     def line_pitch(self):
         return QFontMetricsF(self.font()).height() * 1.18
@@ -254,17 +283,54 @@ class LinedNotes(QTextEdit):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        anchor = self.anchorAt(event.position().toPoint())
-        self.viewport().setCursor(Qt.PointingHandCursor if anchor else Qt.IBeamCursor)
+        number = self.reference_at(event.position().toPoint())
+        self.viewport().setCursor(Qt.PointingHandCursor if number else Qt.IBeamCursor)
+        self.viewport().setToolTip(f'Aller au §{number}' if number else '')
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
         pos = event.position().toPoint()
-        anchor = self.anchorAt(pos)
+        number = self.reference_at(pos)
         moved = self._press is not None and (self._press - pos).manhattanLength() > 4
-        if anchor.startswith('paragraph:') and not moved and not self.textCursor().hasSelection():
-            self.referenceActivated.emit(int(anchor.split(':', 1)[1]))
+        if number and not moved and not self.textCursor().hasSelection():
+            self.referenceActivated.emit(number)
+
+    def reference_span(self, position):
+        """(début, fin, N) du renvoi qui couvre le caractère à cette position du document."""
+        block = self.document().findBlock(position)
+        if not block.isValid():
+            return None
+        offset = position - block.position()
+        for match in REFERENCE.finditer(block.text()):
+            if match.start() <= offset < match.end():
+                return (block.position() + match.start(), block.position() + match.end(),
+                        int(match.group(1)))
+        return None
+
+    def link_target(self, position):
+        """Paragraphe visé par le caractère à cette position, ou None hors d'un renvoi."""
+        span = self.reference_span(position)
+        return span[2] if span else None
+
+    def reference_at(self, point):
+        """Paragraphe du renvoi réellement sous ce point du viewport (pas seulement le plus proche)."""
+        cursor = self.cursorForPosition(point)
+        for position in (cursor.position(), cursor.position() - 1):
+            span = self.reference_span(position) if position >= 0 else None
+            if not span:
+                continue
+            probe = QTextCursor(self.document())
+            for i in range(span[0], span[1]):
+                probe.setPosition(i)
+                left = self.cursorRect(probe)
+                probe.setPosition(i + 1)
+                right = self.cursorRect(probe)
+                if left.top() == right.top() and left.left() <= point.x() <= right.left() \
+                        and left.top() <= point.y() <= left.bottom():
+                    return span[2]
+        return None
+
 
     def plain(self):
         return self.toPlainText()
@@ -278,28 +344,15 @@ class LinedNotes(QTextEdit):
             fmt.setLeftMargin(self.MARGIN)
             root.setFrameFormat(fmt)
 
-    def _formats(self, header=False):
+    def _ink(self):
+        """Le seul format stocké dans le document : l'encre ordinaire, sans ancre."""
         plain = QTextCharFormat()
         plain.setForeground(PAGE_INK)
-        if header:
-            plain.setForeground(RUBRIC)
-            plain.setFontItalic(True)
-        link = QTextCharFormat(plain)
-        link.setAnchor(True)
-        link.setForeground(RUBRIC)
-        link.setFontWeight(600)
-        return plain, link
+        return plain
 
     def _write_line(self, cursor, line):
-        plain, link = self._formats(line.startswith('✦'))
-        for piece, number in split_references(line):
-            if number is None:
-                cursor.insertText(piece, plain)
-            else:
-                fmt = QTextCharFormat(link)
-                fmt.setAnchorHref(f'paragraph:{number}')
-                cursor.insertText(piece, fmt)
-        cursor.setCharFormat(self._formats()[0])
+        cursor.insertText(line, self._ink())
+        cursor.setCharFormat(self._ink())
 
     def _block_format(self):
         fmt = QTextBlockFormat()
@@ -314,21 +367,20 @@ class LinedNotes(QTextEdit):
         cursor.setBlockFormat(self._block_format())
         for i, line in enumerate((text or '').split('\n')):
             if i:
-                cursor.insertBlock(self._block_format(), self._formats()[0])
+                cursor.insertBlock(self._block_format(), self._ink())
             self._write_line(cursor, line)
         self.document().clearUndoRedoStacks()
         self.moveCursor(QTextCursor.End)
-        self.setCurrentCharFormat(self._formats()[0])
+        self.setCurrentCharFormat(self._ink())
 
     def insert_reference(self, number):
         cursor = self.textCursor()
         before = cursor.block().text()[:cursor.positionInBlock()]
+        cursor.beginEditBlock()
         if before and not before.endswith((' ', '(')):
-            cursor.insertText(' ', self._formats()[0])
-        link = QTextCharFormat(self._formats()[1])
-        link.setAnchorHref(f'paragraph:{number}')
-        cursor.insertText(f'§{number}', link)
-        cursor.insertText(' ', self._formats()[0])
+            cursor.insertText(' ', self._ink())
+        cursor.insertText(f'§{number} ', self._ink())
+        cursor.endEditBlock()
         self.setTextCursor(cursor)
         self.setFocus()
 
@@ -338,12 +390,12 @@ class LinedNotes(QTextEdit):
         cursor = self.textCursor()
         if self.toPlainText().strip():
             if cursor.block().text().strip():
-                cursor.insertBlock(self._block_format(), self._formats()[0])
-            cursor.insertBlock(self._block_format(), self._formats()[0])
+                cursor.insertBlock(self._block_format(), self._ink())
+            cursor.insertBlock(self._block_format(), self._ink())
         self._write_line(cursor, entry_header(number, stamp=stamp))
-        cursor.insertBlock(self._block_format(), self._formats()[0])
+        cursor.insertBlock(self._block_format(), self._ink())
         self.setTextCursor(cursor)
-        self.setCurrentCharFormat(self._formats()[0])
+        self.setCurrentCharFormat(self._ink())
         self.setFocus()
 
 
