@@ -13,13 +13,13 @@ l'historique (annulable) et marqué « Partie assistée » comme toute navigatio
 import re
 from datetime import datetime
 
-from PySide6.QtCore import Qt, QRectF, QPointF, QSize, QEvent, Signal, QTimer
+from PySide6.QtCore import Qt, QRectF, QPointF, QSize, QEvent, Signal, QTimer, QElapsedTimer
 from PySide6.QtGui import (QColor, QPainter, QPainterPath, QPen, QPixmap, QLinearGradient,
                            QRadialGradient, QTextCursor, QTextCharFormat, QTextBlockFormat, QKeySequence,
                            QShortcut, QFontMetricsF, QSyntaxHighlighter)
 from PySide6.QtWidgets import (QWidget, QAbstractButton, QPushButton, QTextEdit, QLabel,
                                QVBoxLayout, QHBoxLayout, QScrollArea, QFrame, QCheckBox,
-                               QMenu, QInputDialog, QMessageBox, QSizePolicy)
+                               QMenu, QInputDialog, QMessageBox, QSizePolicy, QApplication)
 
 from adventurer_sheet import (GOLD, GOLD_LIGHT, GOLD_DARK, BORDEAUX, BORDEAUX_DARK, IVORY,
                               font, draw_diamond)
@@ -399,10 +399,55 @@ class LinedNotes(QTextEdit):
         self.setFocus()
 
 
+class PenButton(QAbstractButton):
+    """Petite plume dessinée (bronze, rubrique au survol) : commande « Renommer » d'une ligne."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setAttribute(Qt.WA_Hover)
+        self.setFocusPolicy(Qt.NoFocus)  # Au clavier : F2 sur la ligne.
+        self.setFixedSize(24, 24)
+
+    def sizeHint(self):
+        return QSize(24, 24)
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        hover = self.underMouse() or self.isDown()
+        if hover:
+            p.setPen(Qt.NoPen)
+            p.setBrush(QColor(122, 38, 50, 30))
+            p.drawEllipse(QRectF(self.rect()).adjusted(1, 1, -1, -1))
+        ink = QColor(RUBRIC) if hover else QColor(BRONZE)
+        p.translate(self.width() / 2, self.height() / 2)
+        p.rotate(45)
+        body = QPainterPath()
+        body.addRoundedRect(QRectF(-2.6, -9, 5.2, 12.5), 1.2, 1.2)
+        nib = QPainterPath(QPointF(-2.6, 3.5))
+        nib.lineTo(2.6, 3.5)
+        nib.lineTo(0, 8.5)
+        nib.closeSubpath()
+        p.setPen(QPen(ink, 1.2))
+        p.setBrush(QColor(255, 248, 230, 200))
+        p.drawPath(body)
+        p.setBrush(ink)
+        p.drawPath(nib)
+        p.drawLine(QPointF(-2.6, -6), QPointF(2.6, -6))
+
+
 class BookmarkRow(QAbstractButton):
-    """Ligne de la liste : ruban, cartouche §N, libellé et date ; clic = y aller."""
+    """Ligne de la liste : ruban, cartouche §N, libellé et date.
+
+    Un clic (ou Entrée/Espace) = y aller, avec la confirmation habituelle. Renommer passe
+    par une commande dédiée : la plume de la ligne (visible au survol ou au focus), F2 ou
+    « Renommer… » du menu contextuel. Le double-clic n'a plus de sens propre : il ne
+    renomme pas et ne relance pas un second voyage.
+    """
     removeRequested = Signal(int)
     renameRequested = Signal(int)
+    travelRequested = Signal(int)
 
     def __init__(self, bookmark, title='', current=False, cited=0, parent=None):
         super().__init__(parent)
@@ -412,7 +457,7 @@ class BookmarkRow(QAbstractButton):
         self.setFixedHeight(64)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         n = bookmark['paragraph']
-        self.setToolTip(f'Aller au §{n}' + (' (vous y êtes)' if current else ''))
+        self.setToolTip(f'Aller au §{n}' + (' (vous y êtes)' if current else '') + ' · F2 : renommer')
         self.setAccessibleName(f'Marque-page §{n} {bookmark["label"]}')
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._menu)
@@ -422,19 +467,60 @@ class BookmarkRow(QAbstractButton):
         self.close_button.setCursor(Qt.PointingHandCursor)
         self.close_button.setFixedSize(24, 24)
         self.close_button.clicked.connect(lambda: self.removeRequested.emit(n))
+        self.rename_button = PenButton(self)
+        self.rename_button.setObjectName('carnetRowRename')
+        self.rename_button.setToolTip('Renommer ce marque-page (F2)')
+        self.rename_button.setAccessibleName(f'Renommer le marque-page §{n}')
+        self.rename_button.clicked.connect(lambda: self.renameRequested.emit(n))
+        self.rename_button.hide()
+        self._last_travel = QElapsedTimer()
+        self.clicked.connect(self._travel)
+
+    def _travel(self):
+        """Un seul voyage par geste : un second clic dans le délai du double-clic est ignoré."""
+        if self._last_travel.isValid() and \
+                self._last_travel.elapsed() < QApplication.doubleClickInterval():
+            return
+        self._last_travel.start()
+        self.travelRequested.emit(self.bookmark['paragraph'])
+
+    def _sync_rename_button(self):
+        self.rename_button.setVisible(self.underMouse() or self.hasFocus())
+
+    def event(self, event):
+        if event.type() in (QEvent.HoverEnter, QEvent.HoverLeave, QEvent.Enter, QEvent.Leave,
+                            QEvent.FocusIn, QEvent.FocusOut):
+            result = super().event(event)
+            self._sync_rename_button()
+            return result
+        return super().event(event)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_F2 and not event.modifiers():
+            self.renameRequested.emit(self.bookmark['paragraph'])
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
     def _menu(self, pos):
+        self.context_menu().exec(self.mapToGlobal(pos))
+
+    def context_menu(self):
         menu = QMenu(self)
         menu.addAction('Aller au paragraphe', self.click)
-        menu.addAction('Renommer…', lambda: self.renameRequested.emit(self.bookmark['paragraph']))
+        rename = menu.addAction('Renommer…', lambda: self.renameRequested.emit(self.bookmark['paragraph']))
+        rename.setShortcut(QKeySequence(Qt.Key_F2))
         menu.addAction('Retirer', lambda: self.removeRequested.emit(self.bookmark['paragraph']))
-        menu.exec(self.mapToGlobal(pos))
+        return menu
 
     def resizeEvent(self, event):
         self.close_button.move(self.width() - 32, (self.height() - 24) // 2)
+        self.rename_button.move(self.width() - 58, (self.height() - 24) // 2)
 
     def mouseDoubleClickEvent(self, event):
-        self.renameRequested.emit(self.bookmark['paragraph'])
+        # Le premier clic a déjà voyagé : le second appui du double-clic ne fait rien
+        # (QAbstractButton le traiterait sinon comme un nouvel appui, donc un 2e voyage).
+        event.accept()
 
     def paintEvent(self, event):
         p = QPainter(self)
@@ -455,7 +541,7 @@ class BookmarkRow(QAbstractButton):
         p.setFont(font('title', 15, True))
         p.drawText(tag, Qt.AlignCenter, f'§ {self.bookmark["paragraph"]}')
         text_left = tag.right() + 14
-        text = QRectF(text_left, r.top() + 6, r.right() - text_left - 40, r.height() - 12)
+        text = QRectF(text_left, r.top() + 6, r.right() - text_left - 66, r.height() - 12)
         label = self.bookmark['label'] or self.title or 'Sans libellé'
         p.setPen(PAGE_INK if self.bookmark['label'] else QColor('#7d6a52'))
         p.setFont(font('title', 17, False, not self.bookmark['label']))
@@ -605,7 +691,7 @@ class CarnetBook(QWidget):
         foot = QHBoxLayout()
         foot.addWidget(self.mark_button)
         foot.addStretch()
-        self.marks_hint = QLabel('Clic : y aller · double-clic : renommer')
+        self.marks_hint = QLabel('Clic : y aller · plume ou F2 : renommer')
         self.marks_hint.setObjectName('carnetFootHint')
         foot.addWidget(self.marks_hint)
         self.marks_page.layout_.addLayout(foot)
@@ -700,6 +786,8 @@ class CarnetBook(QWidget):
         self.mark_button.setText(f'Retirer le §{owner.current_paragraph}' if marked
                                  else f'＋  Marquer le §{owner.current_paragraph}' if playing
                                  else 'Marquer le § courant')
+        focused = next((w.bookmark['paragraph'] for w in self.findChildren(BookmarkRow)
+                        if w.hasFocus()), None)
         while self.marks_list.count():
             item = self.marks_list.takeAt(0)
             if item.widget():
@@ -708,10 +796,12 @@ class CarnetBook(QWidget):
             cited = references(owner.notes).count(mark['paragraph'])
             row = BookmarkRow(mark, owner._paragraph_name(mark['paragraph']) or '',
                               mark['paragraph'] == owner.current_paragraph, cited)
-            row.clicked.connect(lambda checked=False, n=mark['paragraph']: owner.go_to_bookmark(n))
+            row.travelRequested.connect(owner.go_to_bookmark)
             row.removeRequested.connect(owner.remove_bookmark)
             row.renameRequested.connect(owner.rename_bookmark)
             self.marks_list.addWidget(row)
+            if mark['paragraph'] == focused:
+                row.setFocus()  # Après un renommage au clavier, F2 reste sous la main.
         if not owner.bookmarks:
             empty = QLabel('Aucun marque-page pour l’instant.\nAppuyez sur B, ou cliquez sur le ruban '
                            'à côté du numéro de paragraphe, pour marquer une page.')
