@@ -1,3 +1,65 @@
+# Bifurk 1.2.1 — Cuir, or et carnet de voyage
+
+## Nouveautés depuis la 1.2.0
+
+- Le grimoire change de reliure : page de parchemin au cadre de bronze, cartouche
+  « § N » et lettrine enluminée, choix en plaques numérotées activables par les
+  touches 1 à 9. Le bandeau de cuir et d’or réunit Annuler, Rétablir, Règles,
+  Carte, Grimoires et le menu ⚙ Réglages (Ambiance sonore, Plein écran, Journal,
+  À propos, Quitter le jeu).
+- Fiche d’aventurier en cuir bordeaux : les boucliers d’Habileté, d’Endurance et
+  de Chance se remplissent comme des jauges et pulsent doucement à 2 ou moins.
+  La sacoche devient une grille où chaque objet connu des deux aventures a son
+  icône et où les exemplaires identiques sont regroupés. Sur une petite fenêtre,
+  la fiche se range en tiroir.
+- Carnet de notes et marque-pages (touches N et B), enregistrés avec la partie.
+  Les renvois §N deviennent cliquables dès la frappe ; un clic sur un marque-page
+  y conduit, la plume ou F2 le renomme. Voyager par le carnet compte comme une
+  intervention et marque la partie comme assistée.
+- Cadre de messages qui détaille chaque événement : dés, score, réussite ou échec,
+  gains et pertes. Les boutons d’événements disent ce qu’ils font, les jets de dés
+  restent affichés, et une alerte signale une Endurance faible quand un soin est possible.
+- Les choix indisponibles restent visibles mais grisés, avec leur raison dans
+  l’infobulle, dans les deux aventures.
+- Menu Soins expliquant chaque refus. Un seul repas par paragraphe : il faut
+  avancer dans l’aventure pour reprendre un repas.
+- Combat : « Cibler » n’apparaît qu’avec au moins deux adversaires encore debout.
+- Rien n’est révélé avant son heure : boutique de Yaztromo aux descriptions
+  neutres, objets durables achetables une seule fois et panier détaillé ; titres,
+  libellés et infobulles des deux aventures purgés de ce qui trahissait la suite.
+- Barre de chargement de parchemin et d’or à l’ouverture d’un grimoire ou d’une
+  sauvegarde : l’interface ne se fige plus pendant la lecture du livre.
+- Ambiance sonore : case « Garder la musique en fond pendant la partie » et dossier
+  `musique_perso` pour jouer vos propres morceaux en ordre aléatoire avec
+  « Jouer ma musique ». Les deux options sont décochées par défaut.
+
+## Corrections
+
+- Sorcier de la Montagne de Feu : les choix ne disparaissent plus après une
+  victoire, le message « Aucune destination explicite » n’apparaît plus à tort,
+  repas et ressources requises vérifiés sur le livre.
+- Fermer la fenêtre pendant un chargement ne modifie plus ni la partie ni les
+  sauvegardes ; le menu de démarrage résiste lui aussi à la fermeture.
+- Copier un passage rend la vraie lettre de la lettrine.
+- Plus de petite fenêtre « Supprimer » au démarrage, ni à l’ouverture de Charger
+  ou Sauvegarder.
+
+## Validation
+
+850 tests automatisés réussis (12 ignorés) en mode offscreen, hors Windows.
+Le ZIP Windows doit encore être extrait et vérifié avant publication : icône,
+version 1.2.1 dans À propos, sons, combat, sauvegarde et dossier `musique_perso`.
+
+## Installer ou mettre à jour
+
+Distribution portable Windows x64 : extraire le ZIP complet puis lancer Bifurk.exe.
+Conserver une copie du dossier `donnees`, et de `musique_perso` si vous y avez
+déposé des morceaux, avant une mise à jour. Le format actuel des sauvegardes reste
+identique ; les nouveaux champs (carnet, marque-pages, repas) sont facultatifs.
+Aucun livre ni aucune sauvegarde personnelle n’est inclus : importer son propre PDF.
+
+---
+
 # Bifurk 1.2.0 — La Forêt de la Malédiction
 
 ## Nouveautés depuis la 1.1.2

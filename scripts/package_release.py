@@ -41,6 +41,8 @@ arrêter l'archivage que publier un fichier privé par accident.
     required = ('Bifurk.exe', '_internal/assets/bifurk.ico',
                 '_internal/assets/themes/grimoire/theme.json',
                 '_internal/assets/themes/grimoire/theme.qss',
+                '_internal/assets/themes/grimoire/page-parchment.jpg',
+                '_internal/assets/themes/grimoire/sheet-leather.png',
                 '_internal/assets/check-bronze.svg',
                 '_internal/assets/illustration-background.jpg',
                 '_internal/assets/sounds/FantasyFair.m4a',
