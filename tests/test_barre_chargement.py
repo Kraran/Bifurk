@@ -12,6 +12,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import pymupdf
+import shiboken6
 from PySide6.QtWidgets import QApplication, QMessageBox, QWidget
 
 import main
@@ -219,6 +220,22 @@ class LoadingBarTests(unittest.TestCase):
         self.assertEqual(overlay.percent(), 40)
         overlay.dismiss()
         self.assertFalse(overlay.isVisible())
+
+    def test_destroyed_overlay_is_recreated_by_next_session(self):
+        with LoadingSession(self.w, 'Ouverture du grimoire…', delay_ms=0) as session:
+            session.run(lambda report: report(.5, 'Lecture du livre'))
+        stale = self.w.loading_overlay
+        shiboken6.delete(stale)  # carte détruite côté Qt, référence Python conservée
+        self.assertFalse(shiboken6.isValid(self.w.loading_overlay))
+
+        with LoadingSession(self.w, 'Chargement de la sauvegarde…', delay_ms=0) as session:
+            session.run(lambda report: report(.5, 'Lecture de la sauvegarde'))
+            fresh = self.w.loading_overlay
+            self.assertIsNot(fresh, stale)
+            self.assertTrue(shiboken6.isValid(fresh))
+            self.assertIs(session.overlay, fresh)
+            self.assertEqual(fresh.title, 'Chargement de la sauvegarde…')
+        self.assertFalse(self.overlay_visible())
 
 
 if __name__ == '__main__':
