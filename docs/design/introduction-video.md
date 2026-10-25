@@ -8,7 +8,7 @@ automatiquement ; un clic ou une touche permet de le passer immédiatement.
 Le filtre d'événements de `IntroVideoDialog` consomme cette entrée, y compris pour
 la surface vidéo native : le clic ne doit pas valider un emplacement de sauvegarde
 ou déclencher une commande du jeu. La fenêtre principale ne s'affiche qu'à la fin, en plein écran,
-puis ouvre son menu initial habituel. F11 ou le bouton dédié permettent de revenir
+puis ouvre son menu initial habituel. F11, Échap ou **⚙ → Plein écran** permettent de revenir
 en fenêtre normale. Le démarrage sans vidéo suit le même affichage plein écran.
 
 La vidéo possède son propre QMediaPlayer **sans QAudioOutput**. La musique reste

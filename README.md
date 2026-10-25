@@ -2,13 +2,51 @@
 
 ## Interface Le Grimoire
 
-Page ivoire, bibliothèque illustrée, choix sous forme de cartes et sacoche avec emblèmes.
-Les illustrations du livre sont affichées à gauche du récit et peuvent être masquées ou agrandies.
-La sacoche présente les objets en lignes compactes ; **Gérer les objets…** déplie les commandes d’ajout et de retrait.
-La sacoche reste dans le panneau latéral. Les combats possèdent leur fenêtre ;
-les soins et les outils ponctuels sont accessibles par **Soins** et **Actions…**.
-Le bouton **Quitter le jeu**, sous les sauvegardes, demande confirmation puis
-ferme les fenêtres et arrête l’audio. Sauvegardez votre progression avant de quitter.
+Bifurk est un lecteur-compagnon pour livres-jeux : il lit **votre propre PDF**
+du livre, suit l’aventurier et applique les règles cataloguées. Aucun livre
+n’est fourni avec le programme ; le bouton **Grimoires…** permet d’en ajouter un.
+
+Page ivoire, bibliothèque illustrée, choix sous forme de cartes et fiche
+d’aventurier en cuir. Les illustrations du livre sont affichées à gauche du
+récit et peuvent être masquées ou agrandies ; **A−** / **A+** règlent la taille du texte.
+
+[Captures et instructions de test](docs/design/grimoire.md).
+
+### Barre du haut
+
+- **↶ Annuler** et **↷ Rétablir** parcourent l’historique des actions.
+- **📖 Règles** (F1) affiche les pages de règles du PDF ouvert.
+- **🗺 Carte d’exploration** ouvre la carte des passages visités.
+- **✦ Grimoires…** choisit un grimoire déjà importé ou ajoute un livre PDF.
+- **⚙ Réglages** regroupe **Ambiance sonore…**, **Plein écran** (F11),
+  **Mode lecture** (F10), **Journal de la partie…**, **À propos de Bifurk**
+  et **Quitter le jeu…**, qui demande confirmation puis ferme les fenêtres et
+  arrête l’audio. Sauvegardez votre progression avant de quitter.
+
+Le titre **Bifurk — Chroniques d’aventure**, icône comprise, ouvre aussi la
+fenêtre **À propos** : version, auteur, présentation et liens GitHub.
+
+### Fiche de l’aventurier
+
+- Les caractéristiques sont présentées sur des écus-jauges ; à **2 ou moins**,
+  l’écu pulse lentement en rouge jusqu’à ce que la valeur remonte. Les
+  [variations des caractéristiques](docs/design/variations-caracteristiques.md)
+  s’animent près des valeurs sur la feuille et dans le combat, sans ralentir la partie.
+- **Bourse & Vivres** affiche l’Or, les Provisions et la potion de départ avec
+  ses doses. Ces valeurs sont gérées par le livre ; **Actions… → Corriger
+  Provisions et Or** les déverrouille pour une correction manuelle.
+- **Sacoche & Trésors** range les objets dans une grille de cases avec icônes
+  et badges de quantité ; l’en-tête replie ou déplie la sacoche. Un double-clic
+  sur une arme l’équipe, un clic droit retire un objet, et **Gérer les objets…**
+  déplie les commandes d’ajout et de retrait.
+- **⚔ Combattre ⚔** n’apparaît que lorsqu’un combat est disponible dans le paragraphe.
+- En bas, les sceaux **Soins** (manger une Provision ou boire la potion),
+  **Actions…** (dés libres 1d6/2d6/3d6/1d20, aller à un paragraphe, prologue,
+  corrections), **Carnet**, **Sauvegarder** et **Charger**.
+- Un seul repas est possible par paragraphe : **Soins** l’indique en grisant
+  « Prendre un repas — déjà mangé ici » jusqu’au prochain déplacement.
+- Dans une fenêtre étroite, la fiche se replie en bande verticale et s’ouvre en
+  tiroir (clic sur la bande ou **Tab**).
 
 Un badge indique **Partie suivie**, **Partie assistée** ou **Historique non vérifié**.
 Les voyages manuels, éditions de valeurs ou d’inventaire et commandes Annuler /
@@ -18,37 +56,91 @@ Cliquer sur le badge affiche le journal ; les anciennes sauvegardes ont un
 historique non vérifié. Les choix du récit et les effets normaux restent neutres.
 Ce suivi ne protège pas contre la modification externe des fichiers de sauvegarde.
 
-[Captures et instructions de test](docs/design/grimoire.md).
+### Récit, choix et messages
 
-Le démarrage propose une nouvelle partie ou le chargement d’un des cinq emplacements.
-Le titre **Bifurk — Chroniques d’aventure**, icône comprise, ouvre la fenêtre **À propos** :
-version, auteur, présentation et liens GitHub.
-Le bouton **Ambiance** permet de couper les effets sonores et de choisir le thème.
-Une annonce propre au livre accompagne sa couverture et le chargement d’une
-sauvegarde. Elle suit le réglage des effets sonores.
-[Reprise, sons et préparation de thèmes](docs/themes-et-ambiance.md).
+- Les choix sont des cartes numérotées : les touches **1** à **9** activent le
+  choix correspondant. Un choix indisponible reste visible mais grisé ; dans
+  Le Sorcier de la Montagne de Feu, l’infobulle précise ce qui manque.
+- Dans la page, un cadre de messages rappelle le dernier résultat de règle
+  (jets, pertes, gains) ; il est vidé au changement de paragraphe.
+- Lorsque l’Endurance tombe à 4 ou moins et qu’un soin est utilisable, une
+  alerte apparaît dans la page de lecture avec un bouton **✚ Soins**, et le sceau
+  **Soins** est mis en avant.
+- Les jets de **1d6, 2d6, 3d6 et 1d20** ouvrent un plateau de dés en 3D animés,
+  y compris pendant la création de l’aventurier. Les faces et leur total restent
+  visibles jusqu’à **Continuer** ; **Passer l’animation** révèle immédiatement le
+  résultat déjà tiré. [Présentation et contrôles](docs/design/des-animes.md).
+- À l’ouverture d’un livre ou d’une sauvegarde, une barre de progression
+  (« Ouverture du grimoire… », « Chargement de la sauvegarde… ») n’apparaît que
+  si la lecture dure plus d’un instant ; l’interface reste réactive.
 
-Hors combat, les jets de **1d6, 2d6, 3d6 et 1d20** ouvrent un plateau de dés en 3D animés,
-y compris pendant la création de l'aventurier. Les faces et leur
-total restent visibles jusqu'à **Continuer**. **Passer l'animation** révèle
-immédiatement le résultat déjà tiré. [Présentation et contrôles](docs/design/des-animes.md).
+### Combats
 
-Le bouton **Combattre / Reprendre** ouvre une fenêtre dédiée : adversaires
-et dés rouges automatiques à gauche, aventurier et dés blancs à lancer à droite,
-chronique des coups et décisions de Chance au centre. La fiche du héros se met
-à jour pendant le combat. **Fuir** et **Soins** restent en bas, grisés lorsque
-les règles les interdisent ; le journal défile sans déborder de son cadre.
-[Présentation des combats](docs/design/combat-popup.md).
+**⚔ Combattre ⚔** ouvre une fenêtre dédiée, sans réinitialiser l’adversaire
+préparé par le livre : adversaires et dés rouges automatiques à gauche,
+aventurier et dés blancs à lancer à droite, chronique des coups et décisions de
+Chance au centre. La fiche du héros se met à jour pendant le combat. **Fuir** et
+**Soins** restent en bas, grisés lorsque les règles les interdisent. Dans
+La Forêt de la Malédiction, les commandes **Cibler** n’apparaissent que si au
+moins deux adversaires sont encore debout. [Présentation des combats](docs/design/combat-popup.md).
 
-La **Carte d’exploration** relie les lieux visités sur un graphe zoomable :
-position actuelle, recherche, adversaires vaincus ou fuis et accès rapide au lieu
-précédent. [Présentation et commandes](docs/design/carte-exploration.md).
+### Carnet et marque-pages
+
+**Carnet** (touche **N**) ouvre un carnet de notes libre. **✦ Nouvelle entrée**
+ajoute une rubrique pour le paragraphe courant et **§ Insérer § courant** le numéro du paragraphe actuel ;
+les renvois **§N** deviennent des liens cliquables dès la frappe. L’onglet
+**Marque-pages** liste les paragraphes marqués (touche **B** ou ruban du
+paragraphe) : un clic y conduit, la plume ou **F2** renomme le marque-page.
+Sur un paragraphe déjà marqué, le ruban propose de renommer, retirer ou ouvrir
+les marque-pages. Suivre un renvoi ou un
+marque-page est un voyage manuel : il est confirmé et marque la partie comme
+assistée. Le carnet est enregistré dans les sauvegardes mais n’est pas concerné
+par Annuler / Rétablir. Échap le referme.
+
+### Carte d’exploration
+
+La **Carte d’exploration** relie les lieux visités sur un graphe zoomable,
+construit uniquement à partir de ce que le joueur a découvert : position
+actuelle, recherche, adversaires vaincus ou fuis, **Lieu précédent** et
+**Revenir à ce passage**. Consulter la carte ne modifie pas la partie.
+[Présentation et commandes](docs/design/carte-exploration.md).
+
+### Démarrage, sauvegardes et ambiance
+
+Le démarrage ouvre le menu **Commencer une aventure** : **Nouvelle partie** ou
+chargement d’un des cinq emplacements. Une sauvegarde automatique technique
+(`autosave.json`) est écrite après les actions, mais elle n’est pas proposée
+comme sixième emplacement et n’est pas reprise automatiquement.
+
+**⚙ → Ambiance sonore…** permet de couper les effets sonores, d’activer
+l’ambiance de caverne, de régler la musique d’accueil, d’écouter chaque effet et
+de choisir l’habillage du grimoire. Une annonce propre au livre accompagne sa
+couverture et le chargement d’une sauvegarde ; elle suit le réglage des effets
+sonores. [Reprise, sons et préparation de thèmes](docs/themes-et-ambiance.md).
 
 Les [fenêtres secondaires](docs/design/fenetres-secondaires.md) partagent les
 bandeaux et les couleurs du grimoire, des sauvegardes au sélecteur de PDF.
 
-Les [variations des caractéristiques](docs/design/variations-caracteristiques.md)
-s’animent près des valeurs sur la feuille et dans le combat, sans ralentir la partie.
+### Raccourcis clavier
+
+| Touche | Action |
+| --- | --- |
+| **1** à **9** | Choisir la carte de choix correspondante |
+| **F1** | Règles du grimoire |
+| **F10** | Mode lecture (masque le bandeau et la fiche) |
+| **F11** | Plein écran |
+| **Échap** | Quitter le mode lecture, le plein écran, le tiroir de la fiche ou le carnet |
+| **Tab** | Ouvrir ou fermer la fiche repliée (fenêtre étroite, hors champ de saisie) |
+| **N** | Ouvrir ou fermer le carnet |
+| **B** | Marquer ou démarquer le paragraphe courant |
+| **F2** | Renommer le marque-page qui a le focus dans le carnet |
+
+### Livres pris en charge
+
+Deux éditions sont reconnues par l’empreinte SHA-256 de leur PDF :
+**Le Sorcier de la Montagne de Feu** (édition 1982) et **La Forêt de la
+Malédiction** (édition 1983). Le PDF doit être fourni par l’utilisateur ; il
+n’est pas distribué avec Bifurk et ne doit pas être ajouté au dépôt.
 
 ## Démarrage
 
@@ -56,6 +148,9 @@ s’animent près des valeurs sur la feuille et dans le combat, sans ralentir la
 pip install -r requirements.txt
 python main.py
 ```
+
+Au premier lancement, ouvrez **✦ Grimoires…** pour ajouter le PDF de votre
+propre exemplaire du livre.
 
 ## Compiler et distribuer sous Windows
 
@@ -86,7 +181,7 @@ Bifurk/
 ├── catalogues/
 └── donnees/
     ├── grimoires/       # copies locales des PDF importés
-    ├── sauvegardes/     # sauvegardes manuelles et autosave.json
+    ├── sauvegardes/     # cinq emplacements manuels et autosave.json
     └── parametres/      # préférences et diagnostic audio
 ```
 
@@ -123,7 +218,7 @@ Pour tester visuellement après les tests :
 .\.venv\Scripts\python.exe main.py
 ```
 
-Le catalogue couvre les 400 paragraphes de l’édition vérifiée. La logique du dernier lot et les scénarios de validation sont détaillés dans [la documentation des événements](catalogues/README_evenements.md).
+Les catalogues d’événements couvrent les 400 paragraphes de chacune des deux éditions vérifiées. La logique du dernier lot et les scénarios de validation sont détaillés dans [la documentation des événements](catalogues/README_evenements.md).
 
 ## Comprendre et maintenir le code
 
@@ -146,7 +241,7 @@ dans les sauvegardes. Une dose sans effet n'est pas consommée.
 `FantasyFair.m4a`, fourni par l’utilisateur, accompagne en boucle l’accueil, la
 création du personnage et le choix d’une sauvegarde. À l’entrée dans l’aventure,
 le volume diminue sur dix secondes puis la musique s’arrête. Le curseur rétro
-**Musique d’accueil** dans Ambiance règle et mémorise le volume indépendamment des effets et
+**Musique d’accueil** de **⚙ → Ambiance sonore…** règle et mémorise le volume indépendamment des effets et
 de l’ambiance de caverne (0 % = muet). Par défaut, 70 % du niveau précédent est utilisé.
 Le M4A audio est diffusé en continu par Qt Multimedia
 et inclus automatiquement dans la distribution Windows avec les autres assets.

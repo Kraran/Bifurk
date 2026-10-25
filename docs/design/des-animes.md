@@ -2,8 +2,8 @@
 
 ![Plateau des dés du grimoire](des-animes.png)
 
-Hors combat, chaque jet réglementaire de **1d6 ou 2d6** ouvre une fenêtre sur un plateau de
-velours aux couleurs du thème courant : dés ivoire en perspective, rotations,
+Hors combat, chaque jet de **1d6, 2d6, 3d6 ou 1d20** ouvre une fenêtre sur un plateau de
+velours aux couleurs du thème courant : dés ivoire en perspective (D6 ou D20), rotations,
 rebonds, ombres et son du lancer. Le résultat est tiré une seule fois par le
 moteur ; l'animation se termine sur les faces effectivement utilisées.
 
@@ -25,8 +25,8 @@ ses dés blancs. Les tests de Chance et jets de protection éventuels utilisent
 point de tirage. Il n'existe pas de bouton de relance
 dans cette fenêtre : les relances de création restent limitées par les règles.
 
-Les variantes libres **3d6 et 1d20** du menu Actions… / Dés libres conservent leur affichage
-classique. Le plateau animé concerne un ou deux dés à six faces.
+Les dés libres du menu **Actions… → Dés libres** (1d6, 2d6, 3d6 et 1d20) utilisent
+le même plateau animé que les jets du livre.
 
 ## Maintenance
 

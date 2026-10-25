@@ -12,7 +12,8 @@ Au démarrage, il ouvre directement l’introduction du dernier grimoire
 importé ; s’il manque, le sélecteur permet d’en importer un. Le PDF d’origine peut
 être déplacé ou supprimé après import. La progression n’est pas reprise automatiquement.
 
-Le bouton **Ambiance** active ou coupe les sons et choisit le thème. Ces préférences
+**⚙ Réglages → Ambiance sonore…** active ou coupe les sons, règle la musique d’accueil
+et choisit le thème. Ces préférences
 et le chemin relatif du dernier livre sont conservés dans
 `donnees/parametres/preferences.json`, indépendamment des sauvegardes de partie.
 
@@ -27,7 +28,7 @@ Le seul thème fourni est **Le Grimoire**. Les thèmes sont découverts au lance
 dans `assets/themes/*/theme.json`. Pour en créer un, copier le dossier `grimoire`
 dans un nouveau dossier et modifier :
 
-- `id` (identifiant unique) et `name` (nom affiché dans Ambiance) ;
+- `id` (identifiant unique) et `name` (nom affiché dans **Ambiance sonore…**) ;
 - `stylesheet`, chemin du fichier QSS relatif au manifeste ;
 - `assets.parchment`, `assets.leather`, `assets.scene`, chemins des textures et du décor ;
 - `assets.checkmark`, dessin SVG de la coche des cases du thème fourni ;
@@ -87,7 +88,7 @@ Objet, pièces, serrure, potion, blessure, victoire et mort ont chacun un effet.
 Une seule indication de résultat est jouée par action pour limiter les superpositions.
 Ni annulation ni chargement ne rejouent ces effets.
 
-Dans **Ambiance**, une liste et le bouton **Écouter** permettent de tester chaque
+Dans **⚙ → Ambiance sonore…**, une liste et le bouton **Écouter** permettent de tester chaque
 son individuellement. L’**ambiance de fond : caverne** a sa propre commande,
 indépendante des effets, et reste désactivée par défaut. La boucle joue à faible volume.
 
@@ -105,7 +106,7 @@ périphérique de sortie. Il est limité à deux fichiers de 128 Ko.
 
 ```powershell
 git fetch origin
-git switch fix/confirmation-nouvelle-partie
+git switch master
 git pull --ff-only
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe main.py
@@ -114,7 +115,7 @@ git pull --ff-only
 Importer un livre, commencer et sauvegarder dans un emplacement. Relancer Bifurk :
 choisir la sauvegarde dans la fenêtre d’accueil, ou Nouvelle partie pour retrouver
 l’introduction. Vérifier la suppression avec refus puis confirmation.
-Dans Ambiance, tester les effets avec **Écouter**, puis une page et un combat réel.
+Dans **⚙ → Ambiance sonore…**, tester les effets avec **Écouter**, puis une page et un combat réel.
 Vérifier le choc avant la boîte de résultat et la réaction immédiate de la page.
 Activer puis couper la caverne séparément des effets. Relancer pour vérifier la mémorisation.
 
