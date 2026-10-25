@@ -50,8 +50,9 @@ n'importe quel livre jouable en ajoutant seulement un fichier JSON.
    hôte : aucun état mutable ne doit vivre sur la classe du registre.
 5. Déclarer le moteur dans `registry.SUPPORTED_ENGINES` et
    `controller.CONTROLLERS`, puis ajouter le manifeste dans `catalogues/modules`.
-   Les adaptateurs livrés sont `sorcier-1982` et `foret-1983` ; ce dernier
-   est désormais complet avec les [mécaniques particulières intégrées](foret-mecaniques-particulieres.md).
+   Les adaptateurs livrés sont `sorcier-1982`, `foret-1983` et `cite-1983`. La Forêt
+   est désormais complète avec les [mécaniques particulières intégrées](foret-mecaniques-particulieres.md) ;
+   la Cité est en préparation (voir [La Cité — présentation](cite-module-presentation.md)).
 6. Tester les règles ordinaires et les exceptions avec des jets contrôlés, puis
    les changements de livre, sauvegardes, chargements et annulations. Ajouter au
    besoin les contrôles de ressources dans `scripts/package_release.py`.
@@ -68,7 +69,8 @@ Les champs optionnels `intro_pages` et `intro_title` décrivent le prologue PDF.
 les ressources de départ d'une nouvelle partie, jamais celles d'un héros chargé.
 Les valeurs absentes conservent le parcours du Sorcier et les tests de modules
 simples. Le détail du second module est dans
-[La Forêt — présentation](foret-module-presentation.md).
+[La Forêt — présentation](foret-module-presentation.md), celui du troisième dans
+[La Cité — présentation](cite-module-presentation.md).
 
 ## Sauvegardes et distribution
 

@@ -54,7 +54,10 @@ class WindowsDistributionTests(unittest.TestCase):
                          '_internal/catalogues/sorcier_montagne_feu_1982.json',
                          '_internal/catalogues/modules/foret_malediction_1983.json',
                          '_internal/catalogues/foret_malediction_1983.json',
-                         '_internal/catalogues/evenements_foret_1983.json'):
+                         '_internal/catalogues/evenements_foret_1983.json',
+                         '_internal/catalogues/modules/cite_voleurs_1983.json',
+                         '_internal/catalogues/cite_voleurs_1983.json',
+                         '_internal/catalogues/evenements_cite_1983.json'):
             self.write(self.bundle / relative)
         for source in release.DOCUMENTS.values():
             self.write(self.root / source)

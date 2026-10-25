@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "cite_voleurs_1983",
+  "title": "La Cité des Voleurs",
+  "engine": "cite-1983",
+  "pdf_sha256": "686607e4c9a86c72d39d3a101f2681df83d71ecba6d858a2f8e062d2f5357616",
+  "paragraph_count": 400,
+  "rules_pages": [
+    4,
+    13
+  ],
+  "intro_pages": [
+    14,
+    18
+  ],
+  "intro_title": "Les terribles messagers de Zanbar Bone",
+  "status": "preview",
+  "starting_gold": 30,
+  "starting_items": [],
+  "catalogues": {
+    "events": "evenements_cite_1983.json",
+    "illustrations": "cite_voleurs_1983.json"
+  },
+  "text_repairs": []
+}

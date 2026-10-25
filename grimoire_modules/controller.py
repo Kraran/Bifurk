@@ -6,6 +6,7 @@ sur une classe du registre. Les commandes sont déléguées à chaque appel, don
 changer de livre ne laisse pas de méthodes liées à l'ancien module.
 """
 from functools import wraps
+from .cite.controller import CiteController
 from .foret.controller import ForetController
 from .sorcier.actions import BookActions
 from .sorcier.controller import SorcierCombatActions
@@ -15,7 +16,8 @@ class SorcierController(BookActions, SorcierCombatActions):
     """Adaptateur du Sorcier : interactions spéciales, combats et objets de l'édition."""
 
 
-CONTROLLERS = {'sorcier-1982': SorcierController, 'foret-1983': ForetController}
+CONTROLLERS = {'sorcier-1982': SorcierController, 'foret-1983': ForetController,
+               'cite-1983': CiteController}
 
 
 class ModuleActions:

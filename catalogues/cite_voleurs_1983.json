@@ -1,0 +1,24 @@
+{
+  "schema_version": 6,
+  "book_id": "cite_voleurs_1983",
+  "title": "La Cité des Voleurs",
+  "pdf_sha256": "686607e4c9a86c72d39d3a101f2681df83d71ecba6d858a2f8e062d2f5357616",
+  "pdf_pages": 177,
+  "page_index": "1-based",
+  "coordinate_system": "PDF points, PyMuPDF page coordinates",
+  "illustrations": [
+    {
+      "id": "couverture",
+      "type": "couverture",
+      "page_pdf": 1,
+      "rect": [
+        1.5,
+        5.65,
+        504.6,
+        839.49
+      ],
+      "statut": "verifie",
+      "paragraphes": []
+    }
+  ]
+}
