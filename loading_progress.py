@@ -7,12 +7,19 @@ l'attente, une boucle locale continue de repeindre la fenêtre mais met en file
 les clics et les touches : la partie ne peut pas changer sous le chargement.
 La carte n'apparaît qu'après SHOW_DELAY_MS pour éviter tout flash sur un
 chargement rapide, et reste alors visible au moins MIN_VISIBLE_MS.
+
+Si la fenêtre se ferme pendant la lecture, la session est abandonnée : la boucle
+locale rend aussitôt la main en levant LoadingCancelled, le travail est prié de
+s'interrompre à sa prochaine étape et son résultat tardif n'est jamais livré.
+Le thread reste référencé jusqu'à sa fin réelle (puis deleteLater) pour ne jamais
+être détruit en cours d'exécution.
 """
 import math
 import threading
 import time
 from pathlib import Path
 
+import shiboken6
 from PySide6.QtCore import QElapsedTimer, QEvent, QEventLoop, QRectF, QThread, QTimer, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QFontMetrics, QLinearGradient, QPainter, QPainterPath, QPen, QPixmap
 from PySide6.QtWidgets import QApplication, QWidget
@@ -24,6 +31,56 @@ MIN_VISIBLE_MS = 250
 YIELD_EVERY_S = .02   # rendre la main à l'interface au moins toutes les 20 ms…
 YIELD_SLEEP_S = .002  # …le temps de peindre une image de la barre
 PARCHMENT = Path(__file__).resolve().parent / 'assets/themes/grimoire/page-parchment.jpg'
+QUIT_WAIT_MS = 3000   # attente bornée des lectures abandonnées à la sortie de l'application
+
+
+class LoadingCancelled(BaseException):
+    """Chargement abandonné (fenêtre fermée) : son résultat ne doit plus être appliqué.
+
+    BaseException : ni le travail ni l'appelant ne l'avalent par un « except Exception »
+    qui la prendrait pour une erreur de lecture à afficher."""
+
+
+# Lectures abandonnées encore en cours : la référence garde le QThread vivant
+# jusqu'à sa fin réelle, sans quoi Qt le détruirait en cours d'exécution.
+_ABANDONED_WORKERS = set()
+_QUIT_HOOKED = False
+
+
+def _prune_abandoned():
+    for worker in list(_ABANDONED_WORKERS):
+        if not shiboken6.isValid(worker) or worker.isFinished():
+            _ABANDONED_WORKERS.discard(worker)
+
+
+def abandoned_workers():
+    """Lectures abandonnées encore en cours (diagnostic et tests)."""
+    _prune_abandoned()
+    return list(_ABANDONED_WORKERS)
+
+
+def wait_for_abandoned_workers(timeout_ms=QUIT_WAIT_MS):
+    """Attendre, au plus timeout_ms au total, la fin des lectures abandonnées."""
+    deadline = time.monotonic() + max(0, timeout_ms) / 1000
+    for worker in list(_ABANDONED_WORKERS):
+        if shiboken6.isValid(worker) and not worker.isFinished():
+            worker.wait(max(1, int((deadline - time.monotonic()) * 1000)))
+    _prune_abandoned()
+    return not _ABANDONED_WORKERS
+
+
+def _keep_until_finished(worker):
+    """Garder un thread abandonné jusqu'à sa fin puis le détruire dans le thread de l'interface."""
+    global _QUIT_HOOKED
+    _prune_abandoned()
+    _ABANDONED_WORKERS.add(worker)
+    worker.finished.connect(worker.deleteLater)  # slot du QThread : exécuté dans l'interface
+    if worker.isFinished():  # fini avant la connexion : finished ne sera plus émis
+        worker.deleteLater()
+    app = QApplication.instance()
+    if app is not None and not _QUIT_HOOKED:
+        app.aboutToQuit.connect(wait_for_abandoned_workers)
+        _QUIT_HOOKED = True
 
 
 class LoadingOverlay(QWidget):
@@ -337,11 +394,17 @@ class _Worker(QThread):
             self.error = exc
 
     def report(self, fraction, step='', detail=''):
+        # Chaque étape est un point d'interruption : une lecture abandonnée s'arrête
+        # là, avant ses effets suivants (copie du livre dans la bibliothèque…).
+        if self.isInterruptionRequested():
+            raise LoadingCancelled()
         self.progress.emit(-1.0 if fraction is None else float(fraction), step or '', detail or '')
         # PyMuPDF garde le verrou global de Python pendant la lecture : sans pause,
         # le thread de l'interface n'obtient plus la main et l'écran gèle ~1 s.
         # Une courte pause au plus toutes les YIELD_EVERY_S lui rend la parole.
         self.gate.wait()
+        if self.isInterruptionRequested():
+            raise LoadingCancelled()
         now = time.monotonic()
         if now - self._last_yield >= YIELD_EVERY_S:
             time.sleep(YIELD_SLEEP_S)
@@ -374,10 +437,17 @@ class LoadingSession:
         self.visible_clock = QElapsedTimer()
         self._show_timer = None
         self._worker = None
+        self._loop = None
         self.was_shown = False
+        self.abandoned = False  # fenêtre fermée : plus rien ne doit être appliqué
 
     # --- cycle de vie -------------------------------------------------------
     def __enter__(self):
+        sessions = getattr(self.owner, '_loading_sessions', None)
+        if sessions is None:
+            sessions = []
+            setattr(self.owner, '_loading_sessions', sessions)
+        sessions.append(self)  # closeEvent les abandonne
         self.clock.start()
         overlay = getattr(self.owner, 'loading_overlay', None)
         if overlay is None:
@@ -398,19 +468,53 @@ class LoadingSession:
         return False
 
     def close(self, *, wait=True):
+        self._unregister()
         if self._show_timer is not None:
             self._show_timer.stop()
         overlay = self.overlay
+        if overlay is not None and not shiboken6.isValid(overlay):
+            overlay = self.overlay = None
         if overlay is not None and overlay.isVisible():
             if wait and self.min_visible_ms > 0:
                 remaining = self.min_visible_ms - self.visible_clock.elapsed()
                 if remaining > 0:
                     self._wait(remaining)
-            overlay.dismiss()
+            if self.overlay is overlay and shiboken6.isValid(overlay):
+                overlay.dismiss()
         self.overlay = None
 
+    def _unregister(self):
+        sessions = getattr(self.owner, '_loading_sessions', None) if shiboken6.isValid(self.owner) else None
+        if sessions and self in sessions:
+            sessions.remove(self)
+
+    def abandon(self):
+        """Fenêtre en fermeture : rendre la main tout de suite et ignorer le résultat.
+
+        Le travail est prié de s'interrompre, ses signaux sont déconnectés, la carte est
+        retirée ; run() lèvera LoadingCancelled au lieu de livrer le résultat tardif."""
+        if self.abandoned:
+            return
+        self.abandoned = True
+        self._unregister()
+        if self._show_timer is not None:
+            self._show_timer.stop()
+        worker = self._worker
+        if worker is not None and shiboken6.isValid(worker):
+            worker.requestInterruption()
+            try:
+                worker.progress.disconnect()
+            except (RuntimeError, TypeError):
+                pass
+            worker.gate.set()  # ne jamais laisser un travail suspendu à la carte
+        if self._loop is not None:
+            self._loop.quit()
+        overlay, self.overlay = self.overlay, None
+        if overlay is not None and shiboken6.isValid(overlay) and overlay.isVisible():
+            overlay.dismiss()
+
     def _present(self):
-        if self.overlay is None:
+        if self.overlay is None or self.abandoned or not shiboken6.isValid(self.overlay):
             return
         self.was_shown = True
         self.visible_clock.start()
@@ -434,6 +538,8 @@ class LoadingSession:
     # --- étapes -------------------------------------------------------------
     def step(self, fraction, text='', detail=''):
         """Annoncer une étape depuis le thread de l'interface et la peindre tout de suite."""
+        if self.abandoned:
+            return
         self._record(fraction, text, detail)
         if self.overlay is not None and self.overlay.isVisible():
             self.overlay.repaint()
@@ -446,6 +552,8 @@ class LoadingSession:
             self.last_fraction = fraction
         if detail:
             self.last_detail = detail
+        if self.overlay is not None and not shiboken6.isValid(self.overlay):
+            self.overlay = None
         if self.overlay is not None:
             self.overlay.set_progress(fraction, text, detail)
         # Un chargement qui a dépassé le délai sans repasser par la boucle
@@ -459,21 +567,36 @@ class LoadingSession:
 
     def run(self, job):
         """Exécuter job(report) en arrière-plan ; renvoyer son résultat ou relever son erreur."""
+        if self.abandoned:
+            raise LoadingCancelled()
         if not self.threaded:
-            return job(lambda fraction, text='', detail='': self.step(fraction, text, detail))
+            result = job(lambda fraction, text='', detail='': self.step(fraction, text, detail))
+            if self.abandoned:
+                raise LoadingCancelled()
+            return result
         worker = _Worker(job)
         self._worker = worker
         worker.progress.connect(lambda fraction, text, detail: self._record(fraction, text, detail))
         loop = QEventLoop()
+        self._loop = loop
         worker.finished.connect(loop.quit)
         worker.start()
-        if not worker.isFinished():
+        if not worker.isFinished() and not self.abandoned:
             loop.exec(QEventLoop.ExcludeUserInputEvents)
-        worker.wait()
+        self._loop = None
         self._worker = None
+        if self.abandoned:
+            # Pas d'attente bloquante : le thread finit seul et sera détruit ensuite.
+            worker.requestInterruption()
+            worker.gate.set()
+            _keep_until_finished(worker)
+            raise LoadingCancelled()
+        worker.wait()
         # Livrer les dernières étapes encore en file avant de conclure.
         QApplication.sendPostedEvents(None, QEvent.MetaCall)
         worker.deleteLater()
+        if self.abandoned:  # fermeture survenue en livrant les dernières étapes
+            raise LoadingCancelled()
         if worker.error is not None:
             raise worker.error
         return worker.result

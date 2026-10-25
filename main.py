@@ -34,7 +34,7 @@ from dice_dialog import DiceDialog
 from combat_dialog import CombatDialog
 from dialog_chrome import DialogHeading, harmonize_standard_dialog
 from stat_feedback import StatFeedback
-from loading_progress import LoadingSession
+from loading_progress import LoadingCancelled, LoadingSession
 import adventurer_sheet
 from adventurer_sheet import (SheetPanel, OrnateHeading, HeroEmblem, StatMedallion,
                               ResourceToken, ValueLabel, SealButton, RibbonButton, InventoryGrid,
@@ -523,6 +523,10 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         """Vrai tant que la fenêtre vit et n'est pas en train de se fermer."""
         return shiboken6.isValid(self) and not self._closing
 
+    def _accepts_loading_result(self, session):
+        """Vrai si le résultat d'un chargement peut encore être appliqué à cette fenêtre."""
+        return not session.abandoned and self._can_open_startup_menu()
+
     def _show_startup_menu(self):
         """Proposer les cinq emplacements ou une nouvelle aventure ; ne pas charger l’autosave.
 
@@ -541,6 +545,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def _run_startup_menu(self):
         self.intro_music.menu()
         while True:
+            if not self._can_open_startup_menu():
+                return  # fermeture pendant un chargement : ne pas rouvrir le menu
             dialog = SaveSlotsDialog(SAVES_DIR, False, self, startup=True)
             accepted = dialog.exec() == QDialog.Accepted
             selected, new_game = dialog.selected_path, dialog.new_game_requested
@@ -628,6 +634,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         """Fermer les vues et arrêter les flux avant la fermeture native Qt."""
         # Avant de rejeter les dialogues : leur signal finished ne doit plus rien relancer.
         self._closing = True
+        # Chargements en cours : rendre la main sans attendre et ignorer leur résultat.
+        for session in list(getattr(self, '_loading_sessions', ())):
+            session.abandon()
         for dialog in self.findChildren(QDialog):
             dialog.reject()
         self.intro_music.set_enabled(False)
@@ -2260,13 +2269,17 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             try:
                 paragraphs, book_module, illustrations, events, path = session.run(
                     lambda report: read_book_for_opening(path, report))
+            except LoadingCancelled:
+                return  # fenêtre fermée pendant la lecture : rien n'est appliqué
             except Exception as exc:
                 error = exc
             else:
-                if paragraphs:
+                if paragraphs and self._accepts_loading_result(session):
                     session.step(.95, "Préparation de l’aventure")
                     self._install_opened_book(path, paragraphs, book_module, illustrations, events)
                     session.step(1.0, "Préparation de l’aventure")
+        if not self._accepts_loading_result(session):
+            return  # ni dialogue ni message après la fermeture
         if error is not None:
             QMessageBox.critical(self, "Import impossible", str(error))
             return
@@ -3261,11 +3274,17 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         with session:
             try:
                 data, book = session.run(lambda report: read_save_for_loading(path, self._pdf_hash, report))
+                if not self._accepts_loading_result(session):
+                    raise LoadingCancelled()
                 session.step(.93, "Restauration de l’aventure")
                 self._apply_loaded_save(data, book)
                 session.step(1.0, "Restauration de l’aventure")
+            except LoadingCancelled:
+                return False  # fenêtre fermée pendant la lecture : rien n'est appliqué
             except Exception as exc:
                 error = exc
+        if not self._accepts_loading_result(session):
+            return False  # ni musique, ni introduction, ni dialogue après la fermeture
         if error is not None:
             if self.current_paragraph is not None:
                 self.intro_music.fade_out()
