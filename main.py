@@ -1632,7 +1632,10 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             return cards
         for index in range(layout.count()):
             widget = layout.itemAt(index).widget()
-            if isinstance(widget, ChoiceCard) and not widget.isHidden():
+            # Une carte ajoutée à un groupe déjà affiché n'est montrée qu'au tour
+            # suivant de la boucle Qt : seule une carte masquée explicitement est exclue.
+            if isinstance(widget, ChoiceCard) and not (
+                    widget.isHidden() and widget.testAttribute(Qt.WA_WState_ExplicitShowHide)):
                 cards.append(widget)
         return cards
 
