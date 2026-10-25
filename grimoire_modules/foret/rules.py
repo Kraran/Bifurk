@@ -5,9 +5,15 @@ qui est déjà copié par l'historique et les sauvegardes. Les fonctions publiqu
 valident leurs paramètres avant mutation ; une erreur d'utilisation n'est jamais
 une dépense partielle. Ces services ne déduisent aucune règle du texte narratif.
 """
-from collections import Counter
 from copy import deepcopy
+from ..fighting_fantasy import adventure
 from ..fighting_fantasy.rules import combat_damage, spend_luck
+
+# Clé de l’état sauvegardé : ne jamais la changer (sauvegardes existantes).
+BOOK = 'foret'
+# L’Anneau de Lenteur ne quitte jamais le sac, même porté ou verrouillé à la main.
+CURSED_ITEMS = ('Anneau de Lenteur',)
+LOCKED_MESSAGE = 'Un objet verrouillé ou l’anneau maudit ne peut pas être retiré.'
 
 SHOP = (
     ('Potion de Guérison', 3), ('Potion de Contrôle des Plantes', 2),
@@ -41,22 +47,13 @@ FIXED_PAYMENT_ROUTES = {(17,89):89,(172,89):89,(160,343):343,(366,127):127}
 
 
 def route_paid(character, paragraph, target):
-    return f'{paragraph}:{target}' in peek(character).get('paid_routes', [])
+    return adventure.route_paid(character, BOOK, paragraph, target)
 
 
 def pay_route(character, paragraph, target):
     """Payer au choix de la route, jamais lors de son affichage ou de sa restauration."""
-    alive(character)
-    cost = ROUTE_COSTS.get((paragraph,target))
-    if cost is None or route_paid(character,paragraph,target):
-        return False
-    resource, amount = cost
-    if resource == 'gold':
-        pay(character,gold=amount)
-    else:
-        character[resource] = max(0,character[resource]-amount)
-    state(character).setdefault('paid_routes', []).append(f'{paragraph}:{target}')
-    return True
+    return adventure.pay_route(character, BOOK, paragraph, target, ROUTE_COSTS.get((paragraph,target)),
+                               pay_gold=lambda amount: pay(character, gold=amount))
 
 
 def remaining_goblin_loot(character):
@@ -114,12 +111,7 @@ def resolve_branch_test(character, paragraph, total):
         character.clear()
         character.update(working)
         return target
-    stat, success, failure, damage = BRANCH_TESTS[paragraph]
-    passed = spend_luck(character,total) if stat == 'chance' else total <= effective_skill(character)
-    if passed:
-        return success
-    damage_hero(character,damage)
-    return failure if character['endurance'] > 0 else None
+    return adventure.branch_test(character, BOOK, BRANCH_TESTS[paragraph], total, effective_skill(character))
 
 
 def gas_resolved(character, paragraph):
@@ -212,18 +204,17 @@ def canonical(name):
 
 def state(character):
     """Accéder à l’état mutable sauvegardé ; les lectures utilisent peek()."""
-    return character.setdefault('book_state', {}).setdefault('foret', {})
+    return adventure.book_state(character, BOOK)
 
 
 def peek(character):
     """Lire sans créer de marqueurs pendant un affichage ou un test d'autorisation."""
-    return character.get('book_state', {}).get('foret', {})
+    return adventure.peek_state(character, BOOK)
 
 
 def alive(character):
     """Refuser les actions après une perte létale, y compris par appel direct."""
-    if character['endurance'] <= 0 or character.get('book_facts', {}).get('adventure_ended'):
-        raise ValueError('L’aventure est terminée.')
+    adventure.ensure_alive(character)
 
 
 TRANSFORMATION_ENDINGS = {333:'Transformation en Démon de Feu',399:'Transformation en grenouille'}
@@ -255,9 +246,7 @@ def finish_victory(character):
 
 def dice(total, low=2, high=12):
     """Valider aussi le type : bool n’est pas un résultat de dé."""
-    if type(total) is not int or not low <= total <= high:
-        raise ValueError(f'Jet attendu entre {low} et {high}.')
-    return total
+    return adventure.dice(total, low, high)
 
 
 def available(character, name):
@@ -336,35 +325,16 @@ def consume(character, name):
 
 def _validate_payment(character, gold, items, *, magic_only=False, units=None):
     """Compter les exemplaires, pas seulement les noms, avant toute dépense."""
-    alive(character)
-    if type(gold) is not int or gold < 0 or gold > character.get('gold', 0):
-        raise ValueError('Paiement en or impossible.')
-    selected = Counter(items)
-    inventory = Counter(character.get('inventory', []))
-    if any(not isinstance(name, str) or count > inventory[name] for name, count in selected.items()):
-        raise ValueError('Objet de paiement absent ou sélectionné trop souvent.')
-    if selected.get('Anneau de Lenteur') or any(selected.get(name) for name in character.get('locked_items', [])):
-        raise ValueError('Un objet verrouillé ou l’anneau maudit ne peut pas être retiré.')
-    if magic_only and any(count > available(character, name) for name, count in selected.items()):
-        raise ValueError('Le paiement exige des objets achetés et encore utilisables.')
-    if units is not None and gold + sum(selected.values()) != units:
-        raise ValueError(f'Le tribut exige exactement {units} unités (une pièce ou un objet).')
-    return selected
+    return adventure.validate_payment(character, gold, items, cursed=CURSED_ITEMS,
+                                      usable=(lambda name: available(character, name)) if magic_only else None,
+                                      units=units, locked_message=LOCKED_MESSAGE)
 
 
 def pay(character, *, gold=0, items=(), magic_only=False, units=None):
     """Payer un choix déjà validé sans convertir la valeur des trésors en monnaie."""
-    selected = _validate_payment(character, gold, items, magic_only=magic_only, units=units)
-    character['gold'] -= gold
-    for name, count in selected.items():
-        for _ in range(count):
-            character['inventory'].remove(name)
-        data = state(character)
-        if name in data.get('charges', {}):
-            # Vendre/donner une acquisition emporte aussi sa charge éventuelle.
-            data['charges'][name] = max(0, data['charges'][name] - count)
-        if name in data.get('worn', []):
-            data['worn'].remove(name)
+    adventure.pay(character, BOOK, gold=gold, items=items, cursed=CURSED_ITEMS,
+                  usable=(lambda name: available(character, name)) if magic_only else None,
+                  units=units, locked_message=LOCKED_MESSAGE)
 
 
 def reward(character, identity, *, gold=0, items=(), luck=0):
@@ -373,21 +343,7 @@ def reward(character, identity, *, gold=0, items=(), luck=0):
     identity est commun aux variantes du coffre/de la récompense ; ce n’est pas
     le numéro du passage. Ne jamais l’utiliser pour une épreuve répétable.
     """
-    alive(character)
-    if not isinstance(identity, str) or not identity or type(gold) is not int or gold < 0:
-        raise ValueError('Source de récompense invalide.')
-    items = list(items)
-    if not all(isinstance(name, str) and name for name in items) or type(luck) is not int:
-        raise ValueError('Récompense invalide.')
-    if identity in peek(character).get('rewards', []):
-        return False
-    character['gold'] = character.get('gold', 0) + gold
-    character.setdefault('inventory', []).extend(items)
-    cap = character.get('initial', {}).get('chance', character['chance'])
-    if luck:
-        character['chance'] = min(cap, max(0, character['chance'] + luck))
-    state(character).setdefault('rewards', []).append(identity)
-    return True
+    return adventure.grant_reward(character, BOOK, identity, gold=gold, items=items, luck=luck)
 
 
 def wear(character, name, enabled=True):
@@ -466,14 +422,7 @@ def shield_damage(character, damage, die, *, lucky=None):
 
 def damage_hero(character, amount, encounter=None):
     """Appliquer une perte et mémoriser une blessure effective même après des soins."""
-    if type(amount) is not int or amount < 0:
-        raise ValueError('Blessure invalide.')
-    before = character['endurance']
-    character['endurance'] = max(0, before - amount)
-    if encounter is not None and before > character['endurance']:
-        wounds = state(character).setdefault('wounds', {})
-        wounds[encounter] = wounds.get(encounter, 0) + 1
-    return before - character['endurance']
+    return adventure.damage_hero(character, BOOK, amount, encounter)
 
 
 def ghoul_paralysed(character, encounter):
@@ -648,28 +597,12 @@ def hand_over_hammer(character):
 
 def new_group_combat(groups):
     """Créer un état JSON indépendant des profils, sans réinitialiser une sauvegarde."""
-    if not groups or any(not group for group in groups):
-        raise ValueError('Une rencontre doit comporter des groupes non vides.')
-    for group in groups:
-        for enemy in group:
-            if (not enemy.get('name') or type(enemy.get('skill')) is not int or enemy['skill'] < 0
-                    or type(enemy.get('stamina')) is not int or enemy['stamina'] <= 0):
-                raise ValueError('Profil de monstre invalide.')
-    return {'groups':deepcopy(groups), 'group':0, 'assaults':0, 'target':0, 'finished':False}
+    return adventure.new_group_combat(groups)
 
 
 def advance_group(combat):
     """Passer à la paire suivante seulement après la mort de tous les membres."""
-    if combat['finished']:
-        return False
-    if any(enemy['stamina'] > 0 for enemy in combat['groups'][combat['group']]):
-        return False
-    if combat['group'] + 1 == len(combat['groups']):
-        combat['finished'] = True
-    else:
-        combat['group'] += 1
-        combat['target'] = 0
-    return True
+    return adventure.advance_group(combat)
 
 # Les variantes partagent un identifiant physique. La table ne contient que des
 # effets relus : aucun motif de texte ne peut créer une récompense ou une charge.
