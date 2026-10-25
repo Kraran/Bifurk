@@ -313,7 +313,7 @@ class ExplorationMapDialog(QDialog):
         positions = place_positions(self.places, self.transitions, directions)
         edges = list(dict.fromkeys((source, target) for source, target in self.transitions
                                    if source in positions and target in positions and source != target))
-        for index, (source, target) in enumerate(edges):
+        for source, target in edges:
             delta = positions[target] - positions[source]
             if abs(delta.x()) / 330 >= abs(delta.y()) / 180:
                 sign = 1 if delta.x() > 0 else -1

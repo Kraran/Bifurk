@@ -479,7 +479,7 @@ def _d_spear(p):
 
 
 def _d_stakes(p):
-    for i, dx in enumerate((-.6, -.3, 0, .3, .6)):
+    for dx in (-.6, -.3, 0, .3, .6):
         top, bottom = -.85 + abs(dx) * .25, .85
         _outline(p)
         p.setBrush(_grad(dx - .12, 0, dx + .12, 0, '#e2b06d', '#8a5a2a'))

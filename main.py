@@ -2408,7 +2408,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         choices = []
         # Chaque destination explicite devient un choix cliquable distinct ; son libellé
         # est déduit du texte qui précède immédiatement le renvoi.
-        for start, end, target in destinations(text):
+        for start, _end, target in destinations(text):
             match_start = start
             prefix = text[:match_start]
             # Partir de la dernière fin de phrase ou de choix, puis retirer les liaisons courantes.

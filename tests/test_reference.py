@@ -1561,13 +1561,13 @@ class Reference(unittest.TestCase):
             104: [49], 107: [148, 197], 111: [249],
             113: [285, 78], 114: [359], 115: [95, 313, 330],
         }
-        for paragraph, destinations in expected.items():
+        for paragraph, targets in expected.items():
             with self.subTest(paragraph=paragraph):
                 entry = data["paragraphs"][str(paragraph)]
                 actual = available_routes({}, entry)
-                self.assertEqual([route["target"] for route in actual], destinations)
+                self.assertEqual([route["target"] for route in actual], targets)
                 self.assertTrue(all(route["label"].strip() for route in actual))
-                self.assertEqual(len(actual), len(set(destinations)))
+                self.assertEqual(len(actual), len(set(targets)))
 
     def test_room_102_can_choose_two_goblins_combat_19(self):
         from book_events import DATA_PATH
@@ -2279,11 +2279,11 @@ class Reference(unittest.TestCase):
             256: [398, 297, 114], 257: [168, 293],
             259: [7], 260: [359, 329],
         }
-        for n, destinations in expected.items():
+        for n, targets in expected.items():
             with self.subTest(paragraph=n):
                 character = {"inventory": ["Épée"]} if n == 242 else {}
                 actual = available_routes(character, data["paragraphs"][str(n)])
-                self.assertEqual([route["target"] for route in actual], destinations)
+                self.assertEqual([route["target"] for route in actual], targets)
                 self.assertTrue(all(route["label"] for route in actual))
 
     def test_candle_239_and_portrait_241_automatic_effects_only_once(self):

@@ -4,10 +4,6 @@ Le catalogue décrit des pages physiques (base 1) et rectangles PyMuPDF ; les pi
 restent dans le PDF privé. Le SHA-256 empêche d'appliquer ces coordonnées à une
 autre édition. Les associations peuvent porter des degrés de certitude différents,
 conservés pour l'affichage ; elles ne représentent pas des règles de jeu."""
-from pathlib import Path
-
-CATALOG_PATH = Path(__file__).resolve().parent / "catalogues" / "sorcier_montagne_feu_1982.json"
-
 def catalogue_for_pdf(pdf_path):
     """Charger les cadrages seulement si le SHA-256 du PDF correspond au catalogue livré."""
     from grimoire_modules.registry import module_for_pdf
