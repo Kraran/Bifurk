@@ -68,13 +68,17 @@ class CiteCatalogueTests(unittest.TestCase):
         art = module.catalogue('illustrations')
         self.assertEqual(events['pdf_sha256'], module.pdf_sha256)
         self.assertEqual(art['pdf_sha256'], module.pdf_sha256)
-        # Phase 2 : renvois relus, sans aucune règle ni effet exécutable.
+        # Renvois relus ; les §1 à 100 sont analysés, mais le catalogue reste
+        # descriptif : les règles vivent dans le moteur Python du module.
         self.assertEqual((events['total_paragraphs'], events['reviewed_count']), (400, 400))
         self.assertEqual(events['review_pending'], [])
         self.assertFalse(events['analysis_contract']['conditions_are_executable'])
-        for entry in events['paragraphs'].values():
-            self.assertEqual(entry['status'], 'renvois_verifies')
-            self.assertLessEqual(set(entry), {'status', 'mode', 'title', 'routes', 'source_page_pdf'})
+        self.assertEqual(events['analysis_contract']['analysed_range'], [1, 100])
+        for number, entry in events['paragraphs'].items():
+            analysed = int(number) <= 100
+            self.assertEqual(entry['status'], 'analyse_verifiee' if analysed else 'renvois_verifies')
+            keys = {'status', 'mode', 'title', 'routes', 'source_page_pdf'} | ({'analysis'} if analysed else set())
+            self.assertLessEqual(set(entry), keys)
         self.assertEqual([entry['type'] for entry in art['illustrations']], ['couverture'])
         self.assertEqual(art['pdf_pages'], 177)
 
@@ -220,6 +224,10 @@ class CitePresentationTests(unittest.TestCase):
             self.w.go_to(number)
             self.assertEqual(self.w.current_paragraph, number)
             self.assertEqual(self.w.paragraph_title.text(), titles[str(number)]['title'])
+        # Seul le §2 de la Cité est analysé : sans bracelet, il ne retire rien et
+        # garde seulement la trace de son passage.
+        state = self.w.character.pop('book_state')
+        self.assertEqual(state, {'cite': {'entries': [2]}})
         self.assertEqual(self.w.character, before)
         self.assertEqual(self.roll.call_count, dice)
         self.assertIsNone(self.w.piranha_combat)

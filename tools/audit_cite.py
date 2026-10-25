@@ -69,11 +69,16 @@ def audit(catalogue, pdf=None):
     contract = catalogue['analysis_contract']
     if contract['conditions_are_executable'] or contract['runtime_effects_enabled']:
         raise ValueError('Les conditions du catalogue ne doivent pas être exécutables.')
+    first, last = contract.get('analysed_range', (0, 0))
+    analysed = {str(n) for n in range(first, last + 1)} if first else set()
     incoming = {number: 0 for number in expected}
     route_count = 0
     for number, entry in entries.items():
-        if entry['status'] != 'renvois_verifies' or not entry['title'].strip():
+        status = 'analyse_verifiee' if number in analysed else 'renvois_verifies'
+        if entry['status'] != status or not entry['title'].strip():
             raise ValueError(f'Statut ou titre invalide : {number}')
+        if (number in analysed) != bool(str(entry.get('analysis', '')).strip()):
+            raise ValueError(f'Analyse manquante ou hors tranche : {number}')
         if not FIRST_PAGE <= entry['source_page_pdf'] <= LAST_PAGE:
             raise ValueError(f'Page source hors du livre : {number}')
         routes = entry['routes']
@@ -123,6 +128,7 @@ def audit(catalogue, pdf=None):
             'orphans': orphans, 'unreachable': unreachable,
             'blocking_source_issues': [i['paragraph'] for i in issues if i['severity'] == 'blocking'],
             'open_source_issues': [i['paragraph'] for i in issues if i.get('status') != 'resolved'],
+            'analysed': len(analysed),
             'pdf_provenance_checked': bool(pdf), 'conditions_are_executable': False}
 
 

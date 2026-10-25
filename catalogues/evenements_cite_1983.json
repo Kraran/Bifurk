@@ -7,7 +7,7 @@
   "review_pending": [],
   "paragraphs": {
     "1": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La porte du Port du Sable Noir",
       "routes": [
@@ -24,10 +24,11 @@
           "label": "Attaquer le garde"
         }
       ],
-      "source_page_pdf": 20
+      "source_page_pdf": 20,
+      "analysis": "récit"
     },
     "2": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le bracelet sur la carapace",
       "routes": [
@@ -40,10 +41,11 @@
           "label": "Retourner à l'entrée"
         }
       ],
-      "source_page_pdf": 21
+      "source_page_pdf": 21,
+      "analysis": "effet d’arrivée"
     },
     "3": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le joueur de lyre",
       "routes": [
@@ -57,10 +59,11 @@
           "label": "Passer au stand suivant"
         }
       ],
-      "source_page_pdf": 21
+      "source_page_pdf": 21,
+      "analysis": "renvoi conditionnel"
     },
     "4": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le domestique blafard",
       "routes": [
@@ -73,10 +76,11 @@
           "label": "Attaquer le domestique"
         }
       ],
-      "source_page_pdf": 21
+      "source_page_pdf": 21,
+      "analysis": "récit"
     },
     "5": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'Homme Orque à la hache",
       "routes": [
@@ -86,10 +90,11 @@
           "condition_text": "Homme Orque vaincu"
         }
       ],
-      "source_page_pdf": 22
+      "source_page_pdf": 22,
+      "analysis": "combat"
     },
     "6": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Une hôtesse peu aimable",
       "routes": [
@@ -102,10 +107,11 @@
           "label": "Franchir les rideaux"
         }
       ],
-      "source_page_pdf": 22
+      "source_page_pdf": 22,
+      "analysis": "récit"
     },
     "7": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les perles noires",
       "routes": [
@@ -119,10 +125,11 @@
           "label": "Quitter le navire vers le nord"
         }
       ],
-      "source_page_pdf": 22
+      "source_page_pdf": 22,
+      "analysis": "effet d’arrivée, renvoi conditionnel"
     },
     "8": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La broche porte-bonheur",
       "routes": [
@@ -131,17 +138,19 @@
           "label": "Partir vers le nord"
         }
       ],
-      "source_page_pdf": 22
+      "source_page_pdf": 22,
+      "analysis": "effet d’arrivée"
     },
     "9": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le dernier rire de Zanbar Bone",
       "routes": [],
-      "source_page_pdf": 23
+      "source_page_pdf": 23,
+      "analysis": "fin"
     },
     "10": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le garde furieux",
       "routes": [
@@ -156,10 +165,11 @@
           "condition_text": "Plus de six Assauts"
         }
       ],
-      "source_page_pdf": 23
+      "source_page_pdf": 23,
+      "analysis": "combat"
     },
     "11": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Réfugié dans l'arbre",
       "routes": [
@@ -168,10 +178,11 @@
           "label": "Sauter de l'arbre"
         }
       ],
-      "source_page_pdf": 23
+      "source_page_pdf": 23,
+      "analysis": "effet d’arrivée"
     },
     "12": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'homme au bain",
       "routes": [
@@ -184,10 +195,11 @@
           "label": "Ressortir en catimini"
         }
       ],
-      "source_page_pdf": 24
+      "source_page_pdf": 24,
+      "analysis": "récit"
     },
     "13": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La broche scorpion",
       "routes": [
@@ -205,10 +217,11 @@
           "label": "Quitter la maison vers le nord"
         }
       ],
-      "source_page_pdf": 24
+      "source_page_pdf": 24,
+      "analysis": "effet d’arrivée, renvoi conditionnel"
     },
     "14": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les haies vivantes",
       "routes": [
@@ -223,10 +236,11 @@
           "condition_text": "Pas d'Anneau de Feu"
         }
       ],
-      "source_page_pdf": 24
+      "source_page_pdf": 24,
+      "analysis": "renvoi conditionnel"
     },
     "15": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La course entre les serpents",
       "routes": [
@@ -241,10 +255,11 @@
           "condition_text": "Chance ratée"
         }
       ],
-      "source_page_pdf": 25
+      "source_page_pdf": 25,
+      "analysis": "épreuve"
     },
     "16": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le sac de pièces",
       "routes": [
@@ -253,10 +268,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 25
+      "source_page_pdf": 25,
+      "analysis": "effet d’arrivée"
     },
     "17": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'homme en haillons",
       "routes": [
@@ -269,10 +285,11 @@
           "label": "Continuer vers l'est"
         }
       ],
-      "source_page_pdf": 25
+      "source_page_pdf": 25,
+      "analysis": "récit"
     },
     "18": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le couteau lancé",
       "routes": [
@@ -287,10 +304,11 @@
           "condition_text": "Deux dés > Habileté"
         }
       ],
-      "source_page_pdf": 27
+      "source_page_pdf": 27,
+      "analysis": "épreuve"
     },
     "19": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les javelots empoisonnés",
       "routes": [
@@ -304,10 +322,11 @@
           "label": "Monter à l'étage"
         }
       ],
-      "source_page_pdf": 27
+      "source_page_pdf": 27,
+      "analysis": "effet d’arrivée"
     },
     "20": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les poches du pirate",
       "routes": [
@@ -316,10 +335,11 @@
           "label": "Fouiller le pont"
         }
       ],
-      "source_page_pdf": 27
+      "source_page_pdf": 27,
+      "analysis": "récit"
     },
     "21": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La chambre de la tour",
       "routes": [
@@ -332,10 +352,11 @@
           "label": "Explorer la tour"
         }
       ],
-      "source_page_pdf": 27
+      "source_page_pdf": 27,
+      "analysis": "récit"
     },
     "22": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les Lutins querelleurs",
       "routes": [
@@ -345,10 +366,11 @@
           "condition_text": "Deux Lutins vaincus"
         }
       ],
-      "source_page_pdf": 28
+      "source_page_pdf": 28,
+      "analysis": "combat"
     },
     "23": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'orfèvre au gourdin",
       "routes": [
@@ -358,10 +380,11 @@
           "condition_text": "Orfèvre vaincu"
         }
       ],
-      "source_page_pdf": 28
+      "source_page_pdf": 28,
+      "analysis": "combat"
     },
     "24": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boutique au rideau de fer",
       "routes": [
@@ -374,10 +397,11 @@
           "label": "Poursuivre vers l'ouest"
         }
       ],
-      "source_page_pdf": 28
+      "source_page_pdf": 28,
+      "analysis": "récit"
     },
     "25": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le forgeron de l'écurie",
       "routes": [
@@ -394,10 +418,11 @@
           "label": "Poursuivre vers le nord"
         }
       ],
-      "source_page_pdf": 29
+      "source_page_pdf": 29,
+      "analysis": "récit"
     },
     "26": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les spectateurs calmés",
       "routes": [
@@ -406,10 +431,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 29
+      "source_page_pdf": 29,
+      "analysis": "récit"
     },
     "27": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'homme à la cagoule",
       "routes": [
@@ -422,10 +448,11 @@
           "label": "Remonter vers la rue de la Bougie"
         }
       ],
-      "source_page_pdf": 31
+      "source_page_pdf": 31,
+      "analysis": "récit"
     },
     "28": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Une ombre dans le tunnel",
       "routes": [
@@ -438,10 +465,11 @@
           "label": "Revenir à l'entrée"
         }
       ],
-      "source_page_pdf": 31
+      "source_page_pdf": 31,
+      "analysis": "récit"
     },
     "29": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Réflexion en cellule",
       "routes": [
@@ -454,10 +482,11 @@
           "label": "Chercher une issue secrète"
         }
       ],
-      "source_page_pdf": 31
+      "source_page_pdf": 31,
+      "analysis": "récit"
     },
     "30": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le croisement de la rue de l'Écurie",
       "routes": [
@@ -466,10 +495,11 @@
           "label": "Tourner vers le nord"
         }
       ],
-      "source_page_pdf": 31
+      "source_page_pdf": 31,
+      "analysis": "récit"
     },
     "31": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le pont sur la rivière",
       "routes": [
@@ -482,10 +512,11 @@
           "label": "Attendre l'unijambiste"
         }
       ],
-      "source_page_pdf": 33
+      "source_page_pdf": 33,
+      "analysis": "récit"
     },
     "32": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La morsure de la Reine Serpent",
       "routes": [
@@ -495,10 +526,11 @@
           "condition_text": "Si vous survivez"
         }
       ],
-      "source_page_pdf": 33
+      "source_page_pdf": 33,
+      "analysis": "effet d’arrivée"
     },
     "33": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le prétendu butin",
       "routes": [
@@ -515,10 +547,11 @@
           "label": "Attaquer le garde"
         }
       ],
-      "source_page_pdf": 33
+      "source_page_pdf": 33,
+      "analysis": "récit"
     },
     "34": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La voiture lancée",
       "routes": [
@@ -527,10 +560,11 @@
           "label": "Continuer vers l'ouest"
         }
       ],
-      "source_page_pdf": 34
+      "source_page_pdf": 34,
+      "analysis": "récit"
     },
     "35": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le domestique insensible",
       "routes": [
@@ -549,10 +583,11 @@
           "condition_text": "Anneau de Glace"
         }
       ],
-      "source_page_pdf": 34
+      "source_page_pdf": 34,
+      "analysis": "effet d’arrivée, renvoi conditionnel"
     },
     "36": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le marchand d'anneaux",
       "routes": [
@@ -561,10 +596,11 @@
           "label": "Repartir vers l'ouest"
         }
       ],
-      "source_page_pdf": 35
+      "source_page_pdf": 35,
+      "analysis": "achats"
     },
     "37": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La chanson porte-bonheur",
       "routes": [
@@ -573,10 +609,11 @@
           "label": "Aller au stand suivant"
         }
       ],
-      "source_page_pdf": 35
+      "source_page_pdf": 35,
+      "analysis": "effet d’arrivée"
     },
     "38": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le bracelet-insecte",
       "routes": [
@@ -585,10 +622,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 35
+      "source_page_pdf": 35,
+      "analysis": "effet d’arrivée"
     },
     "39": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Reine Serpent impatiente",
       "routes": [
@@ -601,10 +639,11 @@
           "label": "Attaquer la Reine Serpent"
         }
       ],
-      "source_page_pdf": 36
+      "source_page_pdf": 36,
+      "analysis": "récit"
     },
     "40": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le jeu derrière le mur",
       "routes": [
@@ -617,10 +656,11 @@
           "label": "Repartir par la rue du Port"
         }
       ],
-      "source_page_pdf": 36
+      "source_page_pdf": 36,
+      "analysis": "récit"
     },
     "41": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le prix de l'entrée",
       "routes": [
@@ -629,10 +669,11 @@
           "label": "Entrer dans la ville"
         }
       ],
-      "source_page_pdf": 38
+      "source_page_pdf": 38,
+      "analysis": "récit"
     },
     "42": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Payé en provisions",
       "routes": [
@@ -641,10 +682,11 @@
           "label": "Repartir vers l'est"
         }
       ],
-      "source_page_pdf": 38
+      "source_page_pdf": 38,
+      "analysis": "effet d’arrivée"
     },
     "43": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La coupe brûlante",
       "routes": [
@@ -667,10 +709,11 @@
           "label": "Monter l'escalier"
         }
       ],
-      "source_page_pdf": 38
+      "source_page_pdf": 38,
+      "analysis": "effet d’arrivée, renvoi conditionnel"
     },
     "44": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les trois vagabonds",
       "routes": [
@@ -685,10 +728,11 @@
           "condition_text": "Pas de Poignard de Jet"
         }
       ],
-      "source_page_pdf": 39
+      "source_page_pdf": 39,
+      "analysis": "renvoi conditionnel"
     },
     "45": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le casque de fumée",
       "routes": [
@@ -701,10 +745,11 @@
           "label": "Repartir vers l'est"
         }
       ],
-      "source_page_pdf": 39
+      "source_page_pdf": 39,
+      "analysis": "récit"
     },
     "46": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La cotte de mailles",
       "routes": [
@@ -713,10 +758,11 @@
           "label": "Poursuivre vers le nord"
         }
       ],
-      "source_page_pdf": 39
+      "source_page_pdf": 39,
+      "analysis": "effet d’arrivée"
     },
     "47": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'éclair",
       "routes": [
@@ -731,10 +777,11 @@
           "condition_text": "Deux dés > Habileté"
         }
       ],
-      "source_page_pdf": 40
+      "source_page_pdf": 40,
+      "analysis": "épreuve, effet d’arrivée"
     },
     "48": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'échelle du tunnel",
       "routes": [
@@ -747,10 +794,11 @@
           "label": "Poursuivre vers l'est"
         }
       ],
-      "source_page_pdf": 40
+      "source_page_pdf": 40,
+      "analysis": "récit"
     },
     "49": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La cloche du corps de garde",
       "routes": [
@@ -765,10 +813,11 @@
           "condition_text": "Chance ratée"
         }
       ],
-      "source_page_pdf": 40
+      "source_page_pdf": 40,
+      "analysis": "épreuve"
     },
     "50": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La cale du navire",
       "routes": [
@@ -781,10 +830,11 @@
           "label": "Ouvrir la porte de droite"
         }
       ],
-      "source_page_pdf": 41
+      "source_page_pdf": 41,
+      "analysis": "récit"
     },
     "51": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le vieil homme relevé",
       "routes": [
@@ -797,10 +847,11 @@
           "label": "Poursuivre la quête"
         }
       ],
-      "source_page_pdf": 41
+      "source_page_pdf": 41,
+      "analysis": "récit"
     },
     "52": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'étal des petites armes",
       "routes": [
@@ -809,10 +860,11 @@
           "label": "Partir vers le nord"
         }
       ],
-      "source_page_pdf": 41
+      "source_page_pdf": 41,
+      "analysis": "achats"
     },
     "53": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Reine Serpent attend un présent",
       "routes": [
@@ -827,10 +879,11 @@
           "condition_text": "Aucun article en argent"
         }
       ],
-      "source_page_pdf": 42
+      "source_page_pdf": 42,
+      "analysis": "renvoi conditionnel"
     },
     "54": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La fouille du corps de garde",
       "routes": [
@@ -839,10 +892,11 @@
           "label": "Entrer dans la ville"
         }
       ],
-      "source_page_pdf": 42
+      "source_page_pdf": 42,
+      "analysis": "effet d’arrivée"
     },
     "55": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les pétales trempés",
       "routes": [
@@ -851,17 +905,19 @@
           "label": "Tourner dans la rue du Port"
         }
       ],
-      "source_page_pdf": 42
+      "source_page_pdf": 42,
+      "analysis": "effet d’arrivée"
     },
     "56": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Enchaîné dans la tour",
       "routes": [],
-      "source_page_pdf": 43
+      "source_page_pdf": 43,
+      "analysis": "fin"
     },
     "57": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les chiens du Nain",
       "routes": [
@@ -871,10 +927,11 @@
           "condition_text": "Deux Chiens Loups vaincus"
         }
       ],
-      "source_page_pdf": 43
+      "source_page_pdf": 43,
+      "analysis": "combat"
     },
     "58": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le coup de fouet",
       "routes": [
@@ -883,17 +940,19 @@
           "label": "Repartir vers l'ouest"
         }
       ],
-      "source_page_pdf": 44
+      "source_page_pdf": 44,
+      "analysis": "effet d’arrivée"
     },
     "59": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le poignard de la Sorcière",
       "routes": [],
-      "source_page_pdf": 44
+      "source_page_pdf": 44,
+      "analysis": "fin"
     },
     "60": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le palier aux deux portes",
       "routes": [
@@ -906,10 +965,11 @@
           "label": "Sauter par la fenêtre"
         }
       ],
-      "source_page_pdf": 44
+      "source_page_pdf": 44,
+      "analysis": "récit"
     },
     "61": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les fleurs du Seigneur Azzur",
       "routes": [
@@ -924,10 +984,11 @@
           "condition_text": "Pas de bouquet"
         }
       ],
-      "source_page_pdf": 45
+      "source_page_pdf": 45,
+      "analysis": "renvoi conditionnel"
     },
     "62": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La taverne enfumée",
       "routes": [
@@ -952,10 +1013,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 45
+      "source_page_pdf": 45,
+      "analysis": "récit"
     },
     "63": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les chandelles pourpres",
       "routes": [
@@ -964,10 +1026,11 @@
           "label": "Repartir vers l'est"
         }
       ],
-      "source_page_pdf": 47
+      "source_page_pdf": 47,
+      "analysis": "événement"
     },
     "64": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le loup du chenil",
       "routes": [
@@ -982,10 +1045,11 @@
           "condition_text": "Chance ratée"
         }
       ],
-      "source_page_pdf": 47
+      "source_page_pdf": 47,
+      "analysis": "épreuve"
     },
     "65": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La porte blanche et la porte noire",
       "routes": [
@@ -1002,10 +1066,11 @@
           "label": "Continuer à monter"
         }
       ],
-      "source_page_pdf": 47
+      "source_page_pdf": 47,
+      "analysis": "récit"
     },
     "66": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les clefs du Nain",
       "routes": [
@@ -1014,10 +1079,11 @@
           "label": "Repartir vers l'ouest"
         }
       ],
-      "source_page_pdf": 48
+      "source_page_pdf": 48,
+      "analysis": "achats"
     },
     "67": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La question derrière les rideaux",
       "routes": [
@@ -1030,10 +1096,11 @@
           "label": "Dire ne pas savoir"
         }
       ],
-      "source_page_pdf": 48
+      "source_page_pdf": 48,
+      "analysis": "récit"
     },
     "68": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La soupe répugnante",
       "routes": [
@@ -1046,10 +1113,11 @@
           "label": "Recracher la soupe"
         }
       ],
-      "source_page_pdf": 48
+      "source_page_pdf": 48,
+      "analysis": "récit"
     },
     "69": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Échapper aux gardes",
       "routes": [
@@ -1064,17 +1132,19 @@
           "condition_text": "Deux dés > Habileté"
         }
       ],
-      "source_page_pdf": 48
+      "source_page_pdf": 48,
+      "analysis": "épreuve"
     },
     "70": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le reflet dans le miroir",
       "routes": [],
-      "source_page_pdf": 49
+      "source_page_pdf": 49,
+      "analysis": "fin"
     },
     "71": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La chambre de l'Ogre",
       "routes": [
@@ -1087,10 +1157,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 49
+      "source_page_pdf": 49,
+      "analysis": "récit"
     },
     "72": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le faux garçon blessé",
       "routes": [
@@ -1100,10 +1171,11 @@
           "condition_text": "Lutin vaincu"
         }
       ],
-      "source_page_pdf": 49
+      "source_page_pdf": 49,
+      "analysis": "combat"
     },
     "73": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les deux Trolls",
       "routes": [
@@ -1118,10 +1190,11 @@
           "condition_text": "Fuite"
         }
       ],
-      "source_page_pdf": 50
+      "source_page_pdf": 50,
+      "analysis": "combat"
     },
     "74": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les rues du port",
       "routes": [
@@ -1138,10 +1211,11 @@
           "label": "Prendre la rue de l'Horloge"
         }
       ],
-      "source_page_pdf": 50
+      "source_page_pdf": 50,
+      "analysis": "récit"
     },
     "75": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La pluie s'arrête",
       "routes": [
@@ -1150,10 +1224,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 51
+      "source_page_pdf": 51,
+      "analysis": "récit"
     },
     "76": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La vieille grange",
       "routes": [
@@ -1166,10 +1241,11 @@
           "label": "Poursuivre vers le nord"
         }
       ],
-      "source_page_pdf": 51
+      "source_page_pdf": 51,
+      "analysis": "récit"
     },
     "77": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le deuxième étage",
       "routes": [
@@ -1182,10 +1258,11 @@
           "label": "Monter au troisième étage"
         }
       ],
-      "source_page_pdf": 51
+      "source_page_pdf": 51,
+      "analysis": "récit"
     },
     "78": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'embranchement du quai",
       "routes": [
@@ -1198,10 +1275,11 @@
           "label": "Prendre la rue du Sabot"
         }
       ],
-      "source_page_pdf": 51
+      "source_page_pdf": 51,
+      "analysis": "récit"
     },
     "79": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La Reine Serpent surgit",
       "routes": [
@@ -1211,10 +1289,11 @@
           "condition_text": "Reine Serpent vaincue"
         }
       ],
-      "source_page_pdf": 52
+      "source_page_pdf": 52,
+      "analysis": "combat, effet d’arrivée"
     },
     "80": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La créature au long museau",
       "routes": [
@@ -1229,10 +1308,11 @@
           "condition_text": "Pas de broche scorpion"
         }
       ],
-      "source_page_pdf": 52
+      "source_page_pdf": 52,
+      "analysis": "renvoi conditionnel"
     },
     "81": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La fuite sous l'éclair",
       "routes": [
@@ -1247,10 +1327,11 @@
           "condition_text": "Chance ratée"
         }
       ],
-      "source_page_pdf": 52
+      "source_page_pdf": 52,
+      "analysis": "épreuve"
     },
     "82": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La potion contre la Sorcière",
       "routes": [
@@ -1259,10 +1340,11 @@
           "label": "Retourner à l'orifice d'accès"
         }
       ],
-      "source_page_pdf": 54
+      "source_page_pdf": 54,
+      "analysis": "effet d’arrivée"
     },
     "83": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La jarre bien étiquetée",
       "routes": [
@@ -1275,10 +1357,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 54
+      "source_page_pdf": 54,
+      "analysis": "événement"
     },
     "84": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les tonneaux et les caisses",
       "routes": [
@@ -1291,10 +1374,11 @@
           "label": "Quitter le navire vers la rue du Port"
         }
       ],
-      "source_page_pdf": 54
+      "source_page_pdf": 54,
+      "analysis": "récit"
     },
     "85": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La flèche d'argent",
       "routes": [
@@ -1303,10 +1387,11 @@
           "label": "Repartir vers l'est"
         }
       ],
-      "source_page_pdf": 55
+      "source_page_pdf": 55,
+      "analysis": "effet d’arrivée"
     },
     "86": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boule de fumée",
       "routes": [
@@ -1323,10 +1408,11 @@
           "label": "Abandonner la boule"
         }
       ],
-      "source_page_pdf": 55
+      "source_page_pdf": 55,
+      "analysis": "récit"
     },
     "87": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le pont du navire",
       "routes": [
@@ -1339,10 +1425,11 @@
           "label": "Se faufiler jusqu'à l'escalier"
         }
       ],
-      "source_page_pdf": 55
+      "source_page_pdf": 55,
+      "analysis": "récit"
     },
     "88": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le boudoir",
       "routes": [
@@ -1357,10 +1444,11 @@
           "condition_text": "Fuite après trois Assauts"
         }
       ],
-      "source_page_pdf": 57
+      "source_page_pdf": 57,
+      "analysis": "combat, effet d’arrivée"
     },
     "89": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le gant brûlant",
       "routes": [
@@ -1369,10 +1457,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 57
+      "source_page_pdf": 57,
+      "analysis": "effet d’arrivée"
     },
     "90": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La chaîne trop solide",
       "routes": [
@@ -1385,10 +1474,11 @@
           "label": "Offrir un pot-de-vin"
         }
       ],
-      "source_page_pdf": 58
+      "source_page_pdf": 58,
+      "analysis": "récit"
     },
     "91": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le mendiant",
       "routes": [
@@ -1402,10 +1492,11 @@
           "label": "Poursuivre son chemin"
         }
       ],
-      "source_page_pdf": 58
+      "source_page_pdf": 58,
+      "analysis": "renvoi conditionnel"
     },
     "92": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le miroir dans le mur",
       "routes": [
@@ -1414,10 +1505,11 @@
           "label": "Retourner à l'orifice d'accès"
         }
       ],
-      "source_page_pdf": 58
+      "source_page_pdf": 58,
+      "analysis": "effet d’arrivée"
     },
     "93": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La taverne du Chien Tacheté",
       "routes": [
@@ -1430,10 +1522,11 @@
           "label": "Continuer vers le nord"
         }
       ],
-      "source_page_pdf": 58
+      "source_page_pdf": 58,
+      "analysis": "récit"
     },
     "94": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La poussière étincelante",
       "routes": [
@@ -1442,10 +1535,11 @@
           "label": "Demander où est Zanbar Bone"
         }
       ],
-      "source_page_pdf": 59
+      "source_page_pdf": 59,
+      "analysis": "effet d’arrivée"
     },
     "95": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boutique du serrurier",
       "routes": [
@@ -1458,10 +1552,11 @@
           "label": "Continuer à avancer"
         }
       ],
-      "source_page_pdf": 59
+      "source_page_pdf": 59,
+      "analysis": "récit"
     },
     "96": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La pièce macabre",
       "routes": [
@@ -1479,10 +1574,11 @@
           "label": "Monter à l'étage"
         }
       ],
-      "source_page_pdf": 59
+      "source_page_pdf": 59,
+      "analysis": "renvoi conditionnel"
     },
     "97": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La clef du chenil",
       "routes": [
@@ -1491,10 +1587,11 @@
           "label": "Continuer"
         }
       ],
-      "source_page_pdf": 60
+      "source_page_pdf": 60,
+      "analysis": "effet d’arrivée"
     },
     "98": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La bouteille d'endurance",
       "routes": [
@@ -1503,10 +1600,11 @@
           "label": "Repartir vers l'est"
         }
       ],
-      "source_page_pdf": 60
+      "source_page_pdf": 60,
+      "analysis": "effet d’arrivée"
     },
     "99": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'arrestation",
       "routes": [
@@ -1516,10 +1614,11 @@
           "condition_text": "Deux gardes vaincus"
         }
       ],
-      "source_page_pdf": 60
+      "source_page_pdf": 60,
+      "analysis": "combat"
     },
     "100": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'embranchement de la rue de la Tour",
       "routes": [
@@ -1532,7 +1631,8 @@
           "label": "Continuer par la rue de l'Écurie"
         }
       ],
-      "source_page_pdf": 60
+      "source_page_pdf": 60,
+      "analysis": "récit"
     },
     "101": {
       "status": "renvois_verifies",
@@ -6146,15 +6246,16 @@
       "paragraph": 1,
       "severity": "information",
       "kind": "ocr_conjecture",
-      "details": "« .moindre » lu « rejoindre » d’après le contexte.",
+      "details": "« .moindre » lu « rejoindre » d’après le contexte ; le PDF lui-même porte l’erreur, sans effet en jeu.",
       "status": "to_confirm"
     },
     {
       "paragraph": 73,
       "severity": "information",
       "kind": "ocr_conjecture",
-      "details": "Nom du Troll « Grincheux » conservé tel qu’imprimé ; à confirmer.",
-      "status": "to_confirm"
+      "details": "Nom du Troll « Grincheux » confirmé par les §150 et §335 ; « 0mielleux » désigne Grincheux.",
+      "status": "resolved",
+      "resolution_source": "Relecture P3.1 (§150, §335)"
     },
     {
       "paragraph": 119,
@@ -6195,11 +6296,17 @@
   "analysis_contract": {
     "runtime_effects_enabled": false,
     "conditions_are_executable": false,
-    "notes": "Catalogue des renvois (P2) : titres neutres, libellés rédigés et conditions résumées. Une condition affichée ne signifie pas qu’elle est satisfaite ; les effets de jeu viendront avec l’analyse (P3).",
+    "notes": "Catalogue des renvois (P2) : titres neutres, libellés rédigés et conditions résumées. Une condition affichée ne signifie pas qu’elle est satisfaite. Les passages de analysed_range sont analysés (P3) : leurs effets sont appliqués par le moteur Python du module, le catalogue reste descriptif.",
     "modes": {
       "choix": "plusieurs renvois",
       "suite": "un seul renvoi",
       "fin": "aucun renvoi : mort ou victoire"
-    }
+    },
+    "analysed_range": [
+      1,
+      100
+    ],
+    "analysed_status": "analyse_verifiee",
+    "engine": "grimoire_modules/cite (rules.py, encounters.py)"
   }
 }
