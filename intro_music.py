@@ -3,6 +3,8 @@
 Le lecteur conserve le M4A original et le décode en continu, sans charger plusieurs
 minutes de PCM en mémoire. Les écrans demandent simplement menu() ou fade_out().
 Le service possède son animation Qt : un retour au menu annule le fondu précédent.
+L'option « musique permanente » (persistent) neutralise fade_out() : la boucle continue
+pendant la partie, au volume du curseur, jusqu'à la coupure ou à la fermeture.
 """
 from PySide6.QtCore import QAbstractAnimation, QObject, QPropertyAnimation, QUrl
 from PySide6.QtGui import QGuiApplication
@@ -10,18 +12,20 @@ from audio_configuration import configure_audio_backend
 
 
 class IntroMusic(QObject):
-    """Piloter FantasyFair uniquement pendant l'accueil et la préparation d'une partie."""
+    """Piloter FantasyFair pendant l'accueil et la préparation, ou toute la session si permanente."""
     VOLUME = 0.45
     DEFAULT_VOLUME_PERCENT = 70
     FADE_MS = 10000
 
-    def __init__(self, path, enabled=True, parent=None, volume_percent=DEFAULT_VOLUME_PERCENT):
+    def __init__(self, path, enabled=True, parent=None, volume_percent=DEFAULT_VOLUME_PERCENT,
+                 persistent=False):
         """Préparer l'état sans ouvrir de périphérique audio avant le premier menu."""
         super().__init__(parent)
         self.path = path
         self.volume_percent = max(0, min(100, int(volume_percent))) if enabled else 0
         self.enabled = self.volume_percent > 0
         self.in_menu = False
+        self.persistent = bool(persistent)
         self.player = self.output = self.fade = None
 
     def _create_player(self):
@@ -40,6 +44,10 @@ class IntroMusic(QObject):
     def menu(self):
         """Jouer en boucle, sans recommencer le morceau entre deux écrans de préparation."""
         self.in_menu = True
+        self._play()
+
+    def _play(self):
+        """Annuler un fondu et jouer au volume du curseur, sauf en sourdine."""
         if self.fade:
             self.fade.stop()
         if not self.enabled or (self.player is None and not self._create_player()):
@@ -48,9 +56,11 @@ class IntroMusic(QObject):
         self.player.play()
 
     def fade_out(self):
-        """Réduire le volume pendant dix secondes puis arrêter le flux à volume nul."""
+        """Réduire le volume pendant dix secondes puis arrêter le flux à volume nul.
+
+        Musique permanente : l'entrée en partie ne coupe plus la boucle."""
         self.in_menu = False
-        if self.player is None or not self.enabled:
+        if self.persistent or self.player is None or not self.enabled:
             return
         if self.fade is None:
             self.fade = QPropertyAnimation(self.output, b'volume', self)
@@ -81,8 +91,8 @@ class IntroMusic(QObject):
                 self.fade.stop()
             if self.player:
                 self.player.stop()
-        elif self.in_menu:
-            self.menu()
+        elif self.in_menu or self.persistent:
+            self._play()
         elif self.fade and self.fade.state() == QAbstractAnimation.State.Running:
             elapsed = self.fade.currentTime()
             self.fade.setStartValue(self.target_volume)
@@ -91,3 +101,14 @@ class IntroMusic(QObject):
     def set_enabled(self, enabled):
         """Conserver l'interface interne de coupure ; le réglage utilisateur est le volume."""
         self.set_volume((self.volume_percent or self.DEFAULT_VOLUME_PERCENT) if enabled else 0)
+
+    def set_persistent(self, persistent):
+        """Activer : relancer la boucle si elle est arrêtée ou en fondu (hors sourdine).
+
+        Désactiver : retrouver le comportement historique, soit un fondu de dix
+        secondes en partie, rien de changé dans les menus."""
+        self.persistent = bool(persistent)
+        if self.persistent:
+            self._play()
+        elif not self.in_menu:
+            self.fade_out()

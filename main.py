@@ -453,7 +453,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                             diagnostic_path=SETTINGS_DIR / "audio.log")
         self.intro_music = IntroMusic(ASSET_DIR / 'sounds' / 'FantasyFair.m4a',
                                       self.preferences.get('music_enabled', True), self,
-                                      volume_percent=self.preferences.get('music_volume', 70))
+                                      volume_percent=self.preferences.get('music_volume', 70),
+                                      persistent=self.preferences.get('music_persistent', False) is True)
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
         self._fullscreen = False
@@ -826,6 +827,18 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         music_row.addWidget(music, 1)
         music_row.addWidget(music_value)
         audio_layout.addLayout(music_row)
+        persistent = QCheckBox('Garder la musique en fond pendant la partie')
+        persistent.setObjectName('musicPersistent')
+        persistent.setToolTip('La musique d’accueil continue en boucle après le début de l’aventure, '
+                              'au volume choisi ci-dessus, au lieu de s’éteindre en fondu.')
+        persistent.setChecked(self.intro_music.persistent)
+        def set_persistent(enabled):
+            """Appliquer en direct et mémoriser l’option de musique permanente."""
+            self.intro_music.set_persistent(enabled)
+            self.preferences['music_persistent'] = enabled
+            self._save_preferences()
+        persistent.toggled.connect(set_persistent)
+        audio_layout.addWidget(persistent)
         preview = QHBoxLayout()
         effects = QComboBox()
         for name, label in EFFECT_LABELS.items():

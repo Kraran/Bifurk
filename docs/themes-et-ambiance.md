@@ -92,6 +92,16 @@ Dans **⚙ → Ambiance sonore…**, une liste et le bouton **Écouter** permett
 son individuellement. L’**ambiance de fond : caverne** a sa propre commande,
 indépendante des effets, et reste désactivée par défaut. La boucle joue à faible volume.
 
+La musique d’accueil (`FantasyFair.m4a`, seul morceau) est lue par un `QMediaPlayer`
+distinct du flux des effets. Par défaut, elle s’éteint en dix secondes à l’entrée dans
+l’aventure. La case **Garder la musique en fond pendant la partie**, décochée par défaut
+et mémorisée sous `music_persistent`, la laisse tourner en boucle toute la session,
+chargements compris, au volume du curseur (0 % reste muet). La cinématique
+d’ouverture n’a pas de piste son et ne l’interrompt donc pas. Les effets, dés et
+combats se mélangent par-dessus sans atténuation : la musique plafonne à 0,45
+(0,315 par défaut) quand les effets jouent entre 0,50 et 0,80. Cocher la case en cours de partie relance la
+musique ; la décocher reprend le fondu habituel.
+
 `scripts/prepare_sounds.py` convertit les archives créditées avec FFmpeg, uniquement
 pour préparer les assets. FFmpeg n’est pas requis pour jouer. Un flux PCM stéréo
 continu via `QAudioSink` (QtMultimedia, inclus dans PySide6) mélange les effets et
@@ -117,7 +127,8 @@ choisir la sauvegarde dans la fenêtre d’accueil, ou Nouvelle partie pour retr
 l’introduction. Vérifier la suppression avec refus puis confirmation.
 Dans **⚙ → Ambiance sonore…**, tester les effets avec **Écouter**, puis une page et un combat réel.
 Vérifier le choc avant la boîte de résultat et la réaction immédiate de la page.
-Activer puis couper la caverne séparément des effets. Relancer pour vérifier la mémorisation.
+Activer puis couper la caverne séparément des effets. Cocher **Garder la musique en fond
+pendant la partie**, commencer l’aventure : la musique continue. Relancer pour vérifier la mémorisation.
 
 ```powershell
 $env:QT_QPA_PLATFORM = "offscreen"
