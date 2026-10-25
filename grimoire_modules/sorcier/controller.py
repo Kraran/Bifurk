@@ -503,7 +503,7 @@ class SorcierCombatActions(FightingFantasyActions):
         events = [e for i,e in enumerate(events) if not any(x['key']==e['key'] and x['amount']==e['amount'] for x in events[:i])]
         for event in events:
             amount = event["amount"]
-            # Show an explicit confirmation before applying any extracted effect.
+            # Un bouton explicite : aucun effet extrait du texte n'est appliqué sans confirmation.
             button = QPushButton(f"Appliquer : {event['label']} ({amount:+d})")
             button.clicked.connect(lambda checked=False, e=event: self.apply_detected_event(e))
             self.event_layout.addWidget(button)
@@ -516,7 +516,7 @@ class SorcierCombatActions(FightingFantasyActions):
         En restauration, afficher l’état fourni sans rejouer effets, visites ni préparation.
         Les appels imbriqués font partie de l’action extérieure suivie par _track_action."""
         if self._adventurer_draft is not None and not self._restoring:
-            return  # The map and manual navigation cannot skip character validation.
+            return  # La carte et la navigation manuelle ne contournent pas la validation du héros.
         if (self.character['endurance'] <= 0 and not self._restoring
                 and getattr(self, '_action_depth', 0) <= 1):
             self._show_death_page()

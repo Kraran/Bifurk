@@ -35,7 +35,7 @@ class SoundBank(QObject):
                 self.logger.addHandler(handler)
                 self.destroyed.connect(lambda: self._close_log())
             except OSError:
-                pass  # Diagnostics must never prevent the game from opening.
+                pass  # Le journal de diagnostic ne doit jamais empêcher le jeu de s'ouvrir.
         self.folder = folder
         self.enabled = enabled
         self.ambient_enabled = ambient_enabled
@@ -85,7 +85,7 @@ class SoundBank(QObject):
             effect.setVolume(.10 if name == 'ambient' else .80 if name in BOOK_SOUNDS.values()
                              else .72 if name == 'swords' else .50)
             if name == 'ambient':
-                # Recent PySide6 exposes Loop as an Enum, while the setter takes int.
+                # Les PySide6 récents exposent Loop comme une énumération ; le setter attend un entier.
                 effect.setLoopCount(getattr(backend.Infinite, 'value', backend.Infinite))
             effect.statusChanged.connect(lambda n=name: self._ready(n))
             effect.playingChanged.connect(lambda n=name: self._playing_changed(n))

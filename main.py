@@ -152,11 +152,12 @@ def extract_paragraphs(pdf_path, *, module=_UNKNOWN_MODULE, progress=None):
     buffer = []
     for line in lines:
         if re.fullmatch(r"\d{1,3}", line) and buffer and re.search(r"(?i)(?:rendez[- ]?vous|allez|rendre|aller)\s+(?:alors\s+)?au\s*$", buffer[-1]):
-            # A PDF line break can isolate a destination number; it is not a section heading.
+            # Un saut de ligne du PDF peut isoler un numéro de destination : ce n'est pas un en-tête.
             buffer.append(line)
         elif re.fullmatch(r"\d{1,3}", line):
             number = int(line)
-            # Avoid treating page numbers as paragraph starts: only start a section
+            # Un numéro de page n'ouvre pas de paragraphe : une section ne commence que si
+            # aucune n'est en cours ou si la précédente a déjà du contenu.
             if 1 <= number <= 999 and (current is None or buffer):
                 if current is not None:
                     paragraphs[current] = "\n".join(buffer).strip()
@@ -170,7 +171,7 @@ def extract_paragraphs(pdf_path, *, module=_UNKNOWN_MODULE, progress=None):
         module = module_for_pdf(pdf_path)
     if module is not None:
         module.repair_paragraphs(paragraphs)
-    # Drop empty sections and likely front matter sections without content.
+    # Écarter les sections vides, notamment les pages liminaires sans contenu.
     return {n: t for n, t in paragraphs.items() if t}
 
 
@@ -2405,23 +2406,23 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                 widget.deleteLater()
 
     def _paragraph_choices(self, text):
-        """Return conservative destination choices from explicit French references."""
+        """Choix de destination prudents, tirés des seuls renvois explicites (« rendez-vous au N »)."""
         choices = []
-        # Keep each explicit destination as a separate clickable choice. The label
-        # is inferred from the text immediately preceding the reference.
+        # Chaque destination explicite devient un choix cliquable distinct ; son libellé
+        # est déduit du texte qui précède immédiatement le renvoi.
         for start, end, target in destinations(text):
             match_start = start
             prefix = text[:match_start]
-            # Start at the latest sentence/choice boundary, then trim common prose.
+            # Partir de la dernière fin de phrase ou de choix, puis retirer les liaisons courantes.
             boundary = max(prefix.rfind("."), prefix.rfind("?"), prefix.rfind("!"), prefix.rfind("\n"))
-            # The book frequently puts the destination in parentheses after a choice.
+            # Le livre met souvent la destination entre parenthèses après le choix.
             clause = prefix[boundary + 1:].strip(" \t,;:-()")
             clause = re.sub(r"(?i)\b(ou|et|puis)\s*$", "", clause).strip()
             if not clause:
                 clause = 'Poursuivre le chemin'
             if len(clause) > 105:
                 clause = clause[-105:].strip()
-            # Avoid duplicate destinations in a single paragraph.
+            # Une même destination n'apparaît qu'une fois par paragraphe.
             if not any(c["target"] == target for c in choices):
                 choices.append({"label": clause, "target": target})
         return choices
@@ -2444,7 +2445,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
 
     def _render_conditions(self, text):
-        """Show hints, never automatically block a path based on uncertain prose."""
+        """Afficher des indices, sans jamais bloquer un chemin d’après une prose incertaine."""
         self._clear_dynamic_layout(self.condition_layout)
         pattern = re.compile(r"(?i)\bsi vous (?:êtes )?(?:en possession d[eu'’]|possédez|avez|disposez d[eu'’])\s+([^,.\n;:]{2,90})")
         # Le catalogue vérifié gère déjà objets, faits et victoires : ne pas
@@ -2458,7 +2459,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         inventory = [x.casefold() for x in self.character.get("inventory", [])]
         for raw in matches[:8]:
             item = re.sub(r"^(?:la |le |les |l['’]|un |une |des |du |de la )", "", raw.strip(), flags=re.I)
-            # A substring match is only an indication, not a proof of possession.
+            # Une correspondance partielle est un indice, pas une preuve de possession.
             found = any(item.casefold() in owned or owned in item.casefold() for owned in inventory if len(owned) >= 4)
             label = QLabel(f"{'✓ Objet possiblement présent' if found else '? Objet non reconnu'} : {raw.strip()}")
             label.setWordWrap(True)
@@ -3081,7 +3082,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self._autosave()
 
     def _play_state_sounds(self, before):
-        """One outcome cue per action; no replay on refresh, Undo or loading."""
+        """Un seul son d’issue par action ; rien n’est rejoué au rafraîchissement, à l’annulation ni au chargement."""
         from collections import Counter
         old = before["character"]
         new = self.character
@@ -3160,7 +3161,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             if target is None and self.character.get('name'):
                 self._adventurer_draft = copy.deepcopy(self.character['initial'])
                 self._creation_name = self.character['name']
-                self._creation_rerolls = 2  # An accepted character cannot be rerolled through Undo.
+                self._creation_rerolls = 2  # Un héros validé ne peut pas être retiré par Annuler.
             if target in self.paragraphs:
                 self.go_to(target)
             else:

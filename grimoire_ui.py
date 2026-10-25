@@ -76,7 +76,7 @@ def theme_message_box(dialog):
 
 
 class SingleLineTitle(QLabel):
-    """Fit the whole heading on one line without widening the reader."""
+    """Faire tenir tout le titre sur une ligne sans élargir la page de lecture."""
     def minimumSizeHint(self):
         """Laisser le titre se réduire sans imposer sa largeur intégrale au panneau de lecture."""
         return QSize(0, super().minimumSizeHint().height())
@@ -103,7 +103,7 @@ class SingleLineTitle(QLabel):
 
 
 class IllustrationDialog(QDialog):
-    """Resizable illustration window with native maximize and an explicit size reset."""
+    """Fenêtre d’illustration redimensionnable, avec agrandissement natif et retour explicite à la taille initiale."""
 
     def __init__(self, parent=None):
         """Préparer une fenêtre native redimensionnable avec F11 et taille normale mémorisée."""
@@ -357,7 +357,7 @@ class ChoiceCard(QPushButton):
 
 
 def inventory_icon(name, theme=None):
-    """Small vector emblems stay sharp and work without platform emoji fonts."""
+    """Petits emblèmes vectoriels : nets à toute taille, sans dépendre des polices emoji du système."""
     theme = theme or default_theme()
     canvas = QPixmap(48, 48)
     canvas.fill(Qt.transparent)
@@ -406,7 +406,7 @@ def inventory_icon(name, theme=None):
 
 
 class GrimoireScene(QWidget):
-    """Paint an atmospheric banner, or fit a book illustration without cropping it."""
+    """Peindre une bannière d’ambiance, ou ajuster une illustration du livre sans la rogner."""
 
     activated = Signal()
 

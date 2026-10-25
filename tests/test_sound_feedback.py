@@ -184,7 +184,7 @@ print('native preload OK')
             rate = file.getframerate()
             attack = array.array('h', file.readframes(int(rate * .04)))
             rms = math.sqrt(sum(v*v for v in attack)/len(attack))
-            self.assertGreater(rms, 1000)  # Reject a long silent/faint lead-in.
+            self.assertGreater(rms, 1000)  # Refuser une longue amorce silencieuse ou trop faible.
 
     def setUp(self):
         """Préparer un état indépendant pour éviter la contamination entre scénarios."""

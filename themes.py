@@ -38,7 +38,7 @@ def available_themes(root):
     for manifest in sorted(Path(root).glob('*/theme.json')):
         try:
             theme = Theme(manifest)
-            # A theme must describe every painted surface, not just QSS controls.
+            # Un thème décrit toutes les surfaces peintes, pas seulement les contrôles QSS.
             for key in ('page','ink','accent','ornament','rubric','scene_background',
                         'frame','gold','icon_background','icon_border','icon_ink','link'):
                 theme.color(key)
@@ -53,6 +53,7 @@ def available_themes(root):
 
 
 def default_theme():
-    # Read only when a view needs a standalone fallback (rules/illustration windows).
-    """Charger paresseusement le thème livré pour les vues créées sans contrôleur."""
+    """Charger paresseusement le thème livré pour les vues créées sans contrôleur.
+
+    Lu seulement quand une vue autonome (règles, illustration) en a besoin."""
     return Theme(Path(__file__).resolve().parent / 'assets/themes/grimoire/theme.json')

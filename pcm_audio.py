@@ -30,8 +30,8 @@ class Mixer(QIODevice):
         return True
 
     def bytesAvailable(self):
-        # Silence is available even between actions: the output stays awake.
         """Annoncer des données même au repos pour garder la sortie audio alimentée."""
+        # Entre deux actions, le mélangeur fournit du silence : la sortie reste éveillée.
         return 65536 + super().bytesAvailable()
 
     def readData(self, maximum):
@@ -100,13 +100,13 @@ class PcmEffect(QObject):
                                device.description(), device.isFormatSupported(fmt))
             sink = QAudioSink(device, fmt, parent)
             sink.setBufferSize(8192)
-            # A zero-argument slot avoids PySide's QAudio::State conversion bug.
-            # Query the state instead of forwarding the enum through the slot.
+            # Un slot sans argument évite le bogue de conversion de QAudio::State dans PySide :
+            # l'état est relu plutôt que transmis par le signal.
             sink.stateChanged.connect(
                 lambda: parent.logger.info('PCM state=%s error=%s', sink.state(), sink.error()))
             parent._pcm_mixer = mixer
             parent._pcm_sink = sink
-            # Stop native callbacks before the mixer is destroyed.
+            # Arrêter les rappels natifs avant la destruction du mélangeur.
             parent.destroyed.connect(sink.stop)
             sink.start(mixer)
         parent._pcm_mixer.voices.append(self)
