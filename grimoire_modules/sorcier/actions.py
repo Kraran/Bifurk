@@ -255,6 +255,8 @@ class BookActions(FightingFantasyActions):
             monster = entry['combat']['enemies'][face - 1]
             self._book_state(161, True)['monster'] = copy.deepcopy(monster)
             self._set_book_enemy(monster)
+            self.rules_log.setText(f"Monstre errant : 1d6 = {face} → {monster['name']} "
+                                   f"(Habileté {monster['skill']}, Endurance {monster['stamina']}).")
         elif action == 'wandering_exit':
             if state.get('won') and state.get('return_target') in self.paragraphs:
                 self.go_to(state['return_target'])
@@ -309,10 +311,15 @@ class BookActions(FightingFantasyActions):
         if action == 'silver_arrow' and not all(name in self.character.get('inventory', [])
                                               for name in ('Arc', 'Flèche d’argent')):
             return
-        _, total = self._roll(2)
-        lucky = total <= self.character['chance']
+        rolls, total = self._roll(2)
+        chance_before = self.character['chance']
+        lucky = total <= chance_before
         self.character['chance'] = max(0, self.character['chance'] - 1)
         state = self._book_state(number, True)
+        line = f"{rolls} = {total} contre Chance {chance_before} : {'réussite' if lucky else 'échec'}"
+        if action == 'three_luck':
+            # Les trois jets restent lisibles jusqu'à l'issue de l'épreuve.
+            state.setdefault('rolls', []).append(line)
         if action == 'rope':
             if lucky:
                 self.completed_book_events.add(number)
@@ -359,7 +366,11 @@ class BookActions(FightingFantasyActions):
                 self.go_to(target)
             else:
                 self.character['endurance'] = 0
-        self.rules_log.setText(f'Épreuve §{number} : {total}, Chance -1 ; ' + ('réussite.' if lucky else 'échec.'))
+        if action == 'three_luck':
+            history = ' ; '.join(f'jet {i} : {text}' for i, text in enumerate(state['rolls'], 1))
+            self.rules_log.append(f'Épreuve §{number} (Chance -1 par jet) — {history}.')
+        else:
+            self.rules_log.append(f'Épreuve §{number} : dés {line}, Chance -1.')
 
     def _play_book_game(self, action):
         """Résoudre cartes ou pari avec mise contrôlée et jets fournis par le contrôleur."""
@@ -371,34 +382,41 @@ class BookActions(FightingFantasyActions):
             stake, accepted = QInputDialog.getInt(self, 'Pari', 'Mise en pièces d’or :', 1, 1, maximum)
             if not accepted or not 1 <= stake <= min(20, self.character.get('gold', 0)):
                 return
-            _, player = self._roll(2)
-            _, opponent = self._roll(2)
+            player_rolls, player = self._roll(2)
+            opponent_rolls, opponent = self._roll(2)
             delta = stake if player > opponent else -stake if player < opponent else 0
             if delta > 0:
                 apply_effects(self.character, [{'kind':'stat','key':k,'amount':2}
                                               for k in ('habilete','endurance','chance')])
+            detail = f'vous {player_rolls} = {player}, adversaire {opponent_rolls} = {opponent}'
         else:
             if number in self.completed_book_events or 131 not in self.paragraphs:
                 return
-            _, total = self._roll(2)
+            rolls, total = self._roll(2)
             if action == 'cards_luck':
-                lucky = total <= self.character['chance']
+                chance_before = self.character['chance']
+                lucky = total <= chance_before
                 self.character['chance'] = max(0, self.character['chance']-1)
+                detail = (f"Chance {rolls} = {total} contre {chance_before} : "
+                          f"{'réussite' if lucky else 'échec'}")
                 if lucky:
-                    _, total = self._roll(2)
+                    rolls, total = self._roll(2)
                     delta = total
+                    detail += f', gain {rolls} = {total}'
                 else:
                     delta = -total
             else:
                 delta = total if total % 2 else -total
+                detail = f"dés {rolls} = {total}, {'impair' if total % 2 else 'pair'}"
             if delta > 0:
                 apply_effects(self.character, [{'kind':'stat','key':'chance','amount':2}])
             self.completed_book_events.add(number)
             self._book_state(number, True)['target'] = 131
         apply_effects(self.character, [{'kind':'stat','key':'gold','amount':delta}])
+        # Écrit avant le saut : go_to complète ce message sans l'effacer.
+        self.rules_log.setText(f'Jeu du §{number} : {detail} ; {delta:+} pièces d’or (perte limitée à la bourse).')
         if action != 'wager':
             self.go_to(131)
-        self.rules_log.setText(f'Jeu du §{number} : {delta:+} pièces d’or (perte limitée à la bourse).')
 
     def _try_book_keys(self):
         """Demander trois clés possédées, calculer leur combinaison et suivre l’issue autorisée."""

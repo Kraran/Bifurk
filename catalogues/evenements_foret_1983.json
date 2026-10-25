@@ -257,7 +257,7 @@
     "15": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Ver Piqueur souterrain",
+      "title": "La chute dans la caverne",
       "routes": [
         {
           "target": 217,
@@ -503,7 +503,7 @@
     "29": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le feu des Orques",
+      "title": "Les deux créatures de la clairière",
       "routes": [
         {
           "target": 383,
@@ -838,7 +838,7 @@
     "49": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "La caverne basse des Gremlins",
+      "title": "La caverne basse",
       "routes": [
         {
           "target": 371,
@@ -903,7 +903,7 @@
     "53": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le vol des Pygmées",
+      "title": "Le poison de la fléchette",
       "routes": [
         {
           "target": 92,
@@ -937,7 +937,7 @@
     "55": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "L'Ogre assommé",
+      "title": "Le gant de soie violette",
       "routes": [
         {
           "target": 168,
@@ -979,7 +979,7 @@
     "57": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le feu de la Wyverne",
+      "title": "L'ombre au-dessus de la tanière",
       "routes": [
         {
           "target": 132,
@@ -1217,7 +1217,7 @@
     "71": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le chef Gremlin",
+      "title": "La créature derrière le rideau",
       "routes": [
         {
           "target": 273,
@@ -1437,7 +1437,7 @@
     "84": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "La Bête Rocheuse",
+      "title": "Le rocher qui se soulève",
       "routes": [
         {
           "target": 146,
@@ -1727,7 +1727,7 @@
     "99": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "La cabane de Quin",
+      "title": "La cabane de boue séchée",
       "routes": [
         {
           "target": 209,
@@ -1860,7 +1860,7 @@
     "107": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "L'escalier du Démon",
+      "title": "Le jet de flammes",
       "routes": [
         {
           "target": 152,
@@ -2054,7 +2054,7 @@
     "118": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Sanglier sur le chemin",
+      "title": "La vaste plaine",
       "routes": [
         {
           "target": 174,
@@ -2327,7 +2327,7 @@
     "133": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "L'Anneau de Lenteur",
+      "title": "L'anneau au doigt",
       "routes": [
         {
           "target": 374,
@@ -2421,7 +2421,7 @@
     "138": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "L'Herbe d'Embrouille",
+      "title": "Les herbes qui ondulent",
       "routes": [
         {
           "target": 64,
@@ -3001,7 +3001,7 @@
     "169": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le gaz dans la caverne de l'Ogre",
+      "title": "Le nuage de gaz",
       "routes": [
         {
           "target": 85,
@@ -3508,7 +3508,7 @@
     "196": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Troll endormi",
+      "title": "La sombre caverne",
       "routes": [
         {
           "target": 376,
@@ -3812,7 +3812,7 @@
     "212": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Les Guerriers Clones",
+      "title": "Les humanoïdes aux longues lances",
       "routes": [
         {
           "target": 321,
@@ -4112,7 +4112,7 @@
     "229": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Gremlin dans la boîte",
+      "title": "La boîte de bois",
       "routes": [
         {
           "target": 165,
@@ -4156,7 +4156,7 @@
     "231": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Les Faucons dans les feuillages",
+      "title": "Les cris dans les feuillages",
       "routes": [
         {
           "target": 224,
@@ -4770,7 +4770,7 @@
     "265": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Géant des Forêts",
+      "title": "L'énorme jambe",
       "routes": [
         {
           "target": 356,
@@ -5014,7 +5014,7 @@
     "278": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "La fosse au pieu",
+      "title": "L'étroit défilé",
       "routes": [
         {
           "target": 319,
@@ -5132,7 +5132,7 @@
     "285": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Loup-Garou nocturne",
+      "title": "Le grognement sous la lune",
       "routes": [
         {
           "target": 388,
@@ -5326,12 +5326,12 @@
       "routes": [
         {
           "target": 225,
-          "label": "Être protégé",
+          "label": "Avec un casque",
           "condition_text": "Casque porté"
         },
         {
           "target": 30,
-          "label": "Subir la coupure",
+          "label": "Sans casque",
           "condition_text": "Pas de casque porté"
         }
       ],
@@ -5377,7 +5377,7 @@
     "298": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "L'Araignée du campement",
+      "title": "Le hurlement dans la nuit",
       "routes": [
         {
           "target": 140,
@@ -5446,7 +5446,7 @@
     "302": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Bracelet d'Habileté",
+      "title": "Le bracelet au poignet",
       "routes": [
         {
           "target": 109,
@@ -5461,7 +5461,7 @@
     "303": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Ptérodactyle dans la vallée",
+      "title": "La créature dans le ciel",
       "routes": [
         {
           "target": 247,
@@ -5535,7 +5535,7 @@
     "307": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Gnome réveillé",
+      "title": "Le petit homme réveillé",
       "routes": [
         {
           "target": 192,
@@ -5554,7 +5554,7 @@
     "308": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Les Champignons Brouilleurs",
+      "title": "Les champignons mangés",
       "routes": [
         {
           "target": 148,
@@ -5712,7 +5712,7 @@
     "317": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Les Lutins sur le chemin",
+      "title": "Les deux créatures en haillons",
       "routes": [
         {
           "target": 301,
@@ -5738,7 +5738,7 @@
     "318": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Géant évité",
+      "title": "Le passant gigantesque évité",
       "routes": [
         {
           "target": 231,
@@ -5926,7 +5926,7 @@
     "328": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "La Chaise Dévoreuse de Vie",
+      "title": "La chaise de chêne",
       "routes": [
         {
           "target": 118,
@@ -5968,7 +5968,7 @@
     "330": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Les Loups du campement",
+      "title": "Le hurlement au campement",
       "routes": [
         {
           "target": 116,
@@ -6516,7 +6516,7 @@
     "360": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le péage des cinq Bandits",
+      "title": "Les voix qui chuchotent",
       "routes": [
         {
           "target": 279,
@@ -6778,7 +6778,7 @@
     "374": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Gantelet d'Adresse à Combattre",
+      "title": "Le gantelet",
       "routes": [
         {
           "target": 133,
@@ -6859,7 +6859,7 @@
     "378": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Le Gnome sur le champignon",
+      "title": "Le petit homme sur le champignon",
       "routes": [
         {
           "target": 307,
@@ -7114,7 +7114,7 @@
     "392": {
       "status": "analyse_verifiee",
       "mode": "analyse",
-      "title": "Les Lutins évités",
+      "title": "Les passants en haillons évités",
       "routes": [
         {
           "target": 157,

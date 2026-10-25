@@ -278,7 +278,10 @@ class ChoiceCard(QPushButton):
     def set_shortcut_number(self, number):
         """Afficher le numéro dans le sceau ; la touche correspondante active le choix."""
         self._number = number
-        self.setToolTip(f"Touche {number}")
+        # Un choix grisé garde sa raison (ressource manquante) dans l'infobulle.
+        reason = self.toolTip().split(" · touche ")[0]
+        self.setToolTip(f"{reason} · touche {number}" if reason.startswith("Indisponible")
+                        else f"Touche {number}")
         self.setAccessibleName(f"Choix {number} : {self._base_text}")
         self.update()
 

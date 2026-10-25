@@ -274,9 +274,11 @@ class Reference(unittest.TestCase):
         w.character["inventory"] = []
         w.go_to(264)
         def destinations():
+            # Un itinéraire grisé (clé manquante) reste affiché mais pas cliquable.
             return [w.choice_layout.itemAt(i).widget().text()
                     for i in range(w.choice_layout.count())
-                    if hasattr(w.choice_layout.itemAt(i).widget(), "text")]
+                    if hasattr(w.choice_layout.itemAt(i).widget(), "text")
+                    and w.choice_layout.itemAt(i).widget().isEnabled()]
         self.assertTrue(any("§129" in label for label in destinations()))
         self.assertFalse(any("§80" in label for label in destinations()))
         w.character["inventory"].append("Clé du Hangar à Bateaux")
@@ -2457,14 +2459,18 @@ class Reference(unittest.TestCase):
                         32: "Le Fromage.", 309: "Trois Rats."}
         w.character["inventory"] = ["Épée"]
         w.go_to(287)
-        self.assertEqual(w.choice_layout.count(), 1)
+        def enabled_choices():
+            # Le choix du Fromage reste visible, grisé, tant qu'il manque.
+            return [w.choice_layout.itemAt(i).widget() for i in range(w.choice_layout.count())
+                    if w.choice_layout.itemAt(i).widget().isEnabled()]
+        self.assertEqual(len(enabled_choices()), 1)
         with patch.object(QMessageBox, "information") as info:
             w.follow_link(QUrl("paragraph:32"))
             info.assert_called_once()
         self.assertEqual(w.current_paragraph, 287)
         w.character["inventory"].append("Fromage")
         w._render_choices_and_events(w.paragraphs[287])
-        self.assertEqual(w.choice_layout.count(), 1)
+        self.assertEqual(len(enabled_choices()), 1)
         with patch.object(QMessageBox, "information") as info:
             w.follow_link(QUrl("paragraph:309"))
             info.assert_called_once()

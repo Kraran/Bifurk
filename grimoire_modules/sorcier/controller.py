@@ -11,7 +11,7 @@ from PySide6.QtWidgets import QMessageBox, QInputDialog, QPushButton, QLabel
 from navigation import choice_caption
 from rules_engine import encounters, combat_hints, stat_events, item_hints
 from grimoire_ui import ChoiceCard
-from book_events import (verified_entry, apply_effects, apply_entry, available_routes, available_options, combat_skill, piranha_stamina, shield_damage, SHIELD_NAME, take_moon_shield, shared_meal, enchanted_bench_meal, trade_inventory_item, throw_diversion_item)
+from book_events import (verified_entry, apply_effects, apply_entry, available_routes, available_options, routes_with_requirements, options_with_requirements, combat_skill, piranha_stamina, shield_damage, SHIELD_NAME, take_moon_shield, shared_meal, enchanted_bench_meal, trade_inventory_item, throw_diversion_item)
 
 
 from grimoire_modules.fighting_fantasy.controller import FightingFantasyActions
@@ -261,6 +261,22 @@ class SorcierCombatActions(FightingFantasyActions):
 
 
     def _render_choices_and_events(self, text):
+        """Reconstruire les commandes puis recalculer la visibilité de leurs cadres.
+
+        Le recalcul est fait ici, et non seulement à l'entrée dans le paragraphe :
+        une victoire sans saut automatique (§249) ou un soin pris dans la fenêtre
+        de combat font apparaître des sorties après coup."""
+        self._render_choices_and_events_body(text)
+        self._sync_paragraph_groups()
+
+    def _sync_paragraph_groups(self):
+        """Montrer les cadres de choix, d'événements et de conditions s'ils ont un contenu."""
+        self.choice_group.setVisible(any(isinstance(self.choice_layout.itemAt(i).widget(), QPushButton)
+                                        for i in range(self.choice_layout.count())))
+        self.event_group.setVisible(self.event_layout.count() > 0)
+        self.condition_group.setVisible(self.condition_layout.count() > 0)
+
+    def _render_choices_and_events_body(self, text):
         """Reconstruire les commandes selon texte, catalogue vérifié et état réel du héros.
 
         Un affichage ne doit pas résoudre un jet ou octroyer un butin ; ces mutations
@@ -278,8 +294,9 @@ class SorcierCombatActions(FightingFantasyActions):
             escape_target = None
         if entry and "routes" in entry:
             # Ne présenter que les chemins permis par les objets et ressources actuels.
-            choices = [{"target": route["target"], "label": route["label"]}
-                       for route in available_routes(self.character, entry)]
+            # Un manque de ressource (or, objet) reste visible, grisé, avec sa raison.
+            choices = [{"target": route["target"], "label": route["label"], "missing": reason}
+                       for route, reason in routes_with_requirements(self.character, entry)]
         choices = [choice for choice in choices
                    if not self._combat_exit_pending(choice["target"])
                    and not self._book_blocked(choice["target"])]
@@ -303,22 +320,28 @@ class SorcierCombatActions(FightingFantasyActions):
             # La sortie par la fuite est exclusivement proposée avec sa pénalité.
             choices = [c for c in choices if c["target"] != escape_target]
         if not choices:
-            self.choice_layout.addWidget(QLabel("Aucune destination explicite détectée dans ce paragraphe."))
+            pending = bool(entry and (entry.get("combat") or entry.get("roll") or entry.get("special")
+                                      or entry.get("enchanted_meal") or entry.get("diversion_discard")))
+            self.choice_layout.addWidget(QLabel(
+                "La suite dépend de l’événement ci-dessous." if pending
+                else "Aucune destination explicite détectée dans ce paragraphe."))
         else:
             for choice in choices:
                 target = choice["target"]
-                button = ChoiceCard(choice_caption(choice['label'], target))
+                missing = choice.get("missing")
+                label = choice['label'] + (f" — {missing[0].lower()}{missing[1:]}" if missing else "")
+                button = ChoiceCard(choice_caption(label, target))
                 button.setObjectName("choiceCard")
                 button.setMinimumHeight(44)
-                button.setAccessibleName(f"{choice['label']}, paragraphe {target}")
-                button.setToolTip(f"Ouvrir le paragraphe {target}")
-                button.setEnabled(target in self.paragraphs)
+                button.setAccessibleName(f"{label}, paragraphe {target}")
+                button.setToolTip(f"Indisponible : {missing}" if missing else f"Ouvrir le paragraphe {target}")
+                button.setEnabled(target in self.paragraphs and not missing)
                 if entry and "routes" in entry:
                     button.clicked.connect(lambda checked=False, n=target: self.follow_catalogue_choice(n))
                 else:
                     button.clicked.connect(lambda checked=False, n=target: self.go_to(n))
                 self.choice_layout.addWidget(button)
-                if target not in self.paragraphs:
+                if target not in self.paragraphs and not missing:
                     button.setToolTip(f"Destination {target} non détectée dans le PDF importé")
         self._render_conditions(text)
         self._clear_dynamic_layout(self.event_layout)
@@ -345,7 +368,7 @@ class SorcierCombatActions(FightingFantasyActions):
                 shared_btn.setEnabled(self.care_options()[1]['enabled'])
                 shared_btn.clicked.connect(lambda checked=False: self.use_care('meal'))
                 self.event_layout.addWidget(shared_btn)
-            if scripted.get("optional_meal"):
+            if scripted.get("optional_meal") or self._arrival_meal(scripted):
                 meal_btn = QPushButton("Prendre un repas (+4 Endurance ; -1 Provision)")
                 meal_btn.setEnabled(self.care_options()[1]['enabled'])
                 meal_btn.clicked.connect(lambda checked=False: self.use_care('meal'))
@@ -367,10 +390,14 @@ class SorcierCombatActions(FightingFantasyActions):
                 btn = QPushButton("Prendre le bouclier (abandonner un objet)")
                 btn.clicked.connect(lambda checked=False: self.take_book_shield())
                 self.event_layout.addWidget(btn)
-            for option in available_options(self.character, scripted,
-                                            self.completed_optional_events,
-                                            self.current_paragraph):
+            for option, missing in options_with_requirements(self.character, scripted,
+                                                             self.completed_optional_events,
+                                                             self.current_paragraph):
                 button = QPushButton(option["label"])
+                if missing:
+                    button.setEnabled(False)
+                    button.setToolTip(f"Indisponible : {missing}")
+                    button.setText(f"{option['label']} — {missing[0].lower()}{missing[1:]}")
                 button.clicked.connect(lambda checked=False, n=self.current_paragraph, oid=option["id"]: self.apply_optional_book_event(n, oid))
                 self.event_layout.addWidget(button)
             if scripted["mode"] in ("des", "des_optionnel") and "roll" in scripted:
@@ -528,7 +555,8 @@ class SorcierCombatActions(FightingFantasyActions):
             self._enter_complex_book(number, previous)
         if not self._restoring and apply_entry(self.character, self.completed_book_events, number, self.book_event_catalogue):
             self._refresh_character()
-            self.rules_log.setText(f"Effets vérifiés appliqués automatiquement au paragraphe {number}.")
+            # Ne pas effacer le jet (Chance, dés) qui a provoqué ce saut dans la même action.
+            self.rules_log.append(f"Effets vérifiés appliqués automatiquement au paragraphe {number}.")
         if not self._restoring:
             entry = verified_entry(self.book_event_catalogue, number)
             combat = entry.get("combat", {}) if entry else {}
@@ -577,10 +605,6 @@ class SorcierCombatActions(FightingFantasyActions):
         self._render_paragraph_text(text)
         self.reader.moveCursor(QTextCursor.Start)
         self._render_choices_and_events(text)
-        self.choice_group.setVisible(any(isinstance(self.choice_layout.itemAt(i).widget(), QPushButton)
-                                        for i in range(self.choice_layout.count())))
-        self.event_group.setVisible(self.event_layout.count() > 0)
-        self.condition_group.setVisible(self.condition_layout.count() > 0)
         self._update_scene_art()
         self._refresh_action_controls()
 
@@ -722,11 +746,20 @@ class SorcierCombatActions(FightingFantasyActions):
             return True
         return False
 
+    def _arrival_meal(self, entry):
+        """Repas promis par le paragraphe précédent (§158 et §316 vers la berge §218)."""
+        sources = (entry or {}).get('optional_meal_from')
+        if not sources or not self.transitions:
+            return False
+        previous, number = self.transitions[-1]
+        return number == self.current_paragraph and previous in sources
+
     def _ff_meal_status(self):
         """Étendre les repas ordinaires : partage, banc enchanté et retour des Piranhas."""
         entry = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
         char = self.character
-        meal = entry.get('optional_meal') or entry.get('optional_meal_restore') == 2 or entry.get('enchanted_meal')
+        meal = (entry.get('optional_meal') or entry.get('optional_meal_restore') == 2
+                or entry.get('enchanted_meal') or self._arrival_meal(entry))
         meal = meal or (self.current_paragraph == 7 and self.piranha_combat and self.piranha_combat.get('status') == 'victory')
         useful = char['endurance'] < char.get('initial', {}).get('endurance', char['endurance'])
         if entry.get('enchanted_meal'):
