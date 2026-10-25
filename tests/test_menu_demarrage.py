@@ -152,3 +152,39 @@ class StartupMenuTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class StraySlotWindowTests(unittest.TestCase):
+    """Régression : un bouton « Supprimer » rendu visible avant d'avoir un parent
+    s'ouvrait comme petite fenêtre Windows juste avant « Commencer une aventure »."""
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_building_slots_shows_no_top_level_window(self):
+        from PySide6.QtCore import QObject
+        from PySide6.QtWidgets import QWidget
+
+        from save_slots import SaveSlotsDialog
+        shown = []
+
+        class Spy(QObject):
+            def eventFilter(self, obj, event):
+                if event.type() == QEvent.Show and isinstance(obj, QWidget) and obj.isWindow():
+                    shown.append(type(obj).__name__)
+                return False
+
+        spy = Spy()
+        self.app.installEventFilter(spy)
+        self.addCleanup(self.app.removeEventFilter, spy)
+        with tempfile.TemporaryDirectory() as tmp:
+            for number in (1, 3):
+                (Path(tmp) / f'emplacement-{number}.json').write_text('{}', encoding='utf-8')
+            dialog = SaveSlotsDialog(Path(tmp), False, None, startup=True)
+            dialog.refresh_slots()
+            delete = dialog.findChild(QWidget, 'deleteSlot1')
+            self.assertFalse(delete.isHidden())  # toujours proposé pour un emplacement occupé
+            self.assertTrue(dialog.findChild(QWidget, 'deleteSlot2').isHidden())
+            dialog.deleteLater()
+            flush_deletes()
+        self.assertEqual(shown, [])
