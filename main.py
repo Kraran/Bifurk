@@ -2588,8 +2588,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         entry = verified_entry(self.book_event_catalogue, number)
         if not entry:
             candidate = (self.book_event_catalogue or {}).get('paragraphs', {}).get(str(number), {})
-            # Un titre analysé est présentable sans autoriser ses règles à s’exécuter.
-            if candidate.get('status') == 'analyse_verifiee':
+            # Un titre analysé ou un catalogue de renvois relus est présentable sans
+            # autoriser ses règles à s’exécuter.
+            if candidate.get('status') in ('analyse_verifiee', 'renvois_verifies'):
                 entry = candidate
         return entry.get('title', '') if entry else ''
 

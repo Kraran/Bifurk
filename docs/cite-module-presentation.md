@@ -1,7 +1,7 @@
 # La Cité des Voleurs — module et présentation
 
-Cette première phase ajoute l'identité du troisième livre et sa consultation. Elle
-ne présente pas comme jouables des événements qui n'ont pas encore été vérifiés.
+Les phases 1 et 2 ajoutent l'identité du troisième livre, sa consultation et le
+catalogue des renvois relus. Rien n'est présenté comme jouable avant vérification.
 
 ## Édition reconnue
 
@@ -33,20 +33,53 @@ physique 9), un seul par passage tant que le héros ne s'est pas déplacé.
 
 ## État des règles de l'aventure
 
-`catalogues/evenements_cite_1983.json` ne contient encore **aucune entrée** : les
-400 paragraphes sont en attente de revue. L'adaptateur hérite du socle Défis
-Fantastiques mais pas des contrôleurs du Sorcier ou de la Forêt, dont les numéros
-de paragraphes désignent d'autres scènes. Les renvois textuels permettent la
-consultation et la sauvegarde de la position, sans appliquer de condition ni
-d'effet ; les combats restent fermés. Les événements seront intégrés en phase 3,
-par tranches de 100 paragraphes.
+Phase 2 : `catalogues/evenements_cite_1983.json` catalogue les **400 paragraphes**
+(statut `renvois_verifies`) avec un titre neutre, le mode (`choix`, `suite` ou
+`fin`), la page source du PDF et les **671 renvois** relus, chacun avec un libellé
+rédigé et, le cas échéant, la condition imprimée résumée dans `condition_text`.
+Ces conditions sont descriptives : `analysis_contract` interdit toute exécution.
+
+Le lecteur affiche le titre du passage et une carte par renvoi du catalogue ; la
+condition apparaît en infobulle « Condition du livre : … ». Un nombre du récit qui
+n'est pas un renvoi catalogué n'est jamais un lien, et une destination absente du
+PDF importé est grisée. L'adaptateur hérite du socle Défis Fantastiques mais pas
+des contrôleurs du Sorcier ou de la Forêt, dont les numéros de paragraphes
+désignent d'autres scènes. Aucune condition ni aucun effet n'est appliqué ; les
+combats restent fermés. Les événements seront intégrés en phase 3, par tranches de
+100 paragraphes.
+
+### Réparations du texte extrait (`cite-ocr-1983`)
+
+Réservées au SHA-256 de l'édition, elles ne remplacent que des caractères mal
+reconnus et ne citent aucun passage :
+
+- mots de renvoi illisibles aux §110, §258 et §262 (« ai », « an », « »u » → « au ») ;
+- deux chiffres mal lus, déduits de paragraphes autrement inaccessibles et de
+  l'enchaînement exact du récit : §168 → 359 et §182 → 354 — **à confirmer sur un
+  exemplaire papier** ;
+- coquilles typographiques (tirets « ŕ », mots coupés ou mal reconnus).
+
+Les conjectures OCR restantes (§1, §73, §119, §180, §342) et les valeurs illisibles
+ou ambiguës (§109, §217) sont listées dans `source_issues` pour la phase 3.
+
+### Audit
+
+`python tools/audit_cite.py [--pdf chemin]` vérifie la couverture, les modes, les
+libellés, l'absence de doublon, d'orphelin et de paragraphe inaccessible depuis le
+§1. Avec `--pdf`, il contrôle aussi l'empreinte, la page de chaque en-tête et
+l'égalité des renvois du texte réparé avec le catalogue. Sa sortie ne contient que
+des numéros.
 
 ## Fichiers et validation
 
 - `catalogues/modules/cite_voleurs_1983.json` : manifeste, pages et ressources initiales.
 - `catalogues/cite_voleurs_1983.json` : association de couverture.
-- `catalogues/evenements_cite_1983.json` : squelette de revue des 400 paragraphes.
+- `catalogues/evenements_cite_1983.json` : catalogue des 400 paragraphes et de leurs renvois.
 - `grimoire_modules/cite/controller.py` : navigation de consultation sans automatismes.
+- `pdf_text_repairs.py` : réparations `cite-ocr-1983`.
+- `tools/audit_cite.py` : audit du catalogue, avec contrôle optionnel du PDF privé.
+- `tests/test_cite_errata.py`, `tests/test_cite_analysis.py` : réparations, audit
+  et liens de lecture.
 - `tests/test_cite_presentation.py` : reconnaissance, couverture, prologue, profil,
   repas, consultation sans effets, sauvegarde et changement de module.
 
