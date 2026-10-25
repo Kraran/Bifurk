@@ -9,6 +9,7 @@ les mêmes commandes de base que pourra réutiliser le prochain adaptateur.
 | Emplacement | Responsabilité |
 | --- | --- |
 | `grimoire_modules/fighting_fantasy/rules.py` | Calculs sans Qt, PDF ni hasard interne : création, Chance, dégâts, potions, repas et fuite |
+| `grimoire_modules/fighting_fantasy/adventure.py` | Services d'aventure issus de la Forêt, sans Qt ni texte de livre : état sauvegardé par livre, fin d'aventure, récompenses uniques, paiements, blessures mémorisées, routes payantes, épreuves relues et combats par groupes |
 | `grimoire_modules/fighting_fantasy/controller.py` | Déroulement commun, jets fournis par l'hôte, choix de Chance, soins et séquences d'adversaires |
 | `grimoire_modules/sorcier/` | Règles particulières, objets, navigation et événements du Sorcier |
 | `grimoire_modules/controller.py` | Délégation des commandes, y compris celles héritées du socle, vers l'adaptateur du module ouvert |
@@ -19,6 +20,23 @@ aucun dé. Elles ne dépendent ni du nom d'un objet, ni d'un numéro de paragrap
 Le dictionnaire du personnage et les instantanés gardent leur format existant.
 `book_events.escape_damage` et `flee_available` réexportent les calculs communs
 pour conserver les imports des outils et scénarios existants.
+
+## Services d'aventure communs
+
+`adventure.py` reprend, sans changement de comportement, les règles génériques
+d'abord écrites pour la Forêt, afin que La Cité des Voleurs et les grimoires
+suivants les réutilisent. Chaque fonction qui touche l'état sauvegardé reçoit la
+clé du livre (`'foret'`, `'cite'`…) : `character['book_state'][clé]` reste propre à
+chaque aventure. Les tables relues (coûts de route, épreuves, objets maudits) et
+les messages propres au livre sont passés par l'appelant ; aucun numéro de
+paragraphe ni nom d'objet n'y figure.
+
+`foret/rules.py` garde ses noms publics (`state`, `peek`, `alive`, `dice`,
+`reward`, `pay`, `damage_hero`, `route_paid`, `pay_route`, `new_group_combat`,
+`advance_group`…) sous forme d'enveloppes fixant la clé `'foret'` et l'Anneau de
+Lenteur : contrôleur, outils, tests et sauvegardes de la Forêt sont inchangés.
+`tests/test_fighting_fantasy_adventure.py` vérifie ces services avec une autre
+clé de livre et l'équivalence des enveloppes de la Forêt.
 
 ## Règles partagées
 
