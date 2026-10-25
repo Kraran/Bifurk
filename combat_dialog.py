@@ -580,6 +580,7 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             if (isinstance(source, QPushButton) and source.property('combatAction')
                     and not source.property('combatEscape')):
                 button = ChoiceCard(source.text())
+                button.setToolTip(source.toolTip())
                 button.setEnabled(source.isEnabled() and not self.busy)
                 button.clicked.connect(lambda checked=False, source=source: self._run(source.click))
                 self.actions.addWidget(button)

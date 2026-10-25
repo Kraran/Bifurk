@@ -11,6 +11,7 @@ from PySide6.QtGui import QColor, QFont, QFontMetrics, QPalette, QPainter, QPain
 from PySide6.QtWidgets import QWidget, QPushButton, QLabel, QVBoxLayout, QSizePolicy, QStyleOptionButton, QStyle, QDialog, QMessageBox
 from PySide6.QtGui import QRadialGradient
 import html
+import re
 import adventurer_sheet
 from adventurer_sheet import GOLD, GOLD_LIGHT, GOLD_DARK, BORDEAUX, draw_diamond
 from grimoire_chrome import (draw_gold_frame, draw_corner_fleurons, draw_wax_seal, draw_icon,
@@ -278,10 +279,11 @@ class ChoiceCard(QPushButton):
     def set_shortcut_number(self, number):
         """Afficher le numéro dans le sceau ; la touche correspondante active le choix."""
         self._number = number
-        # Un choix grisé garde sa raison (ressource manquante) dans l'infobulle.
-        reason = self.toolTip().split(" · touche ")[0]
-        self.setToolTip(f"{reason} · touche {number}" if reason.startswith("Indisponible")
-                        else f"Touche {number}")
+        # L'infobulle du module (raison d'un choix grisé, condition, destination)
+        # n'est jamais remplacée : la touche s'y ajoute. Renuméroter retire
+        # d'abord l'ancienne mention de touche.
+        hint = re.sub(r"(?: · touche \d+|^Touche \d+)$", "", self.toolTip())
+        self.setToolTip(f"{hint} · touche {number}" if hint else f"Touche {number}")
         self.setAccessibleName(f"Choix {number} : {self._base_text}")
         self.update()
 
