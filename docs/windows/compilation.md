@@ -64,7 +64,7 @@ Vérifier :
 2. Nouvelle partie, importation de votre PDF, couverture, nom et tirage du héros.
 3. Lecture, illustrations, zoom et fenêtre des règles ; boutons français.
 4. Sons de page et de dés, préécoute et **un véritable assaut de combat**.
-   Les jets 1d6 / 2d6 doivent montrer le plateau animé, les faces et leur total ;
+   Les jets 1d6, 2d6, 3d6 et 1d20 doivent montrer le plateau animé, les faces et leur total ;
    tester aussi **Passer l'animation**, puis **Continuer**.
    Pendant le combat, vérifier les deux plateaux intégrés : dés rouges automatiques,
    dés blancs déclenchés par le joueur, Chance dans la même fenêtre, puis victoire

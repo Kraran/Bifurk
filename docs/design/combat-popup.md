@@ -2,8 +2,9 @@
 
 ![Combat et plateaux intégrés](combat-popup.png)
 
-**Combattre / Reprendre**, au-dessus de la sacoche, ouvre une
-fenêtre dédiée sans réinitialiser l'adversaire préparé par le livre.
+**⚔ Combattre ⚔**, au-dessus de la sacoche et visible seulement lorsqu'un combat
+est disponible, ouvre ou rouvre une fenêtre dédiée sans réinitialiser l'adversaire
+préparé par le livre.
 
 - À gauche : les monstres de la rencontre, leurs Habileté et Endurance, leur
   statut et le plateau de dés rouges à points clairs.
@@ -25,7 +26,8 @@ blessures, soins ou dépenses de Chance sont répercutés dès leur application.
 Le nombre d'assauts, les équipements et les règles particulières restent ceux
 du livre. **Fuir** et **Soins** sont toujours présents en bas et grisés s'ils ne
 sont pas utilisables. Choix de cible et stratégies restent dans la zone centrale,
-qui défile si nécessaire. **Assaut suivant** lance le prochain assaut : les dés
+qui défile si nécessaire ; dans La Forêt de la Malédiction, les commandes **Cibler**
+n'apparaissent que si au moins deux adversaires sont encore debout. **Assaut suivant** lance le prochain assaut : les dés
 rouges partent automatiquement, puis le joueur lance les blancs.
 
 Le journal possède sa propre barre de défilement verticale et garde tous les
@@ -54,8 +56,8 @@ même équipement que la sacoche et sont désactivés pendant la résolution d'u
 Il n'est donc plus nécessaire de quitter le combat pour ces commandes.
 
 Les onglets **Combat & soins** et **Dés** ont disparu du lecteur. Hors combat,
-**Soins** propose les soins autorisés ; **Actions…** conserve les jets libres,
-les tests manuels de Chance et la navigation manuelle.
+**Soins** propose les soins autorisés ; **Actions…** conserve les dés libres,
+la navigation manuelle, le prologue et la correction des Provisions et de l'Or.
 
 Les séquences continuent dans la même fenêtre. **VICTOIRE** est affiché une fois
 toute la rencontre gagnée, puis **Continuer l'aventure** rend la main au récit.
