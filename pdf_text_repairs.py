@@ -82,13 +82,27 @@ CITE_BROKEN_ROUTES = {
     262: (r'(rendez-vous\s+)»u(\s+375\b)', 375),
 }
 
-# Renvois imprimés vers un paragraphe sans rapport, tandis que le paragraphe
-# attendu n'est atteint par aucun autre renvoi : le chiffre « 3 » a été lu « 1 ».
-# Le texte de destination enchaîne exactement sur le choix (tatouage impayable
-# au §354, victoire des Bays au §359).
+# Renvois imprimés vers un paragraphe sans rapport. L’édition originale anglaise
+# (VO), référence en cas de litige, donne le renvoi exact : la balle frappée
+# par-dessus le mur (§359), le tatouage impayable (§354), la fuite vers le nord
+# sous l’éclair (§304), la rue du nord jusqu’aux gardes (§334), le mur au bout
+# de la rue vers l’est (§375) et la boutique à gauche vers l’ouest (§24).
 CITE_ROUTE_ERRATA = {
+    81: ('(rendez-vous au 392)', '(rendez-vous au 304)'),
+    112: ('rendez-vous au 134.', 'rendez-vous au 334.'),
+    113: ('rendez-vous au\n175.', 'rendez-vous au\n375.'),
+    145: ('(rendez-vous au\n14).', '(rendez-vous au\n24).'),
     168: ('(rendez-vous au 159)', '(rendez-vous au 359)'),
     182: ('rendez-vous au 351', 'rendez-vous au 354'),
+}
+
+# Caractéristiques que la traduction donne autrement que la VO, référence en
+# cas de litige : le texte affiché suit la règle appliquée. Aucun renvoi n’est
+# touché ; le texte de remplacement ne contient pas le motif d’origine.
+CITE_VO_ERRATA = {
+    8: (('ajoutez 1 points de CHANCE', 'ajoutez 2 points de CHANCE'),),
+    37: (('Ajoutez deux points\nD’ENDURANCE', 'Ajoutez deux points\nde CHANCE'),),
+    137: (('également 2\npoints D’ENDURANCE', 'également 2\npoints de CHANCE'),),
 }
 
 # Coquilles de reconnaissance relevées paragraphe par paragraphe dans l’édition
@@ -133,7 +147,7 @@ CITE_TYPOGRAPHY = {
     99: (('arrestation.\'A votre', 'arrestation. À votre'),),
     101: (('II sourit', 'Il sourit'),),
     108: (('eu dehors', 'au dehors'),),
-    109: (('laissez» passer', 'laissez-passer'),),
+    109: (('laissez» passer', 'laissez-passer'), ('pour ramas: 5', 'pour ramasser 5')),
     112: (('rue «ont', 'rue sont'), ('et .ombres', 'et sombres'), ('Mors que', 'Alors que')),
     113: (('ne «ont pas', 'ne sont pas'), ('à lait', 'à fait'),
           ('vieilles liâmes', 'vieilles dames')),
@@ -225,6 +239,6 @@ def repair_cite_ocr(paragraphs):
     for number, text in paragraphs.items():
         # « ŕ » n'existe pas en français : c'est le tiret long de l'édition.
         text = text.replace('ŕ', '—').replace('HABiLETÉ', 'HABILETÉ')
-        for old, new in CITE_TYPOGRAPHY.get(number, ()):
+        for old, new in CITE_TYPOGRAPHY.get(number, ()) + CITE_VO_ERRATA.get(number, ()):
             text = text.replace(old, new)
         paragraphs[number] = text

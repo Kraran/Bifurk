@@ -72,12 +72,13 @@ class CiteAnalysisTests(unittest.TestCase):
             with self.subTest(change=change.__name__):
                 self.broken(change)
 
-    def test_corrected_references_are_recorded_for_paper_confirmation(self):
+    def test_corrected_references_are_confirmed_by_the_original_edition(self):
         issues = {(i['paragraph'], i['kind']): i for i in self.data['source_issues']}
-        for number, target in ((168, 359), (182, 354)):
+        for number, target in ((81, 304), (112, 334), (113, 375), (145, 24), (168, 359), (182, 354)):
             issue = issues[(number, 'invalid_reference')]
             self.assertEqual(issue['confirmed_target'], target)
-            self.assertFalse(issue['candidate_confirmed'])
+            self.assertTrue(issue['candidate_confirmed'])
+            self.assertIn('VO', issue['resolution_source'])
             self.assertIn(target, [r['target'] for r in self.data['paragraphs'][str(number)]['routes']])
         for number in (110, 258, 262):
             self.assertEqual(issues[(number, 'broken_reference')]['status'], 'resolved')

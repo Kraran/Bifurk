@@ -1,4 +1,4 @@
-"""Cité des Voleurs, phase 3.1 : mécaniques relues des §1 à 100.
+"""Cité des Voleurs, phases 3.1 et 3.2 : mécaniques relues des §1 à 200.
 
 Les règles pures sont testées sans Qt ; l’interface avec un PDF synthétique dont
 les paragraphes sont remplacés par des textes neutres. Aucun texte du livre.
@@ -42,25 +42,32 @@ class CiteTablesTests(unittest.TestCase):
     def test_every_coded_destination_is_a_catalogued_route(self):
         """Les tables ne créent aucun renvoi : elles conditionnent ceux du livre."""
         pairs = (list(rules.ITEM_ROUTES) + list(rules.NOT_YET_ROUTES) + list(rules.ROUTE_COSTS)
-                 + [rules.ARROW_OFFER, rules.ARROW_FALLBACK])
+                 + [rules.ARROW_OFFER, rules.ARROW_FALLBACK, rules.NO_MAGIC_ROUTE]
+                 + list(rules.MISSION_ROUTES) + list(rules.ALL_GOLD_ROUTES)
+                 + list(rules.GOLD_BELOW_ROUTES) + list(rules.ITEM_PAYMENTS))
         for source, target in pairs:
             self.assertIn(target, routes(source), (source, target))
         for number, (_stat, success, failure, _damage) in rules.BRANCH_TESTS.items():
             self.assertEqual(sorted(routes(number)), sorted({success, failure}), number)
+        for number, (_stat, targets) in rules.DOUBLE_TESTS.items():
+            self.assertEqual(routes(number), list(targets))
         for number, data in COMBATS.items():
-            exits = {data['victory'], data.get('escape'), data.get('quick', (0, None))[1]} - {None}
+            exits = {data['victory'], data.get('escape'), data.get('quick', (0, None))[1],
+                     data.get('unless_item', (0, None))[1]} - {None}
             self.assertEqual(set(routes(number)), exits, number)
         for number in rules.ENDINGS:
             self.assertEqual(routes(number), [])
 
-    def test_analysed_slice_is_the_first_hundred(self):
+    def test_analysed_slice_is_the_first_two_hundred(self):
         tables = (set(rules.ENTRY_EFFECTS) | set(rules.BRANCH_TESTS) | set(rules.SHOPS) | set(COMBATS)
-                  | {rules.DIE_HEAL, rules.THEFT} | {s for s, _ in rules.ITEM_ROUTES}
-                  | {s for s, _ in rules.NOT_YET_ROUTES} | set(rules.ENDINGS))
+                  | {rules.DIE_HEAL, rules.THEFT, rules.VOLLEY, rules.POCKET} | set(rules.DOUBLE_TESTS)
+                  | {s for s, _ in rules.ITEM_ROUTES} | {s for s, _ in rules.NOT_YET_ROUTES}
+                  | {s for s, _ in rules.MISSION_ROUTES} | {s for s, _ in rules.ITEM_PAYMENTS}
+                  | set(rules.ENDINGS) | set(rules.TEST_PENALTIES))
         self.assertTrue(all(n in rules.ANALYSED for n in tables))
-        for number in range(1, 101):
+        for number in range(1, 201):
             self.assertEqual(CATALOGUE['paragraphs'][str(number)]['status'], 'analyse_verifiee')
-        self.assertEqual(CATALOGUE['paragraphs']['101']['status'], 'renvois_verifies')
+        self.assertEqual(CATALOGUE['paragraphs']['201']['status'], 'renvois_verifies')
 
 
 class CiteRulesTests(unittest.TestCase):
@@ -88,10 +95,10 @@ class CiteRulesTests(unittest.TestCase):
         self.assertEqual((character['habilete'], rules.effective_skill(character)), (9, 9))
 
     def test_losses_only_take_matching_items(self):
-        character = hero(inventory=['Épée', 'Fleur bleue'])
+        character = hero(inventory=['Épée', 'Fleur de lotus', 'Fleur dorée'])
         rules.apply_entry(character, 2)
         rules.apply_entry(character, 55)
-        self.assertEqual(character['inventory'], ['Épée'])
+        self.assertEqual(character['inventory'], ['Épée', 'Fleur de lotus'])
         self.assertEqual(character['gold'], 40)
 
     def test_branch_tests_spend_luck_or_use_effective_skill(self):
@@ -106,6 +113,15 @@ class CiteRulesTests(unittest.TestCase):
         character['inventory'].append(rules.MAIL)
         self.assertEqual(rules.resolve_test(character, 18, 12), 102)
         self.assertEqual(rules.resolve_test(character, 69, 12), 355)
+
+    def test_values_follow_the_original_edition(self):
+        """VO, référence en cas de litige : §8 et §37 en Chance, §81 vers le 304."""
+        for number, gain in ((8, 2), (37, 2)):
+            with self.subTest(number=number):
+                character = hero(chance=5)
+                rules.apply_entry(character, number)
+                self.assertEqual((character['chance'], character['endurance']), (5 + gain, 18))
+        self.assertEqual(rules.BRANCH_TESTS[81][:3], ('chance', 304, 243))
 
     def test_shops_keep_their_printed_limits(self):
         character = hero(gold=20)

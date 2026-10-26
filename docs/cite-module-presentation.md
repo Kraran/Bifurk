@@ -1,8 +1,8 @@
 # La Cité des Voleurs — module et présentation
 
 Les phases 1 et 2 ajoutent l'identité du troisième livre, sa consultation et le
-catalogue des renvois relus ; la phase 3.1 rend jouables les événements des §1 à
-100. Rien n'est présenté comme jouable avant vérification.
+catalogue des renvois relus ; les phases 3.1 et 3.2 rendent jouables les
+événements des §1 à 200. Rien n'est présenté comme jouable avant vérification.
 
 ## Édition reconnue
 
@@ -103,6 +103,39 @@ Chaque action passe par l'historique (Annuler / Rétablir) et laisse un compte r
 des jets et changements dans le cadre de messages. Hors de la tranche, la lecture
 reste en consultation.
 
+## Phase 3.2 : événements des §101 à 200
+
+La tranche analysée s'étend aux §1 à 200 (`analysed_range` [1, 200]), avec les
+mêmes principes : fidélité au livre, prix du texte, tout dans l'inventaire, aucune
+destination ni événement à venir affiché.
+
+- **Effets d'arrivée** : pertes et trouvailles (lanterne brisée, perles noires,
+  passe-partout, anneau de l'Œil d'Or, emplâtre d'herbes, crâne d'ivoire…), or
+  confisqué au §134, bouclier maudit verrouillé au §125 (Habileté −1), soins du
+  §126 à raison de 2 points par flèche reçue au §137 et échange de l'épée.
+- **Épreuves** : §120, §162, §168, §175, §190 (pari au couteau : 5 Pièces d'Or
+  perdues en cas d'échec) et §192 (Habileté −1 en cas d'échec) ; double épreuve
+  de Chance du §128, issue selon le nombre d'échecs.
+- **Événements** : volée de flèches du §137 (un dé, 3 points par flèche puis 2) ;
+  larcin du §148 (une Pièce d'Or ou un objet, au choix du joueur) ; tiroir du
+  joaillier au §114 (VO « Take what you will » : les 13 Pièces d'Or et les trois
+  bagues se gardent au choix, en une fouille) ;
+  emplâtre d'herbes utilisable hors combat (un dé d'Endurance, puis consommé).
+- **Combats** : §130, §140 (fuite après 3 assauts), §144, §152 et §157 (Force
+  d'Attaque −2 et −3), §166, §170 (fuite possible), §177, §191, §193 (pas de
+  combat à l'épée avec un Anneau de Feu).
+- **Renvois** : prix du texte (herboriste du §183, tatouage du §182, amende du §150
+  égale à tout l'or, §315→132 reporté de la phase 3.1…) ; renvois payés par un
+  objet (§113 : un objet du sac ; §187 : un anneau, une armure magique ou la potion
+  de départ) ; conditions d'objets (§118, §146, §184, §193) ; préparatifs du §108
+  et du §156 (quatre objets et le tatouage du §279) : la carte grisée n'affiche
+  que la condition imprimée.
+- **Fins** : §129 et §142.
+
+Reportés hors tranche : les dés du §206 (jeu) et le prêteur sur gages du §354
+(phase 3.3), la créature du §201 dont dépend le §138, et les effets des §279,
+§293, §370 et §387 (objets gérés à la main dans l'inventaire d'ici là).
+
 ## Fichiers et validation
 
 - `catalogues/modules/cite_voleurs_1983.json` : manifeste, pages et ressources initiales.
@@ -115,8 +148,8 @@ reste en consultation.
 - `tools/audit_cite.py` : audit du catalogue, avec contrôle optionnel du PDF privé.
 - `tests/test_cite_errata.py`, `tests/test_cite_analysis.py` : réparations, audit
   et liens de lecture.
-- `tests/test_cite_mechanics.py` : règles des §1 à 100, cohérence des tables avec le
-  catalogue et scénarios d'interface sans divulgation.
+- `tests/test_cite_mechanics.py`, `tests/test_cite_phase3_2.py` : règles des §1 à
+  200, cohérence des tables avec le catalogue et scénarios d'interface sans divulgation.
 - `tests/test_cite_presentation.py` : reconnaissance, couverture, prologue, profil,
   repas, consultation sans effets, sauvegarde et changement de module.
 

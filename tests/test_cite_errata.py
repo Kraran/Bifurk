@@ -4,7 +4,12 @@ from copy import deepcopy
 
 from grimoire_modules.registry import available_modules
 from navigation import destinations
-from pdf_text_repairs import CITE_ROUTE_ERRATA, CITE_TYPOGRAPHY, repair_cite_ocr
+from pdf_text_repairs import (
+    CITE_ROUTE_ERRATA,
+    CITE_TYPOGRAPHY,
+    CITE_VO_ERRATA,
+    repair_cite_ocr,
+)
 
 
 def targets(text):
@@ -19,6 +24,10 @@ class CiteErrataTests(unittest.TestCase):
                 262: 'Une ruelle. Partez, rendez-vous »u 375.',
                 168: 'Une victoire (rendez-vous au 159). Sinon rendez-vous au 12.',
                 182: 'Un tatouage, rendez-vous au 351.',
+                81: 'Une fuite (rendez-vous au 392). Sinon (rendez-\nvous au 243).',
+                112: 'Entrez, rendez-vous au 154. Au nord, rendez-vous au 134.',
+                113: 'Offrez, rendez-vous au 141. À l’est, rendez-vous au\n175.',
+                145: 'Voyez, rendez-vous au 293. À l’ouest (rendez-vous au\n14).',
                 5: 'Un quai. Rendez-vous au 6.'}
 
     def test_unreadable_route_words_become_links(self):
@@ -34,12 +43,17 @@ class CiteErrataTests(unittest.TestCase):
         repair_cite_ocr(data)
         self.assertEqual(targets(data[168]), [359, 12])
         self.assertEqual(targets(data[182]), [354])
+        # Renvois donnés par l’édition originale anglaise (VO).
+        self.assertEqual(targets(data[81]), [304, 243])
+        self.assertEqual(targets(data[112]), [154, 334])
+        self.assertEqual(targets(data[113]), [141, 375])
+        self.assertEqual(targets(data[145]), [293, 24])
         self.assertEqual(data[5], 'Un quai. Rendez-vous au 6.')
         # Le même fragment ailleurs n'est jamais corrigé.
         other = {200: 'Une victoire (rendez-vous au 159).'}
         repair_cite_ocr(other)
         self.assertEqual(targets(other[200]), [159])
-        self.assertEqual(set(CITE_ROUTE_ERRATA), {168, 182})
+        self.assertEqual(set(CITE_ROUTE_ERRATA), {81, 112, 113, 145, 168, 182})
 
     def test_repair_is_idempotent_and_keeps_missing_paragraphs_absent(self):
         data = self.sample()
@@ -60,6 +74,22 @@ class CiteErrataTests(unittest.TestCase):
                 with self.subTest(number=number, old=old):
                     self.assertNotEqual(old, new)
                     # Une coquille ne peut ni créer ni supprimer un renvoi.
+                    self.assertEqual(targets(old), targets(new))
+
+    def test_vo_errata_align_the_displayed_characteristic_with_the_rule(self):
+        # Fragments seuls : la traduction diverge de la VO, référence en cas de litige.
+        data = {8: 'Un porte-bonheur — ajoutez 1 points de CHANCE. Rendez-vous au 334.',
+                37: 'Ajoutez deux points\nD’ENDURANCE (rendez-\nvous au 398).',
+                137: 'Vous perdez également 2\npoints D’ENDURANCE et vous vous rendez au 327.'}
+        repair_cite_ocr(data)
+        self.assertIn('ajoutez 2 points de CHANCE', data[8])
+        self.assertIn('Ajoutez deux points\nde CHANCE', data[37])
+        self.assertIn('également 2\npoints de CHANCE', data[137])
+        self.assertEqual((targets(data[8]), targets(data[37]), targets(data[137])), ([334], [398], [327]))
+        for number, fixes in CITE_VO_ERRATA.items():
+            for old, new in fixes:
+                with self.subTest(number=number, old=old):
+                    self.assertNotIn(old, new)
                     self.assertEqual(targets(old), targets(new))
 
     def test_repair_is_applied_only_by_the_city_module(self):

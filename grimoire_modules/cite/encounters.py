@@ -1,8 +1,9 @@
-"""Combats relus des §1 à 100 : un adversaire à la fois, dans l’ordre du livre.
+"""Combats relus des §1 à 200 : un adversaire à la fois, dans l’ordre du livre.
 
 Chaque groupe ne contient qu’un ennemi : le livre les fait combattre l’un après
 l’autre. ``victory`` est le renvoi après le dernier adversaire ; les options
-décrivent seulement ce que le passage imprime (fuite, limite d’assauts).
+décrivent seulement ce que le passage imprime (fuite, limite d’assauts,
+malus de Force d’Attaque ``attack``, combat évité par un objet ``unless_item``).
 """
 
 
@@ -28,6 +29,23 @@ COMBATS = {
     88: {'groups': ((_enemy('Reine Serpent', 9, 7),),), 'victory': 295,
          'escape': 333, 'escape_after_assaults': 3},
     99: {'groups': ((_enemy('Garde', 7, 4),), (_enemy('Garde', 6, 6),)), 'victory': 285},
+    130: {'groups': ((_enemy('Premier Garde de la Ville', 6, 6),),
+                     (_enemy('Deuxième Garde de la Ville', 7, 5),)), 'victory': 74},
+    140: {'groups': ((_enemy('Ogre', 8, 9),),), 'victory': 71,
+          'escape': 282, 'escape_after_assaults': 3},
+    144: {'groups': ((_enemy('Sorcière', 7, 7),),), 'victory': 303},
+    # Force d’Attaque −2 (§152), −3 à mains nues (§157), pendant tout le combat.
+    152: {'groups': ((_enemy('Pirate', 7, 5),),), 'victory': 20, 'attack': -2},
+    157: {'groups': ((_enemy('Premier Garde de la Ville', 6, 6),),
+                     (_enemy('Deuxième Garde de la Ville', 7, 5),)), 'victory': 54, 'attack': -3},
+    166: {'groups': ((_enemy('Mille-Pattes Géant', 10, 5),),), 'victory': 272},
+    170: {'groups': ((_enemy('Joaillier', 9, 8),),), 'victory': 114, 'escape': 196},
+    177: {'groups': ((_enemy('Premier Voleur', 7, 8),), (_enemy('Deuxième Voleur', 8, 6),)),
+          'victory': 51},
+    191: {'groups': ((_enemy('Bêtes-Feuilles', 6, 6),),), 'victory': 133},
+    # Avec un Anneau de Feu, le livre renvoie ailleurs : pas de combat à l’épée.
+    193: {'groups': ((_enemy('Momie', 7, 12),),), 'victory': 163,
+          'unless_item': ('anneau de feu', 286)},
 }
 
 

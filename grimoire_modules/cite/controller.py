@@ -1,7 +1,7 @@
-"""Adaptateur de la Cité des Voleurs : §1 à 100 analysés, le reste en consultation.
+"""Adaptateur de la Cité des Voleurs : §1 à 200 analysés, le reste en consultation.
 
 Les 400 renvois sont relus et catalogués (titre neutre, libellé, condition
-imprimée résumée). Pour les passages analysés (§1 à 100), les conditions
+imprimée résumée). Pour les passages analysés (§1 à 200), les conditions
 imprimées sont appliquées ici, en Python, à partir de ``rules`` et
 ``encounters`` : combats, épreuves, effets d’arrivée, achats et prix des
 renvois. Les autres passages restent consultables : leurs conditions sont
@@ -35,7 +35,7 @@ DECIDED_REASON = 'la suite de ce passage est déjà déterminée.'
 
 
 class CiteController(CiteMechanicsActions):
-    """Consulter le livre et jouer les mécaniques relues des §1 à 100."""
+    """Consulter le livre et jouer les mécaniques relues des §1 à 200."""
     def _cite_entry(self):
         """Lire l'entrée de renvois du passage affiché (consultée ou analysée)."""
         entry = (self.book_event_catalogue or {}).get('paragraphs', {}).get(str(self.current_paragraph), {})
@@ -74,13 +74,17 @@ class CiteController(CiteMechanicsActions):
         combat = self._cite_combat()
         if combat and combat.get('target_paragraph') is not None:
             return {combat['target_paragraph']} & paragraphs, DECIDED_REASON
-        if number in rules.BRANCH_TESTS:
+        if number in rules.BRANCH_TESTS or number in rules.DOUBLE_TESTS:
             if not rules.test_resolved(character, number):
                 return set(), PENDING_REASON
             return {rules.test_target(character, number)} & paragraphs, DECIDED_REASON
         if number == rules.DIE_HEAL and rules.peek(character).get('die_heal') is None:
             return set(), PENDING_REASON
         if number == rules.THEFT and not rules.theft_resolved(character):
+            return set(), PENDING_REASON
+        if number == rules.VOLLEY and not rules.volley_resolved(character):
+            return set(), PENDING_REASON
+        if number == rules.POCKET and not rules.pocket_resolved(character):
             return set(), PENDING_REASON
         return available, None
 
@@ -94,8 +98,14 @@ class CiteController(CiteMechanicsActions):
         cost = rules.route_cost(self.current_paragraph, target)
         if target in targets:
             tip = f'Condition du livre : {condition}' if condition else ''
-            if cost and not rules.adventure.route_paid(self.character, rules.BOOK, self.current_paragraph, target):
-                tip += (' — ' if tip else '') + f'{_coins(cost)} payées en choisissant ce renvoi.'
+            key = (self.current_paragraph, target)
+            if not rules.adventure.route_paid(self.character, rules.BOOK, *key):
+                if cost:
+                    tip += (' — ' if tip else '') + f'{_coins(cost)} payée{"s" if cost > 1 else ""} en choisissant ce renvoi.'
+                elif key in rules.ALL_GOLD_ROUTES:
+                    tip += (' — ' if tip else '') + 'Tout votre or est remis en choisissant ce renvoi.'
+                elif key in rules.ITEM_PAYMENTS:
+                    tip += (' — ' if tip else '') + 'Un objet est remis en choisissant ce renvoi.'
             return tip
         if target not in self.paragraphs:
             return f'Indisponible : destination {target} non détectée dans le PDF importé.'
@@ -234,6 +244,13 @@ class CiteController(CiteMechanicsActions):
         if ((source, target) == rules.ARROW_OFFER
                 and not rules.adventure.route_paid(self.character, rules.BOOK, source, target)):
             items = CiteController._cite_arrow_payment(self)
+            if items is None:
+                return
+        if ((source, target) in rules.ITEM_PAYMENTS
+                and not rules.adventure.route_paid(self.character, rules.BOOK, source, target)):
+            items = self._cite_pick_items('Un objet à remettre', 'Choisissez l’objet que vous remettez.',
+                                          rules.item_payment_choices(self.character, (source, target)),
+                                          1, 'Remettre')
             if items is None:
                 return
         try:

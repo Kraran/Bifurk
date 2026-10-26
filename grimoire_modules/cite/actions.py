@@ -1,4 +1,4 @@
-"""Relier les règles relues des §1 à 100 de la Cité aux transactions et aux dés de Qt.
+"""Relier les règles relues des §1 à 200 de la Cité aux transactions et aux dés de Qt.
 
 Comme les autres adaptateurs, les méthodes sont déléguées à MainWindow : appeler
 explicitement le socle plutôt que super(). Les libellés et infobulles ne disent
@@ -58,6 +58,9 @@ class CiteMechanicsActions(FightingFantasyActions):
         number = self.current_paragraph
         if number not in COMBATS or self._restoring or self.character['endurance'] <= 0:
             return
+        unless = COMBATS[number].get('unless_item')
+        if unless and rules.has_item(self.character, unless[0]):
+            return
         combats = rules.state(self.character).setdefault('combats', {})
         if str(number) not in combats:
             combats[str(number)] = new_group_combat(profile(number))
@@ -93,8 +96,9 @@ class CiteMechanicsActions(FightingFantasyActions):
         return escape_status(self.current_paragraph, self._cite_combat())
 
     def _ff_combat_profile(self):
+        attack = COMBATS.get(self.current_paragraph, {}).get('attack', 0)
         return {'skill': rules.effective_skill(self.character), 'hit_damage': 2,
-                'can_wound': True, 'attack_bonus': 0}
+                'can_wound': True, 'attack_bonus': attack}
 
     def _ff_enemy_defeated(self):
         """L’adversaire suivant est préparé après l’assaut, par advance_group."""
@@ -182,6 +186,10 @@ class CiteMechanicsActions(FightingFantasyActions):
                 button.clicked.connect(lambda checked=False: self._cite_shop())
             elif action == 'theft':
                 button.clicked.connect(lambda checked=False: self._cite_theft_dialog())
+            elif action == 'pocket':
+                button.clicked.connect(lambda checked=False: self._cite_pocket_dialog())
+            elif action == 'loot':
+                button.clicked.connect(lambda checked=False: self._cite_loot_dialog())
             else:
                 button.clicked.connect(lambda checked=False: self.perform_cite_action(action))
             self.event_layout.addWidget(button)
@@ -198,8 +206,26 @@ class CiteMechanicsActions(FightingFantasyActions):
             count = rules.theft_required(self.character)
             add('Constater le larcin de l’Elfe…' if count else 'Constater le larcin de l’Elfe',
                 'theft', tooltip=f'{count} objet(s) du sac à dos et jusqu’à {_coins(rules.THEFT_GOLD)}.')
+        if number in rules.DOUBLE_TESTS and not rules.test_resolved(self.character, number):
+            luck = self.character.get('chance', 0)
+            add(f'Tenter deux fois votre Chance (2d6 ≤ {luck}, puis ≤ {max(0, luck - 1)})',
+                'double_test', tooltip='Chaque tentative coûte 1 point de Chance.')
+        if number == rules.VOLLEY and not rules.volley_resolved(self.character):
+            add('Lancer un dé — flèches reçues', 'volley',
+                tooltip=f'{rules.VOLLEY_HIT} points d’Endurance par flèche, '
+                        f'puis {rules.VOLLEY_AFTER} points de Chance si vous survivez.')
+        if number == rules.POCKET and not rules.pocket_resolved(self.character):
+            add('Constater le larcin…', 'pocket',
+                tooltip='Une Pièce d’Or ou un objet de votre choix.')
+        if number in rules.LOOTS and not rules.loot_taken(self.character, number):
+            add('Garder ce que vous voulez…', 'loot', tooltip='Prenez ce que vous voulez, en une fois.')
         if number in rules.SHOPS:
             add('Faire ses achats…', 'shop', tooltip='Achats facultatifs, aux prix indiqués par le livre.')
+        if rules.has_item(self.character, 'emplatre'):
+            fighting = self.combat_available()
+            add('Appliquer l’emplâtre d’herbes — un dé d’Endurance', 'poultice', enabled=not fighting,
+                tooltip='Pas pendant un combat.' if fighting
+                else 'Le total initial d’Endurance ne peut être dépassé ; l’emplâtre est utilisé.')
 
     def perform_cite_action(self, action, payload=None):
         """Commande transactionnelle, suivie d’un compte rendu dans le cadre de messages."""
@@ -214,7 +240,8 @@ class CiteMechanicsActions(FightingFantasyActions):
             trace, self._roll_trace = self._roll_trace, None
         if outcome == 'error':
             return
-        kind = rules.BRANCH_TESTS[number][0] if action == 'branch_test' else None
+        kind = ({'branch_test': rules.BRANCH_TESTS.get(number, ('',))[0], 'double_test': 'chance'}
+                .get(action))
         moved = self.current_paragraph if self.current_paragraph != number else None
         message = feedback.summary(before, feedback.snapshot(self.character),
                                    kind=kind, trace=trace, destination=moved)
@@ -246,6 +273,33 @@ class CiteMechanicsActions(FightingFantasyActions):
                 if number not in rules.SHOPS:
                     return
                 rules.buy(self.character, number, payload)
+            elif action == 'double_test':
+                if number not in rules.DOUBLE_TESTS or rules.test_resolved(self.character, number):
+                    return
+                totals = [self._roll(2, context='Chance')[1] for _ in range(2)]
+                trace = self._roll_trace if isinstance(self._roll_trace, list) else []
+                if len(trace) >= 2 and trace[-2].get('chance') is not None:
+                    # Le point de Chance du premier essai est dépensé avant le second.
+                    trace[-1] = dict(trace[-1], chance=max(0, trace[-2]['chance'] - 1))
+                target = rules.resolve_double(self.character, number, totals)
+            elif action == 'volley':
+                if number != rules.VOLLEY or rules.volley_resolved(self.character):
+                    return
+                _, die = self._roll(1, context='Flèches')
+                rules.volley(self.character, die)
+            elif action == 'pocket':
+                if number != rules.POCKET or rules.pocket_resolved(self.character):
+                    return
+                rules.pick_pocket(self.character, payload)
+            elif action == 'loot':
+                if number not in rules.LOOTS:
+                    return
+                rules.take_loot(self.character, number, payload or ())
+            elif action == 'poultice':
+                if not rules.has_item(self.character, 'emplatre') or self.combat_available():
+                    return
+                _, die = self._roll(1, context='Emplâtre')
+                rules.use_poultice(self.character, die)
             else:
                 return
         except ValueError as error:
@@ -304,7 +358,7 @@ class CiteMechanicsActions(FightingFantasyActions):
         dialog.deleteLater()
 
     def _cite_pick_items(self, title, text, choices, count, confirm_label):
-        """Choisir exactement count exemplaires ; None si le joueur annule."""
+        """Choisir exactement count exemplaires (None : autant que voulu) ; None si annulé."""
         if count == 0:
             return []
         dialog = QDialog(self)
@@ -320,7 +374,8 @@ class CiteMechanicsActions(FightingFantasyActions):
         confirm = QPushButton(confirm_label)
         confirm.setEnabled(False)
         items.itemSelectionChanged.connect(
-            lambda: confirm.setEnabled(len(items.selectedItems()) == count))
+            lambda: confirm.setEnabled(count is None or len(items.selectedItems()) == count))
+        confirm.setEnabled(count is None)
         confirm.clicked.connect(dialog.accept)
         layout.addWidget(confirm)
         cancel = QPushButton('Annuler')
@@ -330,6 +385,28 @@ class CiteMechanicsActions(FightingFantasyActions):
         selected = [item.text() for item in items.selectedItems()]
         dialog.deleteLater()
         return selected if accepted else None
+
+    def _cite_pocket_dialog(self):
+        if self.current_paragraph != rules.POCKET or rules.pocket_resolved(self.character):
+            return
+        choices = rules.pocket_choices(self.character)
+        if not choices:
+            self.perform_cite_action('pocket')
+            return
+        chosen = self._cite_pick_items('Le larcin', 'Choisissez ce qui vous est pris.',
+                                       choices, 1, 'Valider')
+        if chosen:
+            self.perform_cite_action('pocket', chosen[0])
+
+    def _cite_loot_dialog(self):
+        number = self.current_paragraph
+        if number not in rules.LOOTS or rules.loot_taken(self.character, number):
+            return
+        chosen = self._cite_pick_items(
+            'Le butin', 'Sélectionnez ce que vous gardez (rien, une partie ou tout).',
+            rules.loot_choices(number), None, 'Garder la sélection')
+        if chosen is not None:
+            self.perform_cite_action('loot', chosen)
 
     def _cite_theft_dialog(self):
         if self.current_paragraph != rules.THEFT or rules.theft_resolved(self.character):
