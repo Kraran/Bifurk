@@ -1,3 +1,16 @@
+# Bifurk 1.3.0 — La Cité des Voleurs
+
+## Nouveautés depuis la 1.2.1
+
+- **La Cité des Voleurs** (édition 1983) rejoint le Sorcier et la Forêt : les 400 paragraphes sont analysés et reliés, avec les combats, la Chance, l'or et l'inventaire du livre.
+- Équipement de départ fidèle : épée et armure de cuir.
+- Boutiques, prêteur sur gages et fenêtre de vente aux prix du texte, sans rien révéler de la suite.
+- Jeux d'argent fidèles au livre, tatouage affiché comme une marque à côté du nom de l'aventurier.
+- Choix grisés expliqués par la seule condition imprimée dans le livre.
+- Plan des rues de Port Blacksand et lieux revisités sans doublon.
+- Illustrations rattachées à leurs paragraphes, décor et son d'ouverture propres à la Cité.
+- Ambiances de fond désactivables : ville pour la Cité, forêt pour la Forêt de la Malédiction (sons CC0 de Joseph Sardin, BigSoundBank).
+
 # Bifurk 1.2.1 — Cuir, or et carnet de voyage
 
 ## Nouveautés depuis la 1.2.0

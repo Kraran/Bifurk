@@ -60,7 +60,7 @@ class CiteCatalogueTests(unittest.TestCase):
         self.assertEqual(module.title, 'La Cité des Voleurs')
         self.assertEqual((module.paragraph_count, module.rules_pages, module.intro_pages), (400, (4, 13), (14, 18)))
         self.assertEqual(module.intro_title, 'Les terribles messagers de Zanbar Bone')
-        self.assertEqual((module.status, module.starting_gold, module.starting_items), ('preview', 30, ()))
+        self.assertEqual((module.status, module.starting_gold, module.starting_items), ('ready', 30, ()))
 
     def test_catalogues_share_the_edition_digest_and_contain_no_rules_yet(self):
         module = next(m for m in available_modules() if m.engine == 'cite-1983')
@@ -177,7 +177,7 @@ class CitePresentationTests(unittest.TestCase):
         items = dialog.findChild(QListWidget)
         texts = [items.item(i).text() for i in range(items.count())]
         city = next(text for text in texts if text.startswith('La Cité des Voleurs'))
-        self.assertIn('En préparation', city)
+        self.assertNotIn('En préparation', city)
 
     def test_cover_title_starting_gold_and_preparation_notice(self):
         with patch.object(self.w.sounds, 'play_book_intro') as play:
@@ -186,7 +186,7 @@ class CitePresentationTests(unittest.TestCase):
         self.assertEqual(self.w.book_module.id, 'cite_voleurs_1983')
         self.assertEqual(self.w.book_label.text(), 'La Cité des Voleurs')
         self.assertIn('La Cité des Voleurs', self.w.reader.toPlainText())
-        self.assertIn('préparation', self.w.reader.toPlainText())
+        self.assertNotIn('préparation', self.w.reader.toPlainText())
         self.assertEqual(self.w.scene_entry['type'], 'couverture')
         self.assertIsNotNone(self.w.findChild(QPushButton, 'readPrologue'))
         self.assertEqual(self.w.character['gold'], 30)
@@ -247,7 +247,7 @@ class CitePresentationTests(unittest.TestCase):
         absent = next(b for text, b in cards.items() if '33' in text)
         self.assertFalse(absent.isEnabled())
         self.assertIn('non détectée', absent.toolTip())
-        self.assertTrue(any('en préparation' in label.text().casefold()
+        self.assertFalse(any('en préparation' in label.text().casefold()
                             for label in self.w.event_group.findChildren(QLabel)))
         self.w.follow_link(QUrl('paragraph:2'))
         self.assertEqual(self.w.current_paragraph, 1)
