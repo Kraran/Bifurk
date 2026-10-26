@@ -347,16 +347,22 @@ Tests : `tests/test_exploration_map.py` (`StreetMapTests`) et
   - celle de la page 64, sans légende, est insérée dans le texte du §113
     (`verifie_position`) ;
   - trois pleines pages sans légende (pages 56, 72 et 86) sont associées aux
-    §88, 135 et 171 d'après la scène représentée (`probable`, affichées avec la
-    mention « association probable ») ;
+    §88, 135 et 171 d'après la scène représentée ; association confirmée par le
+    joueur (`verifie_utilisateur`, affichées comme « association vérifiée ») ;
   - la feuille d'aventure (page 5) et 56 vignettes et ornements restent hors des
     popups (`hors_paragraphe`).
   Une illustration n'apparaît qu'en arrivant à son paragraphe : rien n'est dévoilé
   à l'avance.
-- **Ambiance de ville** : aucune boucle d'ambiance supplémentaire n'est ajoutée.
+- **Ambiance de ville** : `assets/sounds/ambient_cite.wav`, boucle de marché de 45 s
+  (« Outdoor market #2 », Joseph SARDIN, BigSoundBank, CC0 1.0), préparée par
+  `scripts/prepare_cite_ambience.py` au format et au niveau RMS de la caverne
+  (mono 16 bits 22,05 kHz, −27,7 dBFS). Elle remplace la caverne quand la Cité est
+  ouverte, dans la même case **Ambiance de fond** (libellé « ville », désactivée par
+  défaut, même volume) ; le Sorcier, la Forêt et l'écran sans livre gardent la
+  caverne. `sound_effects.AMBIENT_TRACKS` associe le moteur du livre à sa boucle.
 
 Tests : `tests/test_cite_phase7.py` (catalogue, contrôle de chaque image sur le PDF
-privé s'il est présent, annonce, décor) et `tests/test_windows_distribution.py`
+privé s'il est présent, annonce, décor, boucle de ville) et `tests/test_windows_distribution.py`
 (ressources exigées dans l'archive Windows).
 
 ## Fichiers et validation

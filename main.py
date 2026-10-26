@@ -796,7 +796,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self._save_preferences()
         sound.toggled.connect(set_sound)
         audio_layout.addWidget(sound)
-        ambient = QCheckBox("Ambiance de fond : caverne")
+        # Même réglage pour tous les livres ; le libellé nomme la boucle du livre ouvert.
+        ambient = QCheckBox(f"Ambiance de fond : {self.sounds.ambient_label()}")
         ambient.setChecked(self.sounds.ambient_enabled)
         def set_ambient(enabled):
             """Appliquer et mémoriser l’interrupteur indépendant de l’ambiance."""
@@ -2428,6 +2429,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.adventure_tracking = read_tracking(None)
         self._update_tracking_badge()
         self.book_module = book_module
+        self.sounds.set_ambient_track(getattr(book_module, 'engine', None))
         self.pdf_path = path
         self.illustration_catalogue = illustrations
         self.book_event_catalogue = events
@@ -3445,6 +3447,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self.paragraphs = paragraphs
             self.illustration_catalogue = illustration_catalogue
             self.book_module = book_module
+            self.sounds.set_ambient_track(getattr(book_module, 'engine', None))
             self.book_event_catalogue = events
             self.book_label.setText(book_module.title if book_module else Path(pdf).name)
             self.book_label.setToolTip(self.book_label.text())
