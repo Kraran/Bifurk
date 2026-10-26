@@ -46,8 +46,20 @@ def describe_rolls(kind, trace, before):
             label = 'Chance' if kind == 'chance' else 'Habileté'
             lines.append(f"{label} : {_faces(entry)} {'≤' if ok else '>'} {score}, "
                          + ('réussi' if ok else 'raté'))
+        elif kind == 'gamble':
+            continue
+        elif kind == 'creature':
+            name = rules.CREATURES.get(entry['total'], ('?',))[0]
+            lines.append(f'Dé : {_faces(entry)} — {name}')
         else:
             lines.append(f'Dé : {_faces(entry)}')
+    if kind == 'gamble' and len(trace) >= rules.GAMBLE_DWARVES + 1:
+        dwarves = [entry['total'] for entry in trace[:rules.GAMBLE_DWARVES]]
+        own = trace[rules.GAMBLE_DWARVES]
+        result = ('partie gagnée' if own['total'] > max(dwarves) else 'partie perdue'
+                  if own['total'] < max(dwarves) else 'égalité, mise reprise')
+        lines.append('Nains : ' + ', '.join(_faces(entry) for entry in trace[:rules.GAMBLE_DWARVES])
+                     + f' ; vous : {_faces(own)} — {result}')
     return lines
 
 

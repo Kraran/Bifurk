@@ -68,14 +68,14 @@ class CiteCatalogueTests(unittest.TestCase):
         art = module.catalogue('illustrations')
         self.assertEqual(events['pdf_sha256'], module.pdf_sha256)
         self.assertEqual(art['pdf_sha256'], module.pdf_sha256)
-        # Renvois relus ; les §1 à 200 sont analysés, mais le catalogue reste
+        # Renvois relus ; les §1 à 300 sont analysés, mais le catalogue reste
         # descriptif : les règles vivent dans le moteur Python du module.
         self.assertEqual((events['total_paragraphs'], events['reviewed_count']), (400, 400))
         self.assertEqual(events['review_pending'], [])
         self.assertFalse(events['analysis_contract']['conditions_are_executable'])
-        self.assertEqual(events['analysis_contract']['analysed_range'], [1, 200])
+        self.assertEqual(events['analysis_contract']['analysed_range'], [1, 300])
         for number, entry in events['paragraphs'].items():
-            analysed = int(number) <= 200
+            analysed = int(number) <= 300
             self.assertEqual(entry['status'], 'analyse_verifiee' if analysed else 'renvois_verifies')
             keys = {'status', 'mode', 'title', 'routes', 'source_page_pdf'} | ({'analysis'} if analysed else set())
             self.assertLessEqual(set(entry), keys)

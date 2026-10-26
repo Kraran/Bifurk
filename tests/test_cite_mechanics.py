@@ -1,4 +1,4 @@
-"""Cité des Voleurs, phases 3.1 et 3.2 : mécaniques relues des §1 à 200.
+"""Cité des Voleurs, phases 3.1 et 3.2 : mécaniques relues des §1 à 200 (3.3 : tests à part).
 
 Les règles pures sont testées sans Qt ; l’interface avec un PDF synthétique dont
 les paragraphes sont remplacés par des textes neutres. Aucun texte du livre.
@@ -44,11 +44,16 @@ class CiteTablesTests(unittest.TestCase):
         pairs = (list(rules.ITEM_ROUTES) + list(rules.NOT_YET_ROUTES) + list(rules.ROUTE_COSTS)
                  + [rules.ARROW_OFFER, rules.ARROW_FALLBACK, rules.NO_MAGIC_ROUTE]
                  + list(rules.MISSION_ROUTES) + list(rules.ALL_GOLD_ROUTES)
-                 + list(rules.GOLD_BELOW_ROUTES) + list(rules.ITEM_PAYMENTS))
+                 + list(rules.GOLD_BELOW_ROUTES) + list(rules.ITEM_PAYMENTS)
+                 + list(rules.PROVISION_ROUTES) + list(rules.GOLD_SHOWN_ROUTES)
+                 + list(rules.CREATURE_ROUTES) + list(rules.ROUTE_LUCK)
+                 + [(rules.MIXTURE_ROUTES, target) for _name, target in rules.MIXTURES])
         for source, target in pairs:
             self.assertIn(target, routes(source), (source, target))
         for number, (_stat, success, failure, _damage) in rules.BRANCH_TESTS.items():
-            self.assertEqual(sorted(routes(number)), sorted({success, failure}), number)
+            self.assertEqual(sorted(routes(number)), sorted({success, failure} - {None}), number)
+        for number, (_faces, target, _gold) in rules.DIE_TESTS.items():
+            self.assertEqual(routes(number), [target])
         for number, (_stat, targets) in rules.DOUBLE_TESTS.items():
             self.assertEqual(routes(number), list(targets))
         for number, data in COMBATS.items():
@@ -58,16 +63,18 @@ class CiteTablesTests(unittest.TestCase):
         for number in rules.ENDINGS:
             self.assertEqual(routes(number), [])
 
-    def test_analysed_slice_is_the_first_two_hundred(self):
+    def test_analysed_slice_is_the_first_three_hundred(self):
         tables = (set(rules.ENTRY_EFFECTS) | set(rules.BRANCH_TESTS) | set(rules.SHOPS) | set(COMBATS)
                   | {rules.DIE_HEAL, rules.THEFT, rules.VOLLEY, rules.POCKET} | set(rules.DOUBLE_TESTS)
                   | {s for s, _ in rules.ITEM_ROUTES} | {s for s, _ in rules.NOT_YET_ROUTES}
                   | {s for s, _ in rules.MISSION_ROUTES} | {s for s, _ in rules.ITEM_PAYMENTS}
-                  | set(rules.ENDINGS) | set(rules.TEST_PENALTIES))
+                  | set(rules.ENDINGS) | set(rules.TEST_PENALTIES) | set(rules.DIE_TESTS)
+                  | set(rules.LOOTS) | {rules.MIXTURE, rules.CREATURE, rules.GAMBLE, rules.BRAWL,
+                                        rules.HOT_MEAL, rules.TRADE})
         self.assertTrue(all(n in rules.ANALYSED for n in tables))
-        for number in range(1, 201):
+        for number in range(1, 301):
             self.assertEqual(CATALOGUE['paragraphs'][str(number)]['status'], 'analyse_verifiee')
-        self.assertEqual(CATALOGUE['paragraphs']['201']['status'], 'renvois_verifies')
+        self.assertEqual(CATALOGUE['paragraphs']['301']['status'], 'renvois_verifies')
 
 
 class CiteRulesTests(unittest.TestCase):
@@ -365,7 +372,7 @@ class CiteMechanicsWindowTests(unittest.TestCase):
         self.assertTrue(self.w.character['book_facts']['adventure_ended'])
         self.assertTrue(any('Aventure terminée' in w.text() for w in self.events() if isinstance(w, QLabel)))
         self.w.undo_action()
-        self.w.go_to(202)
+        self.w.go_to(302)
         self.assertTrue(any(isinstance(w, QLabel) and w.text() == PREVIEW_NOTICE for w in self.events()))
         self.assertTrue(all(b.isEnabled() for b in self.buttons() if b.toolTip()[:11] != 'Indisponibl'))
 

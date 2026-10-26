@@ -1,19 +1,20 @@
-"""Règles relues des §1 à 200 de la Cité des Voleurs, sans Qt ni hasard.
+"""Règles relues des §1 à 300 de la Cité des Voleurs, sans Qt ni hasard.
 
 Les tables ci-dessous résument les seuls événements de la tranche analysée :
 effets d’arrivée, épreuves, boutiques, prix des renvois et conditions d’objets.
 Les jets sont fournis par l’appelant. L’état sauvegardé est rangé sous
 ``character['book_state']['cite']`` ; aucun texte du livre n’y est recopié.
-Les paragraphes 201 à 400 restent en consultation : seuls les prix des renvois
+Les paragraphes 301 à 400 restent en consultation : seuls les prix des renvois
 qui mènent dans la tranche (le paiement y est décrit) sont appliqués ailleurs.
 """
+import re
 import unicodedata
 
 from ..fighting_fantasy import adventure
 from ..fighting_fantasy.adventure import dice, ensure_alive
 
 BOOK = 'cite'
-ANALYSED = range(1, 201)
+ANALYSED = range(1, 301)
 
 ARROW = 'Flèche d’argent'
 MAIL = 'Cotte de mailles'
@@ -27,6 +28,10 @@ EYE_RING = 'Anneau de l’Œil d’Or'
 POULTICE = 'Emplâtre d’herbes'
 CURSED_SHIELD = 'Bouclier à la tour'
 PLAIN_SWORD = 'Épée de combat ordinaire'
+BOW = 'Arc en bois d’if'
+GARLIC = 'Gousse d’ail'
+TATTOO = 'Tatouage au front'
+GOLDEN_FLOWER = 'Fleur dorée à dix pétales'
 
 # Familles d’objets : (mots-clés acceptés, mots-clés exclus). Un nom libre saisi
 # dans l’inventaire est reconnu par mot-clé ; ces familles évitent qu’une fleur
@@ -35,6 +40,10 @@ ITEM_KINDS = {
     'bouquet': (('bouquet', 'fleur'), ('lotus', "d'or", 'doree')),
     'fleurs d’or': (("fleurs d'or", "fleur d'or", 'fleur doree', 'fleurs dorees'), ()),
     'épée': (('epee',), ()),
+    # « =ail » : le nom exact ; « ail » seul se retrouverait dans « cotte de mailles ».
+    'ail': (("d'ail", '=ail'), ()),
+    'œil d’or': (("œil d'or", "oeil d'or"), ()),
+    'pierres précieuses': (('pierres precieuses', 'pierre precieuse'), ()),
 }
 
 # Habileté de port : la cotte de mailles « ajoute 2 points » tant qu’elle est
@@ -92,9 +101,27 @@ ENTRY_EFFECTS = {
     194: {'gain': ('Boule de verre',)},
     198: {'gold': 9, 'gain': ('Crâne d’ivoire à chaîne d’argent',)},
     199: {'gold': 5},
+    # §201 : nuit sous l’orme, puis l’arc taillé pour la flèche d’argent.
+    201: {'endurance': 2, 'gain': (BOW,)},
+    209: {'gold': 12},
+    211: {'endurance': 1},
+    221: {'gold_all': True, 'chance': -2},
+    230: {'chance': 1},
+    233: {'endurance': 1},
+    # §240 : les deux pierres précieuses vendues 9 Pièces d’Or (prix du §302).
+    240: {'gold': 9, 'lose': ('pierres précieuses',)},
+    242: {'endurance': -1},
+    243: {'endurance': -5},
+    273: {'chance': 2, 'gain': (GOLD_BROOCH,)},
+    274: {'gold': 5},
+    # Le tatouage figure dans l’inventaire ; il ne peut être ni volé ni remis.
+    279: {'gain': (TATTOO,), 'lock': True},
+    295: {'gold': 12, 'chance': 1},
+    298: {'endurance': -4},
 }
 
 # Épreuves à deux issues : (caractéristique, réussite, échec, blessure d’échec).
+# Un échec None est une fin imprimée sans renvoi (§203) : l’aventure s’arrête.
 BRANCH_TESTS = {
     15: ('chance', 75, 298, 0),
     18: ('habilete', 102, 225, 0),
@@ -110,11 +137,20 @@ BRANCH_TESTS = {
     190: ('habilete', 38, 296, 0),
     # §192 : une seule suite ; l’échec coûte 1 point d’Habileté.
     192: ('chance', 304, 304, 0),
+    203: ('chance', 244, None, 0),
+    214: ('chance', 158, 379, 0),
+    229: ('chance', 23, 343, 0),
+    247: ('chance', 384, 134, 0),
+    251: ('chance', 269, 330, 0),
+    252: ('chance', 275, 155, 0),
+    291: ('chance', 74, 10, 2),
 }
 # Pertes imprimées en cas d’échec, en plus du renvoi : (ressource, montant).
 TEST_PENALTIES = {190: ('gold', 5), 192: ('habilete', 1)}
 # §128 : deux fois la Chance ; la destination dépend du nombre d’échecs (0, 1, 2).
 DOUBLE_TESTS = {128: ('chance', (340, 149, 19))}
+# Un dé décisif : (faces mortelles, renvoi sinon, Pièces d’Or gagnées sinon).
+DIE_TESTS = {223: ((1,), 165, 20)}
 
 # Événements à résoudre avant de repartir : un dé de soin, le larcin de l’Elfe.
 DIE_HEAL = 83
@@ -124,27 +160,65 @@ THEFT_ITEMS, THEFT_GOLD = 2, 5
 # puis 2 points de Chance perdus si l’on survit (VO ; la traduction dit Endurance).
 POCKET, POCKET_GOLD = 148, '1 Pièce d’Or'
 VOLLEY, VOLLEY_HIT, VOLLEY_AFTER = 137, 3, 2
+# Le larcin vise le sac à dos : arme, armures et bijoux portés n’y sont pas.
+WORN_KEYWORDS = ('epee', 'armure', 'cotte de mailles', 'broche', 'anneau', 'bracelet')
+
+# §201 : le mélange de deux ingrédients, puis un dé désigne la créature.
+MIXTURE = 201
+MIXTURES = (('Cheveux de Sorcière et perles noires', 9),
+            ('Perles noires et fleur de lotus', 129),
+            ('Fleur de lotus et cheveux de Sorcière', 337))
+MIXTURE_ROUTES = 244
+CREATURE = 201
+CREATURES = {1: ('Orque', 5, 4), 2: ('Serpent Géant', 6, 6), 3: ('Loup', 5, 5),
+             4: ('Pygmée', 4, 4), 5: ('Homme-Singe', 7, 6), 6: ('Troll des Cavernes', 8, 7)}
+# §138 : la suite dépend de la créature affrontée au §201 (5 : l’Homme-Singe).
+CREATURE_ROUTES = {(138, 312): True, (138, 283): False}
+APE_MAN = 5
+# §206 : « Qui gagne prend » — mise de 2, gain de 6, quatre parties au plus.
+GAMBLE, GAMBLE_STAKE, GAMBLE_WIN, GAMBLE_ROUNDS, GAMBLE_DWARVES = 206, 2, 6, 4, 3
+# §266 : deux objets du sac à dos perdus dans la bousculade, au choix du joueur.
+BRAWL, BRAWL_ITEMS = 266, 2
 # Butins facultatifs : « prenez ce que vous voulez » (une seule fouille).
 LOOTS = {
     # §114 : VO « Take what you will » — trois bagues et 13 Pièces d’Or, au choix.
     114: {'gold': 13, 'items': ('Bague ornée de pierreries',) * 3},
+    208: {'gold': 2, 'items': (GARLIC, 'Vieux osselets')},
+    # §220 : le contenu de la vitrine est décrit au §146.
+    220: {'gold': 0, 'items': ('Gobelet en argent', 'Gobelet en argent', 'Calice en argent',
+                               'Cuillère en argent')},
+    285: {'gold': 7, 'items': ('Trousseau de clefs', 'Morceau de pain rassis')},
 }
-# Le larcin vise le sac à dos : arme, armures et bijoux portés n’y sont pas.
-WORN_KEYWORDS = ('epee', 'armure', 'cotte de mailles', 'broche', 'anneau', 'bracelet')
+# §287 : un repas chaud facultatif, (prix, Endurance gagnée).
+HOT_MEAL, HOT_MEAL_PRICE, HOT_MEAL_GAIN = 287, 1, 2
+# §293 : la fleur dorée contre un objet magique, une arme ou deux Provisions.
+TRADE, TRADE_PROVISIONS = 293, 2
+TRADE_PROVISIONS_LABEL = 'Deux portions de Provisions'
+WEAPON_KEYWORDS = ('epee', 'poignard', 'lance', 'croc de boucher', 'hache', 'dague', 'couteau',
+                   'massue', 'gourdin', 'arc')
 
-# Boutiques facultatives : (article, prix), et nombre maximal d’achats.
+# Boutiques facultatives : (article, prix), nombre maximal d’achats, et
+# « repeat » quand un article s’achète en autant d’exemplaires qu’on le désire.
 SHOPS = {
     36: {'items': (('Anneau d’Invisibilité', 10), ('Anneau de Feu', 8), ('Anneau de Glace', 7)),
          'limit': 1},
     52: {'items': (('Poignard de Jet', 4), ('Corde d’Escalade', 2), ('Croc de Boucher', 2),
                    ('Lance en Fer', 1), ('Lanterne', 3)), 'limit': None},
     66: {'items': (('Clef spéciale du Nain', 10),), 'limit': 1},
+    241: {'items': (('Bougie de couleur', 1),), 'limit': None, 'repeat': True},
 }
 
 # Prix payés en choisissant le renvoi : la destination décrit le paiement.
 ROUTE_COSTS = {(3, 37): 3, (91, 332): 1, (315, 8): 6, (169, 46): 20,
                (276, 41): 15, (246, 98): 2, (315, 132): 6, (119, 233): 3, (151, 351): 10,
-               (160, 211): 1, (160, 242): 1, (182, 279): 10, (183, 366): 1, (183, 167): 4}
+               (160, 211): 1, (160, 242): 1, (182, 279): 10, (183, 366): 1, (183, 167): 4,
+               (222, 370): 1, (276, 267): 10, (300, 347): 10, (342, 289): 1}
+# §300 : laisser l’or coûte aussi 2 points de Chance.
+ROUTE_LUCK = {(300, 347): 2}
+# §276→§109 : les cinq pièces sont offertes puis refusées (§109) ; il faut les avoir.
+GOLD_SHOWN_ROUTES = {(276, 109): 5}
+# §264 : partager ses vivres coûte deux portions de Provisions.
+PROVISION_ROUTES = {(264, 121): 2}
 COST_LABELS = {(315, 8): '6 Pièces d’Or', (315, 132): '6 Pièces d’Or'}
 # §150 : l’amende est tout l’or du sac ; §182 : renoncer seulement sans 10 Pièces d’Or.
 ALL_GOLD_ROUTES = {(150, 367)}
@@ -169,17 +243,27 @@ ITEM_ROUTES = {
     (146, 220): ('passe-partout', True), (146, 388): ('passe-partout', False),
     (184, 55): ('fleurs d’or', True), (184, 308): ('fleurs d’or', False),
     (193, 286): ('anneau de feu', True), (193, 163): ('anneau de feu', False),
+    (257, 385): ('œil d’or', True), (257, 70): ('œil d’or', False),
+    (258, 318): ('crâne d’ivoire', True), (258, 47): ('crâne d’ivoire', False),
+    (259, 228): ('passe-partout', True), (259, 4): ('passe-partout', False),
+    (259, 365): ('passe-partout', False),
+    (263, 153): ('chouette', True), (263, 281): ('chouette', False),
+    (265, 82): ('contrôle mental', True), (265, 390): ('contrôle mental', False),
+    (290, 219): ('laissez-passer', True), (290, 335): ('laissez-passer', False),
+    (292, 254): ('ail', True), (292, 210): ('ail', False),
 }
 # §108 et §156 : les objets nécessaires contre le Prince de la Nuit et le tatouage.
 MISSION_ITEMS = ('flèche d’argent', 'perles noires', 'cheveux de sorcière', 'lotus')
 TATTOO_PARAGRAPHS = (279,)
-MISSION_ROUTES = {(108, 201): True, (108, 299): False, (156, 201): True, (156, 299): False}
+MISSION_ROUTES = {(108, 201): True, (108, 299): False, (156, 201): True, (156, 299): False,
+                  (239, 201): True, (239, 299): False}
 # « Si vous ne l’avez pas encore fait » : la destination ne doit pas avoir été lue.
 NOT_YET_ROUTES = {(7, 232), (13, 273), (43, 175), (43, 209), (96, 319),
-                  (104, 118), (111, 232), (174, 356), (176, 271)}
+                  (104, 118), (111, 232), (174, 356), (176, 271), (204, 209), (204, 43),
+                  (209, 175), (209, 43), (273, 13), (284, 232)}
 
-ENDINGS = (9, 56, 59, 70, 129, 142)
-DEATHS = (9, 59, 70, 129, 142)
+ENDINGS = (9, 56, 59, 70, 129, 142, 210, 288, 299)
+DEATHS = (9, 59, 70, 129, 142, 210, 288)
 
 
 def state(character):
@@ -199,7 +283,8 @@ def _matches(name, keyword):
     if keyword in ITEM_KINDS:
         accepted, excluded = ITEM_KINDS[keyword]
         folded = _fold(name)
-        return (any(_fold(key) in folded for key in accepted)
+        return (any(folded == _fold(key[1:]) if key.startswith('=') else _fold(key) in folded
+                    for key in accepted)
                 and not any(_fold(key) in folded for key in excluded))
     return _fold(keyword) in _fold(name)
 
@@ -281,6 +366,8 @@ def resolve_test(character, number, total):
     passed = total <= (character['chance'] if stat == 'chance' else effective_skill(character))
     target = adventure.branch_test(character, BOOK, BRANCH_TESTS[number], total,
                                    effective_skill(character))
+    if not passed and BRANCH_TESTS[number][2] is None and character['endurance'] > 0:
+        _end(character, number, death=True)
     if not passed and number in TEST_PENALTIES and target is not None:
         resource, amount = TEST_PENALTIES[number]
         if resource == 'gold':
@@ -307,8 +394,25 @@ def resolve_double(character, number, totals):
     return target
 
 
+def resolve_die_test(character, number, die):
+    """§223 : un dé ; une face mortelle termine l’aventure, sinon l’or promis est gagné."""
+    ensure_alive(character)
+    if number not in DIE_TESTS or test_resolved(character, number):
+        raise ValueError('Ce dé est déjà lancé.')
+    dice(die, 1, 6)
+    deadly, target, gold = DIE_TESTS[number]
+    if die in deadly:
+        _end(character, number, death=True)
+        target = None
+    else:
+        character['gold'] = character.get('gold', 0) + gold
+    state(character).setdefault('tests', {})[str(number)] = target
+    return target
+
+
 def pending_test(character, number):
-    return (number in BRANCH_TESTS or number in DOUBLE_TESTS) and not test_resolved(character, number)
+    return ((number in BRANCH_TESTS or number in DOUBLE_TESTS or number in DIE_TESTS)
+            and not test_resolved(character, number))
 
 
 def test_target(character, number):
@@ -377,7 +481,7 @@ def can_buy(character, number, name):
     bought = shop_bought(character, number)
     if shop['limit'] is not None and len(bought) >= shop['limit']:
         return 'Le livre ne permet qu’un seul achat ici.'
-    if name in bought:
+    if name in bought and not shop.get('repeat'):
         return 'Article déjà acheté.'
     if character.get('gold', 0) < prices[name]:
         return 'Pas assez de Pièces d’Or.'
@@ -410,9 +514,10 @@ def route_cost(source, target):
 
 
 def mission_ready(character, visited=()):
-    """§108/§156 : les quatre objets réunis et le tatouage fait (§279 lu)."""
+    """§108/§156/§239 : les quatre objets réunis et le tatouage fait (§279 lu)."""
     return (all(has_item(character, keyword) for keyword in MISSION_ITEMS)
-            and any(number in visited for number in TATTOO_PARAGRAPHS))
+            and (TATTOO in character.get('inventory', [])
+                 or any(number in visited for number in TATTOO_PARAGRAPHS)))
 
 
 def item_payment_choices(character, key):
@@ -446,6 +551,16 @@ def route_available(character, source, target, visited=()):
         return mission_ready(character, visited) == MISSION_ROUTES[key]
     if key in GOLD_BELOW_ROUTES:
         return character.get('gold', 0) < GOLD_BELOW_ROUTES[key]
+    if key in GOLD_SHOWN_ROUTES:
+        return character.get('gold', 0) >= GOLD_SHOWN_ROUTES[key]
+    if key in CREATURE_ROUTES:
+        creature = peek(character).get('creature')
+        return creature is None or (creature == APE_MAN) == CREATURE_ROUTES[key]
+    if source == MIXTURE_ROUTES:
+        mixture = peek(character).get('mixture')
+        return mixture is None or mixture == target
+    if key in PROVISION_ROUTES and not adventure.route_paid(character, BOOK, *key):
+        return character.get('provisions', 0) >= PROVISION_ROUTES[key]
     if key in ITEM_PAYMENTS:
         return adventure.route_paid(character, BOOK, *key) or bool(item_payment_choices(character, key))
     if key == NO_MAGIC_ROUTE:
@@ -490,10 +605,22 @@ def pay_route(character, source, target, items=()):
         adventure.pay(character, BOOK, gold=character.get('gold', 0))
         state(character).setdefault('paid_routes', []).append(f'{source}:{target}')
         return True
+    if (source, target) in PROVISION_ROUTES:
+        if adventure.route_paid(character, BOOK, source, target):
+            return False
+        amount = PROVISION_ROUTES[(source, target)]
+        if character.get('provisions', 0) < amount:
+            raise ValueError('Pas assez de Provisions.')
+        character['provisions'] -= amount
+        state(character).setdefault('paid_routes', []).append(f'{source}:{target}')
+        return True
     cost = route_cost(source, target)
-    return adventure.pay_route(character, BOOK, source, target,
+    paid = adventure.pay_route(character, BOOK, source, target,
                                None if cost is None else ('gold', cost),
                                pay_gold=lambda amount: adventure.pay(character, BOOK, gold=amount))
+    if paid and (source, target) in ROUTE_LUCK:
+        _change(character, 'chance', -ROUTE_LUCK[(source, target)])
+    return paid
 
 
 def volley(character, die):
@@ -587,12 +714,166 @@ def use_poultice(character, die):
     return die
 
 
+def _end(character, number, death):
+    state(character)['ending'] = number
+    if death:
+        character['endurance'] = 0
+    character.setdefault('book_facts', {})['adventure_ended'] = True
+
+
 def finish_ending(character, number):
     """Fin imprimée (mort ou échec) : l’aventure se termine sans blessure inventée."""
     if number not in ENDINGS or peek(character).get('ending'):
         return False
-    state(character)['ending'] = number
-    if number in DEATHS:
-        character['endurance'] = 0
-    character.setdefault('book_facts', {})['adventure_ended'] = True
+    _end(character, number, number in DEATHS)
     return True
+
+
+# ----- Phase 3.3 : §201 à 300 ---------------------------------------------------
+def choose_mixture(character, target):
+    """§201 : deux ingrédients broyés ensemble ; le §244 n’offre ensuite que ce mélange."""
+    ensure_alive(character)
+    if peek(character).get('mixture') is not None:
+        raise ValueError('Le mélange est déjà préparé.')
+    names = {t: name for name, t in MIXTURES}
+    if target not in names:
+        raise ValueError('Mélange inconnu.')
+    state(character)['mixture'] = target
+    character.setdefault('inventory', []).append(f'Mélange en bourse de cuir ({names[target].lower()})')
+    return names[target]
+
+
+def mixture_ready(character):
+    return peek(character).get('mixture') is not None
+
+
+def roll_creature(character, die):
+    """§201 : le dé désigne la créature ; elle est retenue pour le §138."""
+    ensure_alive(character)
+    if peek(character).get('creature') is not None:
+        raise ValueError('La créature est déjà désignée.')
+    dice(die, 1, 6)
+    state(character)['creature'] = die
+    return CREATURES[die]
+
+
+def creature_rolled(character):
+    return peek(character).get('creature') is not None
+
+
+def gamble_rounds(character):
+    return peek(character).get('gamble', [])
+
+
+def can_gamble(character):
+    """None si une partie est possible, sinon la raison affichée."""
+    if len(gamble_rounds(character)) >= GAMBLE_ROUNDS:
+        return 'Les Nains se sont lassés : quatre parties au plus.'
+    if character.get('gold', 0) < GAMBLE_STAKE:
+        return f'Il faut miser {GAMBLE_STAKE} Pièces d’Or.'
+    return None
+
+
+def gamble(character, dwarves, own):
+    """§206 : battre chacun des trois Nains gagne 6 ; être battu par l’un d’eux perd 2.
+
+    Une égalité avec le meilleur Nain n’est ni gagnée ni perdue : la mise est reprise."""
+    ensure_alive(character)
+    reason = can_gamble(character)
+    if reason:
+        raise ValueError(reason)
+    dwarves = list(dwarves)
+    if len(dwarves) != GAMBLE_DWARVES:
+        raise ValueError('Trois jets de Nains sont nécessaires.')
+    for total in dwarves + [own]:
+        dice(total)
+    if own > max(dwarves):
+        result, change = 'gagnée', GAMBLE_WIN
+    elif own < max(dwarves):
+        result, change = 'perdue', -GAMBLE_STAKE
+    else:
+        result, change = 'égalité', 0
+    character['gold'] = character.get('gold', 0) + change
+    state(character).setdefault('gamble', []).append({'dwarves': dwarves, 'own': own, 'result': result})
+    return result, change
+
+
+def brawl_resolved(character):
+    return 'brawl' in peek(character)
+
+
+def brawl_required(character):
+    return min(BRAWL_ITEMS, len(theft_choices(character)))
+
+
+def brawl_loss(character, items):
+    """§266 : deux objets du sac à dos perdus, choisis par le joueur."""
+    ensure_alive(character)
+    if brawl_resolved(character):
+        raise ValueError('La perte est déjà constatée.')
+    items = list(items)
+    choices = list(theft_choices(character))
+    if len(items) != brawl_required(character):
+        raise ValueError(f'Choisissez {brawl_required(character)} objet(s) du sac à dos.')
+    for name in items:
+        if name not in choices:
+            raise ValueError('Objet absent du sac à dos ou déjà choisi.')
+        choices.remove(name)
+    adventure.pay(character, BOOK, items=items)
+    state(character)['brawl'] = items
+    return items
+
+
+def hot_meal_eaten(character):
+    return bool(peek(character).get('hot_meal'))
+
+
+def hot_meal(character):
+    """§287 : 1 Pièce d’Or pour 2 points d’Endurance, plafonnés au total initial."""
+    ensure_alive(character)
+    if hot_meal_eaten(character):
+        raise ValueError('Le repas chaud est déjà pris.')
+    if character.get('gold', 0) < HOT_MEAL_PRICE:
+        raise ValueError('Pas assez de Pièces d’Or.')
+    adventure.pay(character, BOOK, gold=HOT_MEAL_PRICE)
+    _change(character, 'endurance', HOT_MEAL_GAIN)
+    state(character)['hot_meal'] = True
+
+
+def _word(name, keywords):
+    folded = _fold(name)
+    return any(re.search(r'\b' + re.escape(key) + r'\b', folded) for key in keywords)
+
+
+def trade_choices(character):
+    """§293 : un objet magique (comme au §187), une arme, ou deux Provisions."""
+    locked = set(character.get('locked_items', []))
+    choices = [TRADE_PROVISIONS_LABEL] if character.get('provisions', 0) >= TRADE_PROVISIONS else []
+    choices += [name for name in character.get('inventory', [])
+                if name not in locked and (_word(name, WEAPON_KEYWORDS)
+                                           or any(_fold(k) in _fold(name) for k in MAGIC_KEYWORDS))]
+    if character.get('potion') and character.get('potion_doses', 0) > 0:
+        choices.append(f"{character['potion']} ({STARTING_POTION})")
+    return choices
+
+
+def traded(character):
+    return 'trade' in peek(character)
+
+
+def trade_flower(character, choice):
+    """§293 : la fleur dorée contre l’objet ou les Provisions choisis, une seule fois."""
+    ensure_alive(character)
+    if traded(character):
+        raise ValueError('L’échange est déjà conclu.')
+    if choice not in trade_choices(character):
+        raise ValueError('Mme Pipe n’accepte pas cet échange.')
+    if choice == TRADE_PROVISIONS_LABEL:
+        character['provisions'] -= TRADE_PROVISIONS
+    elif choice.endswith(f'({STARTING_POTION})'):
+        character['potion_doses'] = 0
+    else:
+        adventure.pay(character, BOOK, items=[choice])
+    character.setdefault('inventory', []).append(GOLDEN_FLOWER)
+    state(character)['trade'] = choice
+    return choice

@@ -1,8 +1,8 @@
 # La Cité des Voleurs — module et présentation
 
 Les phases 1 et 2 ajoutent l'identité du troisième livre, sa consultation et le
-catalogue des renvois relus ; les phases 3.1 et 3.2 rendent jouables les
-événements des §1 à 200. Rien n'est présenté comme jouable avant vérification.
+catalogue des renvois relus ; les phases 3.1, 3.2 et 3.3 rendent jouables les
+événements des §1 à 300. Rien n'est présenté comme jouable avant vérification.
 
 ## Édition reconnue
 
@@ -132,9 +132,44 @@ destination ni événement à venir affiché.
   que la condition imprimée.
 - **Fins** : §129 et §142.
 
-Reportés hors tranche : les dés du §206 (jeu) et le prêteur sur gages du §354
-(phase 3.3), la créature du §201 dont dépend le §138, et les effets des §279,
-§293, §370 et §387 (objets gérés à la main dans l'inventaire d'ici là).
+Reportés hors tranche : le prêteur sur gages du §354 et les effets des §370 et
+§387 (phase 3.4) ; les dés du §206, la créature du §201 et les §279 et §293 sont
+traités en phase 3.3.
+
+## Phase 3.3 : événements des §201 à 300
+
+La tranche analysée s'étend aux §1 à 300 (`analysed_range` [1, 300]), avec les
+mêmes principes.
+
+- **Effets d'arrivée** : nuit de repos et arc en bois d'if du §201, or trouvé
+  (§209, §274, §295), amende de tout l'or et Chance −2 au §221, pierres précieuses
+  vendues 9 Pièces d'Or au §240, blessures (§242, §243, §298), broche en or du §273,
+  tatouage au front du §279 (objet verrouillé, compté pour les préparatifs).
+- **§201** : choix des deux ingrédients du mélange (un objet « Mélange » s'ajoute,
+  les ingrédients restent) ; au §244, seule la mixture préparée est praticable.
+  Puis un dé désigne la créature du tableau, combattue selon les règles ; le §138
+  n'ouvre que le renvoi correspondant à la créature affrontée.
+- **Épreuves** : §203 (Chance ; l'échec est une fin imprimée), §214, §229, §247,
+  §251, §252, §291 (blessure de 2 points en cas d'échec) ; dé de la pilule du §223
+  (le 1 est mortel, sinon 20 Pièces d'Or).
+- **Jeu de dés du §206** : mise de 2 Pièces d'Or, deux dés pour chacun des trois
+  Nains puis pour le héros ; total supérieur aux trois : +6 ; inférieur à l'un
+  d'eux : −2 ; égalité avec le meilleur Nain : mise reprise. Quatre parties au plus.
+- **Événements** : bousculade du §266 (deux objets du sac, au choix du joueur) ;
+  butins facultatifs des §208, §220 (contenu de la caisse du §146) et §285 ;
+  bougies du §241 en nombre illimité ; repas chaud du §287 (1 Pièce d'Or,
+  Endurance +2, une fois) ; fleur dorée du §293 contre un objet magique, une arme ou
+  deux portions de Provisions.
+- **Combats** : §201, §207, §217, §225, §226 (fuite vers le §78), §230, §249, §253
+  (morsures de 4 points), §270, §296.
+- **Renvois** : prix du texte (§222, §276→267, §300 avec Chance −2, §342) ; or à
+  montrer sans paiement (§276→109) ; Provisions remises (§264) ; conditions
+  d'objets (§257, §258, §259, §263, §265, §290, §292) ; préparatifs du §239 ; renvois
+  « pas encore visité » (§204, §209, §273, §284).
+- **Fins** : §210, §288 et §299.
+
+Non automatisé : les pétales de la fleur dorée changés en or au sang de chien
+(gérés à la main).
 
 ## Fichiers et validation
 
@@ -148,8 +183,8 @@ Reportés hors tranche : les dés du §206 (jeu) et le prêteur sur gages du §3
 - `tools/audit_cite.py` : audit du catalogue, avec contrôle optionnel du PDF privé.
 - `tests/test_cite_errata.py`, `tests/test_cite_analysis.py` : réparations, audit
   et liens de lecture.
-- `tests/test_cite_mechanics.py`, `tests/test_cite_phase3_2.py` : règles des §1 à
-  200, cohérence des tables avec le catalogue et scénarios d'interface sans divulgation.
+- `tests/test_cite_mechanics.py`, `tests/test_cite_phase3_2.py`,
+  `tests/test_cite_phase3_3.py` : règles des §1 à 300, cohérence des tables avec le catalogue et scénarios d'interface sans divulgation.
 - `tests/test_cite_presentation.py` : reconnaissance, couverture, prologue, profil,
   repas, consultation sans effets, sauvegarde et changement de module.
 
