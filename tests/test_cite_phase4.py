@@ -367,3 +367,61 @@ class CitePhaseFourSheetWindowTests(unittest.TestCase):
         self.w.go_to(398)
         card = next(card for card in self.buttons() if '378' in card.text())
         self.assertTrue(card.isEnabled())
+
+
+class CiteTattooArtTests(unittest.TestCase):
+    """Illustration de Franck pour le tatouage : fichier livré, netteté, secours."""
+    setUpClass = classmethod(mechanics.CiteMechanicsWindowTests.setUpClass.__func__)
+
+    def test_asset_is_a_square_transparent_png_shipped_with_the_build(self):
+        from pathlib import Path
+
+        from PySide6.QtGui import QImage
+
+        from grimoire_modules.cite import sheet
+        root = Path(__file__).resolve().parents[1]
+        self.assertEqual(sheet.TATTOO_IMAGE, root / 'assets' / 'marks' / 'cite-tattoo.png')
+        image = QImage(str(sheet.TATTOO_IMAGE))
+        self.assertFalse(image.isNull())
+        self.assertEqual((image.width(), image.height()), (256, 256))
+        self.assertTrue(image.hasAlphaChannel())
+        for x, y in ((0, 0), (255, 0), (0, 255), (255, 255)):
+            self.assertEqual(image.pixelColor(x, y).alpha(), 0)
+        self.assertEqual(image.pixelColor(128, 128).alpha(), 255)
+        self.assertIs(sheet.MARKS[rules.TATTOO].image, sheet.TATTOO_IMAGE)
+        # Tout le dossier assets part dans la compilation Windows, et l'archive l'exige.
+        self.assertIn("(str(ROOT / 'assets'), 'assets')", (root / 'Bifurk.spec').read_text(encoding='utf-8'))
+        self.assertIn("'_internal/assets/marks/cite-tattoo.png'",
+                      (root / 'scripts' / 'package_release.py').read_text(encoding='utf-8'))
+
+    def test_badge_draws_the_art_sharp_at_every_windows_scaling(self):
+        from adventurer_sheet import MarkBadge
+        from grimoire_modules.cite import sheet
+        badge = MarkBadge(sheet.MARKS[rules.TATTOO])
+        self.assertTrue(badge.has_art)
+        self.assertEqual(badge.width(), MarkBadge.ART_SIZE)
+        box = badge.rect().adjusted(1, 1, -1, -1)
+        for ratio in (1.0, 1.25, 1.5, 1.75, 2.0):
+            with self.subTest(ratio=ratio), patch.object(badge, 'devicePixelRatioF', return_value=ratio):
+                pix = badge.art_pixmap(box)
+                self.assertEqual(pix.width(), round(box.width() * ratio))
+                self.assertAlmostEqual(pix.devicePixelRatio(), ratio)
+                self.assertAlmostEqual(pix.deviceIndependentSize().width(), box.width(), delta=.5)
+        shot = badge.grab().toImage()
+        self.assertGreater(shot.pixelColor(badge.width() // 2, badge.height() // 2).alpha(), 0)
+
+    def test_missing_art_falls_back_to_the_painted_medallion(self):
+        from pathlib import Path
+
+        from adventurer_sheet import MarkBadge
+        from grimoire_modules.cite import sheet
+        from grimoire_modules.marks import SheetMark
+        calls = []
+        mark = SheetMark('cite-tattoo', rules.TATTOO, sheet.TATTOO_TIP,
+                         lambda p, rect: calls.append(rect), Path('/nulle/part/cite-tattoo.png'))
+        badge = MarkBadge(mark)
+        self.assertFalse(badge.has_art)
+        self.assertEqual(badge.width(), MarkBadge.MEDALLION_SIZE)
+        badge.grab()
+        self.assertTrue(calls)
+        self.assertIn('Tatouage au front', badge.toolTip())

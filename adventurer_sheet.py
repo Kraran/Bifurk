@@ -1179,13 +1179,21 @@ MARK_BLINK_PERIOD_MS, MARK_BLINK_CYCLES = 1600, 3
 
 
 class MarkBadge(QWidget):
-    """Petit médaillon d'une marque du corps (tatouage…), dessiné par le module.
+    """Petite marque du corps (tatouage…) : l'illustration du module, ou à défaut
+    un médaillon où le module dessine l'emblème.
 
     blink() le fait battre lentement quelques secondes, à sa première apparition."""
 
-    def __init__(self, mark, size=34, parent=None):
+    ART_SIZE, MEDALLION_SIZE = 44, 34
+
+    def __init__(self, mark, size=None, parent=None):
         super().__init__(parent)
         self.mark = mark
+        image = getattr(mark, 'image', None)
+        self._art = QPixmap(str(image)) if image else QPixmap()
+        self._scaled = (None, QPixmap())
+        if size is None:
+            size = self.ART_SIZE if self.has_art else self.MEDALLION_SIZE
         self.setFixedSize(size, size)
         self.setToolTip(mark.tooltip)
         self.setAccessibleName(mark.title)
@@ -1199,6 +1207,22 @@ class MarkBadge(QWidget):
     @property
     def blinking(self):
         return self._timer.isActive()
+
+    @property
+    def has_art(self):
+        return not self._art.isNull()
+
+    def art_pixmap(self, rect):
+        """Illustration réduite une fois pour la taille réelle en pixels de l'écran
+        (125 %, 150 %, 200 %…) : nette sans rééchantillonnage à chaque image."""
+        ratio = self.devicePixelRatioF()
+        side = max(1, round(min(rect.width(), rect.height()) * ratio))
+        key = (side, ratio)
+        if self._scaled[0] != key:
+            pix = self._art.scaled(side, side, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            pix.setDevicePixelRatio(ratio)
+            self._scaled = (key, pix)
+        return self._scaled[1]
 
     def blink(self):
         self._clock.start()
@@ -1236,6 +1260,14 @@ class MarkBadge(QWidget):
             p.setBrush(glow)
             p.drawEllipse(QRectF(self.rect()))
         p.setOpacity(.3 + .7 * level)
+        if self.has_art:
+            box = QRectF(self.rect()).adjusted(1, 1, -1, -1)
+            pix = self.art_pixmap(box)
+            size = pix.deviceIndependentSize()
+            p.setRenderHint(QPainter.SmoothPixmapTransform)
+            p.drawPixmap(QPointF(box.center().x() - size.width() / 2,
+                                 box.center().y() - size.height() / 2), pix)
+            return
         p.setPen(Qt.NoPen)
         p.setBrush(QBrush(_gold_gradient(r)))
         p.drawEllipse(r)
