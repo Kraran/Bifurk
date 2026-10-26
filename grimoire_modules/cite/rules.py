@@ -268,7 +268,12 @@ ROUTE_LUCK = {(300, 347): 2}
 GOLD_SHOWN_ROUTES = {(276, 109): 5, (354, 316): 10}
 # §264 : partager ses vivres coûte deux portions de Provisions.
 PROVISION_ROUTES = {(264, 121): 2}
-COST_LABELS = {(315, 8): '6 Pièces d’Or', (315, 132): '6 Pièces d’Or'}
+# §398 → §378 : jouer exige de posséder la mise de 5 Pièces d’Or (choix de Franck) ;
+# la condition reprend la phrase du livre (VO : « whoever drops the cannon-ball must
+# pay the other 5 Gold Pieces »).
+STAKE_ROUTES = {(398, 378): 5}
+COST_LABELS = {(315, 8): '6 Pièces d’Or', (315, 132): '6 Pièces d’Or',
+               (398, 378): 'celui qui laisse tomber le boulet verse 5 Pièces d’Or à l’autre'}
 # §150 : l’amende est tout l’or du sac ; §182 : renoncer seulement sans 10 Pièces d’Or.
 ALL_GOLD_ROUTES = {(150, 367), (335, 367)}
 GOLD_BELOW_ROUTES = {(182, 354): 10, (354, 307): 10}
@@ -667,6 +672,8 @@ def route_available(character, source, target, visited=()):
         return character.get('gold', 0) < GOLD_BELOW_ROUTES[key]
     if key in GOLD_SHOWN_ROUTES:
         return character.get('gold', 0) >= GOLD_SHOWN_ROUTES[key]
+    if key in STAKE_ROUTES:
+        return character.get('gold', 0) >= STAKE_ROUTES[key]
     if key in CREATURE_ROUTES:
         creature = peek(character).get('creature')
         return creature is None or (creature == APE_MAN) == CREATURE_ROUTES[key]

@@ -243,3 +243,127 @@ class CitePhaseFourWindowTests(unittest.TestCase):
         self.w.character['gold'] = 1
         self.w.go_to(206)
         self.assertFalse(self.event_button('Jouer une partie').isEnabled())
+
+
+class CitePhaseFourAnswersTests(unittest.TestCase):
+    """Réponses de Franck : marque sur la fiche, mise du §378, pétales de la fleur dorée."""
+
+    def test_cannonball_challenge_requires_the_stake(self):
+        self.assertEqual(rules.STAKE_ROUTES[(398, rules.CANNONBALL)], rules.CANNON_STAKE)
+        self.assertFalse(rules.route_available(hero(gold=rules.CANNON_STAKE - 1), 398, 378))
+        self.assertTrue(rules.route_available(hero(gold=rules.CANNON_STAKE), 398, 378))
+        self.assertTrue(rules.route_available(hero(gold=0), 398, 52))
+
+    def test_golden_flower_petals_only_where_the_book_sends_them(self):
+        flower = hero(gold=0, inventory=['Épée', rules.GOLDEN_FLOWER])
+        self.assertTrue(rules.route_available(flower, 184, 55))
+        self.assertFalse(rules.route_available(flower, 184, 308))
+        self.assertFalse(rules.route_available(hero(), 184, 55))
+        rules.apply_entry(flower, 55)
+        self.assertEqual(flower['gold'], 10)
+        self.assertNotIn(rules.GOLDEN_FLOWER, flower['inventory'])
+        users = [number for number, effect in rules.ENTRY_EFFECTS.items()
+                 if 'fleurs d’or' in effect.get('lose', ())]
+        self.assertEqual(users, [55])
+
+    def test_sheet_marks_hook(self):
+        from types import SimpleNamespace
+
+        from grimoire_modules.cite import sheet
+        from grimoire_modules.controller import SHEET_MARKS, sheet_marks
+        character = hero()
+        self.assertEqual(sheet.sheet_marks(character), [])
+        rules.apply_entry(character, 279)
+        (mark,) = sheet.sheet_marks(character)
+        self.assertEqual((mark.key, mark.title), ('cite-tattoo', rules.TATTOO))
+        self.assertIn('soleil jaune', mark.tooltip)
+        legacy = hero(inventory=['Épée', rules.TATTOO])
+        self.assertEqual([m.key for m in sheet.sheet_marks(legacy)], ['cite-tattoo'])
+        self.assertIn(rules.TATTOO, legacy['inventory'])   # affichage seul, rien n'est modifié
+        self.assertEqual(sheet_marks(SimpleNamespace(book_module=None, character=character)), [])
+        other = SimpleNamespace(book_module=SimpleNamespace(engine='sorcier-1982'), character=character)
+        self.assertEqual(sheet_marks(other), [])
+        self.assertEqual(set(SHEET_MARKS), {'cite-1983'})
+
+
+class CitePhaseFourSheetWindowTests(unittest.TestCase):
+    setUpClass = classmethod(mechanics.CiteMechanicsWindowTests.setUpClass.__func__)
+    setUp = mechanics.CiteMechanicsWindowTests.setUp
+    open = mechanics.CiteMechanicsWindowTests.open
+    start = mechanics.CiteMechanicsWindowTests.start
+    buttons = mechanics.CiteMechanicsWindowTests.buttons
+    play = mechanics.CiteMechanicsWindowTests.play
+    events = mechanics.CiteMechanicsWindowTests.events
+    no_spoiler = second_hundred.CiteSecondHundredWindowTests.no_spoiler
+
+    def badge(self):
+        return self.w.hero_marks.badges.get('cite-tattoo')
+
+    def test_tattoo_badge_appears_right_of_the_name_and_blinks_once(self):
+        self.play()
+        self.assertFalse(self.w.hero_marks.isVisibleTo(self.w))
+        self.w.go_to(279)
+        badge = self.badge()
+        self.assertIsNotNone(badge)
+        self.assertTrue(self.w.hero_marks.isVisibleTo(self.w))
+        self.assertTrue(badge.blinking)
+        self.assertIn('Tatouage au front', badge.toolTip())
+        self.assertEqual(badge.accessibleName(), rules.TATTOO)
+        title = self.w.hero_title
+        self.assertGreaterEqual(badge.mapTo(self.w, badge.rect().topLeft()).x(),
+                                title.mapTo(self.w, title.rect().topLeft()).x() + title.width())
+        # Le clignotement s'éteint seul après quelques secondes, le badge reste.
+        from types import SimpleNamespace
+
+        from adventurer_sheet import MARK_BLINK_CYCLES, MARK_BLINK_PERIOD_MS
+        badge._clock = SimpleNamespace(elapsed=lambda: MARK_BLINK_PERIOD_MS * MARK_BLINK_CYCLES)
+        badge._tick()
+        self.assertFalse(badge.blinking)
+        self.assertEqual(badge.level(), 1.0)
+        self.w.go_to(307)
+        self.assertIs(self.badge(), badge)
+        self.assertFalse(badge.blinking)
+
+    def test_reloaded_mark_is_shown_without_blinking(self):
+        self.play()
+        self.w.go_to(279)
+        state = self.w._snapshot()
+        self.w._restore(state)
+        self.assertIsNotNone(self.badge())
+        self.assertFalse(self.badge().blinking)
+        # Ancienne sauvegarde : tatouage encore dans le sac.
+        legacy = self.w._snapshot()
+        rules.state(legacy['character'])['marks'] = []
+        legacy['character']['inventory'].append(rules.TATTOO)
+        self.w._restore(legacy)
+        self.assertIsNotNone(self.badge())
+        self.assertFalse(self.badge().blinking)
+
+    def test_undo_of_the_tattoo_removes_the_badge(self):
+        self.play()
+        self.w.go_to(182)
+        self.w.character['gold'] = 20
+        self.w.go_to(182)
+        card = next(card for card in self.buttons() if '279' in card.text())
+        card.click()
+        self.assertEqual(self.w.current_paragraph, 279)
+        self.assertIsNotNone(self.badge())
+        self.w.undo_action()
+        self.assertIsNone(self.badge())
+        self.assertFalse(self.w.hero_marks.isVisibleTo(self.w))
+
+    def test_cannonball_card_is_greyed_without_the_stake(self):
+        self.play()
+        self.w.character['gold'] = rules.CANNON_STAKE - 1
+        self.w.go_to(398)
+        card = next(card for card in self.buttons() if '378' in card.text())
+        self.assertFalse(card.isEnabled())
+        self.assertTrue(card.toolTip().startswith(
+            'Indisponible : condition du livre non remplie '
+            '(celui qui laisse tomber le boulet verse 5 Pièces d’Or à l’autre).'))
+        self.no_spoiler()
+        self.w.character['gold'] = rules.CANNON_STAKE
+        self.w.go_to(52)
+        self.w.go_to(398)
+        card = next(card for card in self.buttons() if '378' in card.text())
+        self.assertTrue(card.isEnabled())

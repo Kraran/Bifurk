@@ -15,7 +15,7 @@ from PySide6.QtWidgets import QInputDialog, QLabel, QMessageBox
 from grimoire_ui import ChoiceCard
 from navigation import choice_caption
 
-from . import feedback, rules
+from . import feedback, rules, sheet
 from .actions import CiteMechanicsActions, _coins
 
 TITLE = 'La Cité des Voleurs'
@@ -173,9 +173,12 @@ class CiteController(CiteMechanicsActions):
             self._cite_prepare_combat()
             self._refresh_character()
         if arrival is not None:
-            changes = feedback.describe_changes(arrival, feedback.snapshot(self.character))
+            after = feedback.snapshot(self.character)
+            changes = feedback.describe_changes(arrival, after)
             if changes:
                 self.rules_log.setText(f'À l’arrivée au §{number} : ' + ', '.join(changes) + '.')
+            self._announce_marks([sheet.MARKS[name].key for name in after['marks']
+                                  if name not in arrival['marks'] and name in sheet.MARKS])
         self.goto_spin.setValue(number)
         self.paragraph_title.setText(self._paragraph_name(number) or TITLE)
         self.paragraph_number.setText(f'§ {number}')

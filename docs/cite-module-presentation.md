@@ -172,8 +172,9 @@ mêmes principes.
   « pas encore visité » (§204, §209, §273, §284).
 - **Fins** : §210, §288 et §299.
 
-Non automatisé : les pétales de la fleur dorée changés en or au sang de chien
-(gérés à la main).
+Les pétales de la fleur dorée ne comptent qu'au seul paragraphe qui en parle :
+le renvoi §184→55 exige les fleurs d'or, et l'arrivée au §55 les change en
+10 Pièces d'Or (la fleur quitte le sac).
 
 ## Phase 3.4 : événements des §301 à 400
 
@@ -229,12 +230,24 @@ puce du plan, avec deux changements.
   les objets. Le message d'arrivée l'annonce (« Marque : Tatouage au front »). Une
   sauvegarde antérieure où il figure dans le sac est migrée à l'ouverture d'un
   paragraphe. La créature du §201 reste mémorisée pour le §138.
+- **Marque sur la fiche** : un petit tatouage dessiné par Bifurk (soleil jaune,
+  licorne blanche, rien n'est repris du livre) s'affiche à droite du nom de
+  l'aventurier dès qu'il est acquis. Une infobulle dit ce qu'est la marque selon
+  le texte, sans rien révéler de son usage. À l'arrivée au §279 seulement, il
+  clignote lentement (trois battements de 1,6 s) ; ouverture d'une sauvegarde,
+  annulation et rétablissement l'affichent sans clignoter. Le crochet est
+  générique : un module déclare ses marques (`grimoire_modules/marks.py`,
+  `SheetMark` : clé, titre, infobulle, dessin) et s'inscrit dans `SHEET_MARKS`
+  (`grimoire_modules/controller.py`) ; les autres modules n'affichent rien.
 - **§244, choix final** : seule la carte de la mixture préparée au §201 est
   affichée (aucune carte grisée, aucune infobulle, aucun indice) ; sans mixture
   enregistrée (ancienne sauvegarde), les trois cartes restent ouvertes.
 - **Vente au prix du texte** : §240 (9 Pièces d'Or) et prêteur du §354.
 - **Jeux d'argent** : §206, §223 et §378, dés affichés à l'écran, mise et solde
-  vérifiés avant chaque partie.
+  vérifiés avant chaque partie. Le défi du §398→378 exige de posséder au moins
+  5 Pièces d'Or ; sinon la carte est grisée et son infobulle ne cite que la
+  condition imprimée (« celui qui laisse tomber le boulet verse 5 Pièces d'Or à
+  l'autre »).
 - **Variantes de combat** : §157 (Force d'Attaque −3), §253 (morsures de 4),
   §392 (souffle de feu), §10 (victoire en six assauts au plus → §212, sinon §130),
   §140 (fuite après trois assauts), §326 (deux chiens à la fois).

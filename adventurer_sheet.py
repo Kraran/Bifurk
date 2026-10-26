@@ -1173,3 +1173,107 @@ def _paint_resource_icon(p, kind):
     fake.kind, fake.caption = kind, ''
     fake.isEnabled = lambda: True
     ResourceToken._icon(fake, p, QPointF(0, 0))
+
+
+MARK_BLINK_PERIOD_MS, MARK_BLINK_CYCLES = 1600, 3
+
+
+class MarkBadge(QWidget):
+    """Petit médaillon d'une marque du corps (tatouage…), dessiné par le module.
+
+    blink() le fait battre lentement quelques secondes, à sa première apparition."""
+
+    def __init__(self, mark, size=34, parent=None):
+        super().__init__(parent)
+        self.mark = mark
+        self.setFixedSize(size, size)
+        self.setToolTip(mark.tooltip)
+        self.setAccessibleName(mark.title)
+        self.setObjectName('heroMark')
+        self._clock = QElapsedTimer()
+        self._timer = QTimer(self)
+        self._timer.setInterval(40)
+        self._timer.timeout.connect(self._tick)
+        self.frozen = None   # niveau imposé (captures) ; None : animation réelle
+
+    @property
+    def blinking(self):
+        return self._timer.isActive()
+
+    def blink(self):
+        self._clock.start()
+        self._timer.start()
+        self.update()
+
+    def calm(self):
+        self._timer.stop()
+        self.update()
+
+    def _tick(self):
+        if self._clock.elapsed() >= MARK_BLINK_PERIOD_MS * MARK_BLINK_CYCLES:
+            self._timer.stop()
+        self.update()
+
+    def level(self):
+        """Éclat de 0 (éteint) à 1 (plein) ; 1 hors clignotement."""
+        if not self.blinking:
+            return 1.0
+        if self.frozen is not None:
+            return float(self.frozen)
+        phase = (self._clock.elapsed() % MARK_BLINK_PERIOD_MS) / MARK_BLINK_PERIOD_MS
+        return .5 + .5 * math.cos(2 * math.pi * phase)
+
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        level = self.level()
+        r = QRectF(self.rect()).adjusted(2, 2, -2, -2)
+        if self.blinking:
+            p.setPen(Qt.NoPen)
+            glow = QRadialGradient(r.center(), r.width() / 2)
+            glow.setColorAt(.55, QColor(244, 220, 158, int(170 * level)))
+            glow.setColorAt(1, QColor(244, 220, 158, 0))
+            p.setBrush(glow)
+            p.drawEllipse(QRectF(self.rect()))
+        p.setOpacity(.3 + .7 * level)
+        p.setPen(Qt.NoPen)
+        p.setBrush(QBrush(_gold_gradient(r)))
+        p.drawEllipse(r)
+        inner = r.adjusted(2.5, 2.5, -2.5, -2.5)
+        p.setBrush(BORDEAUX_DARK)
+        p.drawEllipse(inner)
+        self.mark.paint(p, inner.adjusted(2, 2, -2, -2))
+
+
+class HeroMarks(QWidget):
+    """Rangée des marques à droite du nom ; vide et masquée tant qu'il n'y en a pas."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._layout = QHBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(4)
+        self.badges = {}
+        self.hide()
+
+    def set_marks(self, marks):
+        """Afficher ces marques ; un badge déjà présent garde son clignotement."""
+        keys = [mark.key for mark in marks]
+        if keys != list(self.badges):
+            for badge in self.badges.values():
+                badge.setParent(None)
+                badge.deleteLater()
+            self.badges = {}
+            for mark in marks:
+                self.badges[mark.key] = badge = MarkBadge(mark, parent=self)
+                self._layout.addWidget(badge)
+        self.setVisible(bool(self.badges))
+
+    def calm(self):
+        for badge in self.badges.values():
+            badge.calm()
+
+    def blink(self, keys):
+        for key in keys:
+            if key in self.badges:
+                self.badges[key].blink()

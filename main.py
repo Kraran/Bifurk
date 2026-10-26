@@ -15,7 +15,7 @@ from collections import Counter
 from pathlib import Path
 from navigation import destinations, render_links
 from illustrations import images_for_paragraph, cover
-from grimoire_modules.controller import ModuleActions
+from grimoire_modules.controller import ModuleActions, sheet_marks
 from carnet import CarnetMixin
 from grimoire_modules.fighting_fantasy.rules import POTION_STATS, POTION_DOSES
 from grimoire_modules.registry import module_for_pdf
@@ -36,7 +36,7 @@ from dialog_chrome import DialogHeading, harmonize_standard_dialog
 from stat_feedback import StatFeedback
 from loading_progress import LoadingCancelled, LoadingSession
 import adventurer_sheet
-from adventurer_sheet import (SheetPanel, OrnateHeading, HeroEmblem, StatMedallion,
+from adventurer_sheet import (SheetPanel, OrnateHeading, HeroEmblem, HeroMarks, StatMedallion,
                               ResourceToken, ValueLabel, SealButton, RibbonButton, InventoryGrid,
                               SheetStrip, INVENTORY_QUANTITY_ROLE, ALERT_THRESHOLD)
 from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, PageToolButton,
@@ -1386,7 +1386,11 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         hero_title.setTextFormat(Qt.PlainText)
         hero_title.setWordWrap(True)
         hero_title.setObjectName("heroTitle")
-        hero_row.addWidget(hero_title, 1)
+        hero_row.addWidget(hero_title)
+        # Marques du corps exposées par le module (tatouage…), juste à droite du nom.
+        self.hero_marks = HeroMarks()
+        hero_row.addWidget(self.hero_marks, 0, Qt.AlignBottom)
+        hero_row.addStretch(1)
         side_layout.addLayout(hero_row)
         self.tracking_badge = RibbonButton()
         self.tracking_badge.setObjectName('adventureTrackingBadge')
@@ -2814,10 +2818,15 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
 
 
+    def _announce_marks(self, keys):
+        """Faire battre une marque à sa mise en place (jamais au rechargement)."""
+        self.hero_marks.blink(keys)
+
     def _refresh_character(self):
         """Synchroniser statistiques, équipement et inventaire sans déclencher de nouvelle action."""
         self.hero_title.setText('L’AVENTURIER\n' +
                                 (self.character.get('name') or 'Votre destin s’écrit ici'))
+        self.hero_marks.set_marks(sheet_marks(self))
         for key, spin in self.stat_spins.items():
             spin.setEnabled(not self.character.get('book_facts', {}).get('adventure_ended'))
             spin.blockSignals(True)
@@ -3204,6 +3213,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self.book_combat_assaults = {int(k): int(v) for k, v in state.get("book_combat_assaults", {}).items()}
             self.visited_paragraphs = list(state["visited_paragraphs"])
             self.transitions = copy.deepcopy(state.get("transitions", []))
+            self.hero_marks.calm()   # une marque rechargée ne clignote jamais
             self._refresh_character()
             if "enemy_skill" in state:
                 self.enemy_skill.setValue(state["enemy_skill"])

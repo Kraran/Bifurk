@@ -7,6 +7,7 @@ changer de livre ne laisse pas de méthodes liées à l'ancien module.
 """
 from functools import wraps
 from .cite.controller import CiteController
+from .cite.sheet import sheet_marks as cite_sheet_marks
 from .foret.controller import ForetController
 from .sorcier.actions import BookActions
 from .sorcier.controller import SorcierCombatActions
@@ -18,6 +19,17 @@ class SorcierController(BookActions, SorcierCombatActions):
 
 CONTROLLERS = {'sorcier-1982': SorcierController, 'foret-1983': ForetController,
                'cite-1983': CiteController}
+
+
+# Marques de fiche par moteur : character -> [SheetMark]. Un moteur absent n'en a pas.
+SHEET_MARKS = {'cite-1983': cite_sheet_marks}
+
+
+def sheet_marks(owner):
+    """Marques à montrer à droite du nom ; sans module reconnu, aucune."""
+    module = getattr(owner, 'book_module', None)
+    provider = SHEET_MARKS.get(module.engine) if module else None
+    return provider(owner.character) if provider else []
 
 
 class ModuleActions:
