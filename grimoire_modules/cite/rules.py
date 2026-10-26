@@ -273,7 +273,10 @@ PROVISION_ROUTES = {(264, 121): 2}
 # pay the other 5 Gold Pieces »).
 STAKE_ROUTES = {(398, 378): 5}
 COST_LABELS = {(315, 8): '6 Pièces d’Or', (315, 132): '6 Pièces d’Or',
-               (398, 378): 'celui qui laisse tomber le boulet verse 5 Pièces d’Or à l’autre'}
+               (398, 378): 'celui qui laisse tomber le boulet verse 5 Pièces d’Or à l’autre',
+               (354, 307): 'Pas de quoi vous offrir le tatouage'}
+# Objet exigé quand le catalogue ne garde que « Si vous en avez ».
+ITEM_LABELS = {(336, 302): 'Pierres précieuses'}
 # §150 : l’amende est tout l’or du sac ; §182 : renoncer seulement sans 10 Pièces d’Or.
 ALL_GOLD_ROUTES = {(150, 367), (335, 367)}
 GOLD_BELOW_ROUTES = {(182, 354): 10, (354, 307): 10}
@@ -551,30 +554,84 @@ def shop_bought(character, number):
     return peek(character).get('shops', {}).get(str(number), [])
 
 
-def can_buy(character, number, name):
-    """None si l’achat est possible, sinon la raison affichée."""
+def _coins(amount):
+    return f'{amount} Pièce{"s" if amount > 1 else ""} d’Or'
+
+
+def can_buy(character, number, name, quantity=1):
+    """None si l’achat est possible, sinon la raison affichée (seulement la règle imprimée ou le prix)."""
     shop = SHOPS.get(number)
     prices = dict(shop['items']) if shop else {}
     if name not in prices:
         return 'Article inconnu.'
+    if quantity < 1 or (quantity > 1 and not shop.get('repeat')):
+        return 'Un seul exemplaire à la fois ici.'
     bought = shop_bought(character, number)
     if shop['limit'] is not None and len(bought) >= shop['limit']:
         return 'Le livre ne permet qu’un seul achat ici.'
     if name in bought and not shop.get('repeat'):
         return 'Article déjà acheté.'
-    if character.get('gold', 0) < prices[name]:
-        return 'Pas assez de Pièces d’Or.'
+    total, gold = prices[name] * quantity, character.get('gold', 0)
+    if gold < total:
+        return f'Pas assez d’or : il vous faut {_coins(total)} (vous en avez {gold}).'
     return None
 
 
-def buy(character, number, name):
+def buy(character, number, name, quantity=1):
     ensure_alive(character)
-    reason = can_buy(character, number, name)
+    reason = can_buy(character, number, name, quantity)
     if reason:
         raise ValueError(reason)
-    adventure.pay(character, BOOK, gold=dict(SHOPS[number]['items'])[name])
-    character.setdefault('inventory', []).append(name)
-    state(character).setdefault('shops', {}).setdefault(str(number), []).append(name)
+    adventure.pay(character, BOOK, gold=dict(SHOPS[number]['items'])[name] * quantity)
+    character.setdefault('inventory', []).extend([name] * quantity)
+    state(character).setdefault('shops', {}).setdefault(str(number), []).extend([name] * quantity)
+
+
+def shop_rule(number):
+    """Règle d’achat imprimée de la boutique, sans chiffre ni renvoi."""
+    shop = SHOPS[number]
+    if shop['limit'] == 1:
+        return 'Un seul achat possible ici.'
+    if shop.get('repeat'):
+        return 'Autant d’exemplaires que vous le désirez.'
+    return 'Chaque article ne s’achète qu’une fois.'
+
+
+def shop_description(character, number, name):
+    """Description neutre d’un article : ce qu’il devient et la règle d’achat, jamais son usage."""
+    text = f'{name} rejoint votre sac à dos une fois payé. Son usage n’est dit que par le livre.'
+    reason = can_buy(character, number, name)
+    if reason in ('Article déjà acheté.', 'Le livre ne permet qu’un seul achat ici.'):
+        return f'{text} {reason}'
+    return f'{text} {shop_rule(number)}'
+
+
+def missing_reason(character, source, target, condition=None):
+    """Raison d’un renvoi grisé : seulement ce qui manque selon le texte imprimé.
+
+    « il vous faut… » ou « pas assez d’or… » ; jamais l’usage d’un objet, la destination
+    ni ce qui arrivera ensuite. None : la raison générique du catalogue suffit."""
+    key = (source, target)
+    gold = character.get('gold', 0)
+    printed = f' ({condition})' if condition else ''
+    if key in ITEM_ROUTES:
+        keyword, present = ITEM_ROUTES[key]
+        if present and not has_item(character, keyword):
+            label = ITEM_LABELS.get(key, condition) or keyword
+            return f'il vous faut l’objet indiqué par le livre ({label}).'
+        return None
+    if key == ARROW_OFFER:
+        return f'il vous faut {_coins(ARROW_PRICE)} ou deux objets à offrir{printed}.'
+    need = (STAKE_ROUTES.get(key) or GOLD_SHOWN_ROUTES.get(key)
+            or (None if adventure.route_paid(character, BOOK, *key) else route_cost(source, target)))
+    if need and gold < need:
+        extra = printed if condition and condition.replace("'", '’') != _coins(need) else ''
+        return f'pas assez d’or : il vous faut {_coins(need)}, vous en avez {gold}{extra}.'
+    if key in PROVISION_ROUTES and character.get('provisions', 0) < PROVISION_ROUTES[key]:
+        return f'il vous faut {PROVISION_ROUTES[key]} portions de Provisions{printed}.'
+    if key in ITEM_PAYMENTS and not item_payment_choices(character, key):
+        return f'il vous faut un objet accepté{printed}.'
+    return None
 
 
 def arrow_offer_payable(character):

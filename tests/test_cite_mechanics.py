@@ -337,7 +337,7 @@ class CiteMechanicsWindowTests(unittest.TestCase):
         cards = {b.text(): b for b in self.buttons()}
         mirror = next(b for text, b in cards.items() if '305' in text)
         self.assertFalse(mirror.isEnabled())
-        self.assertTrue(mirror.toolTip().startswith('Indisponible : condition du livre non remplie (Miroir).'))
+        self.assertTrue(mirror.toolTip().startswith('Indisponible : il vous faut l’objet indiqué par le livre (Miroir).'))
         self.assertNotIn('305', mirror.toolTip())
         self.assertTrue(any(isinstance(w, QLabel) and w.text() == ANALYSED_NOTICE for w in self.events()))
 

@@ -526,5 +526,20 @@ class GrimoireInterfaceTests(unittest.TestCase):
                     self.assertGreaterEqual(header.height() - 1 - geo.bottom(), 6)
                     self.assertGreaterEqual(header.width() - 1 - geo.right(), 26)
 
+    def test_shop_and_sale_icons_stay_sharp_at_each_scale(self):
+        from PySide6.QtCore import QSize
+
+        from item_icons import item_qicon
+        for name in ('Miroir', 'Anneau de Glace', 'Bougie de couleur', 'Lanterne'):
+            icon = item_qicon(name)
+            for ratio in (1, 1.25, 1.5):
+                with self.subTest(name=name, ratio=ratio):
+                    pixmap = icon.pixmap(QSize(28, 28), ratio)
+                    self.assertGreaterEqual(pixmap.width(), round(28 * ratio))
+                    image = pixmap.toImage()
+                    inked = sum(image.pixelColor(x, y).alpha() > 0
+                                for x in range(0, image.width(), 2) for y in range(0, image.height(), 2))
+                    self.assertGreater(inked, 20)
+
 if __name__ == "__main__":
     unittest.main()

@@ -3,15 +3,18 @@ import re
 import unittest
 from unittest.mock import patch
 
-from PySide6.QtCore import QRect, QSize
+from PySide6.QtCore import QRect, QSize, Qt as _Qt
 from PySide6.QtGui import QImage, QPainter, QColor
-from PySide6.QtWidgets import QStyleOptionViewItem
+from PySide6.QtWidgets import (QComboBox, QDialog, QLabel, QListWidget, QMessageBox,
+                               QPushButton, QSpinBox, QStyleOptionViewItem)
 
 import adventurer_sheet
 from adventurer_sheet import (INVENTORY_QUANTITY_ROLE, ALERT_THRESHOLD, PULSE_PERIOD_MS,
                               StatMedallion, SheetStrip)
+from grimoire_modules.cite import rules as cite
 from grimoire_modules.foret import rules, labels
 from test_ameliorations_partie import WindowCase
+from tests import test_cite_mechanics as cite_mechanics
 
 
 class ShopSpoilerTests(WindowCase):
@@ -254,3 +257,193 @@ class ShieldAlertTests(WindowCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+def _cite_text_is_neutral(test, text, name=''):
+    """Ni chiffre, ni renvoi, ni annonce d’usage : seulement ce qu’est l’article."""
+    test.assertNotIn('§', text, name)
+    test.assertNotIn('passage', text.casefold(), name)
+    test.assertIsNone(re.search(r'\d', text), (name, text))
+    for word in ('inutile', 'plus tard', 'servira', 'fois sur'):
+        test.assertNotIn(word, text.casefold(), (name, text))
+
+
+class CiteShopRulesTests(unittest.TestCase):
+    def test_descriptions_say_only_what_the_book_prints(self):
+        character = cite_mechanics.hero(gold=99)
+        for number, shop in cite.SHOPS.items():
+            for name, _price in shop['items']:
+                _cite_text_is_neutral(self, cite.shop_description(character, number, name), name)
+            cite.buy(character, number, shop['items'][0][0])
+            for name, _price in shop['items']:
+                _cite_text_is_neutral(self, cite.shop_description(character, number, name), name)
+
+    def test_quantity_only_where_the_book_allows_copies(self):
+        character = cite_mechanics.hero(gold=5)
+        cite.buy(character, 241, 'Bougie de couleur', 3)
+        self.assertEqual(character['gold'], 2)
+        self.assertEqual(character['inventory'].count('Bougie de couleur'), 3)
+        self.assertEqual(cite.can_buy(character, 241, 'Bougie de couleur', 3),
+                         'Pas assez d’or : il vous faut 3 Pièces d’Or (vous en avez 2).')
+        self.assertIsNotNone(cite.can_buy(character, 52, 'Lanterne', 2))
+
+
+class CiteShopAndSaleWindowTests(unittest.TestCase):
+    setUpClass = classmethod(cite_mechanics.CiteMechanicsWindowTests.setUpClass.__func__)
+    setUp = cite_mechanics.CiteMechanicsWindowTests.setUp
+    open = cite_mechanics.CiteMechanicsWindowTests.open
+    start = cite_mechanics.CiteMechanicsWindowTests.start
+    buttons = cite_mechanics.CiteMechanicsWindowTests.buttons
+    play = cite_mechanics.CiteMechanicsWindowTests.play
+    events = cite_mechanics.CiteMechanicsWindowTests.events
+    event_button = cite_mechanics.CiteMechanicsWindowTests.event_button
+
+    def run_shop(self, number, steps):
+        """Ouvrir la boutique du passage et jouer steps(dialog) à la place de l’utilisateur."""
+        self.play()
+        self.w.go_to(number)
+        seen = {}
+
+        def exec_(dialog):
+            seen['dialog'] = dialog
+            steps(dialog)
+            return QDialog.Accepted
+        with patch.object(QDialog, 'exec', exec_):
+            self.event_button('Faire ses achats').click()
+        return seen
+
+    @staticmethod
+    def widgets(dialog):
+        return (dialog.findChild(QComboBox), next(lab for lab in dialog.findChildren(QLabel)
+                                                  if lab.objectName() == 'shopDescription'),
+                next(lab for lab in dialog.findChildren(QLabel) if lab.objectName() == 'shopBalance'),
+                next(b for b in dialog.findChildren(QPushButton) if b.text() == 'Acheter'),
+                dialog.findChild(QSpinBox))
+
+    def test_city_shop_shows_price_balance_icon_and_neutral_text(self):
+        seen = []
+
+        def steps(dialog):
+            selector, description, balance, buy, quantity = self.widgets(dialog)
+            self.assertFalse(quantity.isVisibleTo(dialog))
+            for index in range(selector.count()):
+                selector.setCurrentIndex(index)
+                self.assertFalse(selector.itemIcon(index).isNull())
+                seen.append((selector.itemText(index), selector.itemData(index, _Qt.ToolTipRole),
+                             description.text(), balance.text()))
+            selector.setCurrentIndex(1)
+            buy.click()
+        self.run_shop(52, steps)
+        self.assertEqual(len(seen), len(cite.SHOPS[52]['items']))
+        for text, tip, description, balance in seen:
+            _cite_text_is_neutral(self, description, text)
+            self.assertNotIn('§', tip)
+            self.assertRegex(tip, r'^\d+ Pièces? d’Or\. ')
+            self.assertTrue(balance.startswith('Or disponible : 30 Pièces d’Or — prix : '))
+        self.assertEqual(seen[1][0], 'Corde d’Escalade — 2 Pièces d’Or')
+        self.assertEqual(self.w.character['gold'], 28)
+        self.assertIn('Corde d’Escalade', self.w.character['inventory'])
+
+    def test_single_purchase_shop_closes_the_other_rings(self):
+        state = {}
+
+        def steps(dialog):
+            selector, description, _balance, buy, _quantity = self.widgets(dialog)
+            selector.setCurrentIndex(2)
+            buy.click()
+            selector.setCurrentIndex(0)
+            state['enabled'] = buy.isEnabled()
+            state['tip'] = buy.toolTip()
+            state['text'] = description.text()
+            state['items'] = [selector.model().item(i).isEnabled() for i in range(selector.count())]
+        self.run_shop(36, steps)
+        self.assertIn(cite.SHOPS[36]['items'][2][0], self.w.character['inventory'])
+        self.assertFalse(state['enabled'])
+        self.assertEqual(state['tip'], 'Le livre ne permet qu’un seul achat ici.')
+        self.assertTrue(state['text'].endswith('Le livre ne permet qu’un seul achat ici.'))
+        self.assertEqual(state['items'], [True, False, False])
+
+    def test_candles_are_bought_by_quantity_with_a_total(self):
+        state = {}
+
+        def steps(dialog):
+            _selector, _description, balance, buy, quantity = self.widgets(dialog)
+            self.assertTrue(quantity.isVisibleTo(dialog))
+            quantity.setValue(3)
+            state['balance'] = balance.text()
+            buy.click()
+            state['after'] = balance.text()
+            quantity.setValue(28)
+            state['tip'] = buy.toolTip()
+        self.run_shop(241, steps)
+        self.assertEqual(state['balance'], 'Or disponible : 30 Pièces d’Or — total : 3 × 1 = 3 Pièces d’Or')
+        self.assertTrue(state['after'].startswith('Or disponible : 27 Pièces d’Or'))
+        self.assertEqual(state['tip'], 'Pas assez d’or : il vous faut 28 Pièces d’Or (vous en avez 27).')
+        self.assertEqual(self.w.character['inventory'].count('Bougie de couleur'), 3)
+        self.w.undo_action()
+        self.assertEqual((self.w.character['gold'], self.w.character['inventory'].count('Bougie de couleur')),
+                         (30, 0))
+
+    def run_sale(self, pick, confirm):
+        self.play()
+        self.w.character['inventory'] += ['Gobelet en argent', 'Miroir', 'Passe-partout']
+        self.w.go_to(cite.PAWNBROKER)
+        seen = {}
+
+        def exec_(dialog):
+            items = dialog.findChild(QListWidget, 'saleItems')
+            balance = next(lab for lab in dialog.findChildren(QLabel) if lab.objectName() == 'saleBalance')
+            sell = next(b for b in dialog.findChildren(QPushButton) if b.text() == 'Vendre…')
+            seen['empty'] = (balance.text(), sell.isEnabled())
+            seen['offers'] = [items.item(i).text() for i in range(items.count())]
+            self.assertTrue(all(not items.item(i).icon().isNull() for i in range(items.count())))
+            for i in range(items.count()):
+                items.item(i).setSelected(items.item(i).text().split(' — ')[0] in pick)
+            seen['balance'] = balance.text()
+            sell.click()
+            seen['after'] = [items.item(i).text() for i in range(items.count())]
+            return QDialog.Accepted
+        with patch.object(QDialog, 'exec', exec_), patch.object(self.w.sounds, 'play') as sound, \
+                patch.object(self.w, '_cite_confirm_sale', return_value=confirm) as asked:
+            self.event_button('prêteur sur gages').click()
+        seen['asked'] = asked.call_args
+        seen['sounds'] = [c.args[0] for c in sound.call_args_list]
+        return seen
+
+    def test_sale_is_symmetric_to_buying_and_asks_first(self):
+        seen = self.run_sale({'Gobelet en argent', 'Miroir'}, confirm=True)
+        self.assertEqual(seen['empty'], ('Or disponible : 30 Pièces d’Or — rien de sélectionné', False))
+        self.assertIn('Passe-partout — 15 Pièces d’Or', seen['offers'])
+        self.assertEqual(seen['balance'], 'Or disponible : 30 Pièces d’Or — vous recevrez 9 Pièces d’Or')
+        self.assertEqual(seen['asked'].args, (['Gobelet en argent', 'Miroir'], 9))
+        self.assertEqual(self.w.character['gold'], 39)
+        self.assertIn('coins', seen['sounds'])
+        self.assertEqual(seen['after'], ['Passe-partout — 15 Pièces d’Or'])
+        self.w.undo_action()
+        self.assertEqual(self.w.character['gold'], 30)
+        self.assertIn('Miroir', self.w.character['inventory'])
+
+    def test_declined_sale_keeps_everything(self):
+        seen = self.run_sale({'Passe-partout'}, confirm=False)
+        self.assertEqual(seen['asked'].args, (['Passe-partout'], 15))
+        self.assertEqual(self.w.character['gold'], 30)
+        self.assertIn('Passe-partout', self.w.character['inventory'])
+        self.assertNotIn('coins', seen['sounds'])
+        self.assertIn('Passe-partout — 15 Pièces d’Or', seen['after'])
+
+    def test_confirmation_names_items_and_total(self):
+        self.play()
+        shown = {}
+
+        def answer(choice):
+            def exec_(box):
+                shown['text'], shown['title'] = box.text(), box.windowTitle()
+                next(b for b in box.buttons() if b.text() == choice).click()
+                return 0
+            return exec_
+        with patch.object(QMessageBox, 'exec', answer('Vendre')):
+            self.assertTrue(self.w._cite_confirm_sale(['Gobelet en argent', 'Miroir'], 9))
+        self.assertEqual(shown, {'text': 'Vendre Gobelet en argent et Miroir pour 9 Pièces d’Or ?',
+                                 'title': 'Confirmer la vente'})
+        with patch.object(QMessageBox, 'exec', answer('Garder')):
+            self.assertFalse(self.w._cite_confirm_sale(['Miroir'], 1))

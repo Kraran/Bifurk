@@ -1,4 +1,4 @@
-"""Icônes de sacoche : chaque objet connu des deux grimoires a son dessin dédié.
+"""Icônes de sacoche : chaque objet connu des trois grimoires a son dessin dédié.
 
 Exécution : QT_QPA_PLATFORM=offscreen python -m unittest tests.test_icones_objets.
 Les objets sont recensés depuis les règles et catalogues (jamais depuis les PDF) :
@@ -15,6 +15,7 @@ from PySide6.QtWidgets import QApplication
 import adventurer_sheet
 import book_events
 import item_icons
+from grimoire_modules.cite import rules as cite
 from grimoire_modules.foret import rules as foret
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -74,8 +75,30 @@ def sorcier_items():
     return names
 
 
+# Noms que le joueur inscrit lui-même dans la sacoche quand le livre les lui donne
+# (ingrédients de la mission, bouquet, fleurs) : ceux que les règles recherchent.
+CITE_TYPED_ITEMS = ('Fleur de lotus', 'Perles noires', 'Cheveux de Sorcière', 'Bouquet de fleurs', 'Fleurs d’or')
+
+
+def cite_items():
+    names = set(CITE_TYPED_ITEMS)
+    for effect in cite.ENTRY_EFFECTS.values():
+        names.update(effect.get('gain', ()))
+        if effect.get('swap_sword'):
+            names.add(effect['swap_sword'])
+    for shop in cite.SHOPS.values():
+        names.update(name for name, _price in shop['items'])
+    for loot in cite.LOOTS.values():
+        names.update(loot['items'])
+    names.update((cite.ARROW, cite.MAIL, cite.SHIELD, cite.GOLD_BROOCH, cite.SILVER_BROOCH,
+                  cite.INSECT_BRACELET, cite.PEARLS, cite.SKELETON_KEY, cite.EYE_RING, cite.POULTICE,
+                  cite.CURSED_SHIELD, cite.PLAIN_SWORD, cite.BOW, cite.GARLIC, cite.GOLDEN_FLOWER,
+                  cite.MAGNIFICENT_SHIELD, cite.MAGIC_HELMET))
+    return names
+
+
 def known_items():
-    return sorted(_starting_items() | foret_items() | sorcier_items())
+    return sorted(_starting_items() | foret_items() | sorcier_items() | cite_items())
 
 
 def render(name, half=17):
@@ -102,8 +125,14 @@ class ItemIconTests(unittest.TestCase):
     def test_inventory_census_covers_both_books(self):
         self.assertGreaterEqual(len(foret_items()), 60)
         self.assertGreaterEqual(len(sorcier_items()), 30)
-        for name in ('Carte de Yaztromo', 'Lingot d’or (valeur 28 Or)', 'Clé 111', 'Livre du Vampire'):
+        self.assertGreaterEqual(len(cite_items()), 50)
+        for name in ('Carte de Yaztromo', 'Lingot d’or (valeur 28 Or)', 'Clé 111', 'Livre du Vampire',
+                     'Clef spéciale du Nain', 'Bougie de couleur', 'Six perles noires'):
             self.assertIn(name, self.items)
+
+    def test_city_marks_and_trade_labels_are_not_bag_items(self):
+        self.assertNotIn(cite.TATTOO, cite_items())
+        self.assertNotIn(cite.TRADE_PROVISIONS_LABEL, cite_items())
 
     def test_every_known_item_has_a_dedicated_drawing(self):
         missing = [name for name in self.items if item_icons.item_icon_id(name) not in item_icons.DRAWINGS]
@@ -140,7 +169,17 @@ class ItemIconTests(unittest.TestCase):
              'Bague d’or à émeraude (valeur 15 Or)', 'Pierre précieuse de la statue'),
             ('Médaillon d’or (valeur 9 Or)', 'Médaillon d’or (valeur 5 Or)'),
             ('Épée', 'Épée magique', 'Épée enchantée', 'Épée trouvée dans la rivière'),
-            ('Bouclier de bois', 'Bouclier au croissant', 'Bouclier d’empereur'),
+            ('Bouclier de bois', 'Bouclier au croissant', 'Bouclier d’empereur', 'Bouclier à la tour',
+             'Bouclier magnifique', 'Bouclier du chevalier'),
+            ('Anneau de Feu', 'Anneau de Glace', 'Anneau d’Invisibilité', 'Anneau de l’Œil d’Or',
+             'Bague ornée de pierreries', 'Anneau de Lumière'),
+            ('Broche scorpion d’or', 'Broche scorpion d’argent', 'Broche scorpion de cuivre'),
+            ('Passe-partout', 'Clef en fer', 'Clef spéciale du Nain', 'Trousseau de clefs', 'Clé 111'),
+            ('Gobelet en argent', 'Calice en argent', 'Cuillère en argent', 'Flûte en argent',
+             'Petite flûte de cuivre'),
+            ('Fleur dorée à dix pétales', 'Fleur de lotus', 'Bouquet de fleurs', 'Belladone'),
+            ('Corde d’Escalade', 'Corde Magique'), ('Bougie de couleur', 'Chandelle bleue'),
+            ('Bottes magiques', 'Bottes à Bondir'),
         )
         for group in groups:
             ids = [item_icons.item_icon_id(name) for name in group]

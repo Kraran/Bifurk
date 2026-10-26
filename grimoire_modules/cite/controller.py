@@ -122,6 +122,8 @@ class CiteController(CiteMechanicsActions):
         if target not in self.paragraphs:
             return f'Indisponible : destination {target} non détectée dans le PDF importé.'
         if reason is None:
+            reason = rules.missing_reason(self.character, self.current_paragraph, target, condition)
+        if reason is None:
             reason = (f'condition du livre non remplie ({condition}).' if condition
                       else 'condition du livre non remplie.')
         return 'Indisponible : ' + reason

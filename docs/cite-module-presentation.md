@@ -262,6 +262,34 @@ puce du plan, avec deux changements.
 Aucun nombre caché dans le livre : seuls les §206 et §285 demandent de noter
 quelque chose (scores des dés, objets gardés).
 
+## Phase 5 : interface (boutiques, vente, icônes, infobulles)
+
+- **Boutiques sans divulgation** : une fenêtre par boutique (§36, §52, §241…),
+  chaque article avec son icône et son prix ; la description dit seulement que
+  l'article rejoint le sac à dos et que son usage n'est dit que par le livre
+  (aucun chiffre, aucun renvoi). L'or disponible et le prix restent visibles ; la
+  règle du livre (« un seul achat possible ici », « chaque article ne s'achète
+  qu'une fois ») ferme les articles concernés. Au §241, seule boutique où le livre
+  permet plusieurs exemplaires, un compteur règle la quantité et le solde affiche
+  le total (« 3 × 1 = 3 Pièces d'Or »).
+- **Fenêtre de vente** (§354) : symétrique de l'achat. Liste à sélection
+  multiple des objets que le prêteur reprend, avec icône et prix offert ; le
+  solde annonce la somme reçue, puis une confirmation (« Vendre A et B pour
+  N Pièces d'Or ? », boutons Vendre / Garder) précède la vente. Le bruit des
+  pièces accompagne le changement d'or ; la vente est annulable.
+- **Icônes** : une quarantaine de dessins ajoutés dans `item_icons.py` (anneaux,
+  broches, clefs, boucliers, fleurs, argenterie, curiosités…), dans le style des
+  autres grimoires ; `item_qicon` fournit la même icône aux fenêtres, nette de
+  100 % à 200 %.
+- **Infobulles des choix grisés** : la raison cite seulement ce qui manque, tel
+  que le livre l'écrit : « il vous faut l'objet indiqué par le livre (…) »,
+  « pas assez d'or : il vous faut N Pièces d'Or, vous en avez G (…) ». Jamais de
+  destination, de nombre d'usages, ni d'annonce de la suite. Les conditions de
+  mission et les conditions négatives gardent la raison générique. Le renvoi
+  §354→307 porte la condition imprimée (« Pas de quoi vous offrir le
+  tatouage ») ; au §336, l'objet requis est nommé « Pierres précieuses ».
+- **Bijoux et curiosités** : tout va dans le sac à dos (aucun emplacement porté).
+
 ## Fichiers et validation
 
 - `catalogues/modules/cite_voleurs_1983.json` : manifeste, pages et ressources initiales.
@@ -276,6 +304,9 @@ quelque chose (scores des dés, objets gardés).
   et liens de lecture.
 - `tests/test_cite_mechanics.py`, `tests/test_cite_phase3_2.py`,
   `tests/test_cite_phase3_3.py`, `tests/test_cite_phase3_4.py` : règles des §1 à 400, cohérence des tables avec le catalogue et scénarios d'interface sans divulgation.
+- `tests/test_boutique_sacoche_alerte.py`, `tests/test_infobulle_choix.py`,
+  `tests/test_icones_objets.py` : boutiques, vente, raisons des choix grisés et
+  icônes des objets de la Cité.
 - `tests/test_cite_presentation.py` : reconnaissance, couverture, prologue, profil,
   repas, consultation sans effets, sauvegarde et changement de module.
 

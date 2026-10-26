@@ -359,7 +359,7 @@ class CitePhaseFourSheetWindowTests(unittest.TestCase):
         card = next(card for card in self.buttons() if '378' in card.text())
         self.assertFalse(card.isEnabled())
         self.assertTrue(card.toolTip().startswith(
-            'Indisponible : condition du livre non remplie '
+            'Indisponible : pas assez d’or : il vous faut 5 Pièces d’Or, vous en avez 4 '
             '(celui qui laisse tomber le boulet verse 5 Pièces d’Or à l’autre).'))
         self.no_spoiler()
         self.w.character['gold'] = rules.CANNON_STAKE
