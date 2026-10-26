@@ -113,7 +113,7 @@ chargement d’un des cinq emplacements. Une sauvegarde automatique technique
 comme sixième emplacement et n’est pas reprise automatiquement.
 
 **⚙ → Ambiance sonore…** permet de couper les effets sonores, d’activer
-l’ambiance de fond (caverne, ou ville dans la Cité), de régler la musique d’accueil ou de la garder pendant la partie, de jouer sa propre musique
+l’ambiance de fond (caverne, ville dans la Cité, forêt dans la Forêt), de régler la musique d’accueil ou de la garder pendant la partie, de jouer sa propre musique
 (dossier `musique_perso`), d’écouter chaque effet et
 de choisir l’habillage du grimoire. Une annonce propre au livre accompagne sa
 couverture et le chargement d’une sauvegarde ; elle suit le réglage des effets

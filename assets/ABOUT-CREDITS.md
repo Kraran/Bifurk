@@ -28,11 +28,13 @@ Rien n'est repris du livre.
   du WAV fourni (silences retirés, PCM mono 16 bits 22,05 kHz, −21 dBFS RMS) ;
   empreintes de la source et du résultat dans `sounds/book_sounds.json`.
 
-# Ambiance de ville de La Cité des Voleurs
+# Ambiances de ville et de forêt
 
-`sounds/ambient_cite.wav` est tirée de « Outdoor market #2 » de Joseph SARDIN
-(BigSoundBank), sous licence CC0 1.0 (domaine public) :
-<https://bigsoundbank.com/outdoor-market-2-s2729.html>
-(licence : <https://bigsoundbank.com/licences.html>). Boucle de 45 s préparée par
-`scripts/prepare_cite_ambience.py` ; détails dans `sounds/CREDITS.md` et
-`sounds/sources.json`. Rien n'est repris du livre.
+`sounds/ambient_cite.wav` (La Cité des Voleurs) est tirée de « Outdoor market #2 »
+et `sounds/ambient_foret.wav` (La Forêt de la Malédiction) de « Forest #4 », deux
+enregistrements de Joseph SARDIN (BigSoundBank) sous licence CC0 1.0 (domaine public) :
+<https://bigsoundbank.com/outdoor-market-2-s2729.html> et
+<https://bigsoundbank.com/forest-4-s2749.html>
+(licence : <https://bigsoundbank.com/licences.html>). Boucles de 45 s préparées par
+`scripts/prepare_book_ambiences.py` ; détails dans `sounds/CREDITS.md` et
+`sounds/sources.json`. Rien n'est repris des livres.

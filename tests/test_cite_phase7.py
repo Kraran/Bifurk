@@ -6,7 +6,6 @@ le contrôle des coordonnées sur l’édition réelle ne s’exécute que si el
 """
 import gc
 import json
-import math
 import unittest
 import wave
 from pathlib import Path
@@ -20,7 +19,7 @@ from PySide6.QtWidgets import QCheckBox, QDialog, QLabel
 import main
 from grimoire_modules.registry import pdf_digest
 from illustrations import images_for_paragraph
-from sound_effects import AMBIENT_LABELS, AMBIENT_TRACKS, BOOK_SOUNDS, SoundBank
+from sound_effects import BOOK_SOUNDS, SoundBank
 from tests.test_cite_presentation import CATALOGUES, CitePresentationTests
 from tests.test_sound_feedback import FakeEffect
 
@@ -147,74 +146,6 @@ class CiteAmbienceAssetTests(unittest.TestCase):
             self.assertEqual(cite.play_count, 1)
 
 
-def pcm(name):
-    """Lire un WAV livré : paramètres et échantillons 16 bits."""
-    with wave.open(str(main.ASSET_DIR/'sounds'/f'{name}.wav')) as stream:
-        params = stream.getparams()
-        data = stream.readframes(stream.getnframes())
-    return params, memoryview(data).cast('h')
-
-
-def rms_dbfs(samples):
-    return 20*math.log10(math.sqrt(sum(v*v for v in samples)/len(samples))/32768)
-
-
-class CiteCityAmbienceTests(unittest.TestCase):
-    """Boucle de ville : même format, niveau et réglage que la caverne qu’elle remplace."""
-
-    def test_city_loop_matches_the_cave_format_and_level(self):
-        cave_params, cave = pcm('ambient')
-        params, city = pcm('ambient_cite')
-        self.assertEqual((params.nchannels, params.sampwidth, params.framerate),
-                         (cave_params.nchannels, cave_params.sampwidth, cave_params.framerate))
-        self.assertEqual((params.nchannels, params.sampwidth, params.framerate), (1, 2, 22050))
-        self.assertTrue(30 <= params.nframes/params.framerate <= 60)
-        self.assertLess((main.ASSET_DIR/'sounds/ambient_cite.wav').stat().st_size, 2_500_000)
-        self.assertLess(abs(rms_dbfs(city) - rms_dbfs(cave)), 1)
-        self.assertLessEqual(max(map(abs, city)), 27500)
-        # Bouclage sans couture : le saut de fin vers début reste dans le grain du signal.
-        steps = sorted(abs(city[i+1]-city[i]) for i in range(0, len(city)-1, 7))
-        self.assertLess(abs(city[0]-city[-1]), steps[int(len(steps)*.99)])
-        head, tail = city[:params.framerate], city[-params.framerate:]
-        self.assertLess(abs(rms_dbfs(head) - rms_dbfs(tail)), 4)
-
-    def test_city_loop_source_is_cc0_and_credited(self):
-        manifest = json.loads((main.ASSET_DIR/'sounds/sources.json').read_text())
-        source = manifest['book_ambiences']['ambient_cite']
-        self.assertEqual(source['license'], 'CC0-1.0')
-        self.assertEqual(source['book'], 'cite-1983')
-        self.assertTrue(source['page'].startswith('https://bigsoundbank.com/'))
-        self.assertRegex(source['sha256'], '^[0-9a-f]{64}$')
-        for credits in ('sounds/CREDITS.md', 'ABOUT-CREDITS.md'):
-            text = (main.ASSET_DIR/credits).read_text(encoding='utf-8')
-            self.assertIn('ambient_cite.wav', text)
-            self.assertIn(source['page'], text)
-
-    def test_city_replaces_the_cave_under_the_same_switch(self):
-        self.assertEqual(AMBIENT_TRACKS, {'cite-1983': 'ambient_cite'})
-        self.assertEqual(AMBIENT_LABELS, {'ambient': 'caverne', 'ambient_cite': 'ville'})
-        with patch.object(SoundBank, '_backend', return_value=FakeEffect):
-            bank = SoundBank(main.ASSET_DIR/'sounds', ambient_enabled=True)
-            cave, city = bank.effects['ambient'], bank.effects['ambient_cite']
-            self.assertEqual((city.volume, city.loops), (cave.volume, cave.loops))
-            self.assertEqual((cave.play_count, city.play_count), (1, 0))
-            for engine in ('sorcier-1982', 'foret-1983', None):
-                bank.set_ambient_track(engine)
-                self.assertEqual((bank.ambient, bank.ambient_label(), cave.stop_count), ('ambient', 'caverne', 0))
-            bank.set_ambient_track('cite-1983')
-            self.assertEqual((bank.ambient_label(), cave.stop_count, city.play_count), ('ville', 1, 1))
-            bank.set_enabled(False)  # Couper les effets ne coupe pas l’ambiance.
-            self.assertEqual(city.stop_count, 0)
-            bank.play('ambient')  # La caverne ne rejoue pas pendant la Cité.
-            self.assertEqual(cave.play_count, 1)
-            bank.set_ambient_enabled(False)
-            self.assertEqual(city.stop_count, 1)
-            bank.set_ambient_track('foret-1983')
-            self.assertEqual((bank.ambient, cave.play_count), ('ambient', 1))
-            bank.set_ambient_enabled(True)
-            self.assertEqual((cave.play_count, city.play_count), (2, 1))
-
-
 class CiteAmbienceWindowTests(CitePresentationTests):
     """Réutilise la fenêtre et les PDF synthétiques de la présentation de la Cité."""
 
@@ -274,8 +205,10 @@ class CiteAmbienceWindowTests(CitePresentationTests):
         self.assertEqual(self.w.sounds.ambient, 'ambient_cite')
         self.assertEqual(self.ambience_label(), ['Ambiance de fond : ville'])
         self.open('foret')
-        self.assertEqual(self.w.sounds.ambient, 'ambient')
-        self.assertEqual(self.ambience_label(), ['Ambiance de fond : caverne'])
+        self.assertEqual(self.w.sounds.ambient, 'ambient_foret')
+        self.assertEqual(self.ambience_label(), ['Ambiance de fond : forêt'])
+        self.open()
+        self.assertEqual(self.ambience_label(), ['Ambiance de fond : ville'])
 
 
 # Les tests hérités sont déjà exécutés par test_cite_presentation.

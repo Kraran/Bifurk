@@ -52,6 +52,7 @@ class WindowsDistributionTests(unittest.TestCase):
                          '_internal/assets/sounds/book_foret.wav',
                          '_internal/assets/sounds/book_cite.wav',
                          '_internal/assets/sounds/ambient_cite.wav',
+                         '_internal/assets/sounds/ambient_foret.wav',
                          '_internal/assets/sounds/book_sounds.json',
                          '_internal/catalogues/modules/sorcier_montagne_feu_1982.json',
                          '_internal/catalogues/evenements_sorcier_1982.json',
@@ -105,7 +106,7 @@ class WindowsDistributionTests(unittest.TestCase):
                      'illustration-background.jpg', 'sounds/FantasyFair.m4a',
                      'themes/grimoire/page-parchment.jpg', 'themes/grimoire/sheet-leather.png',
                      'marks/cite-tattoo.png', 'cite.jpg', 'sounds/book_cite.wav',
-                     'sounds/ambient_cite.wav'):
+                     'sounds/ambient_cite.wav', 'sounds/ambient_foret.wav'):
             with self.subTest(asset=name):
                 path = self.bundle / '_internal/assets' / name
                 path.unlink()

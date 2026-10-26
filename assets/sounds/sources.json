@@ -128,7 +128,23 @@
       "start_seconds": 20,
       "loop_seconds": 45,
       "crossfade_seconds": 3,
-      "rms_dbfs": -27.7
+      "rms_dbfs": -31.7
+    },
+    "ambient_foret": {
+      "book": "foret-1983",
+      "title": "Forest #4 (oiseaux, vent)",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/forest-4-s2749.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "archive": "bigsoundbank-2749.flac",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/2749.flac",
+      "sha256": "70b5603f38344d614f9543e697bc41f9745c9b8fc5bf04b7f596408a061450ea",
+      "filters": "highpass=f=120,treble=g=-4:f=5000",
+      "start_seconds": 104,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -31.7
     }
   }
 }

@@ -19,10 +19,11 @@ nécessaire au lancement du jeu.
 | death.wav | jingles_PIZZI16.ogg | Kenney — Music Jingles |
 | ambient.wav | dungeon_ambient_1_0.ogg | [JaggedStone — Loopable Dungeon Ambience](https://opengameart.org/content/loopable-dungeon-ambience) |
 | ambient_cite.wav | 2729.flac « Outdoor market #2 » | [Joseph SARDIN — BigSoundBank](https://bigsoundbank.com/outdoor-market-2-s2729.html) |
+| ambient_foret.wav | 2749.flac « Forest #4 » | [Joseph SARDIN — BigSoundBank](https://bigsoundbank.com/forest-4-s2749.html) |
 
 Les licences Kenney d’origine sont conservées dans les fichiers `LICENSE-Kenney-*`.
 Les pages OpenGameArt des deux autres ressources indiquent également **CC0**.
-La page BigSoundBank de `ambient_cite.wav` indique « CC0 (public domain) »
+Les pages BigSoundBank de `ambient_cite.wav` et `ambient_foret.wav` indiquent « CC0 (public domain) »
 ([licences BigSoundBank](https://bigsoundbank.com/licences.html)).
 
 Préparation : conversion en PCM mono 16 bits, normalisation des crêtes à 27 500,
@@ -59,21 +60,28 @@ Les fichiers finaux durent 1,60 s et 1,86 s et pèsent environ 69 et 80 Kio.
 uniquement pour cet outil. `book_sounds.json` contient les empreintes et mesures.
 Les annonces suivent le réglage des effets sonores, sans boucle ni superposition.
 
-## Ambiance de ville de La Cité des Voleurs — CC0 1.0
+## Ambiances des livres (ville et forêt) — CC0 1.0
 
-`ambient_cite.wav` provient de « Outdoor market #2 » de Joseph SARDIN
-(BigSoundBank), prise de son de la place du marché de Nogent-le-Rotrou :
-<https://bigsoundbank.com/outdoor-market-2-s2729.html>, publiée sous
-[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (page indiquant
-« CC0 (public domain) »). Archive : <https://bigsoundbank.com/UPLOAD/flac/2729.flac>
-(FLAC stéréo 48 kHz, 24 bits, 129,65 s), empreinte dans `sources.json`
-(`book_ambiences`). L’archive n’est pas incluse.
+Deux enregistrements de Joseph SARDIN (BigSoundBank), publiés sous
+[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (pages indiquant
+« CC0 (public domain) ») ; archives non incluses, URL et SHA-256 dans `sources.json`
+(`book_ambiences`) :
 
-Préparation (`scripts/prepare_cite_ambience.py`, FFmpeg et NumPy, outil seulement) :
-passe-haut à 120 Hz contre les grondements, mono 22 050 Hz, extrait de 45 s à partir
-de 20 s, fondu enchaîné à puissance constante de 3 s de la fin vers le début pour une
-boucle sans couture, retrait du décalage continu, niveau RMS aligné sur la caverne
-(−27,7 dBFS) sous le plafond de crête des effets (27 500), PCM mono 16 bits.
-Résultat : 45 s, 1 984 544 octets. Des voix lointaines en français restent audibles.
-La boucle joue à la place de la caverne lorsque la Cité est ouverte, avec le même
-volume et la même case.
+- `ambient_cite.wav` (La Cité des Voleurs) : « Outdoor market #2 », place du marché
+  de Nogent-le-Rotrou, <https://bigsoundbank.com/outdoor-market-2-s2729.html>.
+  Archive <https://bigsoundbank.com/UPLOAD/flac/2729.flac> (FLAC stéréo 48 kHz,
+  24 bits, 129,65 s). Extrait de 45 s à partir de 20 s, passe-haut à 120 Hz.
+  Des voix lointaines en français restent audibles dans le brouhaha.
+- `ambient_foret.wav` (La Forêt de la Malédiction) : « Forest #4 » (oiseaux, vent),
+  <https://bigsoundbank.com/forest-4-s2749.html>. Archive
+  <https://bigsoundbank.com/UPLOAD/flac/2749.flac> (FLAC stéréo 48 kHz, 24 bits,
+  225,87 s). Extrait de 45 s à partir de 104 s, passe-haut à 120 Hz et aigus
+  adoucis de 4 dB au-dessus de 5 kHz pour un sous-bois moins vif.
+
+Préparation commune (`scripts/prepare_book_ambiences.py`, FFmpeg et NumPy, outil
+seulement) : filtres indiqués dans `sources.json`, mono 22 050 Hz, fondu enchaîné à
+puissance constante de 3 s de la fin vers le début pour une boucle sans couture,
+retrait du décalage continu, niveau RMS de −31,7 dBFS (4 dB sous la caverne) sous le
+plafond de crête des effets (27 500), PCM mono 16 bits. Chaque fichier dure 45 s et
+pèse 1 984 544 octets. La boucle du livre ouvert remplace la caverne dans la même
+case « Ambiance de fond », au même volume de lecture ; le Sorcier garde la caverne.

@@ -70,7 +70,7 @@ class SoundFeedbackTests(unittest.TestCase):
         state = random.getstate()
         with patch.object(SoundBank, '_backend', return_value=FakeEffect):
             bank = SoundBank(ASSET_DIR/'sounds')
-            self.assertEqual(set(bank.effects), {*EFFECT_LABELS, *BOOK_SOUNDS.values(), 'ambient', 'ambient_cite'})
+            self.assertEqual(set(bank.effects), {*EFFECT_LABELS, *BOOK_SOUNDS.values(), 'ambient', 'ambient_cite', 'ambient_foret'})
             page = bank.effects['page']
             bank.play('page')
             self.assertIs(bank.effects['page'], page)

@@ -1,7 +1,8 @@
 """Banque des sons locaux, réglages de lecture et diagnostics audio.
 
 Les effets et l'ambiance ont des interrupteurs indépendants ; la boucle
-d'ambiance dépend du livre ouvert (caverne par défaut, ville pour la Cité). Une demande peut
+d'ambiance dépend du livre ouvert (caverne par défaut, ville pour la Cité,
+forêt pour la Forêt). Une demande peut
 attendre la disponibilité de son fichier ; couper le son supprime les demandes
 concernées pour éviter un déclenchement tardif. Le backend PCM est désactivé avec
 les plateformes Qt offscreen/minimal ; les tests injectent leurs propres doublures.
@@ -17,9 +18,9 @@ EFFECT_LABELS = {
 }
 BOOK_SOUNDS = {'sorcier-1982': 'book_sorcier', 'foret-1983': 'book_foret', 'cite-1983': 'book_cite'}
 # Une seule boucle d’ambiance à la fois, choisie par le module du livre ouvert ;
-# la caverne reste celle du Sorcier, de la Forêt et de l’écran sans livre.
-AMBIENT_TRACKS = {'cite-1983': 'ambient_cite'}
-AMBIENT_LABELS = {'ambient': 'caverne', 'ambient_cite': 'ville'}
+# la caverne reste celle du Sorcier et de l’écran sans livre.
+AMBIENT_TRACKS = {'cite-1983': 'ambient_cite', 'foret-1983': 'ambient_foret'}
+AMBIENT_LABELS = {'ambient': 'caverne', 'ambient_cite': 'ville', 'ambient_foret': 'forêt'}
 
 
 class SoundBank(QObject):
