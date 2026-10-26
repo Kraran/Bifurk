@@ -3,25 +3,18 @@
 Utilise le même service gratuit que « Lire à haute voix » de Edge. Les voix sont
 en ligne (connexion Internet requise). La lecture passe par QMediaPlayer pour
 s’intégrer au reste de l’audio de Bifurk.
-
-Voix françaises proposées (identifiants techniques) :
-- fr-FR-RemyMultilingualNeural   (Rémy Multilingue, recommandé)
-- fr-FR-VivienneMultilingualNeural (Vivienne Multilingue)
-- fr-FR-DeniseNeural
-- fr-FR-HenriNeural
-- fr-FR-EloiseNeural
 """
 from __future__ import annotations
 
 import asyncio
 import tempfile
+import threading
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Optional
 
 from PySide6.QtCore import QObject, QUrl, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
-# Voix françaises disponibles via edge-tts (ordre d’affichage prévu dans les réglages).
 FRENCH_VOICES = {
     "fr-FR-RemyMultilingualNeural": "Rémy Multilingue",
     "fr-FR-VivienneMultilingualNeural": "Vivienne Multilingue",
@@ -33,11 +26,6 @@ DEFAULT_VOICE = "fr-FR-RemyMultilingualNeural"
 
 
 class ParagraphReader(QObject):
-    """Génère et joue le texte d’un paragraphe avec une voix Edge.
-
-    Émet `finished` à la fin naturelle ou après `stop()`. `error` en cas de
-    problème réseau ou de génération.
-    """
     finished = Signal()
     error = Signal(str)
 
@@ -49,20 +37,17 @@ class ParagraphReader(QObject):
         self._voice = DEFAULT_VOICE
         self._rate = "+0%"
         self._volume = 0.8
-        self._task: Optional[asyncio.Task] = None
+        self._thread: Optional[threading.Thread] = None
 
     def set_voice(self, voice_id: str) -> None:
-        """Choisir une voix parmi FRENCH_VOICES."""
         if voice_id in FRENCH_VOICES:
             self._voice = voice_id
 
     def set_rate(self, percent: int) -> None:
-        """Vitesse relative (-50 à +100). 0 = normal."""
         percent = max(-50, min(100, int(percent)))
         self._rate = f"{percent:+d}%"
 
     def set_volume(self, volume: float) -> None:
-        """Volume 0.0–1.0."""
         self._volume = max(0.0, min(1.0, float(volume)))
         if self._output is not None:
             self._output.setVolume(self._volume)
@@ -74,16 +59,12 @@ class ParagraphReader(QObject):
         return self._player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
 
     def stop(self) -> None:
-        """Arrêter la lecture en cours et nettoyer."""
-        if self._task and not self._task.done():
-            self._task.cancel()
         if self._player is not None:
             self._player.stop()
         self._cleanup_temp()
         self.finished.emit()
 
     def speak(self, text: str) -> None:
-        """Lancer la génération + lecture du texte (asynchrone)."""
         text = (text or "").strip()
         if not text:
             self.finished.emit()
@@ -91,8 +72,16 @@ class ParagraphReader(QObject):
         if QGuiApplication.platformName() in ("offscreen", "minimal"):
             self.error.emit("Lecture vocale indisponible en mode sans écran.")
             return
-        self.stop()  # annuler une éventuelle lecture précédente
-        self._task = asyncio.create_task(self._generate_and_play(text))
+        self.stop()
+        self._thread = threading.Thread(target=self._run_async, args=(text,), daemon=True)
+        self._thread.start()
+
+    def _run_async(self, text: str) -> None:
+        try:
+            asyncio.run(self._generate_and_play(text))
+        except Exception as exc:
+            self.error.emit(f"Échec de la génération vocale : {exc}")
+            self.finished.emit()
 
     async def _generate_and_play(self, text: str) -> None:
         try:
@@ -110,11 +99,19 @@ class ParagraphReader(QObject):
             if not self._temp_file.exists() or self._temp_file.stat().st_size == 0:
                 raise RuntimeError("Fichier audio vide.")
 
-            self._play_file(self._temp_file)
-        except Exception as exc:  # noqa: BLE001
+            from PySide6.QtCore import QMetaObject, Qt
+            QMetaObject.invokeMethod(
+                self, "_play_file_slot", Qt.QueuedConnection,
+                QUrl.fromLocalFile(str(self._temp_file.resolve()))
+            )
+        except Exception as exc:
             self.error.emit(f"Échec de la génération vocale : {exc}")
             self._cleanup_temp()
             self.finished.emit()
+
+    @Slot(QUrl)
+    def _play_file_slot(self, url: QUrl) -> None:
+        self._play_file(Path(url.toLocalFile()))
 
     def _play_file(self, path: Path) -> None:
         from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
@@ -153,5 +150,4 @@ class ParagraphReader(QObject):
 
 
 def available_french_voices() -> dict[str, str]:
-    """Retourner le dictionnaire id → libellé pour l’interface des réglages."""
     return dict(FRENCH_VOICES)
