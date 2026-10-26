@@ -86,6 +86,9 @@ class CiteErrataTests(unittest.TestCase):
         self.assertIn('Ajoutez deux points\nde CHANCE', data[37])
         self.assertIn('également 2\npoints de CHANCE', data[137])
         self.assertEqual((targets(data[8]), targets(data[37]), targets(data[137])), ([334], [398], [327]))
+        trade = {293: 'Elle demande un objet magique\nquelconque, une arme ou de la\nnourriture.'}
+        repair_cite_ocr(trade)
+        self.assertIn('une pièce d’armure', trade[293])
         for number, fixes in CITE_VO_ERRATA.items():
             for old, new in fixes:
                 with self.subTest(number=number, old=old):

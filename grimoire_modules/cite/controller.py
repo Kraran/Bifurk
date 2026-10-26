@@ -1,7 +1,7 @@
-"""Adaptateur de la Cité des Voleurs : §1 à 200 analysés, le reste en consultation.
+"""Adaptateur de la Cité des Voleurs : §1 à 300 analysés, le reste en consultation.
 
 Les 400 renvois sont relus et catalogués (titre neutre, libellé, condition
-imprimée résumée). Pour les passages analysés (§1 à 200), les conditions
+imprimée résumée). Pour les passages analysés (§1 à 300), les conditions
 imprimées sont appliquées ici, en Python, à partir de ``rules`` et
 ``encounters`` : combats, épreuves, effets d’arrivée, achats et prix des
 renvois. Les autres passages restent consultables : leurs conditions sont
@@ -35,7 +35,7 @@ DECIDED_REASON = 'la suite de ce passage est déjà déterminée.'
 
 
 class CiteController(CiteMechanicsActions):
-    """Consulter le livre et jouer les mécaniques relues des §1 à 200."""
+    """Consulter le livre et jouer les mécaniques relues des §1 à 300."""
     def _cite_entry(self):
         """Lire l'entrée de renvois du passage affiché (consultée ou analysée)."""
         entry = (self.book_event_catalogue or {}).get('paragraphs', {}).get(str(self.current_paragraph), {})
@@ -74,7 +74,7 @@ class CiteController(CiteMechanicsActions):
         combat = self._cite_combat()
         if combat and combat.get('target_paragraph') is not None:
             return {combat['target_paragraph']} & paragraphs, DECIDED_REASON
-        if number in rules.BRANCH_TESTS or number in rules.DOUBLE_TESTS:
+        if number in rules.BRANCH_TESTS or number in rules.DOUBLE_TESTS or number in rules.DIE_TESTS:
             if not rules.test_resolved(character, number):
                 return set(), PENDING_REASON
             return {rules.test_target(character, number)} & paragraphs, DECIDED_REASON
@@ -85,6 +85,11 @@ class CiteController(CiteMechanicsActions):
         if number == rules.VOLLEY and not rules.volley_resolved(character):
             return set(), PENDING_REASON
         if number == rules.POCKET and not rules.pocket_resolved(character):
+            return set(), PENDING_REASON
+        if number == rules.MIXTURE and not (rules.mixture_ready(character)
+                                            and rules.creature_rolled(character)):
+            return set(), PENDING_REASON
+        if number == rules.BRAWL and not rules.brawl_resolved(character):
             return set(), PENDING_REASON
         return available, None
 
@@ -106,6 +111,13 @@ class CiteController(CiteMechanicsActions):
                     tip += (' — ' if tip else '') + 'Tout votre or est remis en choisissant ce renvoi.'
                 elif key in rules.ITEM_PAYMENTS:
                     tip += (' — ' if tip else '') + 'Un objet est remis en choisissant ce renvoi.'
+                elif key in rules.PROVISION_ROUTES:
+                    amount = rules.PROVISION_ROUTES[key]
+                    tip += (' — ' if tip else '') + f'{amount} portions de Provisions remises en choisissant ce renvoi.'
+                if key in rules.ROUTE_LUCK:
+                    tip += (' — ' if tip else '') + f'Chance −{rules.ROUTE_LUCK[key]} en choisissant ce renvoi.'
+            if key in rules.GOLD_SHOWN_ROUTES:
+                tip += (' — ' if tip else '') + f'{_coins(rules.GOLD_SHOWN_ROUTES[key])} à montrer, rien n’est payé.'
             return tip
         if target not in self.paragraphs:
             return f'Indisponible : destination {target} non détectée dans le PDF importé.'

@@ -1,4 +1,4 @@
-"""Relier les règles relues des §1 à 200 de la Cité aux transactions et aux dés de Qt.
+"""Relier les règles relues des §1 à 300 de la Cité aux transactions et aux dés de Qt.
 
 Comme les autres adaptateurs, les méthodes sont déléguées à MainWindow : appeler
 explicitement le socle plutôt que super(). Les libellés et infobulles ne disent
@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
     QDialog,
+    QInputDialog,
     QLabel,
     QListWidget,
     QMessageBox,
@@ -23,6 +24,9 @@ from ..fighting_fantasy.controller import FightingFantasyActions
 from ..fighting_fantasy.rules import escape_damage
 from . import feedback, rules
 from .encounters import COMBATS, escape_status, profile, victory_target
+
+GAMBLE_TIP = (f'Mise de {rules.GAMBLE_STAKE} Pièces d’Or : deux dés pour chacun des trois Nains, '
+              'puis deux dés pour vous, selon la règle du livre.')
 
 CHANCE_COST = 'Tenter sa Chance coûte 1 point de Chance.'
 
@@ -61,9 +65,15 @@ class CiteMechanicsActions(FightingFantasyActions):
         unless = COMBATS[number].get('unless_item')
         if unless and rules.has_item(self.character, unless[0]):
             return
+        creature = None
+        if COMBATS[number].get('creature_die'):
+            die = rules.peek(self.character).get('creature')
+            if die is None:
+                return
+            creature = rules.CREATURES[die]
         combats = rules.state(self.character).setdefault('combats', {})
         if str(number) not in combats:
-            combats[str(number)] = new_group_combat(profile(number))
+            combats[str(number)] = new_group_combat(profile(number, creature))
         self._cite_sync_enemy()
 
     def _cite_sync_enemy(self):
@@ -99,6 +109,10 @@ class CiteMechanicsActions(FightingFantasyActions):
         attack = COMBATS.get(self.current_paragraph, {}).get('attack', 0)
         return {'skill': rules.effective_skill(self.character), 'hit_damage': 2,
                 'can_wound': True, 'attack_bonus': attack}
+
+    def _ff_defend_hit(self):
+        """Blessure imprimée d’un assaut perdu (§253 : 4 points), sinon 2."""
+        return COMBATS.get(self.current_paragraph, {}).get('wound', 2), ''
 
     def _ff_enemy_defeated(self):
         """L’adversaire suivant est préparé après l’assaut, par advance_group."""
@@ -188,8 +202,14 @@ class CiteMechanicsActions(FightingFantasyActions):
                 button.clicked.connect(lambda checked=False: self._cite_theft_dialog())
             elif action == 'pocket':
                 button.clicked.connect(lambda checked=False: self._cite_pocket_dialog())
+            elif action == 'mixture':
+                button.clicked.connect(lambda checked=False: self._cite_mixture_dialog())
+            elif action == 'brawl':
+                button.clicked.connect(lambda checked=False: self._cite_brawl_dialog())
             elif action == 'loot':
                 button.clicked.connect(lambda checked=False: self._cite_loot_dialog())
+            elif action == 'trade':
+                button.clicked.connect(lambda checked=False: self._cite_trade_dialog())
             else:
                 button.clicked.connect(lambda checked=False: self.perform_cite_action(action))
             self.event_layout.addWidget(button)
@@ -217,8 +237,39 @@ class CiteMechanicsActions(FightingFantasyActions):
         if number == rules.POCKET and not rules.pocket_resolved(self.character):
             add('Constater le larcin…', 'pocket',
                 tooltip='Une Pièce d’Or ou un objet de votre choix.')
+        if number in rules.DIE_TESTS and not rules.test_resolved(self.character, number):
+            add('Lancer un dé', 'die_test', tooltip='Un dé, comme l’indique le livre.')
+        if number == rules.MIXTURE and not rules.mixture_ready(self.character):
+            add('Choisir les deux ingrédients du mélange…', 'mixture',
+                tooltip='Deux des trois ingrédients, broyés ensemble.')
+        if number == rules.CREATURE and not rules.creature_rolled(self.character):
+            ready = rules.mixture_ready(self.character)
+            add('Lancer un dé — la créature', 'creature', enabled=ready,
+                tooltip='Le tableau du livre désigne l’adversaire.' if ready
+                else 'Préparez d’abord le mélange.')
+        if number == rules.GAMBLE:
+            played = len(rules.gamble_rounds(self.character))
+            if played < rules.GAMBLE_ROUNDS:
+                reason = rules.can_gamble(self.character)
+                add(f'Jouer une partie — mise de {_coins(rules.GAMBLE_STAKE)} '
+                    f'({played}/{rules.GAMBLE_ROUNDS})', 'gamble', enabled=reason is None,
+                    tooltip=reason or GAMBLE_TIP)
+        if number == rules.BRAWL and not rules.brawl_resolved(self.character):
+            count = rules.brawl_required(self.character)
+            add('Constater la perte…' if count else 'Constater la perte', 'brawl',
+                tooltip=f'{count} objet(s) du sac à dos, au choix.')
         if number in rules.LOOTS and not rules.loot_taken(self.character, number):
             add('Garder ce que vous voulez…', 'loot', tooltip='Prenez ce que vous voulez, en une fois.')
+        if number == rules.HOT_MEAL and not rules.hot_meal_eaten(self.character):
+            enough = self.character.get('gold', 0) >= rules.HOT_MEAL_PRICE
+            add(f'Manger chaud — {_coins(rules.HOT_MEAL_PRICE)}', 'hot_meal', enabled=enough,
+                tooltip=f'Endurance +{rules.HOT_MEAL_GAIN}, sans dépasser le total initial.' if enough
+                else 'Pas assez de Pièces d’Or.')
+        if number == rules.TRADE and not rules.traded(self.character):
+            choices = rules.trade_choices(self.character)
+            add('Échanger contre la fleur dorée…', 'trade', enabled=bool(choices),
+                tooltip='Un objet magique, une pièce d’armure ou deux portions de Provisions.' if choices
+                else 'Rien de ce que demande le livre dans votre sac.')
         if number in rules.SHOPS:
             add('Faire ses achats…', 'shop', tooltip='Achats facultatifs, aux prix indiqués par le livre.')
         if rules.has_item(self.character, 'emplatre'):
@@ -240,8 +291,8 @@ class CiteMechanicsActions(FightingFantasyActions):
             trace, self._roll_trace = self._roll_trace, None
         if outcome == 'error':
             return
-        kind = ({'branch_test': rules.BRANCH_TESTS.get(number, ('',))[0], 'double_test': 'chance'}
-                .get(action))
+        kind = ({'branch_test': rules.BRANCH_TESTS.get(number, ('',))[0], 'double_test': 'chance',
+                 'gamble': 'gamble', 'creature': 'creature'}.get(action))
         moved = self.current_paragraph if self.current_paragraph != number else None
         message = feedback.summary(before, feedback.snapshot(self.character),
                                    kind=kind, trace=trace, destination=moved)
@@ -291,10 +342,45 @@ class CiteMechanicsActions(FightingFantasyActions):
                 if number != rules.POCKET or rules.pocket_resolved(self.character):
                     return
                 rules.pick_pocket(self.character, payload)
+            elif action == 'die_test':
+                if number not in rules.DIE_TESTS or rules.test_resolved(self.character, number):
+                    return
+                _, die = self._roll(1, context='Dé')
+                target = rules.resolve_die_test(self.character, number, die)
+            elif action == 'mixture':
+                if number != rules.MIXTURE:
+                    return
+                rules.choose_mixture(self.character, payload)
+            elif action == 'creature':
+                if (number != rules.CREATURE or rules.creature_rolled(self.character)
+                        or not rules.mixture_ready(self.character)):
+                    return
+                _, die = self._roll(1, context='Créature')
+                rules.roll_creature(self.character, die)
+                self._cite_prepare_combat()
+            elif action == 'gamble':
+                if number != rules.GAMBLE or rules.can_gamble(self.character):
+                    return
+                dwarves = [self._roll(2, context=f'Nain {i + 1}', opponent=True)[1]
+                           for i in range(rules.GAMBLE_DWARVES)]
+                _, own = self._roll(2, context='Vous')
+                rules.gamble(self.character, dwarves, own)
+            elif action == 'brawl':
+                if number != rules.BRAWL:
+                    return
+                rules.brawl_loss(self.character, payload or ())
             elif action == 'loot':
                 if number not in rules.LOOTS:
                     return
                 rules.take_loot(self.character, number, payload or ())
+            elif action == 'hot_meal':
+                if number != rules.HOT_MEAL:
+                    return
+                rules.hot_meal(self.character)
+            elif action == 'trade':
+                if number != rules.TRADE:
+                    return
+                rules.trade_flower(self.character, payload)
             elif action == 'poultice':
                 if not rules.has_item(self.character, 'emplatre') or self.combat_available():
                     return
@@ -322,6 +408,7 @@ class CiteMechanicsActions(FightingFantasyActions):
         dialog.setWindowTitle('Les achats du passage')
         layout = QVBoxLayout(dialog)
         header = QLabel('Un seul achat possible ici.' if shop['limit'] == 1
+                        else 'Autant d’exemplaires que vous le désirez.' if shop.get('repeat')
                         else 'Chaque article ne s’achète qu’une fois.')
         header.setWordWrap(True)
         layout.addWidget(header)
@@ -338,8 +425,9 @@ class CiteMechanicsActions(FightingFantasyActions):
         def refresh():
             bought = rules.shop_bought(self.character, number)
             for index, (name, price) in enumerate(shop['items']):
-                selector.setItemText(index, f'{name} — {_coins(price)}'
-                                     + (' — acheté' if name in bought else ''))
+                count = bought.count(name)
+                selector.setItemText(index, f'{name} — {_coins(price)}' + (
+                    '' if not count else f' — acheté ×{count}' if shop.get('repeat') else ' — acheté'))
             reason = rules.can_buy(self.character, number, selector.currentData())
             balance.setText(f'Or disponible : {_coins(self.character.get("gold", 0))}')
             buy.setEnabled(reason is None and self.character['endurance'] > 0)
@@ -398,6 +486,35 @@ class CiteMechanicsActions(FightingFantasyActions):
         if chosen:
             self.perform_cite_action('pocket', chosen[0])
 
+    def _cite_theft_dialog(self):
+        if self.current_paragraph != rules.THEFT or rules.theft_resolved(self.character):
+            return
+        count = rules.theft_required(self.character)
+        chosen = self._cite_pick_items(
+            'Le larcin de l’Elfe', f'Choisissez {count} objet(s) de votre sac à dos.',
+            rules.theft_choices(self.character), count, 'Valider')
+        if chosen is not None:
+            self.perform_cite_action('theft', chosen)
+
+    def _cite_mixture_dialog(self):
+        if self.current_paragraph != rules.MIXTURE or rules.mixture_ready(self.character):
+            return
+        names = [name for name, _target in rules.MIXTURES]
+        name, accepted = QInputDialog.getItem(self, 'Le mélange', 'Ingrédients broyés ensemble :',
+                                              names, 0, False)
+        if accepted:
+            self.perform_cite_action('mixture', dict(rules.MIXTURES)[name])
+
+    def _cite_brawl_dialog(self):
+        if self.current_paragraph != rules.BRAWL or rules.brawl_resolved(self.character):
+            return
+        count = rules.brawl_required(self.character)
+        chosen = self._cite_pick_items(
+            'La bousculade', f'Choisissez {count} objet(s) de votre sac à dos.',
+            rules.theft_choices(self.character), count, 'Valider')
+        if chosen is not None:
+            self.perform_cite_action('brawl', chosen)
+
     def _cite_loot_dialog(self):
         number = self.current_paragraph
         if number not in rules.LOOTS or rules.loot_taken(self.character, number):
@@ -408,12 +525,10 @@ class CiteMechanicsActions(FightingFantasyActions):
         if chosen is not None:
             self.perform_cite_action('loot', chosen)
 
-    def _cite_theft_dialog(self):
-        if self.current_paragraph != rules.THEFT or rules.theft_resolved(self.character):
+    def _cite_trade_dialog(self):
+        if self.current_paragraph != rules.TRADE or rules.traded(self.character):
             return
-        count = rules.theft_required(self.character)
-        chosen = self._cite_pick_items(
-            'Le larcin de l’Elfe', f'Choisissez {count} objet(s) de votre sac à dos.',
-            rules.theft_choices(self.character), count, 'Valider')
-        if chosen is not None:
-            self.perform_cite_action('theft', chosen)
+        chosen = self._cite_pick_items('L’échange', 'Choisissez ce que vous donnez en échange.',
+                                       rules.trade_choices(self.character), 1, 'Échanger')
+        if chosen:
+            self.perform_cite_action('trade', chosen[0])
