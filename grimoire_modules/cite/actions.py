@@ -211,7 +211,7 @@ class CiteMechanicsActions(FightingFantasyActions):
         if number == rules.VOLLEY and not rules.volley_resolved(self.character):
             add('Lancer un dé — flèches reçues', 'volley',
                 tooltip=f'{rules.VOLLEY_HIT} points d’Endurance par flèche, '
-                        f'puis {rules.VOLLEY_AFTER} points de plus, comme l’indique le livre.')
+                        f'puis {rules.VOLLEY_AFTER} points de Chance si vous survivez.')
         if number == rules.POCKET and not rules.pocket_resolved(self.character):
             add('Constater le larcin…', 'pocket',
                 tooltip='Une Pièce d’Or ou un objet de votre choix.')

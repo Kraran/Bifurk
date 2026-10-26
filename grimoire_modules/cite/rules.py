@@ -48,14 +48,14 @@ EQUIPMENT_SKILL = ((MAIL, 2),)
 ENTRY_EFFECTS = {
     2: {'lose': ('bracelet',)},
     7: {'chance': 2, 'gain': ('Six perles noires',)},
-    8: {'chance': 1, 'gain': (GOLD_BROOCH,)},
+    8: {'chance': 2, 'gain': (GOLD_BROOCH,)},  # VO : 2 points (la traduction en donne 1).
     11: {'habilete': -1, 'lose': ('bouclier',), 'remove_mail': True},
     13: {'gain': (SILVER_BROOCH,)},
     16: {'gold': 12, 'chance': 1},
     19: {'endurance': -4, 'habilete': -1},
     32: {'endurance': -4, 'habilete': -1},
     35: {'endurance': -2},
-    37: {'endurance': 2},
+    37: {'chance': 2},  # VO : 2 points de Chance (la traduction dit Endurance).
     38: {'gain': (INSECT_BRACELET,)},
     42: {'provisions': 'all', 'gain': (ARROW,)},
     43: {'habilete': -2, 'chance': -2},
@@ -103,7 +103,7 @@ BRANCH_TESTS = {
     49: ('chance', 10, 311, 0),
     64: ('chance', 353, 309, 1),
     69: ('habilete', 355, 151, 0),
-    81: ('chance', 392, 243, 0),
+    81: ('chance', 304, 243, 0),  # VO : fuite vers le nord au §304 (imprimé 392).
     120: ('chance', 84, 152, 0),
     162: ('chance', 7, 226, 0),
     168: ('habilete', 359, 266, 0),
@@ -121,7 +121,8 @@ DOUBLE_TESTS = {128: ('chance', (340, 149, 19))}
 DIE_HEAL = 83
 THEFT = 63
 THEFT_ITEMS, THEFT_GOLD = 2, 5
-# §148 : 1 Pièce d’Or ou un objet, au choix du joueur. §137 : un dé de flèches.
+# §148 : 1 Pièce d’Or ou un objet, au choix du joueur. §137 : un dé de flèches,
+# puis 2 points de Chance perdus si l’on survit (VO ; la traduction dit Endurance).
 POCKET, POCKET_GOLD = 148, '1 Pièce d’Or'
 VOLLEY, VOLLEY_HIT, VOLLEY_AFTER = 137, 3, 2
 # Le larcin vise le sac à dos : arme, armures et bijoux portés n’y sont pas.
@@ -492,7 +493,7 @@ def pay_route(character, source, target, items=()):
 
 
 def volley(character, die):
-    """§137 : un dé de flèches, 3 points chacune, puis 2 points de plus si l’on survit."""
+    """§137 : un dé de flèches, 3 points d’Endurance chacune, puis 2 de Chance si l’on survit."""
     ensure_alive(character)
     if peek(character).get('arrows') is not None:
         raise ValueError('La volée est déjà lancée.')
@@ -500,7 +501,7 @@ def volley(character, die):
     state(character)['arrows'] = die
     adventure.damage_hero(character, BOOK, VOLLEY_HIT * die)
     if character['endurance'] > 0:
-        adventure.damage_hero(character, BOOK, VOLLEY_AFTER)
+        _change(character, 'chance', -VOLLEY_AFTER)
     return die
 
 

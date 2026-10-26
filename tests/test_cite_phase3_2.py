@@ -36,11 +36,12 @@ class CiteSecondHundredRulesTests(unittest.TestCase):
     def test_arrows_heal_twice_their_number_and_the_sword_is_exchanged(self):
         character = hero(endurance=20)
         rules.volley(character, 2)
-        self.assertEqual(character['endurance'], 12)
+        # VO : 3 points d’Endurance par flèche, puis 2 points de Chance.
+        self.assertEqual((character['endurance'], character['chance']), (14, 7))
         with self.assertRaises(ValueError):
             rules.volley(character, 3)
         rules.apply_entry(character, 126)
-        self.assertEqual((character['endurance'], character['habilete']), (16, 9))
+        self.assertEqual((character['endurance'], character['habilete']), (18, 9))
         self.assertIn(rules.PLAIN_SWORD, character['inventory'])
         self.assertNotIn('Épée', character['inventory'])
         self.assertNotIn(rules.PLAIN_SWORD, rules.magic_payment_choices(character))
@@ -48,7 +49,7 @@ class CiteSecondHundredRulesTests(unittest.TestCase):
     def test_volley_can_kill(self):
         character = hero(endurance=17)
         rules.volley(character, 6)
-        self.assertEqual(character['endurance'], 0)
+        self.assertEqual((character['endurance'], character['chance']), (0, 9))
 
     def test_failed_tests_cost_what_the_book_prints(self):
         character = hero(gold=3)
@@ -237,8 +238,10 @@ class CiteSecondHundredWindowTests(unittest.TestCase):
         self.w.go_to(137)
         self.assertFalse(any(b.isEnabled() for b in self.buttons()))
         self.fixed_rolls(1)
+        chance = self.w.character['chance']
         self.event_button('flèches reçues').click()
-        self.assertEqual(self.w.character['endurance'], 13)
+        self.assertEqual(self.w.character['endurance'], 15)
+        self.assertEqual(self.w.character['chance'], chance - rules.VOLLEY_AFTER)
         self.assertTrue(all(b.isEnabled() for b in self.buttons()))
         self.w.go_to(148)
         self.assertFalse(any(b.isEnabled() for b in self.buttons()))

@@ -1317,7 +1317,7 @@
       "title": "La fuite sous l'éclair",
       "routes": [
         {
-          "target": 392,
+          "target": 304,
           "label": "L'éclair manque",
           "condition_text": "Chance réussie"
         },
@@ -1819,7 +1819,7 @@
           "label": "Entrer dans la maison"
         },
         {
-          "target": 134,
+          "target": 334,
           "label": "Continuer vers le nord"
         }
       ],
@@ -1836,7 +1836,7 @@
           "label": "Offrir un objet"
         },
         {
-          "target": 175,
+          "target": 375,
           "label": "Repartir vers l'est"
         }
       ],
@@ -2349,7 +2349,7 @@
           "label": "Voir ses fleurs"
         },
         {
-          "target": 14,
+          "target": 24,
           "label": "Refuser et partir vers l'ouest"
         }
       ],
@@ -6311,16 +6311,64 @@
       "resolution_source": "Réparation OCR ciblée (cite-ocr-1983)"
     },
     {
+      "paragraph": 81,
+      "severity": "warning",
+      "kind": "invalid_reference",
+      "printed_reference": "392",
+      "candidate_target": 304,
+      "candidate_confirmed": true,
+      "confirmed_target": 304,
+      "details": "La fuite vers le nord sous l’éclair renvoie au §392 (créature au long museau). La VO donne le §304, carrefour atteint en remontant la rue.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige ; renvoi corrigé (cite-ocr-1983)"
+    },
+    {
+      "paragraph": 112,
+      "severity": "warning",
+      "kind": "invalid_reference",
+      "printed_reference": "134",
+      "candidate_target": 334,
+      "candidate_confirmed": true,
+      "confirmed_target": 334,
+      "details": "« Continuer vers le nord » renvoie au §134 (réveil détroussé). La VO donne le §334, la rue du nord.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige ; renvoi corrigé (cite-ocr-1983)"
+    },
+    {
+      "paragraph": 113,
+      "severity": "warning",
+      "kind": "invalid_reference",
+      "printed_reference": "175",
+      "candidate_target": 375,
+      "candidate_confirmed": true,
+      "confirmed_target": 375,
+      "details": "« Poursuivre vers l’est » renvoie au §175 (gobelet au scorpion). La VO donne le §375, comme le §141 et le §262.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige ; renvoi corrigé (cite-ocr-1983)"
+    },
+    {
+      "paragraph": 145,
+      "severity": "warning",
+      "kind": "invalid_reference",
+      "printed_reference": "14",
+      "candidate_target": 24,
+      "candidate_confirmed": true,
+      "confirmed_target": 24,
+      "details": "« Partir vers l’ouest » renvoie au §14 (haies fleuries). La VO donne le §24, la boutique sur la gauche en allant vers l’ouest.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige ; renvoi corrigé (cite-ocr-1983)"
+    },
+    {
       "paragraph": 168,
       "severity": "warning",
       "kind": "invalid_reference",
       "printed_reference": "159",
       "candidate_target": 359,
-      "candidate_confirmed": false,
+      "candidate_confirmed": true,
       "confirmed_target": 359,
       "details": "La balle frappée par-dessus le mur renvoie au §159, sans rapport (intérieur d’une maison). Le §359, victoire des Bays, n’est atteint par aucun autre renvoi : lecture « 1 » pour « 3 ».",
       "status": "resolved",
-      "resolution_source": "Réparation OCR ciblée (cite-ocr-1983) ; à confirmer sur un exemplaire papier"
+      "resolution_source": "Réparation OCR ciblée (cite-ocr-1983) ; renvoi confirmé par la VO"
     },
     {
       "paragraph": 182,
@@ -6328,11 +6376,11 @@
       "kind": "invalid_reference",
       "printed_reference": "351",
       "candidate_target": 354,
-      "candidate_confirmed": false,
+      "candidate_confirmed": true,
       "confirmed_target": 354,
       "details": "Le tatouage impayable renvoie au §351, sans rapport (cellule du vieillard). Le §354, refus du tatoueur, n’est atteint par aucun autre renvoi : lecture « 1 » pour « 4 ».",
       "status": "resolved",
-      "resolution_source": "Réparation OCR ciblée (cite-ocr-1983) ; à confirmer sur un exemplaire papier"
+      "resolution_source": "Réparation OCR ciblée (cite-ocr-1983) ; renvoi confirmé par la VO"
     },
     {
       "paragraph": 27,
@@ -6362,15 +6410,17 @@
       "paragraph": 119,
       "severity": "information",
       "kind": "ocr_conjecture",
-      "details": "« Il en route 3 » lu « Il en coûte 3 » d’après le contexte. PDF relu (P3.2) : la coquille figure dans le PDF source ; conjecture maintenue, à confirmer sur papier.",
-      "status": "to_confirm"
+      "details": "« Il en route 3 » lu « Il en coûte 3 » : la VO donne bien un prix de 3 Pièces d’Or.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige"
     },
     {
       "paragraph": 180,
       "severity": "information",
       "kind": "ocr_conjecture",
-      "details": "« II voiture » lu « la voiture » d’après le contexte. PDF relu (P3.2) : la coquille figure dans le PDF source ; conjecture maintenue, à confirmer sur papier.",
-      "status": "to_confirm"
+      "details": "« II voiture » lu « la voiture » : la VO parle bien d’une voiture à chevaux.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige"
     },
     {
       "paragraph": 342,
@@ -6381,10 +6431,11 @@
     },
     {
       "paragraph": 109,
-      "severity": "warning",
+      "severity": "information",
       "kind": "unreadable_value",
-      "details": "Fragment « ramas: 5 » identique dans le PDF source (relu en P3.2) ; lecture probable « ramasser 5 », non appliquée. Sans effet en jeu : à relire sur papier.",
-      "status": "open"
+      "details": "Fragment « ramas: 5 » : la VO confirme les 5 Pièces d’Or proposées et refusées ; lu « ramasser 5 ». Sans effet en jeu.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige"
     },
     {
       "paragraph": 217,
@@ -6392,6 +6443,30 @@
       "kind": "ambiguous_value",
       "details": "Caractéristiques du second Chien de Lune mal alignées dans le texte reconnu ; à relire avant l’analyse du combat (P3).",
       "status": "open"
+    },
+    {
+      "paragraph": 8,
+      "severity": "information",
+      "kind": "translation_discrepancy",
+      "details": "La broche en or rapporte 1 point de Chance dans la traduction, 2 dans la VO : 2 appliqués et affichés.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige"
+    },
+    {
+      "paragraph": 37,
+      "severity": "information",
+      "kind": "translation_discrepancy",
+      "details": "Le chant du joueur de lyre donne 2 points d’Endurance dans la traduction, 2 points de Chance dans la VO (« bonne fortune ») : Chance appliquée et affichée.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige"
+    },
+    {
+      "paragraph": 137,
+      "severity": "information",
+      "kind": "translation_discrepancy",
+      "details": "Après la volée de flèches, la traduction retire 2 points d’Endurance, la VO 2 points de Chance : Chance appliquée et affichée.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige"
     }
   ],
   "analysis_contract": {

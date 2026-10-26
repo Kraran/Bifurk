@@ -114,6 +114,15 @@ class CiteRulesTests(unittest.TestCase):
         self.assertEqual(rules.resolve_test(character, 18, 12), 102)
         self.assertEqual(rules.resolve_test(character, 69, 12), 355)
 
+    def test_values_follow_the_original_edition(self):
+        """VO, référence en cas de litige : §8 et §37 en Chance, §81 vers le 304."""
+        for number, gain in ((8, 2), (37, 2)):
+            with self.subTest(number=number):
+                character = hero(chance=5)
+                rules.apply_entry(character, number)
+                self.assertEqual((character['chance'], character['endurance']), (5 + gain, 18))
+        self.assertEqual(rules.BRANCH_TESTS[81][:3], ('chance', 304, 243))
+
     def test_shops_keep_their_printed_limits(self):
         character = hero(gold=20)
         rules.buy(character, 36, 'Anneau de Feu')
