@@ -6,7 +6,7 @@ synthétique aux passages neutres. Aucun texte du livre.
 import unittest
 from unittest.mock import patch
 
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QMessageBox, QPushButton
 
 from grimoire_modules.cite import rules
 from grimoire_modules.cite.controller import PENDING_REASON
@@ -154,6 +154,23 @@ class CiteSecondHundredRulesTests(unittest.TestCase):
             self.assertTrue(rules.finish_ending(character, number))
             self.assertEqual(character['endurance'], 0)
 
+    def test_jeweller_drawer_is_taken_by_choice(self):
+        """§114 : VO « Take what you will » — rien n’est pris d’office."""
+        character = hero()
+        rules.apply_entry(character, 114)
+        self.assertEqual((character['gold'], character['inventory']), (30, ['Épée', 'Armure de cuir', 'Lanterne']))
+        ring = 'Bague ornée de pierreries'
+        self.assertEqual(rules.loot_choices(114), ['13 Pièces d’Or', ring, ring, ring])
+        rules.take_loot(character, 114, ['13 Pièces d’Or', ring])
+        self.assertEqual(character['gold'], 43)
+        self.assertEqual(character['inventory'].count(ring), 1)
+        with self.assertRaises(ValueError):
+            rules.take_loot(character, 114, [ring])
+        greedy = hero()
+        with self.assertRaises(ValueError):
+            rules.take_loot(greedy, 114, [ring] * 4)
+        self.assertFalse(rules.loot_taken(greedy, 114))
+
 
 class CiteSecondHundredEncounterTests(unittest.TestCase):
     def test_ogre_and_jeweller_escapes(self):
@@ -250,6 +267,19 @@ class CiteSecondHundredWindowTests(unittest.TestCase):
         self.assertTrue(all(b.isEnabled() for b in self.buttons()))
         self.w.undo_action()
         self.assertEqual(self.w.character['gold'], 30)
+
+    def test_jeweller_drawer_button_is_optional(self):
+        self.play()
+        self.w.go_to(114)
+        self.assertTrue(all(b.isEnabled() for b in self.buttons()))
+        gold = self.w.character['gold']
+        with patch.object(self.w, '_cite_pick_items', return_value=['13 Pièces d’Or']):
+            self.event_button('Garder').click()
+        self.assertEqual(self.w.character['gold'], gold + 13)
+        self.assertNotIn('Bague ornée de pierreries', self.w.character['inventory'])
+        self.assertFalse(any('Garder' in b.text() for b in self.events() if isinstance(b, QPushButton)))
+        self.w.undo_action()
+        self.assertEqual(self.w.character['gold'], gold)
 
     def test_poultice_button_outside_combat_only(self):
         self.play()

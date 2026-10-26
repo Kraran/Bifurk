@@ -75,7 +75,6 @@ ENTRY_EFFECTS = {
     98: {'endurance': 3, 'chance': 1},
     106: {'lose': ('lanterne',)},
     111: {'chance': 2, 'gain': (PEARLS,)},
-    114: {'gold': 13, 'gain': ('Trois bagues ornées de pierreries',)},
     123: {'gold': 3, 'chance': 1, 'gain': (SKELETON_KEY,)},
     # Bouclier maudit : impossible de s’en débarrasser (objet verrouillé).
     125: {'habilete': -1, 'gain': (CURSED_SHIELD,), 'lock': True},
@@ -125,6 +124,11 @@ THEFT_ITEMS, THEFT_GOLD = 2, 5
 # puis 2 points de Chance perdus si l’on survit (VO ; la traduction dit Endurance).
 POCKET, POCKET_GOLD = 148, '1 Pièce d’Or'
 VOLLEY, VOLLEY_HIT, VOLLEY_AFTER = 137, 3, 2
+# Butins facultatifs : « prenez ce que vous voulez » (une seule fouille).
+LOOTS = {
+    # §114 : VO « Take what you will » — trois bagues et 13 Pièces d’Or, au choix.
+    114: {'gold': 13, 'items': ('Bague ornée de pierreries',) * 3},
+}
 # Le larcin vise le sac à dos : arme, armures et bijoux portés n’y sont pas.
 WORN_KEYWORDS = ('epee', 'armure', 'cotte de mailles', 'broche', 'anneau', 'bracelet')
 
@@ -518,6 +522,40 @@ def pocket_choices(character):
 
 def pocket_resolved(character):
     return 'pocket' in peek(character)
+
+
+def _loot_gold_label(amount):
+    return f'{amount} Pièce{"s" if amount > 1 else ""} d’Or'
+
+
+def loot_choices(number):
+    loot = LOOTS[number]
+    return ([_loot_gold_label(loot['gold'])] if loot['gold'] else []) + list(loot['items'])
+
+
+def loot_taken(character, number):
+    return str(number) in peek(character).get('loots', {})
+
+
+def take_loot(character, number, chosen):
+    """Garder ce que l’on veut du butin, en une seule fouille."""
+    ensure_alive(character)
+    if number not in LOOTS or loot_taken(character, number):
+        raise ValueError('Ce butin est déjà partagé.')
+    chosen = list(chosen)
+    pool = loot_choices(number)
+    for name in chosen:
+        if name not in pool:
+            raise ValueError('Objet absent du butin.')
+        pool.remove(name)
+    loot = LOOTS[number]
+    for name in chosen:
+        if loot['gold'] and name == _loot_gold_label(loot['gold']):
+            character['gold'] = character.get('gold', 0) + loot['gold']
+        else:
+            character.setdefault('inventory', []).append(name)
+    state(character).setdefault('loots', {})[str(number)] = chosen
+    return chosen
 
 
 def pick_pocket(character, choice):

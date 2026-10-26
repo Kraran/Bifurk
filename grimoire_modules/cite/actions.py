@@ -188,6 +188,8 @@ class CiteMechanicsActions(FightingFantasyActions):
                 button.clicked.connect(lambda checked=False: self._cite_theft_dialog())
             elif action == 'pocket':
                 button.clicked.connect(lambda checked=False: self._cite_pocket_dialog())
+            elif action == 'loot':
+                button.clicked.connect(lambda checked=False: self._cite_loot_dialog())
             else:
                 button.clicked.connect(lambda checked=False: self.perform_cite_action(action))
             self.event_layout.addWidget(button)
@@ -215,6 +217,8 @@ class CiteMechanicsActions(FightingFantasyActions):
         if number == rules.POCKET and not rules.pocket_resolved(self.character):
             add('Constater le larcin…', 'pocket',
                 tooltip='Une Pièce d’Or ou un objet de votre choix.')
+        if number in rules.LOOTS and not rules.loot_taken(self.character, number):
+            add('Garder ce que vous voulez…', 'loot', tooltip='Prenez ce que vous voulez, en une fois.')
         if number in rules.SHOPS:
             add('Faire ses achats…', 'shop', tooltip='Achats facultatifs, aux prix indiqués par le livre.')
         if rules.has_item(self.character, 'emplatre'):
@@ -287,6 +291,10 @@ class CiteMechanicsActions(FightingFantasyActions):
                 if number != rules.POCKET or rules.pocket_resolved(self.character):
                     return
                 rules.pick_pocket(self.character, payload)
+            elif action == 'loot':
+                if number not in rules.LOOTS:
+                    return
+                rules.take_loot(self.character, number, payload or ())
             elif action == 'poultice':
                 if not rules.has_item(self.character, 'emplatre') or self.combat_available():
                     return
@@ -350,7 +358,7 @@ class CiteMechanicsActions(FightingFantasyActions):
         dialog.deleteLater()
 
     def _cite_pick_items(self, title, text, choices, count, confirm_label):
-        """Choisir exactement count exemplaires ; None si le joueur annule."""
+        """Choisir exactement count exemplaires (None : autant que voulu) ; None si annulé."""
         if count == 0:
             return []
         dialog = QDialog(self)
@@ -366,7 +374,8 @@ class CiteMechanicsActions(FightingFantasyActions):
         confirm = QPushButton(confirm_label)
         confirm.setEnabled(False)
         items.itemSelectionChanged.connect(
-            lambda: confirm.setEnabled(len(items.selectedItems()) == count))
+            lambda: confirm.setEnabled(count is None or len(items.selectedItems()) == count))
+        confirm.setEnabled(count is None)
         confirm.clicked.connect(dialog.accept)
         layout.addWidget(confirm)
         cancel = QPushButton('Annuler')
@@ -388,6 +397,16 @@ class CiteMechanicsActions(FightingFantasyActions):
                                        choices, 1, 'Valider')
         if chosen:
             self.perform_cite_action('pocket', chosen[0])
+
+    def _cite_loot_dialog(self):
+        number = self.current_paragraph
+        if number not in rules.LOOTS or rules.loot_taken(self.character, number):
+            return
+        chosen = self._cite_pick_items(
+            'Le butin', 'Sélectionnez ce que vous gardez (rien, une partie ou tout).',
+            rules.loot_choices(number), None, 'Garder la sélection')
+        if chosen is not None:
+            self.perform_cite_action('loot', chosen)
 
     def _cite_theft_dialog(self):
         if self.current_paragraph != rules.THEFT or rules.theft_resolved(self.character):

@@ -117,8 +117,10 @@ destination ni événement à venir affiché.
   perdues en cas d'échec) et §192 (Habileté −1 en cas d'échec) ; double épreuve
   de Chance du §128, issue selon le nombre d'échecs.
 - **Événements** : volée de flèches du §137 (un dé, 3 points par flèche puis 2) ;
-  larcin du §148 (une Pièce d'Or ou un objet, au choix du joueur) ; emplâtre
-  d'herbes utilisable hors combat (un dé d'Endurance, puis consommé).
+  larcin du §148 (une Pièce d'Or ou un objet, au choix du joueur) ; tiroir du
+  joaillier au §114 (VO « Take what you will » : les 13 Pièces d'Or et les trois
+  bagues se gardent au choix, en une fouille) ;
+  emplâtre d'herbes utilisable hors combat (un dé d'Endurance, puis consommé).
 - **Combats** : §130, §140 (fuite après 3 assauts), §144, §152 et §157 (Force
   d'Attaque −2 et −3), §166, §170 (fuite possible), §177, §191, §193 (pas de
   combat à l'épée avec un Anneau de Feu).
