@@ -157,3 +157,15 @@ class WindowTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class PrepareSpeechTextTests(unittest.TestCase):
+    def test_layout_line_breaks_are_joined(self):
+        from tts import prepare_speech_text
+        raw = "Vous entrez dans la\nruelle sombre et un aven-\nturier vous salue.\nIl sourit.\n\nRendez-vous au 12."
+        self.assertEqual(prepare_speech_text(raw),
+                         "Vous entrez dans la ruelle sombre et un aventurier vous salue.\nIl sourit.\n\nRendez-vous au 12.")
+
+    def test_compound_words_keep_their_hyphen(self):
+        from tts import prepare_speech_text
+        self.assertEqual(prepare_speech_text("allez au\nRendez-\nVous"), "allez au Rendez-Vous")
