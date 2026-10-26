@@ -1,10 +1,10 @@
-"""Règles relues des §1 à 100 de la Cité des Voleurs, sans Qt ni hasard.
+"""Règles relues des §1 à 200 de la Cité des Voleurs, sans Qt ni hasard.
 
 Les tables ci-dessous résument les seuls événements de la tranche analysée :
 effets d’arrivée, épreuves, boutiques, prix des renvois et conditions d’objets.
 Les jets sont fournis par l’appelant. L’état sauvegardé est rangé sous
 ``character['book_state']['cite']`` ; aucun texte du livre n’y est recopié.
-Les paragraphes 101 à 400 restent en consultation : seuls les prix des renvois
+Les paragraphes 201 à 400 restent en consultation : seuls les prix des renvois
 qui mènent dans la tranche (le paiement y est décrit) sont appliqués ailleurs.
 """
 import unicodedata
@@ -13,7 +13,7 @@ from ..fighting_fantasy import adventure
 from ..fighting_fantasy.adventure import dice, ensure_alive
 
 BOOK = 'cite'
-ANALYSED = range(1, 101)
+ANALYSED = range(1, 201)
 
 ARROW = 'Flèche d’argent'
 MAIL = 'Cotte de mailles'
@@ -21,6 +21,21 @@ SHIELD = 'Bouclier'
 GOLD_BROOCH = 'Broche scorpion d’or'
 SILVER_BROOCH = 'Broche scorpion d’argent'
 INSECT_BRACELET = 'Bracelet-insecte d’argent'
+PEARLS = 'Six perles noires'
+SKELETON_KEY = 'Passe-partout'
+EYE_RING = 'Anneau de l’Œil d’Or'
+POULTICE = 'Emplâtre d’herbes'
+CURSED_SHIELD = 'Bouclier à la tour'
+PLAIN_SWORD = 'Épée de combat ordinaire'
+
+# Familles d’objets : (mots-clés acceptés, mots-clés exclus). Un nom libre saisi
+# dans l’inventaire est reconnu par mot-clé ; ces familles évitent qu’une fleur
+# de lotus passe pour un bouquet, ou une fleur dorée pour l’inverse.
+ITEM_KINDS = {
+    'bouquet': (('bouquet', 'fleur'), ('lotus', "d'or", 'doree')),
+    'fleurs d’or': (("fleurs d'or", "fleur d'or", 'fleur doree', 'fleurs dorees'), ()),
+    'épée': (('epee',), ()),
+}
 
 # Habileté de port : la cotte de mailles « ajoute 2 points » tant qu’elle est
 # portée (§46) et les retire quand il faut l’enlever (§11). Le score de base de
@@ -47,7 +62,7 @@ ENTRY_EFFECTS = {
     46: {'gain': (MAIL,)},
     47: {'endurance': -3},
     54: {'gold': 2, 'gain': ('Laissez-passer de marchand',)},
-    55: {'gold': 10, 'lose': ('fleur',)},
+    55: {'gold': 10, 'lose': ('fleurs d’or',)},
     58: {'endurance': -1},
     79: {'endurance': -4, 'habilete': -1},
     82: {'lose': ('contrôle mental',), 'gain': ('Mèche de cheveux de Sorcière',)},
@@ -58,6 +73,26 @@ ENTRY_EFFECTS = {
     94: {'endurance': 6},
     97: {'chance': 1, 'gain': ('Clef en fer',)},
     98: {'endurance': 3, 'chance': 1},
+    106: {'lose': ('lanterne',)},
+    111: {'chance': 2, 'gain': (PEARLS,)},
+    114: {'gold': 13, 'gain': ('Trois bagues ornées de pierreries',)},
+    123: {'gold': 3, 'chance': 1, 'gain': (SKELETON_KEY,)},
+    # Bouclier maudit : impossible de s’en débarrasser (objet verrouillé).
+    125: {'habilete': -1, 'gain': (CURSED_SHIELD,), 'lock': True},
+    # 2 points par flèche reçue au §137, puis l’épée d’Owen Carralif échangée.
+    126: {'arrow_heal': 2, 'habilete': -1, 'swap_sword': PLAIN_SWORD},
+    132: {'gain': (SILVER_BROOCH,)},
+    134: {'gold_all': True},
+    147: {'gold': 16},
+    149: {'endurance': -2},
+    155: {'endurance': -3},
+    163: {'chance': 2, 'gain': (EYE_RING,)},
+    167: {'chance': 1, 'gain': (POULTICE,)},
+    172: {'gold': 2, 'lose': ('bouquet',)},
+    186: {'gold': 4},
+    194: {'gain': ('Boule de verre',)},
+    198: {'gold': 9, 'gain': ('Crâne d’ivoire à chaîne d’argent',)},
+    199: {'gold': 5},
 }
 
 # Épreuves à deux issues : (caractéristique, réussite, échec, blessure d’échec).
@@ -69,12 +104,26 @@ BRANCH_TESTS = {
     64: ('chance', 353, 309, 1),
     69: ('habilete', 355, 151, 0),
     81: ('chance', 392, 243, 0),
+    120: ('chance', 84, 152, 0),
+    162: ('chance', 7, 226, 0),
+    168: ('habilete', 359, 266, 0),
+    175: ('chance', 204, 373, 0),
+    190: ('habilete', 38, 296, 0),
+    # §192 : une seule suite ; l’échec coûte 1 point d’Habileté.
+    192: ('chance', 304, 304, 0),
 }
+# Pertes imprimées en cas d’échec, en plus du renvoi : (ressource, montant).
+TEST_PENALTIES = {190: ('gold', 5), 192: ('habilete', 1)}
+# §128 : deux fois la Chance ; la destination dépend du nombre d’échecs (0, 1, 2).
+DOUBLE_TESTS = {128: ('chance', (340, 149, 19))}
 
 # Événements à résoudre avant de repartir : un dé de soin, le larcin de l’Elfe.
 DIE_HEAL = 83
 THEFT = 63
 THEFT_ITEMS, THEFT_GOLD = 2, 5
+# §148 : 1 Pièce d’Or ou un objet, au choix du joueur. §137 : un dé de flèches.
+POCKET, POCKET_GOLD = 148, '1 Pièce d’Or'
+VOLLEY, VOLLEY_HIT, VOLLEY_AFTER = 137, 3, 2
 # Le larcin vise le sac à dos : arme, armures et bijoux portés n’y sont pas.
 WORN_KEYWORDS = ('epee', 'armure', 'cotte de mailles', 'broche', 'anneau', 'bracelet')
 
@@ -89,8 +138,17 @@ SHOPS = {
 
 # Prix payés en choisissant le renvoi : la destination décrit le paiement.
 ROUTE_COSTS = {(3, 37): 3, (91, 332): 1, (315, 8): 6, (169, 46): 20,
-               (276, 41): 15, (246, 98): 2}
-COST_LABELS = {(315, 8): '6 Pièces d’Or'}
+               (276, 41): 15, (246, 98): 2, (315, 132): 6, (119, 233): 3, (151, 351): 10,
+               (160, 211): 1, (160, 242): 1, (182, 279): 10, (183, 366): 1, (183, 167): 4}
+COST_LABELS = {(315, 8): '6 Pièces d’Or', (315, 132): '6 Pièces d’Or'}
+# §150 : l’amende est tout l’or du sac ; §182 : renoncer seulement sans 10 Pièces d’Or.
+ALL_GOLD_ROUTES = {(150, 367)}
+GOLD_BELOW_ROUTES = {(182, 354): 10}
+# Renvois payés par un objet choisi : sac à dos (§113) ou objet magique exigé (§187).
+ITEM_PAYMENTS = {(113, 141): 'backpack', (187, 260): 'magic'}
+NO_MAGIC_ROUTE = (187, 341)
+MAGIC_KEYWORDS = ('anneau', 'armure magique', 'potion')
+STARTING_POTION = 'potion de départ'
 # §248 : 10 Pièces d’Or ou deux objets magiques ; « Sinon » mène au §42.
 ARROW_OFFER, ARROW_PRICE, ARROW_ITEMS, ARROW_FALLBACK = (248, 85), 10, 2, (248, 42)
 
@@ -100,14 +158,23 @@ ITEM_ROUTES = {
     (35, 305): ('miroir', True), (35, 382): ('anneau de glace', True),
     (44, 18): ('poignard de jet', True), (44, 225): ('poignard de jet', False),
     (53, 328): ('argent', True), (53, 39): ('argent', False),
-    (61, 172): ('fleur', True), (61, 350): ('fleur', False),
+    (61, 172): ('bouquet', True), (61, 350): ('bouquet', False),
     (80, 392): ('broche scorpion', True), (80, 215): ('broche scorpion', False),
+    (118, 2): ('bracelet-insecte', True), (118, 166): ('bracelet-insecte', False),
+    (146, 220): ('passe-partout', True), (146, 388): ('passe-partout', False),
+    (184, 55): ('fleurs d’or', True), (184, 308): ('fleurs d’or', False),
+    (193, 286): ('anneau de feu', True), (193, 163): ('anneau de feu', False),
 }
+# §108 et §156 : les objets nécessaires contre le Prince de la Nuit et le tatouage.
+MISSION_ITEMS = ('flèche d’argent', 'perles noires', 'cheveux de sorcière', 'lotus')
+TATTOO_PARAGRAPHS = (279,)
+MISSION_ROUTES = {(108, 201): True, (108, 299): False, (156, 201): True, (156, 299): False}
 # « Si vous ne l’avez pas encore fait » : la destination ne doit pas avoir été lue.
-NOT_YET_ROUTES = {(7, 232), (13, 273), (43, 175), (43, 209), (96, 319)}
+NOT_YET_ROUTES = {(7, 232), (13, 273), (43, 175), (43, 209), (96, 319),
+                  (104, 118), (111, 232), (174, 356), (176, 271)}
 
-ENDINGS = (9, 56, 59, 70)
-DEATHS = (9, 59, 70)
+ENDINGS = (9, 56, 59, 70, 129, 142)
+DEATHS = (9, 59, 70, 129, 142)
 
 
 def state(character):
@@ -123,10 +190,18 @@ def _fold(text):
     return ''.join(c for c in text if not unicodedata.combining(c))
 
 
+def _matches(name, keyword):
+    if keyword in ITEM_KINDS:
+        accepted, excluded = ITEM_KINDS[keyword]
+        folded = _fold(name)
+        return (any(_fold(key) in folded for key in accepted)
+                and not any(_fold(key) in folded for key in excluded))
+    return _fold(keyword) in _fold(name)
+
+
 def matching_items(character, keyword):
     """Exemplaires du sac dont le nom contient le mot-clé (casse et accents ignorés)."""
-    key = _fold(keyword)
-    return [name for name in character.get('inventory', []) if key in _fold(name)]
+    return [name for name in character.get('inventory', []) if _matches(name, keyword)]
 
 
 def has_item(character, keyword):
@@ -168,8 +243,17 @@ def apply_entry(character, number):
         inventory.remove(MAIL)
     if effect.get('provisions') == 'all':
         character['provisions'] = 0
+    if effect.get('gold_all'):
+        character['gold'] = 0
+    if effect.get('swap_sword'):
+        for name in matching_items(character, 'épée')[:1]:
+            inventory[inventory.index(name)] = effect['swap_sword']
+    if effect.get('arrow_heal'):
+        _change(character, 'endurance', effect['arrow_heal'] * peek(character).get('arrows', 0))
     character['gold'] = character.get('gold', 0) + effect.get('gold', 0)
     inventory.extend(effect.get('gain', ()))
+    if effect.get('lock'):
+        character.setdefault('locked_items', []).extend(effect.get('gain', ()))
     for key in ('habilete', 'chance'):
         if effect.get(key):
             _change(character, key, effect[key])
@@ -188,10 +272,38 @@ def resolve_test(character, number, total):
     if number not in BRANCH_TESTS or test_resolved(character, number):
         raise ValueError('Cette épreuve est déjà résolue.')
     dice(total)
+    stat = BRANCH_TESTS[number][0]
+    passed = total <= (character['chance'] if stat == 'chance' else effective_skill(character))
     target = adventure.branch_test(character, BOOK, BRANCH_TESTS[number], total,
                                    effective_skill(character))
+    if not passed and number in TEST_PENALTIES and target is not None:
+        resource, amount = TEST_PENALTIES[number]
+        if resource == 'gold':
+            adventure.pay(character, BOOK, gold=min(amount, character.get('gold', 0)))
+        else:
+            _change(character, resource, -amount)
     state(character).setdefault('tests', {})[str(number)] = target
     return target
+
+
+def resolve_double(character, number, totals):
+    """§128 : deux tests de Chance ; la destination dépend du nombre d’échecs."""
+    ensure_alive(character)
+    if number not in DOUBLE_TESTS or test_resolved(character, number):
+        raise ValueError('Cette épreuve est déjà résolue.')
+    totals = list(totals)
+    if len(totals) != 2:
+        raise ValueError('Deux jets sont nécessaires.')
+    for total in totals:
+        dice(total)
+    failures = sum(not adventure.stat_test(character, 'chance', total, 0) for total in totals)
+    target = DOUBLE_TESTS[number][1][failures]
+    state(character).setdefault('tests', {})[str(number)] = target
+    return target
+
+
+def pending_test(character, number):
+    return (number in BRANCH_TESTS or number in DOUBLE_TESTS) and not test_resolved(character, number)
 
 
 def test_target(character, number):
@@ -284,12 +396,32 @@ def arrow_offer_payable(character):
 
 def magic_payment_choices(character):
     """Objets proposables à l’orfèvre : tout le sac sauf l’équipement de départ."""
-    locked = set(character.get('locked_items', [])) | {'Épée', 'Armure de cuir'}
+    locked = set(character.get('locked_items', [])) | {'Épée', 'Armure de cuir', PLAIN_SWORD}
     return [name for name in character.get('inventory', []) if name not in locked]
 
 
 def route_cost(source, target):
     return ROUTE_COSTS.get((source, target))
+
+
+def mission_ready(character, visited=()):
+    """§108/§156 : les quatre objets réunis et le tatouage fait (§279 lu)."""
+    return (all(has_item(character, keyword) for keyword in MISSION_ITEMS)
+            and any(number in visited for number in TATTOO_PARAGRAPHS))
+
+
+def item_payment_choices(character, key):
+    """Objets acceptés par un renvoi payé en nature (§113 : sac ; §187 : magie)."""
+    if ITEM_PAYMENTS.get(key) == 'backpack':
+        return theft_choices(character)
+    if ITEM_PAYMENTS.get(key) != 'magic' and key != NO_MAGIC_ROUTE:
+        return []
+    locked = set(character.get('locked_items', []))
+    choices = [name for name in character.get('inventory', [])
+               if name not in locked and any(_fold(k) in _fold(name) for k in MAGIC_KEYWORDS)]
+    if character.get('potion') and character.get('potion_doses', 0) > 0:
+        choices.append(f"{character['potion']} ({STARTING_POTION})")
+    return choices
 
 
 def route_available(character, source, target, visited=()):
@@ -305,6 +437,14 @@ def route_available(character, source, target, visited=()):
         return adventure.route_paid(character, BOOK, *key) or arrow_offer_payable(character)
     if key == ARROW_FALLBACK:
         return not arrow_offer_payable(character)
+    if key in MISSION_ROUTES:
+        return mission_ready(character, visited) == MISSION_ROUTES[key]
+    if key in GOLD_BELOW_ROUTES:
+        return character.get('gold', 0) < GOLD_BELOW_ROUTES[key]
+    if key in ITEM_PAYMENTS:
+        return adventure.route_paid(character, BOOK, *key) or bool(item_payment_choices(character, key))
+    if key == NO_MAGIC_ROUTE:
+        return not item_payment_choices(character, key)
     cost = route_cost(source, target)
     if cost is not None and not adventure.route_paid(character, BOOK, source, target):
         return character.get('gold', 0) >= cost
@@ -326,10 +466,86 @@ def pay_route(character, source, target, items=()):
             adventure.pay(character, BOOK, gold=ARROW_PRICE)
         state(character).setdefault('paid_routes', []).append(f'{source}:{target}')
         return True
+    if (source, target) in ITEM_PAYMENTS:
+        if adventure.route_paid(character, BOOK, source, target):
+            return False
+        items = list(items)
+        choices = item_payment_choices(character, (source, target))
+        if len(items) != 1 or items[0] not in choices:
+            raise ValueError('Choisissez un objet accepté.')
+        if items[0].endswith(f'({STARTING_POTION})'):
+            character['potion_doses'] = 0
+        else:
+            adventure.pay(character, BOOK, items=items)
+        state(character).setdefault('paid_routes', []).append(f'{source}:{target}')
+        return True
+    if (source, target) in ALL_GOLD_ROUTES:
+        if adventure.route_paid(character, BOOK, source, target):
+            return False
+        adventure.pay(character, BOOK, gold=character.get('gold', 0))
+        state(character).setdefault('paid_routes', []).append(f'{source}:{target}')
+        return True
     cost = route_cost(source, target)
     return adventure.pay_route(character, BOOK, source, target,
                                None if cost is None else ('gold', cost),
                                pay_gold=lambda amount: adventure.pay(character, BOOK, gold=amount))
+
+
+def volley(character, die):
+    """§137 : un dé de flèches, 3 points chacune, puis 2 points de plus si l’on survit."""
+    ensure_alive(character)
+    if peek(character).get('arrows') is not None:
+        raise ValueError('La volée est déjà lancée.')
+    dice(die, 1, 6)
+    state(character)['arrows'] = die
+    adventure.damage_hero(character, BOOK, VOLLEY_HIT * die)
+    if character['endurance'] > 0:
+        adventure.damage_hero(character, BOOK, VOLLEY_AFTER)
+    return die
+
+
+def volley_resolved(character):
+    return peek(character).get('arrows') is not None
+
+
+def pocket_choices(character):
+    """§148 : une Pièce d’Or ou n’importe quel objet non verrouillé."""
+    locked = set(character.get('locked_items', []))
+    gold = [POCKET_GOLD] if character.get('gold', 0) > 0 else []
+    return gold + [name for name in character.get('inventory', []) if name not in locked]
+
+
+def pocket_resolved(character):
+    return 'pocket' in peek(character)
+
+
+def pick_pocket(character, choice):
+    """§148 : le larcin choisi par le joueur ; None si le sac et la bourse sont vides."""
+    ensure_alive(character)
+    if pocket_resolved(character):
+        raise ValueError('Le larcin est déjà constaté.')
+    choices = pocket_choices(character)
+    if choices and choice not in choices:
+        raise ValueError('Choisissez une Pièce d’Or ou un objet du sac.')
+    if not choices:
+        choice = None
+    elif choice == POCKET_GOLD:
+        adventure.pay(character, BOOK, gold=1)
+    else:
+        adventure.pay(character, BOOK, items=[choice])
+    state(character)['pocket'] = choice
+    return choice
+
+
+def use_poultice(character, die):
+    """Emplâtre du §167 : un dé d’Endurance (plafonnée), puis l’emplâtre est utilisé."""
+    ensure_alive(character)
+    if not has_item(character, 'emplatre'):
+        raise ValueError('Aucun emplâtre dans le sac.')
+    dice(die, 1, 6)
+    character['inventory'].remove(matching_items(character, 'emplatre')[0])
+    _change(character, 'endurance', die)
+    return die
 
 
 def finish_ending(character, number):
