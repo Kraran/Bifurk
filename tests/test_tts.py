@@ -13,7 +13,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from PySide6.QtCore import QCoreApplication, QEvent, QTimer
-from PySide6.QtWidgets import QApplication, QComboBox, QDialog
+from PySide6.QtWidgets import QApplication, QComboBox, QDialog, QSlider
 
 import main
 import tts
@@ -153,6 +153,25 @@ class WindowTests(unittest.TestCase):
         again = main.MainWindow()
         self.addCleanup(again.deleteLater)
         self.assertEqual(again.tts.voice, 'fr-FR-DeniseNeural')
+
+
+    def test_voice_volume_is_applied_saved_and_restored(self):
+        def adjust():
+            dialog = self.w.findChild(QDialog, 'ambienceDialog')
+            slider = dialog.findChild(QSlider, 'ttsVolume')
+            self.assertEqual(slider.value(), 80)
+            slider.setValue(35)
+            dialog.reject()
+        QTimer.singleShot(0, adjust)
+        self.w.show_ambience()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        gc.collect()
+        self.assertAlmostEqual(self.w.tts._volume, 0.35)
+        saved = json.loads((self.settings/'preferences.json').read_text(encoding='utf-8'))
+        self.assertEqual(saved['tts_volume'], 35)
+        again = main.MainWindow()
+        self.addCleanup(again.deleteLater)
+        self.assertAlmostEqual(again.tts._volume, 0.35)
 
 
 if __name__ == '__main__':
