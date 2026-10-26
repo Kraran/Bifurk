@@ -1,4 +1,4 @@
-"""Relier les règles relues des §1 à 300 de la Cité aux transactions et aux dés de Qt.
+"""Relier les règles relues des §1 à 400 de la Cité aux transactions et aux dés de Qt.
 
 Comme les autres adaptateurs, les méthodes sont déléguées à MainWindow : appeler
 explicitement le socle plutôt que super(). Les libellés et infobulles ne disent
@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
 
 from ..fighting_fantasy.adventure import advance_group, damage_hero, new_group_combat
 from ..fighting_fantasy.controller import FightingFantasyActions
-from ..fighting_fantasy.rules import escape_damage
+from ..fighting_fantasy.rules import combat_damage, escape_damage, spend_luck
 from . import feedback, rules
 from .encounters import COMBATS, escape_status, profile, victory_target
 
@@ -77,10 +77,15 @@ class CiteMechanicsActions(FightingFantasyActions):
         self._cite_sync_enemy()
 
     def _cite_sync_enemy(self):
+        """Raccorder la cible (combat simultané : choisie, sinon le premier debout)."""
         combat = self._cite_combat()
         if not combat or combat['finished'] or combat.get('escaped'):
             return
-        self._set_book_enemy(combat['groups'][combat['group']][0])
+        group = combat['groups'][combat['group']]
+        living = [index for index, enemy in enumerate(group) if enemy['stamina'] > 0]
+        if combat.get('target', 0) not in living:
+            combat['target'] = living[0] if living else 0
+        self._set_book_enemy(group[combat['target']])
 
     def _combat_roster(self):
         combat = self._cite_combat()
@@ -106,13 +111,36 @@ class CiteMechanicsActions(FightingFantasyActions):
         return escape_status(self.current_paragraph, self._cite_combat())
 
     def _ff_combat_profile(self):
-        attack = COMBATS.get(self.current_paragraph, {}).get('attack', 0)
+        attack = COMBATS.get(self.current_paragraph, {}).get('attack', 0) + rules.attack_bonus(self.character)
         return {'skill': rules.effective_skill(self.character), 'hit_damage': 2,
                 'can_wound': True, 'attack_bonus': attack}
 
     def _ff_defend_hit(self):
         """Blessure imprimée d’un assaut perdu (§253 : 4 points), sinon 2."""
         return COMBATS.get(self.current_paragraph, {}).get('wound', 2), ''
+
+    def _ff_after_attack_rolls(self):
+        """§392 : un dé par Assaut pour le souffle de feu ; 1 à 3 brûlent d’un point.
+
+        La Chance s’applique comme pour une blessure : réussie 0, ratée 2."""
+        faces = COMBATS.get(self.current_paragraph, {}).get('fire')
+        if not faces:
+            return True
+        _, die = self._roll(1, context='Souffle de feu')
+        if die not in faces:
+            self._log_combat_detail(f'Souffle de feu : {die}, jet évité.')
+            return True
+        lucky = None
+        if self._assault_luck_choice('Le souffle de feu vous brûle',
+                                     f'Dé {die} : vous perdez 1 point d’Endurance.',
+                                     'Tenter votre Chance contre le feu ?') == QMessageBox.Yes:
+            _, total = self._roll(2, context='Chance — contre le feu')
+            lucky = spend_luck(self.character, total)
+        damage = combat_damage(1, attacking=False, lucky=lucky)
+        damage_hero(self.character, rules.BOOK, damage)
+        self._refresh_character()
+        self._log_combat_detail(f'Souffle de feu : {die}, brûlure −{damage} Endurance.')
+        return self.character['endurance'] > 0
 
     def _ff_enemy_defeated(self):
         """L’adversaire suivant est préparé après l’assaut, par advance_group."""
@@ -128,9 +156,18 @@ class CiteMechanicsActions(FightingFantasyActions):
         if not self.combat_available():
             return
         combat = self._cite_combat()
-        enemy = combat['groups'][combat['group']][0]
+        group = combat['groups'][combat['group']]
+        target = combat.get('target', 0)
+        enemy = group[target]
+        # Combat simultané (§311, §326) : les autres adversaires debout attaquent aussi ;
+        # contre eux, on ne fait que parer (aucune blessure infligée).
+        defenders = [other for index, other in enumerate(group) if index != target and other['stamina'] > 0]
         FightingFantasyActions.combat_round(self)
         enemy['stamina'] = self.enemy_endurance.value()
+        for defender in defenders:
+            if self.character['endurance'] <= 0:
+                break
+            self._cite_parry(defender)
         combat['assaults'] += 1
         if self.character['endurance'] > 0:
             advance_group(combat)
@@ -146,6 +183,26 @@ class CiteMechanicsActions(FightingFantasyActions):
         self._refresh_character()
         if self.current_paragraph in self.paragraphs:
             self._render_choices_and_events(self.paragraphs[self.current_paragraph])
+
+    def _cite_parry(self, defender):
+        """Jet d’attaque contre un adversaire non ciblé : il blesse s’il l’emporte."""
+        enemy_rolls, enemy_total = self._roll(2, context='Combat — ' + defender['name'], opponent=True)
+        hero_rolls, hero_total = self._roll(2, context='Combat — parade contre ' + defender['name'])
+        hero_attack = rules.effective_skill(self.character) + hero_total + self._ff_combat_profile()['attack_bonus']
+        enemy_attack = defender['skill'] + enemy_total
+        damage = 0
+        if enemy_attack > hero_attack:
+            base, _ = self._ff_defend_hit()
+            lucky = None
+            if self._assault_luck_choice('Une seconde attaque vous touche',
+                                         f'{defender["name"]} : attaque {enemy_attack}, votre parade {hero_attack}.',
+                                         'Tenter votre Chance pour réduire la blessure ?') == QMessageBox.Yes:
+                _, total = self._roll(2, context='Chance — réduire la seconde blessure')
+                lucky = spend_luck(self.character, total)
+            damage = combat_damage(base, attacking=False, lucky=lucky)
+            damage_hero(self.character, rules.BOOK, damage)
+        self._log_combat_detail(f'{defender["name"]} : {enemy_rolls} → {enemy_attack} ; '
+                                f'parade {hero_rolls} → {hero_attack}. Héros −{damage} Endurance.')
 
     def _cite_after_combat(self):
         """Broche scorpion d’argent : 1 point d’Endurance après chaque combat survécu."""
@@ -190,12 +247,12 @@ class CiteMechanicsActions(FightingFantasyActions):
 
     def _cite_mechanics_buttons(self):
         """Afficher les seules commandes implantées ; tout est revérifié au clic."""
-        def add(label, action, enabled=True, tooltip=''):
+        def add(label, action, enabled=True, tooltip='', payload=None, combat=False):
             button = QPushButton(label)
             if tooltip:
                 button.setToolTip(tooltip)
             button.setEnabled(enabled and self.character['endurance'] > 0)
-            button.setProperty('combatAction', False)
+            button.setProperty('combatAction', combat)
             if action == 'shop':
                 button.clicked.connect(lambda checked=False: self._cite_shop())
             elif action == 'theft':
@@ -210,6 +267,10 @@ class CiteMechanicsActions(FightingFantasyActions):
                 button.clicked.connect(lambda checked=False: self._cite_loot_dialog())
             elif action == 'trade':
                 button.clicked.connect(lambda checked=False: self._cite_trade_dialog())
+            elif action == 'pawn':
+                button.clicked.connect(lambda checked=False: self._cite_pawn_dialog())
+            elif payload is not None:
+                button.clicked.connect(lambda checked=False: self.perform_cite_action(action, payload))
             else:
                 button.clicked.connect(lambda checked=False: self.perform_cite_action(action))
             self.event_layout.addWidget(button)
@@ -272,6 +333,24 @@ class CiteMechanicsActions(FightingFantasyActions):
                 else 'Rien de ce que demande le livre dans votre sac.')
         if number in rules.SHOPS:
             add('Faire ses achats…', 'shop', tooltip='Achats facultatifs, aux prix indiqués par le livre.')
+        if number == rules.PAWNBROKER:
+            choices = rules.pawn_choices(self.character)
+            add('Vendre au prêteur sur gages…', 'pawn', enabled=bool(choices),
+                tooltip='Ventes facultatives, aux prix indiqués par le livre.' if choices
+                else 'Rien de ce que rachète le prêteur dans votre sac.')
+        if number == rules.CANNONBALL and not rules.cannon_resolved(self.character):
+            add('Jouer au boulet de canon — un dé chacun', 'cannon',
+                tooltip=f'Un dé à tour de rôle jusqu’au premier 1 ; le perdant paie {_coins(rules.CANNON_STAKE)}.')
+        if self.combat_available():
+            combat = self._cite_combat()
+            group = combat['groups'][combat['group']]
+            living = [index for index, enemy in enumerate(group) if enemy['stamina'] > 0]
+            # « Cibler » seulement à deux adversaires debout : seul, le dernier est la cible.
+            if len(living) >= 2:
+                for index in living:
+                    add(('⚔ ' if index == combat.get('target', 0) else '') + 'Cibler ' + group[index]['name'],
+                        'target', payload=index, combat=True,
+                        tooltip='Adversaire attaqué à cet Assaut ; les autres sont seulement parés.')
         if rules.has_item(self.character, 'emplatre'):
             fighting = self.combat_available()
             add('Appliquer l’emplâtre d’herbes — un dé d’Endurance', 'poultice', enabled=not fighting,
@@ -292,7 +371,7 @@ class CiteMechanicsActions(FightingFantasyActions):
         if outcome == 'error':
             return
         kind = ({'branch_test': rules.BRANCH_TESTS.get(number, ('',))[0], 'double_test': 'chance',
-                 'gamble': 'gamble', 'creature': 'creature'}.get(action))
+                 'gamble': 'gamble', 'creature': 'creature', 'cannon': 'cannon'}.get(action))
         moved = self.current_paragraph if self.current_paragraph != number else None
         message = feedback.summary(before, feedback.snapshot(self.character),
                                    kind=kind, trace=trace, destination=moved)
@@ -381,6 +460,31 @@ class CiteMechanicsActions(FightingFantasyActions):
                 if number != rules.TRADE:
                     return
                 rules.trade_flower(self.character, payload)
+            elif action == 'pawn':
+                if number != rules.PAWNBROKER:
+                    return
+                rules.pawn_sell(self.character, payload or ())
+            elif action == 'cannon':
+                if number != rules.CANNONBALL or rules.cannon_resolved(self.character):
+                    return
+                rolls = []
+                while not rolls or rolls[-1] != 1:
+                    if len(rolls) >= rules.CANNON_LIMIT:
+                        raise ValueError('Partie interrompue : trop de lancers sans 1.')
+                    mine = len(rolls) % 2 == 0
+                    _, die = self._roll(1, context='Vous' if mine else 'L’homme à la poitrine nue',
+                                        opponent=not mine)
+                    rolls.append(die)
+                rules.cannonball(self.character, rolls)
+            elif action == 'target':
+                combat = self._cite_combat()
+                if not self.combat_available() or type(payload) is not int:
+                    return
+                group = combat['groups'][combat['group']]
+                if not 0 <= payload < len(group) or group[payload]['stamina'] <= 0:
+                    return
+                combat['target'] = payload
+                self._cite_sync_enemy()
             elif action == 'poultice':
                 if not rules.has_item(self.character, 'emplatre') or self.combat_available():
                     return
@@ -524,6 +628,19 @@ class CiteMechanicsActions(FightingFantasyActions):
             rules.loot_choices(number), None, 'Garder la sélection')
         if chosen is not None:
             self.perform_cite_action('loot', chosen)
+
+    def _cite_pawn_dialog(self):
+        """§354 : autant de ventes que voulu ; chaque validation est une transaction."""
+        if self.current_paragraph != rules.PAWNBROKER:
+            return
+        offers = rules.pawn_choices(self.character)
+        labels = [f'{name} — {_coins(price)}' for name, price in offers]
+        names = dict(zip(labels, (name for name, _price in offers)))
+        chosen = self._cite_pick_items('Le prêteur sur gages',
+                                       'Sélectionnez ce que vous vendez, au prix offert.',
+                                       labels, None, 'Vendre la sélection')
+        if chosen:
+            self.perform_cite_action('pawn', [names[label] for label in chosen])
 
     def _cite_trade_dialog(self):
         if self.current_paragraph != rules.TRADE or rules.traded(self.character):

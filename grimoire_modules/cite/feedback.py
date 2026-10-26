@@ -46,7 +46,7 @@ def describe_rolls(kind, trace, before):
             label = 'Chance' if kind == 'chance' else 'Habileté'
             lines.append(f"{label} : {_faces(entry)} {'≤' if ok else '>'} {score}, "
                          + ('réussi' if ok else 'raté'))
-        elif kind == 'gamble':
+        elif kind in ('gamble', 'cannon'):
             continue
         elif kind == 'creature':
             name = rules.CREATURES.get(entry['total'], ('?',))[0]
@@ -60,6 +60,11 @@ def describe_rolls(kind, trace, before):
                   if own['total'] < max(dwarves) else 'égalité, mise reprise')
         lines.append('Nains : ' + ', '.join(_faces(entry) for entry in trace[:rules.GAMBLE_DWARVES])
                      + f' ; vous : {_faces(own)} — {result}')
+    if kind == 'cannon' and trace:
+        turns = [('vous' if index % 2 == 0 else 'lui') + f' {entry["total"]}'
+                 for index, entry in enumerate(trace)]
+        loser = 'vous lâchez le boulet' if len(trace) % 2 == 1 else 'il lâche le boulet'
+        lines.append('Boulet de canon : ' + ', '.join(turns) + f' — {loser}')
     return lines
 
 

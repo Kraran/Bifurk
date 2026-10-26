@@ -12,7 +12,8 @@ from grimoire_modules.cite import rules
 from grimoire_modules.cite.controller import PENDING_REASON
 from grimoire_modules.cite.encounters import COMBATS, escape_status
 from grimoire_modules.fighting_fantasy.adventure import new_group_combat
-from tests.test_cite_mechanics import CiteMechanicsWindowTests, hero
+from tests import test_cite_mechanics as mechanics
+from tests.test_cite_mechanics import hero
 
 MISSION = [rules.ARROW, rules.PEARLS, 'Cheveux de sorcière', 'Fleur de lotus']
 
@@ -184,15 +185,15 @@ class CiteSecondHundredEncounterTests(unittest.TestCase):
 
 
 class CiteSecondHundredWindowTests(unittest.TestCase):
-    setUpClass = classmethod(CiteMechanicsWindowTests.setUpClass.__func__)
-    setUp = CiteMechanicsWindowTests.setUp
-    open = CiteMechanicsWindowTests.open
-    start = CiteMechanicsWindowTests.start
-    buttons = CiteMechanicsWindowTests.buttons
-    play = CiteMechanicsWindowTests.play
-    events = CiteMechanicsWindowTests.events
-    event_button = CiteMechanicsWindowTests.event_button
-    winning_rolls = CiteMechanicsWindowTests.winning_rolls
+    setUpClass = classmethod(mechanics.CiteMechanicsWindowTests.setUpClass.__func__)
+    setUp = mechanics.CiteMechanicsWindowTests.setUp
+    open = mechanics.CiteMechanicsWindowTests.open
+    start = mechanics.CiteMechanicsWindowTests.start
+    buttons = mechanics.CiteMechanicsWindowTests.buttons
+    play = mechanics.CiteMechanicsWindowTests.play
+    events = mechanics.CiteMechanicsWindowTests.events
+    event_button = mechanics.CiteMechanicsWindowTests.event_button
+    winning_rolls = mechanics.CiteMechanicsWindowTests.winning_rolls
 
     def fixed_rolls(self, *faces):
         queue = list(faces)

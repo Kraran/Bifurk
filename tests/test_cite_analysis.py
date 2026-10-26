@@ -33,6 +33,14 @@ class CiteAnalysisTests(unittest.TestCase):
         self.assertEqual((report['orphans'], report['unreachable']), ([], []))
         self.assertEqual(report['blocking_source_issues'], [])
         self.assertEqual(report['terminal_paragraphs'], [9, 56, 59, 70, 129, 142, 210, 288, 299, 346, 400])
+        self.assertEqual((report['analysed'], report['endings_reachable']), (400, 11))
+
+    def test_audit_rejects_an_ending_unknown_to_the_engine(self):
+        catalogue = deepcopy(self.data)
+        catalogue['paragraphs']['400']['routes'] = [{'target': 1, 'label': 'Recommencer'}]
+        catalogue['paragraphs']['400']['mode'] = 'suite'
+        with self.assertRaises(ValueError):
+            audit(catalogue)
 
     def test_catalogue_never_enables_runtime_events(self):
         for number in range(1, 401):

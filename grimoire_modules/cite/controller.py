@@ -1,11 +1,9 @@
-"""Adaptateur de la Cité des Voleurs : §1 à 300 analysés, le reste en consultation.
+"""Adaptateur de la Cité des Voleurs : les §1 à 400 sont analysés.
 
 Les 400 renvois sont relus et catalogués (titre neutre, libellé, condition
-imprimée résumée). Pour les passages analysés (§1 à 300), les conditions
-imprimées sont appliquées ici, en Python, à partir de ``rules`` et
-``encounters`` : combats, épreuves, effets d’arrivée, achats et prix des
-renvois. Les autres passages restent consultables : leurs conditions sont
-informatives, sauf les prix des renvois qui mènent dans la tranche analysée.
+imprimée résumée). Pour les passages analysés, les conditions imprimées sont
+appliquées ici, en Python, à partir de ``rules`` et ``encounters`` : combats,
+épreuves, effets d’arrivée, achats, ventes et prix des renvois.
 Aucune action du Sorcier ni de la Forêt n’est héritée, car leurs numéros de
 paragraphes désignent d’autres scènes.
 """
@@ -35,7 +33,7 @@ DECIDED_REASON = 'la suite de ce passage est déjà déterminée.'
 
 
 class CiteController(CiteMechanicsActions):
-    """Consulter le livre et jouer les mécaniques relues des §1 à 300."""
+    """Consulter le livre et jouer les mécaniques relues des §1 à 400."""
     def _cite_entry(self):
         """Lire l'entrée de renvois du passage affiché (consultée ou analysée)."""
         entry = (self.book_event_catalogue or {}).get('paragraphs', {}).get(str(self.current_paragraph), {})
@@ -90,6 +88,8 @@ class CiteController(CiteMechanicsActions):
                                             and rules.creature_rolled(character)):
             return set(), PENDING_REASON
         if number == rules.BRAWL and not rules.brawl_resolved(character):
+            return set(), PENDING_REASON
+        if number == rules.CANNONBALL and not rules.cannon_resolved(character):
             return set(), PENDING_REASON
         return available, None
 
@@ -189,9 +189,11 @@ class CiteController(CiteMechanicsActions):
         self._clear_dynamic_layout(self.choice_layout)
         self._clear_dynamic_layout(self.event_layout)
         self._clear_dynamic_layout(self.condition_layout)
-        if rules.peek(self.character).get('ending'):
-            notice = QLabel('Aventure terminée — votre mission s’arrête ici. '
-                            'Vous pouvez annuler la dernière action ou charger une partie.')
+        ending = rules.peek(self.character).get('ending')
+        if ending:
+            notice = QLabel('Victoire — votre mission est accomplie. ' if ending == rules.VICTORY
+                            else 'Aventure terminée — votre mission s’arrête ici. ')
+            notice.setText(notice.text() + 'Vous pouvez annuler la dernière action ou charger une partie.')
             notice.setWordWrap(True)
             self.event_layout.addWidget(notice)
             self.choice_group.hide()

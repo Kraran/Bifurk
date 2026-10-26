@@ -1,11 +1,11 @@
-"""Règles relues des §1 à 300 de la Cité des Voleurs, sans Qt ni hasard.
+"""Règles relues des §1 à 400 de la Cité des Voleurs, sans Qt ni hasard.
 
 Les tables ci-dessous résument les seuls événements de la tranche analysée :
 effets d’arrivée, épreuves, boutiques, prix des renvois et conditions d’objets.
 Les jets sont fournis par l’appelant. L’état sauvegardé est rangé sous
 ``character['book_state']['cite']`` ; aucun texte du livre n’y est recopié.
-Les paragraphes 301 à 400 restent en consultation : seuls les prix des renvois
-qui mènent dans la tranche (le paiement y est décrit) sont appliqués ailleurs.
+Depuis la phase 3.4, les 400 paragraphes sont analysés ; la VO anglaise fait
+référence en cas de divergence avec la traduction.
 """
 import re
 import unicodedata
@@ -14,7 +14,7 @@ from ..fighting_fantasy import adventure
 from ..fighting_fantasy.adventure import dice, ensure_alive
 
 BOOK = 'cite'
-ANALYSED = range(1, 301)
+ANALYSED = range(1, 401)
 
 ARROW = 'Flèche d’argent'
 MAIL = 'Cotte de mailles'
@@ -44,16 +44,24 @@ ITEM_KINDS = {
     'ail': (("d'ail", '=ail'), ()),
     'œil d’or': (("œil d'or", "oeil d'or"), ()),
     'pierres précieuses': (('pierres precieuses', 'pierre precieuse'), ()),
+    # §265 « contrôle mental » ; la potion du §359 s’appelle « Contrôle de l’esprit ».
+    'contrôle mental': (('controle mental', "controle de l'esprit"), ()),
 }
 
 # Habileté de port : la cotte de mailles « ajoute 2 points » tant qu’elle est
 # portée (§46) et les retire quand il faut l’enlever (§11). Le score de base de
 # la fiche n’est pas modifié : le plafond initial des règles reste intact.
 EQUIPMENT_SKILL = ((MAIL, 2),)
+# Force d’Attaque : le bouclier du §340 et le casque du §376 ajoutent 1 point
+# à chaque Assaut tant qu’ils sont dans l’inventaire (pas à l’Habileté).
+MAGNIFICENT_SHIELD = 'Bouclier magnifique'
+MAGIC_HELMET = 'Casque magique'
+EQUIPMENT_ATTACK = ((MAGNIFICENT_SHIELD, 1), (MAGIC_HELMET, 1))
 
 # Effets d’arrivée appliqués une seule fois par partie. Clés : endurance,
 # habilete, chance, gold (variations), gain (objets), lose (mots-clés d’objets
-# retirés s’ils sont présents), provisions ('all' : toutes retirées).
+# retirés s’ils sont présents), provisions ('all' : toutes retirées), pay (or
+# remis, au plus ce que l’on possède), lose_all (tous les objets du mot-clé).
 ENTRY_EFFECTS = {
     2: {'lose': ('bracelet',)},
     7: {'chance': 2, 'gain': ('Six perles noires',)},
@@ -118,6 +126,41 @@ ENTRY_EFFECTS = {
     279: {'gain': (TATTOO,), 'lock': True},
     295: {'gold': 12, 'chance': 1},
     298: {'endurance': -4},
+    # ----- Phase 3.4 : §301 à 400 (valeurs relues sur la VO) -----
+    305: {'endurance': -2},
+    306: {'gold': 2, 'gain': ('Laissez-passer de marchand',)},
+    312: {'gain': ('Chouette en or',)},
+    322: {'gold': 11},
+    # §324 : on n’emporte que l’or et les pierres ; essayer le gant mène au §89.
+    324: {'gold': 15, 'gain': ('Deux pierres précieuses',)},
+    325: {'endurance': 5},
+    # §328 : l’objet d’argent est remis en choisissant le renvoi du §53.
+    328: {'gold': 2},
+    330: {'endurance': -3},
+    332: {'chance': 1},
+    338: {'chance': -3},
+    340: {'chance': 1, 'gold': 25, 'gain': (MAGNIFICENT_SHIELD,)},
+    341: {'pay': 5},
+    # §343 : « tous vos objets d’argent » fondent (flèche d’argent comprise).
+    343: {'endurance': -3, 'lose_all': ('argent',)},
+    351: {'gain': ('Clef en fer',)},
+    359: {'gold': 8, 'endurance': 2,
+          'gain': ('Potion de Contrôle de l’esprit', 'Flûte en argent', 'Morceau de craie',
+                   'Bandeau pour l’œil')},
+    362: {'gain': ('Bottes magiques',), 'habilete': 1},
+    364: {'pay': 2},
+    365: {'habilete': -1},
+    366: {'endurance': -2},
+    # §367 : on garde 1 Pièce d’Or escamotée sur l’amende (VO « except 1 Gold Piece »).
+    367: {'refund_all_gold': 1},
+    373: {'endurance': -4, 'habilete': -1},
+    374: {'gain': ('Bouclier du chevalier',), 'habilete': 1},
+    376: {'gain': (MAGIC_HELMET,), 'chance': 1},
+    379: {'endurance': -2},
+    380: {'endurance': 4},
+    387: {'gain': ('Broche scorpion de cuivre',), 'habilete': -1},
+    395: {'chance': -4},
+    397: {'gold': 1},
 }
 
 # Épreuves à deux issues : (caractéristique, réussite, échec, blessure d’échec).
@@ -144,6 +187,9 @@ BRANCH_TESTS = {
     251: ('chance', 269, 330, 0),
     252: ('chance', 275, 155, 0),
     291: ('chance', 74, 10, 2),
+    389: ('habilete', 159, 304, 0),
+    390: ('chance', 144, 59, 0),
+    391: ('chance', 235, 142, 0),
 }
 # Pertes imprimées en cas d’échec, en plus du renvoi : (ressource, montant).
 TEST_PENALTIES = {190: ('gold', 5), 192: ('habilete', 1)}
@@ -212,19 +258,20 @@ SHOPS = {
 ROUTE_COSTS = {(3, 37): 3, (91, 332): 1, (315, 8): 6, (169, 46): 20,
                (276, 41): 15, (246, 98): 2, (315, 132): 6, (119, 233): 3, (151, 351): 10,
                (160, 211): 1, (160, 242): 1, (182, 279): 10, (183, 366): 1, (183, 167): 4,
-               (222, 370): 1, (276, 267): 10, (300, 347): 10, (342, 289): 1}
+               (222, 370): 1, (276, 267): 10, (300, 347): 10, (342, 289): 1,
+               (316, 279): 10, (381, 261): 3, (394, 368): 2}
 # §300 : laisser l’or coûte aussi 2 points de Chance.
 ROUTE_LUCK = {(300, 347): 2}
 # §276→§109 : les cinq pièces sont offertes puis refusées (§109) ; il faut les avoir.
-GOLD_SHOWN_ROUTES = {(276, 109): 5}
+GOLD_SHOWN_ROUTES = {(276, 109): 5, (354, 316): 10}
 # §264 : partager ses vivres coûte deux portions de Provisions.
 PROVISION_ROUTES = {(264, 121): 2}
 COST_LABELS = {(315, 8): '6 Pièces d’Or', (315, 132): '6 Pièces d’Or'}
 # §150 : l’amende est tout l’or du sac ; §182 : renoncer seulement sans 10 Pièces d’Or.
-ALL_GOLD_ROUTES = {(150, 367)}
-GOLD_BELOW_ROUTES = {(182, 354): 10}
+ALL_GOLD_ROUTES = {(150, 367), (335, 367)}
+GOLD_BELOW_ROUTES = {(182, 354): 10, (354, 307): 10}
 # Renvois payés par un objet choisi : sac à dos (§113) ou objet magique exigé (§187).
-ITEM_PAYMENTS = {(113, 141): 'backpack', (187, 260): 'magic'}
+ITEM_PAYMENTS = {(113, 141): 'backpack', (187, 260): 'magic', (53, 328): 'silver'}
 NO_MAGIC_ROUTE = (187, 341)
 MAGIC_KEYWORDS = ('anneau', 'armure magique', 'potion')
 STARTING_POTION = 'potion de départ'
@@ -251,19 +298,28 @@ ITEM_ROUTES = {
     (265, 82): ('contrôle mental', True), (265, 390): ('contrôle mental', False),
     (290, 219): ('laissez-passer', True), (290, 335): ('laissez-passer', False),
     (292, 254): ('ail', True), (292, 210): ('ail', False),
+    (334, 255): ('laissez-passer', True), (334, 99): ('laissez-passer', False),
+    (336, 302): ('pierres précieuses', True),
+    (352, 106): ('lanterne', True),
+    # §353 « clef métallique » : la clef en fer du §97 ou du §351.
+    (353, 181): ('clef en fer', True), (353, 389): ('clef en fer', False),
+    (353, 304): ('clef en fer', False),
+    (358, 108): ('corde', True),
 }
 # §108 et §156 : les objets nécessaires contre le Prince de la Nuit et le tatouage.
 MISSION_ITEMS = ('flèche d’argent', 'perles noires', 'cheveux de sorcière', 'lotus')
 TATTOO_PARAGRAPHS = (279,)
 MISSION_ROUTES = {(108, 201): True, (108, 299): False, (156, 201): True, (156, 299): False,
-                  (239, 201): True, (239, 299): False}
+                  (239, 201): True, (239, 299): False, (367, 201): True, (367, 299): False}
 # « Si vous ne l’avez pas encore fait » : la destination ne doit pas avoir été lue.
 NOT_YET_ROUTES = {(7, 232), (13, 273), (43, 175), (43, 209), (96, 319),
                   (104, 118), (111, 232), (174, 356), (176, 271), (204, 209), (204, 43),
-                  (209, 175), (209, 43), (273, 13), (284, 232)}
+                  (209, 175), (209, 43), (273, 13), (284, 232), (373, 209), (373, 43),
+                  (383, 271)}
 
-ENDINGS = (9, 56, 59, 70, 129, 142, 210, 288, 299)
-DEATHS = (9, 59, 70, 129, 142, 210, 288)
+ENDINGS = (9, 56, 59, 70, 129, 142, 210, 288, 299, 346, 400)
+DEATHS = (9, 59, 70, 129, 142, 210, 288, 346)
+VICTORY = 400
 
 
 def state(character):
@@ -304,6 +360,11 @@ def effective_skill(character):
     return character.get('habilete', 0) + bonus
 
 
+def attack_bonus(character):
+    """Bonus de Force d’Attaque du bouclier (§340) et du casque (§376) emportés."""
+    return sum(value for name, value in EQUIPMENT_ATTACK if name in character.get('inventory', []))
+
+
 def _cap(character, key):
     return character.get('initial', {}).get(key, character[key])
 
@@ -329,6 +390,15 @@ def apply_entry(character, number):
     for keyword in effect.get('lose', ()):
         for name in matching_items(character, keyword)[:1]:
             inventory.remove(name)
+    locked = set(character.get('locked_items', []))
+    for keyword in effect.get('lose_all', ()):
+        for name in [n for n in matching_items(character, keyword) if n not in locked]:
+            inventory.remove(name)
+    if effect.get('pay'):
+        adventure.pay(character, BOOK, gold=min(effect['pay'], character.get('gold', 0)))
+    if effect.get('refund_all_gold'):
+        paid = state(character).get('all_gold_paid', 0)
+        character['gold'] = character.get('gold', 0) + min(effect['refund_all_gold'], paid)
     if effect.get('remove_mail') and MAIL in inventory:
         inventory.remove(MAIL)
     if effect.get('provisions') == 'all':
@@ -524,6 +594,9 @@ def item_payment_choices(character, key):
     """Objets acceptés par un renvoi payé en nature (§113 : sac ; §187 : magie)."""
     if ITEM_PAYMENTS.get(key) == 'backpack':
         return theft_choices(character)
+    if ITEM_PAYMENTS.get(key) == 'silver':
+        locked = set(character.get('locked_items', []))
+        return [name for name in matching_items(character, 'argent') if name not in locked]
     if ITEM_PAYMENTS.get(key) != 'magic' and key != NO_MAGIC_ROUTE:
         return []
     locked = set(character.get('locked_items', []))
@@ -602,6 +675,7 @@ def pay_route(character, source, target, items=()):
     if (source, target) in ALL_GOLD_ROUTES:
         if adventure.route_paid(character, BOOK, source, target):
             return False
+        state(character)['all_gold_paid'] = character.get('gold', 0)
         adventure.pay(character, BOOK, gold=character.get('gold', 0))
         state(character).setdefault('paid_routes', []).append(f'{source}:{target}')
         return True
@@ -877,3 +951,87 @@ def trade_flower(character, choice):
     character.setdefault('inventory', []).append(GOLDEN_FLOWER)
     state(character)['trade'] = choice
     return choice
+
+
+# ----- Phase 3.4 : §301 à 400 ---------------------------------------------------
+# §354 : le prêteur sur gages rachète ces seules familles, au prix imprimé.
+# (libellé du livre, mots-clés acceptés, mots-clés exclus, prix)
+PAWNBROKER = 354
+PAWN_PRICES = (
+    ('Gobelet d’argent', ('gobelet',), (), 8),
+    ('Passe-partout', ('passe-partout',), (), 15),
+    ('Broche scorpion', ('broche scorpion',), (), 10),
+    ('Anneau magique', ('anneau',), (), 12),
+    ('Bracelet d’argent', ('bracelet',), (), 5),
+    ('Casque', ('casque',), (), 7),
+    ('Flûte d’argent', ('flute',), (), 5),
+    ('Bandeau pour l’œil', ('bandeau',), (), 1),
+    ('Osselets', ('osselets',), (), 1),
+    ('Miroir', ('miroir',), (), 1),
+)
+
+
+def pawn_price(name):
+    """Prix offert pour un objet du sac, ou None s’il n’intéresse pas le prêteur."""
+    folded = _fold(name)
+    for _label, accepted, excluded, price in PAWN_PRICES:
+        if any(_fold(k) in folded for k in accepted) and not any(_fold(k) in folded for k in excluded):
+            return price
+    return None
+
+
+def pawn_choices(character):
+    """Objets vendables (hors objets verrouillés), avec leur prix : [(nom, prix)]."""
+    locked = set(character.get('locked_items', []))
+    return [(name, pawn_price(name)) for name in character.get('inventory', [])
+            if name not in locked and pawn_price(name) is not None]
+
+
+def pawn_sell(character, items):
+    """Vendre au §354 autant d’objets que voulu ; renvoie l’or reçu."""
+    ensure_alive(character)
+    items = list(items)
+    choices = [name for name, _price in pawn_choices(character)]
+    if not items:
+        raise ValueError('Choisissez au moins un objet à vendre.')
+    for name in items:
+        if name not in choices:
+            raise ValueError('Objet absent du sac ou que le prêteur ne rachète pas.')
+        choices.remove(name)
+    gold = sum(pawn_price(name) for name in items)
+    adventure.pay(character, BOOK, items=items)
+    character['gold'] = character.get('gold', 0) + gold
+    state(character).setdefault('pawned', []).extend(items)
+    return gold
+
+
+# §378 : le boulet de canon. Chacun lance un dé à tour de rôle (vous d’abord)
+# jusqu’au premier 1 ; celui qui l’obtient lâche le boulet et paie 5 Pièces d’Or.
+CANNONBALL, CANNON_STAKE, CANNON_LIMIT = 378, 5, 200
+
+
+def cannon_resolved(character):
+    return 'cannon' in peek(character)
+
+
+def cannonball(character, rolls):
+    """Résoudre la partie à partir des dés alternés ; renvoie (perdu ?, variation d’or)."""
+    ensure_alive(character)
+    if cannon_resolved(character):
+        raise ValueError('La partie de boulet est déjà jouée.')
+    rolls = list(rolls)
+    if not rolls or len(rolls) > CANNON_LIMIT:
+        raise ValueError('Suite de dés invalide.')
+    for die in rolls:
+        dice(die, 1, 6)
+    if rolls[-1] != 1 or 1 in rolls[:-1]:
+        raise ValueError('La partie s’arrête au premier 1.')
+    lost = len(rolls) % 2 == 1
+    if lost:
+        change = -min(CANNON_STAKE, character.get('gold', 0))
+        adventure.pay(character, BOOK, gold=-change)
+    else:
+        change = CANNON_STAKE
+        character['gold'] = character.get('gold', 0) + change
+    state(character)['cannon'] = {'rolls': rolls, 'lost': lost, 'change': change}
+    return lost, change

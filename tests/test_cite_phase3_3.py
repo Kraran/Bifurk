@@ -11,8 +11,9 @@ from PySide6.QtWidgets import QMessageBox
 from grimoire_modules.cite import feedback, rules
 from grimoire_modules.cite.controller import COMBAT_REASON, PENDING_REASON
 from grimoire_modules.cite.encounters import COMBATS, profile
-from tests.test_cite_mechanics import CiteMechanicsWindowTests, hero
-from tests.test_cite_phase3_2 import CiteSecondHundredWindowTests
+from tests import test_cite_mechanics as mechanics
+from tests import test_cite_phase3_2 as second_hundred
+from tests.test_cite_mechanics import hero
 
 MISSION = [rules.ARROW, rules.PEARLS, 'Cheveux de sorcière', 'Fleur de lotus']
 
@@ -193,16 +194,16 @@ class CiteThirdHundredEncounterTests(unittest.TestCase):
 
 
 class CiteThirdHundredWindowTests(unittest.TestCase):
-    setUpClass = classmethod(CiteMechanicsWindowTests.setUpClass.__func__)
-    setUp = CiteMechanicsWindowTests.setUp
-    open = CiteMechanicsWindowTests.open
-    start = CiteMechanicsWindowTests.start
-    buttons = CiteMechanicsWindowTests.buttons
-    play = CiteMechanicsWindowTests.play
-    events = CiteMechanicsWindowTests.events
-    event_button = CiteMechanicsWindowTests.event_button
-    fixed_rolls = CiteSecondHundredWindowTests.fixed_rolls
-    no_spoiler = CiteSecondHundredWindowTests.no_spoiler
+    setUpClass = classmethod(mechanics.CiteMechanicsWindowTests.setUpClass.__func__)
+    setUp = mechanics.CiteMechanicsWindowTests.setUp
+    open = mechanics.CiteMechanicsWindowTests.open
+    start = mechanics.CiteMechanicsWindowTests.start
+    buttons = mechanics.CiteMechanicsWindowTests.buttons
+    play = mechanics.CiteMechanicsWindowTests.play
+    events = mechanics.CiteMechanicsWindowTests.events
+    event_button = mechanics.CiteMechanicsWindowTests.event_button
+    fixed_rolls = second_hundred.CiteSecondHundredWindowTests.fixed_rolls
+    no_spoiler = second_hundred.CiteSecondHundredWindowTests.no_spoiler
 
     def luck_no(self):
         mock = patch.object(self.w, '_assault_luck_choice', return_value=QMessageBox.No)

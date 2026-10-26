@@ -1,10 +1,13 @@
-"""Combats relus des §1 à 300 : un adversaire à la fois, dans l’ordre du livre.
+"""Combats relus des §1 à 400, dans l’ordre du livre.
 
-Chaque groupe ne contient qu’un ennemi : le livre les fait combattre l’un après
-l’autre. ``victory`` est le renvoi après le dernier adversaire ; les options
-décrivent seulement ce que le passage imprime (fuite, limite d’assauts,
-malus de Force d’Attaque ``attack``, combat évité par un objet ``unless_item``,
-blessure d’un assaut perdu ``wound``, adversaire tiré au dé ``creature_die``).
+Un groupe d’un seul ennemi se combat seul ; un groupe de plusieurs ennemis est
+un combat simultané (§311, §326) : on choisit sa cible à chaque Assaut, les
+autres attaquent et l’on ne fait que parer leurs coups. ``victory`` est le
+renvoi après le dernier groupe ; les options décrivent seulement ce que le
+passage imprime (fuite, limite d’assauts, malus de Force d’Attaque ``attack``,
+combat évité par un objet ``unless_item``, blessure d’un assaut perdu
+``wound``, adversaire tiré au dé ``creature_die``, souffle de feu ``fire`` :
+un dé par Assaut, une brûlure d’un point sur les faces listées).
 """
 
 
@@ -67,6 +70,32 @@ COMBATS = {
     270: {'groups': ((_enemy('Troll', 8, 8),),), 'victory': 26},
     296: {'groups': ((_enemy('Premier Voleur', 7, 7),), (_enemy('Deuxième Voleur', 8, 6),)),
           'victory': 147},
+    # ----- Phase 3.4 : §301 à 400 -----
+    309: {'groups': ((_enemy('Loup', 5, 5),),), 'victory': 97},
+    # Le premier garde seul, puis les deux autres à la fois (cible choisie à chaque Assaut).
+    311: {'groups': ((_enemy('Garde de la Ville', 8, 7),),
+                     (_enemy('Deuxième Garde de la Ville', 6, 6),
+                      _enemy('Troisième Garde de la Ville', 7, 5))), 'victory': 74},
+    # La barre incandescente : chaque blessure coûte 3 points d’Endurance.
+    323: {'groups': ((_enemy('Forgeron', 9, 9),),), 'victory': 395, 'wound': 3},
+    326: {'groups': ((_enemy('Premier Chien Sauvage', 4, 4), _enemy('Deuxième Chien Sauvage', 4, 3)),),
+          'victory': 184, 'escape': 180},
+    331: {'groups': ((_enemy('Le Dément', 5, 5),),), 'victory': 86},
+    349: {'groups': ((_enemy('Lutin de Feu', 9, 4),),), 'victory': 258, 'escape': 192},
+    351: {'groups': ((_enemy('Premier Garde de la Ville', 6, 6),),
+                     (_enemy('Deuxième Garde de la Ville', 7, 5),)), 'victory': 54},
+    356: {'groups': ((_enemy('Premier Rat', 4, 4),), (_enemy('Deuxième Rat', 5, 4),),
+                     (_enemy('Troisième Rat', 5, 5),)), 'victory': 28},
+    357: {'groups': ((_enemy('Ogre', 8, 9),),), 'victory': 71,
+          'escape': 282, 'escape_after_assaults': 3},
+    361: {'groups': ((_enemy('Premier Zombi', 6, 6),), (_enemy('Deuxième Zombi', 6, 7),)),
+          'victory': 297},
+    385: {'groups': ((_enemy('Premier Squelette', 6, 7),), (_enemy('Deuxième Squelette', 8, 6),),
+                     (_enemy('Troisième Squelette', 7, 7),)), 'victory': 203},
+    386: {'groups': ((_enemy('Pirate', 7, 5),),), 'victory': 20},
+    # Souffle de feu : un dé par Assaut, 1 à 3 brûlent (1 point, Chance possible).
+    392: {'groups': ((_enemy('Lézardine', 8, 8),),), 'victory': 186, 'escape': 334,
+          'fire': (1, 2, 3)},
 }
 
 
