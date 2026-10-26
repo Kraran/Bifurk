@@ -1589,16 +1589,29 @@ def _d_witch_hair(p):
 
 
 def _d_mirror(p):
-    _outlined_stroke(p, _metal('silver'), .2, (.3, .3), (.85, .85))
+    """Miroir à main : glace ovale verticale, cadre doré festonné, manche droit et pommeau."""
+    # manche tourné, droit sous la glace (une loupe a un manche en biais et une lentille ronde)
+    _outlined_stroke(p, _metal('gold', -.2, 0, .2, 0), .26, (0, .3), (0, .78))
     _outline(p)
-    p.setBrush(_metal('silver', -.8, -.8, .4, .4))
-    p.drawEllipse(QPointF(-.2, -.2), .68, .68)
-    g = QLinearGradient(QPointF(-.7, -.7), QPointF(.3, .3))
-    g.setColorAt(0, _c('#f4fbff')); g.setColorAt(.6, _c('#9ec4dc')); g.setColorAt(1, _c('#5a7a94'))
+    p.setBrush(_metal('gold', -.2, .2, .2, .5))
+    p.drawEllipse(QPointF(0, .36), .15, .08)
+    p.setBrush(_metal('gold', -.2, .7, .2, 1))
+    p.drawEllipse(QPointF(0, .84), .14, .11)
+    # cadre festonné : six petits lobes autour de l’ovale
+    p.setBrush(_metal('gold', -.6, -.95, .6, .3))
+    for x, y in ((0, -.95), (.43, -.62), (.43, .05), (0, .26), (-.43, .05), (-.43, -.62)):
+        p.drawEllipse(QPointF(x, y), .1, .1)
+    p.drawEllipse(QPointF(0, -.35), .5, .62)
+    # glace bleutée, plus claire en haut à gauche
+    g = QLinearGradient(QPointF(-.4, -.9), QPointF(.4, .2))
+    g.setColorAt(0, _c('#f6fcff')); g.setColorAt(.45, _c('#b4d4ea')); g.setColorAt(1, _c('#58789a'))
     p.setBrush(g)
-    p.drawEllipse(QPointF(-.2, -.2), .54, .54)
-    p.setPen(QPen(_c('#ffffff', 200), .06, Qt.SolidLine, Qt.RoundCap))
-    p.drawLine(QPointF(-.5, -.25), QPointF(-.25, -.5))
+    p.drawEllipse(QPointF(0, -.35), .36, .48)
+    # reflet : deux traits obliques sur la glace
+    p.setPen(QPen(_c('#ffffff', 225), .09, Qt.SolidLine, Qt.RoundCap))
+    p.drawLine(QPointF(-.2, -.45), QPointF(.02, -.72))
+    p.setPen(QPen(_c('#ffffff', 160), .05, Qt.SolidLine, Qt.RoundCap))
+    p.drawLine(QPointF(-.15, -.25), QPointF(.1, -.56))
 
 
 def _d_glass_ball(p):
