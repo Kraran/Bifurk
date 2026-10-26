@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import re
 import tempfile
 import threading
 from pathlib import Path
@@ -62,6 +63,29 @@ def available_french_voices(refresh: bool = True) -> dict[str, str]:
         _voice_refresh = threading.Thread(target=_refresh_voices, daemon=True)
         _voice_refresh.start()
     return dict(_voice_cache) or dict(FRENCH_VOICES)
+
+
+def prepare_speech_text(text: str) -> str:
+    """Recoller les lignes du PDF pour une lecture fluide.
+
+    Les retours à la ligne de mise en page deviennent des espaces, les mots coupés
+    en fin de ligne (« aven-\nturier ») sont recollés, et seules les vraies fins de
+    paragraphe (ligne vide ou ligne terminée par une ponctuation forte) gardent une pause.
+    """
+    text = (text or "").replace("\r\n", "\n").replace("\r", "\n").replace("\u00ad", "")
+    text = re.sub(r"(\w)-[ \t]*\n[ \t]*(?=[a-zàâäçéèêëîïôöùûüÿœæ])", r"\1", text)
+    text = re.sub(r"(\w-)[ \t]*\n[ \t]*(?=\w)", r"\1", text)
+    blocks = []
+    for block in re.split(r"\n[ \t]*\n+", text):
+        lines = [line.strip() for line in block.split("\n") if line.strip()]
+        if not lines:
+            continue
+        merged = lines[0]
+        for line in lines[1:]:
+            merged += ("\n" if merged[-1] in ".!?:»…" and line[0].isupper() else " ") + line
+        blocks.append(merged)
+    text = "\n\n".join(blocks)
+    return re.sub(r"[ \t]{2,}", " ", text).strip()
 
 
 class ParagraphReader(QObject):
@@ -123,7 +147,7 @@ class ParagraphReader(QObject):
 
     def speak(self, text: str) -> None:
         self.stop()
-        text = (text or "").strip()
+        text = prepare_speech_text(text)
         if not text:
             return
         request, voice, rate = self._request, self._voice, self._rate
