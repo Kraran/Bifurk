@@ -230,14 +230,17 @@ puce du plan, avec deux changements.
   les objets. Le message d'arrivée l'annonce (« Marque : Tatouage au front »). Une
   sauvegarde antérieure où il figure dans le sac est migrée à l'ouverture d'un
   paragraphe. La créature du §201 reste mémorisée pour le §138.
-- **Marque sur la fiche** : un petit tatouage dessiné par Bifurk (soleil jaune,
-  licorne blanche, rien n'est repris du livre) s'affiche à droite du nom de
-  l'aventurier dès qu'il est acquis. Une infobulle dit ce qu'est la marque selon
+- **Marque sur la fiche** : le tatouage s'affiche à droite du nom de
+  l'aventurier dès qu'il est acquis, avec l'illustration de Franck (licorne
+  blanche cabrée sur un soleil jaune, `assets/marks/cite-tattoo.png`, 256 px à
+  fond transparent, rien n'est repris du livre). Elle est réduite une seule fois
+  à la taille réelle de l'écran (nette de 100 % à 200 %) ; si le fichier manque,
+  un médaillon dessiné au QPainter la remplace. Une infobulle dit ce qu'est la marque selon
   le texte, sans rien révéler de son usage. À l'arrivée au §279 seulement, il
   clignote lentement (trois battements de 1,6 s) ; ouverture d'une sauvegarde,
   annulation et rétablissement l'affichent sans clignoter. Le crochet est
   générique : un module déclare ses marques (`grimoire_modules/marks.py`,
-  `SheetMark` : clé, titre, infobulle, dessin) et s'inscrit dans `SHEET_MARKS`
+  `SheetMark` : clé, titre, infobulle, dessin de secours, image facultative) et s'inscrit dans `SHEET_MARKS`
   (`grimoire_modules/controller.py`) ; les autres modules n'affichent rien.
 - **§244, choix final** : seule la carte de la mixture préparée au §201 est
   affichée (aucune carte grisée, aucune infobulle, aucun indice) ; sans mixture

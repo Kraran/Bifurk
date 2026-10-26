@@ -41,6 +41,7 @@ class WindowsDistributionTests(unittest.TestCase):
                          '_internal/assets/themes/grimoire/theme.qss',
                          '_internal/assets/themes/grimoire/page-parchment.jpg',
                          '_internal/assets/themes/grimoire/sheet-leather.png',
+                         '_internal/assets/marks/cite-tattoo.png',
                          '_internal/assets/check-bronze.svg',
                          '_internal/assets/illustration-background.jpg',
                          '_internal/assets/sounds/FantasyFair.m4a',
@@ -99,7 +100,8 @@ class WindowsDistributionTests(unittest.TestCase):
         """Refuser un ancien dossier dist auquel manquent les ressources de la 1.1.2 ou de la 1.2.1."""
         for name in ('themes/grimoire/theme.qss', 'check-bronze.svg',
                      'illustration-background.jpg', 'sounds/FantasyFair.m4a',
-                     'themes/grimoire/page-parchment.jpg', 'themes/grimoire/sheet-leather.png'):
+                     'themes/grimoire/page-parchment.jpg', 'themes/grimoire/sheet-leather.png',
+                     'marks/cite-tattoo.png'):
             with self.subTest(asset=name):
                 path = self.bundle / '_internal/assets' / name
                 path.unlink()

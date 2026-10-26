@@ -43,6 +43,7 @@ arrêter l'archivage que publier un fichier privé par accident.
                 '_internal/assets/themes/grimoire/theme.qss',
                 '_internal/assets/themes/grimoire/page-parchment.jpg',
                 '_internal/assets/themes/grimoire/sheet-leather.png',
+                '_internal/assets/marks/cite-tattoo.png',
                 '_internal/assets/check-bronze.svg',
                 '_internal/assets/illustration-background.jpg',
                 '_internal/assets/sounds/FantasyFair.m4a',

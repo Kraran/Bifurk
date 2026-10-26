@@ -1,11 +1,17 @@
-"""Cité des Voleurs : marques montrées sur la fiche (dessins originaux au QPainter)."""
+"""Cité des Voleurs : marques montrées sur la fiche.
+
+Le tatouage reprend l'illustration de Franck (assets/marks/cite-tattoo.png) ; le
+dessin au QPainter ne sert plus que de secours si le fichier manque."""
 import math
+from pathlib import Path
 
 from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import QBrush, QColor, QPainterPath, QPen, QPolygonF, QRadialGradient
 
 from ..marks import SheetMark
 from . import rules
+
+TATTOO_IMAGE = Path(__file__).resolve().parents[2] / 'assets' / 'marks' / 'cite-tattoo.png'
 
 SUN = QColor('#f2c037')
 SUN_DARK = QColor('#b9831c')
@@ -19,7 +25,7 @@ TATTOO_TIP = ('<b>Tatouage au front</b><br>'
 
 
 def paint_tattoo(p, rect):
-    """Soleil jaune à douze rayons, tête de licorne blanche au centre."""
+    """Secours sans illustration : soleil jaune à douze rayons, tête de licorne blanche."""
     p.save()
     c, s = rect.center(), min(rect.width(), rect.height()) / 2
     rays = QPolygonF()
@@ -54,7 +60,8 @@ def paint_tattoo(p, rect):
     p.restore()
 
 
-MARKS = {rules.TATTOO: SheetMark('cite-tattoo', rules.TATTOO, TATTOO_TIP, paint_tattoo)}
+MARKS = {rules.TATTOO: SheetMark('cite-tattoo', rules.TATTOO, TATTOO_TIP, paint_tattoo,
+                                    TATTOO_IMAGE)}
 
 
 def sheet_marks(character):
