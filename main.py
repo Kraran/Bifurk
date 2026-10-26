@@ -56,6 +56,8 @@ APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False)
 # portables restent à côté de Bifurk.exe. __file__ fonctionne aussi en mode source.
 RESOURCE_DIR = Path(__file__).resolve().parent
 ASSET_DIR = RESOURCE_DIR / "assets"
+# Décors de lecture fournis pour chaque livre ; les autres gardent le décor neutre.
+BOOK_BACKGROUNDS = {'foret-1983': 'foret.jpg', 'cite-1983': 'cite.jpg'}
 DATA_DIR = APP_DIR / "donnees"
 SAVES_DIR = DATA_DIR / "sauvegardes"
 BOOKS_DIR = DATA_DIR / "grimoires"
@@ -2131,8 +2133,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         """Choisir couverture, illustration courante ou décor de repli selon l’écran affiché."""
         # La couverture est réservée à l'introduction. Pendant la lecture, le
         # décor fourni remplit la surface sans devenir une illustration active.
-        background_name = ('foret.jpg' if getattr(self.book_module, 'engine', '') == 'foret-1983'
-                           else 'illustration-background.jpg')
+        background_name = BOOK_BACKGROUNDS.get(getattr(self.book_module, 'engine', ''),
+                                               'illustration-background.jpg')
         background = None if prefer_cover else QPixmap(str(ASSET_DIR / background_name))
         self.scene_art.set_background_art(background)
         self.scene_entry = None

@@ -44,11 +44,13 @@ class WindowsDistributionTests(unittest.TestCase):
                          '_internal/assets/marks/cite-tattoo.png',
                          '_internal/assets/check-bronze.svg',
                          '_internal/assets/illustration-background.jpg',
+                         '_internal/assets/cite.jpg',
                          '_internal/assets/sounds/FantasyFair.m4a',
                          '_internal/assets/video/introduction.mp4',
                          '_internal/assets/sounds/swords.wav',
                          '_internal/assets/sounds/book_sorcier.wav',
                          '_internal/assets/sounds/book_foret.wav',
+                         '_internal/assets/sounds/book_cite.wav',
                          '_internal/assets/sounds/book_sounds.json',
                          '_internal/catalogues/modules/sorcier_montagne_feu_1982.json',
                          '_internal/catalogues/evenements_sorcier_1982.json',
@@ -97,11 +99,11 @@ class WindowsDistributionTests(unittest.TestCase):
             self.package()
 
     def test_new_interface_and_music_assets_are_required_for_release(self):
-        """Refuser un ancien dossier dist auquel manquent les ressources de la 1.1.2 ou de la 1.2.1."""
+        """Refuser un ancien dossier dist auquel manquent les ressources de la 1.1.2, de la 1.2.1 ou de la Cité."""
         for name in ('themes/grimoire/theme.qss', 'check-bronze.svg',
                      'illustration-background.jpg', 'sounds/FantasyFair.m4a',
                      'themes/grimoire/page-parchment.jpg', 'themes/grimoire/sheet-leather.png',
-                     'marks/cite-tattoo.png'):
+                     'marks/cite-tattoo.png', 'cite.jpg', 'sounds/book_cite.wav'):
             with self.subTest(asset=name):
                 path = self.bundle / '_internal/assets' / name
                 path.unlink()

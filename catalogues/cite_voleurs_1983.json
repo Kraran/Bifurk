@@ -19,6 +19,1241 @@
       ],
       "statut": "verifie",
       "paragraphes": []
+    },
+    {
+      "id": "cite-p2-image1",
+      "type": "ornement",
+      "page_pdf": 2,
+      "rect": [
+        234.39,
+        416.05,
+        379.11,
+        606.13
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p5-image1",
+      "type": "feuille_aventure",
+      "page_pdf": 5,
+      "rect": [
+        91.5,
+        72.0,
+        568.67,
+        652.57
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Feuille d’aventure des pages de règles."
+    },
+    {
+      "id": "cite-p19-image1",
+      "type": "illustration",
+      "page_pdf": 19,
+      "rect": [
+        118.5,
+        72.0,
+        494.8,
+        673.87
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        1
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p20-image1",
+      "type": "ornement",
+      "page_pdf": 20,
+      "rect": [
+        188.67,
+        653.3,
+        424.83,
+        706.94
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p24-image1",
+      "type": "ornement",
+      "page_pdf": 24,
+      "rect": [
+        188.13,
+        499.91,
+        425.37,
+        593.51
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p25-image1",
+      "type": "ornement",
+      "page_pdf": 25,
+      "rect": [
+        219.75,
+        72.0,
+        393.27,
+        110.16
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p25-image2",
+      "type": "ornement",
+      "page_pdf": 25,
+      "rect": [
+        277.41,
+        237.38,
+        336.09,
+        324.86
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p26-image1",
+      "type": "illustration",
+      "page_pdf": 26,
+      "rect": [
+        129.75,
+        72.0,
+        483.89,
+        690.36
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        17
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p28-image1",
+      "type": "ornement",
+      "page_pdf": 28,
+      "rect": [
+        188.67,
+        326.43,
+        424.83,
+        380.07
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p30-image1",
+      "type": "illustration",
+      "page_pdf": 30,
+      "rect": [
+        109.5,
+        72.0,
+        503.7,
+        660.84
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        27
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p32-image1",
+      "type": "illustration",
+      "page_pdf": 32,
+      "rect": [
+        116.25,
+        72.0,
+        496.97,
+        683.93
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        31
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p34-image1",
+      "type": "ornement",
+      "page_pdf": 34,
+      "rect": [
+        218.24,
+        72.0,
+        395.21,
+        200.0
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p35-image1",
+      "type": "ornement",
+      "page_pdf": 35,
+      "rect": [
+        194.25,
+        562.0,
+        419.25,
+        641.56
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p36-image1",
+      "type": "ornement",
+      "page_pdf": 36,
+      "rect": [
+        201.75,
+        236.34,
+        413.35,
+        385.67
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p37-image1",
+      "type": "illustration",
+      "page_pdf": 37,
+      "rect": [
+        117.75,
+        72.0,
+        495.78,
+        687.72
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        40
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p40-image1",
+      "type": "ornement",
+      "page_pdf": 40,
+      "rect": [
+        235.29,
+        417.74,
+        378.21,
+        521.78
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p42-image1",
+      "type": "ornement",
+      "page_pdf": 42,
+      "rect": [
+        181.5,
+        304.52,
+        431.7,
+        386.24
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p43-image1",
+      "type": "ornement",
+      "page_pdf": 43,
+      "rect": [
+        199.29,
+        72.0,
+        414.21,
+        156.96
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p46-image1",
+      "type": "illustration",
+      "page_pdf": 46,
+      "rect": [
+        118.5,
+        72.0,
+        494.82,
+        659.13
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        62
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p49-image1",
+      "type": "ornement",
+      "page_pdf": 49,
+      "rect": [
+        193.89,
+        253.39,
+        419.61,
+        332.23
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p50-image1",
+      "type": "ornement",
+      "page_pdf": 50,
+      "rect": [
+        219.75,
+        72.0,
+        393.63,
+        108.36
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p51-image1",
+      "type": "ornement",
+      "page_pdf": 51,
+      "rect": [
+        212.25,
+        572.96,
+        400.53,
+        648.2
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p53-image1",
+      "type": "illustration",
+      "page_pdf": 53,
+      "rect": [
+        138.0,
+        72.0,
+        475.17,
+        730.64
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        80
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p55-image1",
+      "type": "ornement",
+      "page_pdf": 55,
+      "rect": [
+        265.5,
+        72.0,
+        347.94,
+        129.96
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p56-image1",
+      "type": "illustration",
+      "page_pdf": 56,
+      "rect": [
+        91.5,
+        72.0,
+        523.5,
+        691.5
+      ],
+      "statut": "probable",
+      "paragraphes": [
+        88
+      ],
+      "note": "Sans légende ; scène concordante avec le §88."
+    },
+    {
+      "id": "cite-p57-image1",
+      "type": "ornement",
+      "page_pdf": 57,
+      "rect": [
+        188.67,
+        613.13,
+        424.83,
+        666.77
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p62-image1",
+      "type": "ornement",
+      "page_pdf": 62,
+      "rect": [
+        219.75,
+        496.87,
+        393.27,
+        535.03
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p63-image1",
+      "type": "ornement",
+      "page_pdf": 63,
+      "rect": [
+        193.89,
+        236.35,
+        419.61,
+        315.19
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p64-image1",
+      "type": "illustration",
+      "page_pdf": 64,
+      "rect": [
+        196.48,
+        383.66,
+        417.05,
+        688.46
+      ],
+      "statut": "verifie_position",
+      "paragraphes": [
+        113
+      ],
+      "note": "Sans légende ; insérée dans le texte du §113."
+    },
+    {
+      "id": "cite-p72-image1",
+      "type": "illustration",
+      "page_pdf": 72,
+      "rect": [
+        109.47,
+        72.0,
+        503.85,
+        611.25
+      ],
+      "statut": "probable",
+      "paragraphes": [
+        135
+      ],
+      "note": "Sans légende ; scène concordante avec le §135."
+    },
+    {
+      "id": "cite-p73-image1",
+      "type": "ornement",
+      "page_pdf": 73,
+      "rect": [
+        193.5,
+        236.35,
+        419.58,
+        318.07
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p75-image1",
+      "type": "ornement",
+      "page_pdf": 75,
+      "rect": [
+        180.75,
+        428.7,
+        432.75,
+        510.78
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p77-image1",
+      "type": "illustration",
+      "page_pdf": 77,
+      "rect": [
+        115.5,
+        72.0,
+        497.3,
+        720.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        148
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p80-image1",
+      "type": "ornement",
+      "page_pdf": 80,
+      "rect": [
+        189.57,
+        448.78,
+        423.93,
+        502.42
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p82-image1",
+      "type": "ornement",
+      "page_pdf": 82,
+      "rect": [
+        188.13,
+        400.7,
+        425.37,
+        494.3
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p83-image1",
+      "type": "ornement",
+      "page_pdf": 83,
+      "rect": [
+        249.0,
+        456.7,
+        363.84,
+        539.14
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p86-image1",
+      "type": "illustration",
+      "page_pdf": 86,
+      "rect": [
+        105.75,
+        72.0,
+        507.16,
+        628.01
+      ],
+      "statut": "probable",
+      "paragraphes": [
+        171
+      ],
+      "note": "Sans légende ; scène concordante avec le §171."
+    },
+    {
+      "id": "cite-p90-image1",
+      "type": "ornement",
+      "page_pdf": 90,
+      "rect": [
+        209.25,
+        388.52,
+        404.01,
+        454.76
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p91-image1",
+      "type": "ornement",
+      "page_pdf": 91,
+      "rect": [
+        188.67,
+        72.0,
+        424.83,
+        125.64
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p93-image1",
+      "type": "ornement",
+      "page_pdf": 93,
+      "rect": [
+        188.67,
+        604.0,
+        424.83,
+        657.64
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p95-image1",
+      "type": "ornement",
+      "page_pdf": 95,
+      "rect": [
+        219.75,
+        72.0,
+        393.27,
+        110.16
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p97-image1",
+      "type": "ornement",
+      "page_pdf": 97,
+      "rect": [
+        201.75,
+        628.96,
+        410.96,
+        711.68
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p98-image1",
+      "type": "illustration",
+      "page_pdf": 98,
+      "rect": [
+        116.25,
+        72.0,
+        497.33,
+        686.79
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        203
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p106-image1",
+      "type": "illustration",
+      "page_pdf": 106,
+      "rect": [
+        121.23,
+        72.0,
+        492.09,
+        699.0
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        224
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p107-image1",
+      "type": "ornement",
+      "page_pdf": 107,
+      "rect": [
+        219.0,
+        306.35,
+        394.32,
+        347.03
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p108-image1",
+      "type": "ornement",
+      "page_pdf": 108,
+      "rect": [
+        182.73,
+        641.13,
+        430.77,
+        718.89
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p110-image1",
+      "type": "ornement",
+      "page_pdf": 110,
+      "rect": [
+        193.35,
+        72.0,
+        420.15,
+        150.84
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p111-image1",
+      "type": "ornement",
+      "page_pdf": 111,
+      "rect": [
+        219.75,
+        236.35,
+        393.63,
+        274.87
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p112-image1",
+      "type": "illustration",
+      "page_pdf": 112,
+      "rect": [
+        117.39,
+        72.0,
+        496.3,
+        690.7
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        239
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p114-image1",
+      "type": "ornement",
+      "page_pdf": 114,
+      "rect": [
+        187.5,
+        171.22,
+        425.46,
+        224.5
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p114-image2",
+      "type": "ornement",
+      "page_pdf": 114,
+      "rect": [
+        249.0,
+        402.84,
+        364.22,
+        485.56
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p116-image1",
+      "type": "ornement",
+      "page_pdf": 116,
+      "rect": [
+        187.95,
+        270.43,
+        425.55,
+        323.35
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p117-image1",
+      "type": "illustration",
+      "page_pdf": 117,
+      "rect": [
+        117.75,
+        72.0,
+        495.56,
+        664.86
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        250
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p122-image1",
+      "type": "illustration",
+      "page_pdf": 122,
+      "rect": [
+        117.75,
+        72.0,
+        495.1,
+        676.63
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        265
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p125-image1",
+      "type": "illustration",
+      "page_pdf": 125,
+      "rect": [
+        110.03,
+        72.0,
+        503.99,
+        659.63
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        271
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p126-image1",
+      "type": "ornement",
+      "page_pdf": 126,
+      "rect": [
+        180.39,
+        72.0,
+        433.11,
+        156.6
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p128-image1",
+      "type": "ornement",
+      "page_pdf": 128,
+      "rect": [
+        181.5,
+        374.52,
+        431.34,
+        451.2
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p129-image1",
+      "type": "ornement",
+      "page_pdf": 129,
+      "rect": [
+        187.5,
+        298.43,
+        425.46,
+        352.07
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p130-image1",
+      "type": "ornement",
+      "page_pdf": 130,
+      "rect": [
+        198.75,
+        72.0,
+        414.39,
+        157.32
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p130-image2",
+      "type": "ornement",
+      "page_pdf": 130,
+      "rect": [
+        235.29,
+        596.19,
+        378.21,
+        698.79
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p132-image1",
+      "type": "illustration",
+      "page_pdf": 132,
+      "rect": [
+        114.6,
+        72.0,
+        499.18,
+        655.34
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        292
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p134-image1",
+      "type": "ornement",
+      "page_pdf": 134,
+      "rect": [
+        219.0,
+        72.0,
+        394.32,
+        112.68
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p136-image1",
+      "type": "ornement",
+      "page_pdf": 136,
+      "rect": [
+        219.75,
+        627.13,
+        393.63,
+        665.65
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p137-image1",
+      "type": "illustration",
+      "page_pdf": 137,
+      "rect": [
+        131.76,
+        72.0,
+        481.67,
+        678.44
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        307
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p142-image1",
+      "type": "illustration",
+      "page_pdf": 142,
+      "rect": [
+        114.73,
+        72.0,
+        498.5,
+        679.15
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        319
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p143-image1",
+      "type": "ornement",
+      "page_pdf": 143,
+      "rect": [
+        198.75,
+        434.78,
+        414.03,
+        502.46
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p147-image1",
+      "type": "illustration",
+      "page_pdf": 147,
+      "rect": [
+        116.25,
+        72.0,
+        496.76,
+        698.42
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        329
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p151-image1",
+      "type": "ornement",
+      "page_pdf": 151,
+      "rect": [
+        219.0,
+        406.78,
+        394.32,
+        447.46
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p152-image1",
+      "type": "ornement",
+      "page_pdf": 152,
+      "rect": [
+        198.75,
+        434.78,
+        414.39,
+        520.1
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p153-image1",
+      "type": "illustration",
+      "page_pdf": 153,
+      "rect": [
+        134.25,
+        72.0,
+        478.58,
+        704.1
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        344
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p155-image1",
+      "type": "illustration",
+      "page_pdf": 155,
+      "rect": [
+        134.78,
+        72.0,
+        479.07,
+        701.9
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        349
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p159-image1",
+      "type": "ornement",
+      "page_pdf": 159,
+      "rect": [
+        265.5,
+        154.17,
+        347.94,
+        214.29
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p159-image2",
+      "type": "ornement",
+      "page_pdf": 159,
+      "rect": [
+        213.0,
+        341.51,
+        400.27,
+        406.61
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p160-image1",
+      "type": "illustration",
+      "page_pdf": 160,
+      "rect": [
+        132.75,
+        72.0,
+        480.56,
+        691.17
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        356
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p162-image1",
+      "type": "ornement",
+      "page_pdf": 162,
+      "rect": [
+        219.75,
+        352.61,
+        393.27,
+        387.89
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p164-image1",
+      "type": "ornement",
+      "page_pdf": 164,
+      "rect": [
+        265.5,
+        386.7,
+        347.94,
+        446.82
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p166-image1",
+      "type": "illustration",
+      "page_pdf": 166,
+      "rect": [
+        132.0,
+        72.01,
+        480.74,
+        706.71
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        370
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p168-image1",
+      "type": "ornement",
+      "page_pdf": 168,
+      "rect": [
+        182.01,
+        579.04,
+        431.49,
+        659.68
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p171-image1",
+      "type": "ornement",
+      "page_pdf": 171,
+      "rect": [
+        219.75,
+        464.61,
+        393.27,
+        499.89
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p173-image1",
+      "type": "ornement",
+      "page_pdf": 173,
+      "rect": [
+        188.13,
+        72.0,
+        425.37,
+        165.24
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p174-image1",
+      "type": "ornement",
+      "page_pdf": 174,
+      "rect": [
+        182.19,
+        349.56,
+        431.31,
+        437.4
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p175-image1",
+      "type": "illustration",
+      "page_pdf": 175,
+      "rect": [
+        117.74,
+        72.0,
+        495.8,
+        708.22
+      ],
+      "statut": "verifie_legende",
+      "paragraphes": [
+        398
+      ],
+      "note": "Numéro lu dans la légende imprimée de l’image."
+    },
+    {
+      "id": "cite-p176-image1",
+      "type": "ornement",
+      "page_pdf": 176,
+      "rect": [
+        235.29,
+        397.65,
+        378.21,
+        500.97
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
+    },
+    {
+      "id": "cite-p177-image1",
+      "type": "ornement",
+      "page_pdf": 177,
+      "rect": [
+        236.01,
+        417.74,
+        377.49,
+        586.58
+      ],
+      "statut": "hors_paragraphe",
+      "paragraphes": [],
+      "note": "Vignette ou motif décoratif ; sans association."
     }
-  ]
+  ],
+  "audit": {
+    "methode": "Images du PDF relevées une à une ; légendes lues à l’écran.",
+    "illustrations": 27,
+    "ornements_exclus_des_popups": 56
+  }
 }

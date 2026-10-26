@@ -23,6 +23,17 @@
       "peak_dbfs": -5.177831888603084,
       "rms_dbfs": -21.000000364283164,
       "bytes": 82070
+    },
+    "book_cite": {
+      "source": "La Cite des Voleurs.wav",
+      "source_sha256": "f436f7aaa3d82a1c9c58d97d7ab7ecd6adef2fa1fc2632d03ffd29fa9d732c5d",
+      "output_sha256": "97dc868867c7ea4f46c98de8470c122fb857ca3c2eddc8d17bbfedaf058ed583",
+      "source_seconds": 3.0140625,
+      "output_seconds": 1.28,
+      "gain_db": 0.7418824436939417,
+      "peak_dbfs": -7.134640032620952,
+      "rms_dbfs": -21.000001883514166,
+      "bytes": 56492
     }
   }
 }

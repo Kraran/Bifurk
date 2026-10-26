@@ -16,8 +16,8 @@ catalogue des renvois relus ; les phases 3.1 à 3.4 rendent jouables les
 
 La couverture, les règles et le prologue sont rendus depuis le PDF importé par
 le joueur. Aucun PDF, texte narratif ou pixel extrait du livre n'est distribué.
-Le décor neutre du thème est utilisé en attendant le décor propre à la Cité ;
-l'annonce sonore du livre et ce décor sont livrés en phase 7.
+Depuis la phase 7, la Cité a son annonce sonore et son décor de lecture
+(`assets/sounds/book_cite.wav`, `assets/cite.jpg`), fournis par Franck.
 
 ## Parcours dans Bifurk
 
@@ -327,10 +327,43 @@ Règles d'affichage :
 Tests : `tests/test_exploration_map.py` (`StreetMapTests`) et
 `tests/test_place_labels.py` (`CiteStreetCatalogueTests`).
 
+## Phase 7 : annonce sonore, décor et illustrations
+
+- **Couverture** : toujours lue à la volée sur la page 1 du PDF importé, jamais copiée.
+- **Annonce sonore** : `assets/sounds/book_cite.wav`, préparée par
+  `scripts/prepare_book_sounds.py` comme celles du Sorcier et de la Forêt (silences
+  retirés, PCM mono 16 bits 22,05 kHz, −21 dBFS RMS, crête −7,1 dBFS, 1,28 s). Elle
+  joue au choix de la couverture et coupe l'annonce précédente ; la case de son
+  coupé est respectée. Le script ne traite que les sources présentes et fusionne
+  le manifeste `book_sounds.json` : les autres annonces restent identiques.
+- **Décor** : `assets/cite.jpg` (JPEG 1152 × 1728, même format que `foret.jpg`,
+  fichier fourni sans réencodage) remplit la scène lorsqu'un paragraphe n'a pas
+  d'illustration. `main.BOOK_BACKGROUNDS` associe chaque adaptateur à son décor ;
+  le Sorcier garde le décor neutre et la Forêt le sien.
+- **Illustrations** (`catalogues/cite_voleurs_1983.json`, schéma 6) : chacune des
+  85 images du PDF est cataloguée (page, rectangle, statut, paragraphes).
+  - 23 illustrations pleine page portent le numéro du paragraphe dans leur légende
+    (`verifie_legende`) ;
+  - celle de la page 64, sans légende, est insérée dans le texte du §113
+    (`verifie_position`) ;
+  - trois pleines pages sans légende (pages 56, 72 et 86) sont associées aux
+    §88, 135 et 171 d'après la scène représentée (`probable`, affichées avec la
+    mention « association probable ») ;
+  - la feuille d'aventure (page 5) et 56 vignettes et ornements restent hors des
+    popups (`hors_paragraphe`).
+  Une illustration n'apparaît qu'en arrivant à son paragraphe : rien n'est dévoilé
+  à l'avance.
+- **Ambiance de ville** : aucune boucle d'ambiance supplémentaire n'est ajoutée.
+
+Tests : `tests/test_cite_phase7.py` (catalogue, contrôle de chaque image sur le PDF
+privé s'il est présent, annonce, décor) et `tests/test_windows_distribution.py`
+(ressources exigées dans l'archive Windows).
+
 ## Fichiers et validation
 
 - `catalogues/modules/cite_voleurs_1983.json` : manifeste, pages et ressources initiales.
-- `catalogues/cite_voleurs_1983.json` : association de couverture.
+- `catalogues/cite_voleurs_1983.json` : couverture, illustrations et ornements.
+- `assets/cite.jpg`, `assets/sounds/book_cite.wav` : décor et annonce sonore.
 - `catalogues/evenements_cite_1983.json` : catalogue des 400 paragraphes et de leurs renvois.
 - `grimoire_modules/cite/controller.py` : navigation, garde des renvois et rendu.
 - `grimoire_modules/cite/rules.py`, `encounters.py`, `feedback.py`, `actions.py` :
@@ -351,4 +384,5 @@ Tests : `tests/test_exploration_map.py` (`StreetMapTests`) et
 
 Les scénarios d'interface utilisent des PDF synthétiques. Un contrôle conditionnel
 reconnaît également le PDF privé s'il est présent et vérifie son cadrage. Le
-contrôle de l'archive Windows exige les trois ressources de catalogue du module.
+contrôle de l'archive Windows exige les trois ressources de catalogue du module,
+le décor et l'annonce sonore.

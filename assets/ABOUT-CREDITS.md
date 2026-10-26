@@ -17,3 +17,13 @@ L’emblème `bifurk.png` était déjà fourni par Bifurk.
 `marks/cite-tattoo.png` est l’illustration fournie par Franck pour Bifurk (licorne
 blanche cabrée sur un soleil jaune) : recadrée au plus juste, mise au carré et
 réduite à 256 px, fond transparent d’origine conservé. Rien n’est repris du livre.
+
+# Décor et annonce de La Cité des Voleurs
+
+`cite.jpg` et `sounds/book_cite.wav` ont été fournis par Franck pour Bifurk.
+Rien n'est repris du livre.
+
+- `cite.jpg` : JPEG 1152 × 1728, conservé tel quel (même format que `foret.jpg`).
+- `sounds/book_cite.wav` : préparé par `scripts/prepare_book_sounds.py` à partir
+  du WAV fourni (silences retirés, PCM mono 16 bits 22,05 kHz, −21 dBFS RMS) ;
+  empreintes de la source et du résultat dans `sounds/book_sounds.json`.

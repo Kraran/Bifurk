@@ -293,4 +293,5 @@ Le troisième module est reconnu : couverture, prologue « Les terribles message
 de Zanbar Bone », règles et profil de départ (30 pièces d'or, potion au choix,
 10 repas pris à tout moment hors combat). Les renvois permettent de consulter le
 livre ; les événements et combats seront intégrés par tranches de 100 paragraphes.
+La Cité a son annonce sonore, son décor de lecture et ses illustrations pleine page.
 Voir [La Cité — présentation](docs/cite-module-presentation.md).

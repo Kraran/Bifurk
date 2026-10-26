@@ -14,7 +14,7 @@ EFFECT_LABELS = {
     'item': 'Objet récupéré', 'coins': 'Pièces', 'key': 'Serrure',
     'potion': 'Potion', 'hit': 'Blessure', 'victory': 'Victoire', 'death': 'Défaite',
 }
-BOOK_SOUNDS = {'sorcier-1982': 'book_sorcier', 'foret-1983': 'book_foret'}
+BOOK_SOUNDS = {'sorcier-1982': 'book_sorcier', 'foret-1983': 'book_foret', 'cite-1983': 'book_cite'}
 
 
 class SoundBank(QObject):
