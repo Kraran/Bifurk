@@ -112,6 +112,7 @@ class ForetController(ForetMechanicsActions):
             if previous is not None:
                 self.transitions.append([previous, number])
         self.current_paragraph = number
+        self._tts_follow_paragraph(number)
         if number in rules.TRANSFORMATION_ENDINGS:
             rules.finish_transformation(self.character,number)
             self._refresh_character()

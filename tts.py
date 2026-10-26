@@ -88,7 +88,7 @@ def prepare_speech_text(text: str) -> str:
     return re.sub(r"[ \t]{2,}", " ", text).strip()
 
 
-def split_speech_chunks(text: str, first_limit: int = 160, limit: int = 450) -> list[str]:
+def split_speech_chunks(text: str, first_limit: int = 160, limit: int = 300) -> list[str]:
     """Découper en phrases regroupées : un premier morceau court pour démarrer vite."""
     sentences = [part.strip() for part in re.split(r"(?<=[.!?…»])\s+|\n+", text or "") if part.strip()]
     chunks: list[str] = []
@@ -181,32 +181,64 @@ class ParagraphReader(QObject):
 
     # --- Fil secondaire ---------------------------------------------------------
     def _synthesize(self, request: int, chunks: list[str] | str, voice: str, rate: str) -> None:
-        """Synthétiser morceau par morceau : le premier est joué pendant que la suite se prépare."""
+        """Préparer tous les morceaux en parallèle et les livrer dans l’ordre : pas de blanc entre eux."""
         if isinstance(chunks, str):
             chunks = [chunks]
-        for index, chunk in enumerate(chunks):
-            if request != self._request:
-                return
-            path = None
-            try:
-                import edge_tts
+        try:
+            import edge_tts
+        except ImportError:
+            QMetaObject.invokeMethod(self, "_fail", Qt.QueuedConnection, Q_ARG(int, request),
+                                     Q_ARG(str, "Lecture vocale indisponible (paquet edge-tts absent)."))
+            return
+        asyncio.run(self._synthesize_all(edge_tts, request, chunks, voice, rate))
+
+    async def _synthesize_all(self, edge_tts, request: int, chunks: list[str], voice: str, rate: str) -> None:
+        limit = asyncio.Semaphore(3)
+
+        async def one(chunk: str) -> Path | None:
+            async with limit:
+                if request != self._request:
+                    return None
                 with tempfile.NamedTemporaryFile(prefix="bifurk-tts-", suffix=".mp3", delete=False) as tmp:
                     path = Path(tmp.name)
-                asyncio.run(edge_tts.Communicate(chunk, voice, rate=rate).save(str(path)))
-                if path.stat().st_size == 0:
-                    raise RuntimeError("fichier audio vide")
-            except Exception as exc:  # noqa: BLE001 - aucune exception ne doit sortir du fil
+                try:
+                    await edge_tts.Communicate(chunk, voice, rate=rate).save(str(path))
+                    if path.stat().st_size == 0:
+                        raise RuntimeError("fichier audio vide")
+                except Exception:
+                    with contextlib.suppress(OSError):
+                        path.unlink()
+                    raise
+                return path
+
+        tasks = [asyncio.ensure_future(one(chunk)) for chunk in chunks]
+        delivered = 0
+        for index, task in enumerate(tasks):
+            try:
+                path = await task
+            except Exception:  # noqa: BLE001 - aucune exception ne doit sortir du fil
+                if index == 0:
+                    QMetaObject.invokeMethod(self, "_fail", Qt.QueuedConnection, Q_ARG(int, request), Q_ARG(
+                        str, "Lecture vocale indisponible (connexion au service de voix impossible)."))
+                    delivered = -1
+                break  # Coupure en cours de route : on lit ce qui est déjà prêt.
+            if path is None or request != self._request:
                 if path is not None:
                     with contextlib.suppress(OSError):
                         path.unlink()
-                if index == 0:
-                    message = "Lecture vocale indisponible (paquet edge-tts absent)." if isinstance(exc, ImportError) \
-                        else "Lecture vocale indisponible (connexion au service de voix impossible)."
-                    QMetaObject.invokeMethod(self, "_fail", Qt.QueuedConnection, Q_ARG(int, request), Q_ARG(str, message))
-                    return
-                break  # Coupure en cours de route : on lit ce qui est déjà prêt.
+                break
             QMetaObject.invokeMethod(self, "_play", Qt.QueuedConnection, Q_ARG(int, request), Q_ARG(str, str(path)))
-        QMetaObject.invokeMethod(self, "_done", Qt.QueuedConnection, Q_ARG(int, request))
+            delivered = index + 1
+        for task in tasks[max(delivered, 0):]:  # Morceaux jamais livrés : les attendre puis les effacer.
+            try:
+                leftover = await task
+            except Exception:  # noqa: BLE001, S112 - morceau en échec, rien à effacer
+                continue
+            if leftover is not None:
+                with contextlib.suppress(OSError):
+                    leftover.unlink()
+        if delivered >= 0:
+            QMetaObject.invokeMethod(self, "_done", Qt.QueuedConnection, Q_ARG(int, request))
 
     # --- Fil principal ----------------------------------------------------------
     @Slot(int, str)

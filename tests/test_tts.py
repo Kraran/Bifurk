@@ -179,3 +179,24 @@ class SplitSpeechChunksTests(unittest.TestCase):
         self.assertGreater(len(chunks), 2)
         self.assertLessEqual(len(chunks[0]), 160)
         self.assertEqual(' '.join(chunks), text)
+
+
+class ParagraphChangeTests(unittest.TestCase):
+    def test_reading_follows_the_new_paragraph_only_when_active(self):
+        calls = []
+        fake = types.SimpleNamespace(is_busy=lambda: busy[0], stop=lambda: calls.append('stop'),
+                                     speak=lambda text: calls.append(('speak', text)))
+        busy = [False]
+        window = types.SimpleNamespace(tts=fake, _restoring=False, paragraphs={2: 'Deux.'})
+        follow = main.BifurkWindow._tts_follow_paragraph if hasattr(main, 'BifurkWindow') else None
+        if follow is None:
+            follow = next(cls for cls in vars(main).values()
+                          if isinstance(cls, type) and hasattr(cls, '_tts_follow_paragraph'))._tts_follow_paragraph
+        follow(window, 2)
+        self.assertEqual(calls, [])
+        busy[0] = True
+        follow(window, 2)
+        self.assertEqual(calls, [('speak', 'Deux.')])
+        window._restoring = True
+        follow(window, 2)
+        self.assertEqual(calls[-1], 'stop')

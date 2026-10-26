@@ -787,6 +787,16 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if self.current_paragraph in self.paragraphs:
             self.tts.speak(self.paragraphs[self.current_paragraph])
 
+    def _tts_follow_paragraph(self, number):
+        """En changeant de paragraphe, couper la lecture et enchaîner sur le nouveau si elle était lancée."""
+        tts = getattr(self, 'tts', None)
+        if tts is None or not tts.is_busy():
+            return
+        if self._restoring or number not in self.paragraphs:
+            tts.stop()
+        else:
+            tts.speak(self.paragraphs[number])
+
     TTS_TOOLTIP = "Lire le paragraphe à voix haute"
 
     def _show_tts_state(self, busy):
