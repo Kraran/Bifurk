@@ -60,7 +60,7 @@ reconnus et ne citent aucun passage :
   exemplaire papier** ;
 - coquilles typographiques (tirets « ŕ », mots coupés ou mal reconnus).
 
-Les conjectures OCR restantes (§1, §119, §180, §342 ; le §73 est résolu en
+Les conjectures OCR restantes (§119, §180, §342 ; les §1 et §73 sont résolus en
 phase 3.1) et les valeurs illisibles
 ou ambiguës (§109, §217) sont listées dans `source_issues` pour la phase 3.
 

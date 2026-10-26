@@ -6246,8 +6246,9 @@
       "paragraph": 1,
       "severity": "information",
       "kind": "ocr_conjecture",
-      "details": "« .moindre » lu « rejoindre » d’après le contexte ; le PDF lui-même porte l’erreur, sans effet en jeu.",
-      "status": "to_confirm"
+      "details": "« .moindre » lu « rejoindre », « le- groupe », « du garde » lu « un garde » ; confirmé sur papier.",
+      "status": "resolved",
+      "resolution_source": "Exemplaire papier relu par Franck (P3.1)"
     },
     {
       "paragraph": 73,
