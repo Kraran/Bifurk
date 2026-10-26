@@ -114,8 +114,12 @@ class ParagraphReader(QObject):
 
     def __init__(self, parent: QObject | None = None):
         super().__init__(parent)
-        self._player = None
+        self._player = None   # Lecteur actif.
         self._output = None
+        self._spare = None    # Second lecteur : le morceau suivant y est préchargé.
+        self._spare_output = None
+        self._spare_file: Path | None = None
+        self._gain = "+0%"   # Renfort demandé au service au-delà de 100 %.
         self._voice = DEFAULT_VOICE
         self._rate = "+0%"
         self._volume = 0.8
@@ -137,10 +141,16 @@ class ParagraphReader(QObject):
         percent = max(-50, min(100, int(percent)))
         self._rate = f"{percent:+d}%"
 
+    MAX_VOLUME = 1.5
+
     def set_volume(self, volume: float) -> None:
-        self._volume = max(0.0, min(1.0, float(volume)))
-        if self._output is not None:
-            self._output.setVolume(self._volume)
+        """0 à 1 : volume du lecteur ; 1 à 1,5 : voix renforcée par le service (morceaux suivants)."""
+        volume = max(0.0, min(self.MAX_VOLUME, float(volume)))
+        self._volume = min(1.0, volume)
+        self._gain = f"{round((volume - 1.0) * 100):+d}%" if volume > 1.0 else "+0%"
+        for output in (self._output, self._spare_output):
+            if output is not None:
+                output.setVolume(self._volume)
 
     def is_busy(self) -> bool:
         """Synthèse en attente ou lecture en cours."""
@@ -158,10 +168,12 @@ class ParagraphReader(QObject):
         was_busy = self._pending or self.is_playing()
         self._pending = False
         self._synth_done = True
-        if self._player is not None:
-            self._player.stop()
-            self._player.setSource(QUrl())
+        for player in (self._player, self._spare):
+            if player is not None:
+                player.stop()
+                player.setSource(QUrl())
         self._cleanup_temp()
+        self._drop_spare()
         while self._queue:
             with contextlib.suppress(OSError):
                 self._queue.pop(0).unlink()
@@ -173,14 +185,14 @@ class ParagraphReader(QObject):
         chunks = split_speech_chunks(prepare_speech_text(text))
         if not chunks:
             return
-        request, voice, rate = self._request, self._voice, self._rate
+        request, voice, rate = self._request, self._voice, (self._rate, self._gain)
         self._pending = True
         self._synth_done = False
         self.started.emit()
         threading.Thread(target=self._synthesize, args=(request, chunks, voice, rate), daemon=True).start()
 
     # --- Fil secondaire ---------------------------------------------------------
-    def _synthesize(self, request: int, chunks: list[str] | str, voice: str, rate: str) -> None:
+    def _synthesize(self, request: int, chunks: list[str] | str, voice: str, rate) -> None:
         """Préparer tous les morceaux en parallèle et les livrer dans l’ordre : pas de blanc entre eux."""
         if isinstance(chunks, str):
             chunks = [chunks]
@@ -192,7 +204,9 @@ class ParagraphReader(QObject):
             return
         asyncio.run(self._synthesize_all(edge_tts, request, chunks, voice, rate))
 
-    async def _synthesize_all(self, edge_tts, request: int, chunks: list[str], voice: str, rate: str) -> None:
+    async def _synthesize_all(self, edge_tts, request: int, chunks: list[str], voice: str, rate) -> None:
+        rate, gain = rate if isinstance(rate, tuple) else (rate, "+0%")
+        extra = {"volume": gain} if gain != "+0%" else {}
         limit = asyncio.Semaphore(3)
 
         async def one(chunk: str) -> Path | None:
@@ -202,7 +216,7 @@ class ParagraphReader(QObject):
                 with tempfile.NamedTemporaryFile(prefix="bifurk-tts-", suffix=".mp3", delete=False) as tmp:
                     path = Path(tmp.name)
                 try:
-                    await edge_tts.Communicate(chunk, voice, rate=rate).save(str(path))
+                    await edge_tts.Communicate(chunk, voice, rate=rate, **extra).save(str(path))
                     if path.stat().st_size == 0:
                         raise RuntimeError("fichier audio vide")
                 except Exception:
@@ -260,18 +274,57 @@ class ParagraphReader(QObject):
         self._queue.append(path)
         if self._temp_file is None:
             self._play_next()
+        else:
+            self._preload()
 
     @Slot(int)
     def _done(self, request: int) -> None:
         if request != self._request:
             return
         self._synth_done = True
-        if self._temp_file is None and not self._queue and self._pending:
+        if self._temp_file is None and not self._queue and self._spare_file is None and self._pending:
             self._pending = False
             self.finished.emit()
 
+    def _make_player(self):
+        from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
+        output = QAudioOutput(self)
+        player = QMediaPlayer(self)
+        player.setAudioOutput(output)
+        player.mediaStatusChanged.connect(lambda status, p=player: self._on_media_status(status, p))
+        player.errorOccurred.connect(lambda *_a, p=player: self._on_error(p))
+        return player, output
+
+    def _preload(self) -> None:
+        """Charger le prochain morceau dans le second lecteur pour l’enchaîner sans blanc."""
+        if self._spare_file is not None or not self._queue or self._player is None:
+            return
+        if self._spare is None:
+            self._spare, self._spare_output = self._make_player()
+        self._spare_file = self._queue.pop(0)
+        self._spare_output.setVolume(self._volume)
+        self._spare.setSource(QUrl.fromLocalFile(str(self._spare_file.resolve())))
+
+    def _drop_spare(self) -> None:
+        if self._spare_file is not None:
+            if self._spare is not None:
+                self._spare.setSource(QUrl())
+            with contextlib.suppress(OSError):
+                self._spare_file.unlink()
+        self._spare_file = None
+
     def _play_next(self) -> None:
         self._cleanup_temp()
+        if self._spare_file is not None:  # Morceau déjà chargé : on échange les lecteurs.
+            self._player, self._spare = self._spare, self._player
+            self._output, self._spare_output = self._spare_output, self._output
+            self._temp_file, self._spare_file = self._spare_file, None
+            self._output.setVolume(self._volume)
+            self._player.play()
+            if self._spare is not None:
+                self._spare.setSource(QUrl())
+            self._preload()
+            return
         if not self._queue:
             if self._synth_done and self._pending:
                 self._pending = False
@@ -279,24 +332,24 @@ class ParagraphReader(QObject):
             return
         path = self._queue.pop(0)
         self._temp_file = path
-        from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
         if self._player is None:
-            self._output = QAudioOutput(self)
-            self._player = QMediaPlayer(self)
-            self._player.setAudioOutput(self._output)
-            self._player.mediaStatusChanged.connect(self._on_media_status)
-            self._player.errorOccurred.connect(self._on_error)
+            self._player, self._output = self._make_player()
         self._output.setVolume(self._volume)
         self._player.setSource(QUrl.fromLocalFile(str(path.resolve())))
         self._player.play()
+        self._preload()
 
-    def _on_media_status(self, status) -> None:
+    def _on_media_status(self, status, player=None) -> None:
         from PySide6.QtMultimedia import QMediaPlayer
+        if player is not None and player is not self._player:
+            return  # Le lecteur de réserve ne fait que précharger.
         if status == QMediaPlayer.MediaStatus.EndOfMedia:
-            self._player.setSource(QUrl())
             self._play_next()
 
-    def _on_error(self, *_args) -> None:
+    def _on_error(self, player=None) -> None:
+        if player is not None and player is not self._player:
+            self._drop_spare()
+            return
         self._player.setSource(QUrl())
         self.error.emit("Erreur de lecture audio.")
         self._play_next()
