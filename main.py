@@ -881,7 +881,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         tts_volume = QSlider(Qt.Horizontal)
         tts_volume.setObjectName('ttsVolume')
         tts_volume.setAccessibleName('Volume de la lecture à voix haute')
-        tts_volume.setRange(0, 100)
+        tts_volume.setRange(0, 150)
         tts_volume.setSingleStep(5)
         tts_volume.setPageStep(10)
         tts_volume.setTickPosition(QSlider.TicksBelow)

@@ -24,8 +24,8 @@ def fake_edge_tts(fail=False):
     calls = []
 
     class Communicate:
-        def __init__(self, text, voice, rate='+0%'):
-            calls.append((text, voice, rate))
+        def __init__(self, text, voice, rate='+0%', volume='+0%'):
+            calls.append((text, voice, rate) if volume == '+0%' else (text, voice, rate, volume))
 
         async def save(self, path):
             if fail:
@@ -172,6 +172,42 @@ class WindowTests(unittest.TestCase):
         again = main.MainWindow()
         self.addCleanup(again.deleteLater)
         self.assertAlmostEqual(again.tts._volume, 0.35)
+
+
+
+class VolumeAndPreloadTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_volume_above_100_asks_the_service_for_a_louder_voice(self):
+        reader = tts.ParagraphReader()
+        reader.set_volume(1.4)
+        self.assertEqual((reader._volume, reader._gain), (1.0, '+40%'))
+        reader.set_volume(3)
+        self.assertEqual(reader._gain, '+50%')
+        reader.set_volume(0.5)
+        self.assertEqual((reader._volume, reader._gain), (0.5, '+0%'))
+
+    def test_next_chunk_is_preloaded_on_the_spare_player_and_swapped_in(self):
+        reader = tts.ParagraphReader()
+        reader._pending, reader._synth_done = True, False
+        folder = Path(tempfile.mkdtemp())
+        files = [folder/f'{i}.mp3' for i in range(3)]
+        for f in files:
+            f.write_bytes(b'ID3fake')
+        for f in files:
+            reader._play(reader._request, str(f))
+        first = reader._player
+        self.assertEqual(reader._temp_file, files[0])
+        self.assertEqual(reader._spare_file, files[1])
+        reader._play_next()  # Fin du premier morceau.
+        self.assertIsNot(reader._player, first)
+        self.assertEqual(reader._temp_file, files[1])
+        self.assertEqual(reader._spare_file, files[2])
+        self.assertFalse(files[0].exists())
+        reader.stop()
+        self.assertFalse(any(f.exists() for f in files))
 
 
 if __name__ == '__main__':
