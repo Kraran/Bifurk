@@ -187,3 +187,128 @@ class ExplorationMapTests(unittest.TestCase):
         self.assertFalse(empty.previous_button.isEnabled())
         self.assertFalse(empty.travel_button.isEnabled())
         self.assertIn('entrée dans l’aventure', empty.details.toPlainText())
+
+
+class StreetMapTests(unittest.TestCase):
+    """Carte d'une ville : rues relues, lieux revisités et allers-retours sans doublon."""
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def setUp(self):
+        self.w = MainWindow()
+        self.addCleanup(self.w.deleteLater)
+        self.addCleanup(self.w.close)
+        self.w.paragraphs = {n: 'Passage de test.' for n in range(1, 401)}
+        entries = [
+            (1, 'La porte', 'Porte du Sable Noir', None,
+             [(2, 'Prendre la rue du Marché', 'nord'), (5, 'Prendre la rue de la Clef', 'ouest')]),
+            (2, "L'herboristerie", 'Rue du Marché', None, [(3, 'Continuer', 'nord')]),
+            (3, 'Le carrefour', 'Rue du Marché', 'carrefour', [(4, 'Suivre la foule', 'est')]),
+            (4, 'La taverne', 'Rue du Marché', None, [(6, 'Revenir au carrefour', None)]),
+            (6, 'Retour au carrefour', 'Rue du Marché', 'carrefour', [(7, 'Partir vers le sud', None)]),
+            (5, 'Le serrurier', 'Rue de la Clef', None, []),
+            (7, 'La ruelle secrète', 'Rue du Secret', None, [])]
+        paragraphs = {}
+        for number, title, street, spot, routes in entries:
+            entry = {'status': 'analyse_verifiee', 'title': title, 'place': street,
+                     'routes': [dict({'target': t, 'label': label}, **({'direction': d} if d else {}))
+                                for t, label, d in routes]}
+            if spot:
+                entry['spot'] = spot
+            paragraphs[str(number)] = entry
+        self.w.book_event_catalogue = {'street_map': True, 'paragraphs': paragraphs}
+        self.w.visited_paragraphs = [1, 2, 3, 4, 6]
+        self.w.transitions = [[1, 2], [2, 3], [3, 4], [4, 6], [6, 4], [4, 6]]
+        self.w.current_paragraph = 6
+        self.dialog = self.open()
+
+    def open(self):
+        dialog = ExplorationMapDialog(self.w)
+        self.addCleanup(dialog.deleteLater)
+        self.addCleanup(dialog.close)
+        dialog.show()
+        self.app.processEvents()
+        return dialog
+
+    def scene_text(self, dialog):
+        texts = [item.text() for item in dialog.scene.items() if hasattr(item, 'text')]
+        texts += [item.toolTip() for item in dialog.scene.items()]
+        texts += [dialog.index.item(i).text() for i in range(dialog.index.count())]
+        return '\n'.join(texts)
+
+    def test_same_place_revisited_keeps_a_single_card(self):
+        self.assertIs(self.dialog.nodes[3], self.dialog.nodes[6])
+        self.assertEqual(self.dialog.cards, {1: [1], 2: [2], 3: [3, 6], 4: [4]})
+        self.assertEqual(len(set(self.dialog.nodes.values())), 4)
+        self.assertTrue(self.dialog.info.text().startswith('4 lieux visités'))
+        self.assertEqual(self.dialog.nodes[6].reference, '§ 3 · 6')
+        self.assertTrue(self.dialog.nodes[3].current)
+        self.dialog.select_place(3)
+        self.assertFalse(self.dialog.travel_button.isEnabled())
+
+    def test_back_and_forth_draws_one_two_way_link(self):
+        self.assertEqual(self.dialog.edges, {(1, 2): False, (2, 3): False, (3, 4): True})
+
+    def test_reviewed_directions_place_streets_and_labels_alone_do_not(self):
+        nodes = self.dialog.nodes
+        self.assertLess(nodes[2].pos().y(), nodes[1].pos().y())
+        self.assertLess(nodes[3].pos().y(), nodes[2].pos().y())
+        self.assertGreater(nodes[4].pos().x(), nodes[3].pos().x())
+        # « Partir vers le sud » n'a pas de direction relue : rien n'est déduit.
+        self.assertIsNone(self.dialog.places[6]['directions'][7])
+
+    def test_streets_and_titles_are_shown_only_for_visited_places(self):
+        text = self.scene_text(self.dialog)
+        self.assertIn('— Rue du Marché —', text)
+        self.assertIn('RUE DU MARCHÉ', text)
+        for hidden in ('Clef', 'CLEF', 'serrurier', 'Secret', 'SECRET', 'ruelle'):
+            self.assertNotIn(hidden, text)
+        self.dialog.select_place(1)
+        details = self.dialog.details.toPlainText()
+        self.assertIn('Porte du Sable Noir', details)
+        self.assertIn('§ 5 · non exploré', details)
+        self.assertNotIn('Clef', details)
+        self.assertNotIn('ouest', details)
+        self.dialog.select_place(6)
+        details = self.dialog.details.toPlainText()
+        self.assertIn('§ 3 · § 6', details)
+        self.assertIn('Passages de ce lieu', details)
+        self.assertIn('§ 7 · non exploré', details)
+        self.assertNotIn('Secret', details)
+        self.assertNotIn('§ 6 · non exploré', details)
+
+    def test_search_matches_streets_and_keeps_group_headers_consistent(self):
+        index = self.dialog.index
+        self.dialog.search.setText('rue du marché')
+        visible = [index.item(i).text() for i in range(index.count()) if not index.item(i).isHidden()]
+        self.assertEqual(visible[0], '— Rue du Marché —')
+        self.assertEqual([index.item(i).data(Qt.UserRole) for i in range(index.count())
+                          if not index.item(i).isHidden()], [None, 2, 3, 4])
+        self.dialog.search.setText('retour')
+        self.assertEqual([index.item(i).data(Qt.UserRole) for i in range(index.count())
+                          if not index.item(i).isHidden()], [None, 3])
+        index.setCurrentRow(0)
+        self.assertEqual(self.dialog.selected, 6)
+
+    def test_undo_and_older_saves_rebuild_the_street_map_from_history(self):
+        before = self.w._snapshot()
+        self.w.visited_paragraphs.append(7)
+        self.w.transitions.append([6, 7])
+        self.w.current_paragraph = 7
+        self.assertIn('— Rue du Secret —', self.scene_text(self.open()))
+        self.w._restore(before)
+        restored = self.open()
+        self.assertNotIn(7, restored.nodes)
+        self.assertNotIn('Secret', self.scene_text(restored))
+        # Une sauvegarde ne contient que l'historique : rues et lieux partagés
+        # viennent du catalogue, y compris pour une partie enregistrée avant la carte des rues.
+        self.assertFalse({'street', 'spot', 'place'} & set(before))
+        self.assertIs(restored.nodes[3], restored.nodes[6])
+
+    def test_plain_books_keep_label_directions_and_separate_cards(self):
+        del self.w.book_event_catalogue['street_map']
+        plain = self.open()
+        self.assertIsNot(plain.nodes[3], plain.nodes[6])
+        self.assertEqual(plain.places[6]['street'], '')
+        self.assertNotIn('Rue du Marché', self.scene_text(plain))

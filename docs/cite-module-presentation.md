@@ -291,6 +291,42 @@ quelque chose (scores des dés, objets gardés).
   tatouage ») ; au §336, l'objet requis est nommé « Pierres précieuses ».
 - **Bijoux et curiosités** : tout va dans le sac à dos (aucun emplacement porté).
 
+## Phase 6 : carte des rues et directions
+
+La carte d'exploration (`exploration_map.py`) lit trois données relues du
+catalogue, signalé par `"street_map": true` :
+
+- `place` sur chaque paragraphe : la rue, le bâtiment ou le quartier
+  (16 valeurs : Porte du Sable Noir, Rue du Port, Rue du Sabot, Rue de l'Écurie,
+  Rue de la Tour, Rue du Moulin, Rue du Marché, Rue de la Clef, Rue de l'Horloge,
+  Rue de la Bougie, Rue du Pont, Jardin public, Remparts, Égouts,
+  Tour de Zanbar Bone, Hors les murs) ;
+- `spot` : un même lieu décrit par plusieurs paragraphes selon le sens d'arrivée
+  (§30/333, §78/369, §103/196/304, §104/174, §182/316) ;
+- `direction` (`nord`, `sud`, `est`, `ouest`) sur 163 renvois : le déplacement
+  annoncé par le libellé du choix ou par la phrase du paragraphe qui mène au
+  renvoi. Pour une ville, seule cette direction relue place les vignettes ; un
+  libellé sans champ `direction` ne déplace rien.
+
+Règles d'affichage :
+
+- seuls les passages visités ont une vignette. La rue y figure en bandeau, au-dessus
+  du titre de la scène. Une sortie non visitée reste « § N · non exploré », sans titre,
+  rue ni direction ;
+- les paragraphes d'un même lieu partagent une vignette (« § 78 · 369 »), placée à la
+  première visite. Les allers-retours ne dupliquent ni vignette ni trait : un trait
+  à double flèche signale le passage dans les deux sens ;
+- une rue d'au moins deux vignettes visitées est encadrée et nommée, si son cadre
+  ne chevauche aucune autre rue. L'index regroupe les lieux par rue, et la recherche
+  trouve aussi le nom d'une rue ;
+- sans direction, une scène se place au plus près du lieu précédent ;
+- rien n'est ajouté aux sauvegardes : la carte se reconstruit à partir de
+  `visited_paragraphs` et de `transitions`. Les anciennes parties et l'annulation
+  fonctionnent donc sans migration. Les autres livres gardent leur carte inchangée.
+
+Tests : `tests/test_exploration_map.py` (`StreetMapTests`) et
+`tests/test_place_labels.py` (`CiteStreetCatalogueTests`).
+
 ## Fichiers et validation
 
 - `catalogues/modules/cite_voleurs_1983.json` : manifeste, pages et ressources initiales.
@@ -308,6 +344,8 @@ quelque chose (scores des dés, objets gardés).
 - `tests/test_boutique_sacoche_alerte.py`, `tests/test_infobulle_choix.py`,
   `tests/test_icones_objets.py` : boutiques, vente, raisons des choix grisés et
   icônes des objets de la Cité.
+- `exploration_map.py`, `tests/test_exploration_map.py`, `tests/test_place_labels.py` :
+  carte des rues, lieux partagés et directions relues.
 - `tests/test_cite_presentation.py` : reconnaissance, couverture, prologue, profil,
   repas, consultation sans effets, sauvegarde et changement de module.
 

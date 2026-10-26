@@ -20,25 +20,72 @@ from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QGraphicsObject,
 from book_events import verified_entry
 
 
+SEARCH_ROLE = Qt.UserRole + 1
+
+
+# Statuts de catalogue présentables sur la carte (titres, rues, directions relues).
+REVIEWED = ('verifie', 'analyse_verifiee', 'renvois_verifies')
+VECTORS = {'nord': (0, -1), 'sud': (0, 1), 'est': (1, 0), 'ouest': (-1, 0)}
+
+
+def reviewed_entry(catalogue, number):
+    """Entrée relue d'un passage, consultée seulement pour un lieu déjà visité."""
+    entry = (catalogue or {}).get('paragraphs', {}).get(str(number)) or {}
+    return entry if entry.get('status') in REVIEWED else {}
+
+
+def is_street_map(catalogue):
+    """Un catalogue de ville fournit rues, lieux partagés et directions relues."""
+    return bool((catalogue or {}).get('street_map'))
+
+
 def discovered_places(owner):
     """Copier les données découvertes sans lire les titres des sorties inconnues.
 
     Les renvois éditoriaux du catalogue sont prioritaires sur les liens extraits
     du PDF. Les monstres viennent exclusivement de l'historique de rencontre,
     jamais de la liste des adversaires qui pourraient attendre dans un lieu.
+    Pour une ville (``street_map``), la rue, le lieu partagé et la direction
+    relue de chaque renvoi viennent du catalogue, lus pour les seuls passages
+    déjà visités : une sortie inconnue n'expose ni rue, ni titre, ni direction.
     """
+    catalogue = owner.book_event_catalogue
+    streets = is_street_map(catalogue)
     places = {}
     for number in owner.visited_paragraphs:
-        entry = verified_entry(owner.book_event_catalogue, number) or {}
-        routes = (entry['routes'] if 'routes' in entry else
-                  owner._paragraph_choices(owner.paragraphs.get(number, '')))
-        exits = [route['target'] for route in routes]
+        entry = verified_entry(catalogue, number) or {}
+        reviewed = reviewed_entry(catalogue, number) if streets else {}
+        if 'routes' in entry:
+            routes = entry['routes']
+        elif 'routes' in reviewed:
+            routes = reviewed['routes']
+        else:
+            routes = owner._paragraph_choices(owner.paragraphs.get(number, ''))
+        if streets:
+            # Directions relues dans le texte : jamais déduites d'un libellé seul.
+            directions = {route['target']: VECTORS.get(route.get('direction')) for route in routes}
+        else:
+            directions = {route['target']: route_direction(route.get('label', '')) for route in routes}
         places[number] = {'title': owner._paragraph_name(number) or 'Passage exploré',
-                          'exits': list(dict.fromkeys(exits)),
-                          'directions': {route['target']: route_direction(route.get('label', ''))
-                                         for route in routes},
+                          'exits': list(dict.fromkeys(route['target'] for route in routes)),
+                          'directions': directions,
+                          'street': reviewed.get('place', ''),
+                          'spot': reviewed.get('spot', ''),
                           'monsters': copy.deepcopy(owner.encounter_history.get(str(number), []))}
     return places
+
+
+def merge_spots(places):
+    """Associer chaque passage à sa vignette : un même lieu revisité n'en a qu'une.
+
+    Dans une ville, plusieurs paragraphes décrivent le même carrefour selon le
+    sens d'arrivée. La vignette porte le premier numéro visité de ce lieu.
+    """
+    first, cards = {}, {}
+    for number, place in places.items():
+        spot = place.get('spot')
+        cards[number] = first.setdefault(spot, number) if spot else number
+    return cards
 
 
 def route_direction(label):
@@ -57,12 +104,14 @@ def route_direction(label):
             'est': (1, 0), 'ouest': (-1, 0)}[names[0]]
 
 
-def place_positions(numbers, transitions, directions=None):
+def place_positions(numbers, transitions, directions=None, *, near_source=False):
     """Placer les lieux sur une grille, selon les déplacements connus.
 
     La première arrivée fixe la position d'un lieu ; les retours ne le déplacent
     pas. Une collision décale latéralement dans le même demi-plan cardinal.
-    Sans direction, privilégier une case proche dans une surface compacte.
+    Sans direction, privilégier une case proche dans une surface compacte ; dans
+    une ville (``near_source``), rester d'abord au plus près du lieu de départ
+    pour que les scènes d'une même rue ne se dispersent pas sur la carte.
     """
     numbers = list(numbers)
     known = set(numbers)
@@ -89,8 +138,12 @@ def place_positions(numbers, transitions, directions=None):
             radius = math.ceil(math.sqrt(len(occupied))) + 1
             candidates = [(x, y) for x in range(-radius, radius + 1)
                           for y in range(-radius, radius + 1) if (x, y) not in occupied]
-            point = min(candidates, key=lambda p: ((p[0]-origin[0])**2 + (p[1]-origin[1])**2
-                                                  + 2*(p[0]**2+p[1]**2), p))
+            if near_source:
+                point = min(candidates, key=lambda p: ((p[0]-origin[0])**2 + (p[1]-origin[1])**2,
+                                                      p[0]**2 + p[1]**2, p))
+            else:
+                point = min(candidates, key=lambda p: ((p[0]-origin[0])**2 + (p[1]-origin[1])**2
+                                                      + 2*(p[0]**2+p[1]**2), p))
         positions[number] = point
         occupied.add(point)
 
@@ -124,12 +177,20 @@ class PlaceItem(QGraphicsObject):
     activated = Signal(int)
     WIDTH, HEIGHT = 236, 114
 
-    def __init__(self, number, place, current, theme):
+    def __init__(self, number, place, current, theme, numbers=None):
         super().__init__()
         self.number, self.place, self.current, self.theme = number, place, current, theme
+        # Passages visités qui décrivent ce même lieu (carrefour revisité, etc.).
+        self.numbers = list(numbers or [number])
         self.setFlag(QGraphicsObject.ItemIsSelectable)
         self.setCursor(Qt.PointingHandCursor)
-        self.setToolTip(f"§ {number} — {place['title']}\n{encounter_summary(place['monsters'])}")
+        street = f"\n{place['street']}" if place.get('street') else ''
+        self.setToolTip(f"{self.reference} — {place['title']}{street}\n{encounter_summary(place['monsters'])}")
+
+    @property
+    def reference(self):
+        """Numéros visités de la vignette : « § 78 · 369 » pour un lieu revisité."""
+        return '§ ' + ' · '.join(map(str, self.numbers))
 
     def boundingRect(self):
         """Inclure le filet extérieur dans la surface à repeindre."""
@@ -154,12 +215,35 @@ class PlaceItem(QGraphicsObject):
             painter.setBrush(QColor(theme.color('accent')))
             painter.drawRoundedRect(QRectF(8, 7, self.WIDTH - 16, 23), 4, 4)
         painter.setPen(QColor(theme.color('gold' if self.current else 'rubric')))
-        heading = f'§ {self.number}' + ('  ◆ VOUS ÊTES ICI' if self.current else '  · VISITÉ')
-        painter.drawText(QRectF(13, 9, self.WIDTH - 26, 19), Qt.AlignLeft, heading)
-        font.setPixelSize(16)
+        state = '◆ VOUS ÊTES ICI' if self.current else '· VISITÉ'
+        if len(self.numbers) == 1:
+            painter.drawText(QRectF(13, 9, self.WIDTH - 26, 19), Qt.AlignLeft, f'§ {self.number}  {state}')
+        else:
+            metrics = QFontMetrics(font)
+            room = self.WIDTH - 34 - metrics.horizontalAdvance(state)
+            painter.drawText(QRectF(13, 9, room, 19), Qt.AlignLeft,
+                             metrics.elidedText(self.reference, Qt.ElideRight, room))
+            painter.drawText(QRectF(13, 9, self.WIDTH - 26, 19), Qt.AlignRight, state)
+        street = self.place.get('street')
+        if street:
+            # Bandeau de rue : la rue ou le bâtiment, en petites capitales.
+            font.setPixelSize(11)
+            font.setCapitalization(QFont.SmallCaps)
+            font.setLetterSpacing(QFont.AbsoluteSpacing, .6)
+            painter.setFont(font)
+            painter.setPen(QColor(theme.color('rubric')))
+            painter.drawText(QRectF(13, 32, self.WIDTH - 26, 15), Qt.AlignLeft,
+                             QFontMetrics(font).elidedText(street, Qt.ElideRight, self.WIDTH - 26))
+            font.setCapitalization(QFont.MixedCase)
+            font.setLetterSpacing(QFont.AbsoluteSpacing, 0)
+            font.setPixelSize(15)
+            title_box = QRectF(13, 48, self.WIDTH - 26, 38)
+        else:
+            font.setPixelSize(16)
+            title_box = QRectF(13, 31, self.WIDTH - 26, 47)
         painter.setFont(font)
         painter.setPen(QColor(theme.color('ink')))
-        painter.drawText(QRectF(13, 31, self.WIDTH - 26, 47), Qt.TextWordWrap, self.place['title'])
+        painter.drawText(title_box, Qt.TextWordWrap, self.place['title'])
         font.setPixelSize(11)
         font.setBold(False)
         painter.setFont(font)
@@ -210,10 +294,18 @@ class ExplorationMapDialog(QDialog):
         self.owner = owner
         self.theme = owner.theme
         self.places = discovered_places(owner)
+        self.streets = is_street_map(owner.book_event_catalogue)
+        # Un lieu revisité sous un autre numéro garde une seule vignette.
+        self.card_of = merge_spots(self.places)
+        self.cards = {}
+        for number, card in self.card_of.items():
+            self.cards.setdefault(card, []).append(number)
         self.transitions = [tuple(pair) for pair in owner.transitions]
         self.current = owner.current_paragraph
         self.selected = None
         self.nodes = {}
+        self.edges = {}
+        self.districts = {}
         self.setWindowTitle('Bifurk — Carte d’exploration')
         self.setWindowIcon(owner.windowIcon())
         self.setWindowFlag(Qt.WindowMinMaxButtonsHint, True)
@@ -226,7 +318,7 @@ class ExplorationMapDialog(QDialog):
         title.setStyleSheet(f"font-family: '{owner.reading_font_family}'; font-size: 22px; "
                            f"font-weight: bold; color: {self.theme.color('gold')}; padding: 4px;")
         layout.addWidget(title)
-        self.info = QLabel(f'{len(self.places)} lieux visités · {len(self.transitions)} déplacements enregistrés')
+        self.info = QLabel(f'{len(self.cards)} lieux visités · {len(self.transitions)} déplacements enregistrés')
         self.info.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.info)
         toolbar = QHBoxLayout()
@@ -267,10 +359,7 @@ class ExplorationMapDialog(QDialog):
         side.addWidget(self.search)
         self.index = QListWidget()
         self.index.setAccessibleName('Index des lieux explorés')
-        for number, place in self.places.items():
-            item = QListWidgetItem(f"§ {number} — {place['title']}")
-            item.setData(Qt.UserRole, number)
-            self.index.addItem(item)
+        self._fill_index()
         self.index.currentItemChanged.connect(self._index_selected)
         side.addWidget(self.index, 1)
         self.details = QTextBrowser()
@@ -288,8 +377,11 @@ class ExplorationMapDialog(QDialog):
         splitter.setSizes([780, 340])
         splitter.setCollapsible(0, False)
         splitter.setCollapsible(1, False)
-        hint = QLabel('Glisser pour déplacer · Molette pour zoomer · Flèches : déplacements parcourus\n'
-                      '◆ Position actuelle · Visité : passage découvert · Vaincu / fui / rencontré : état des adversaires')
+        hint = QLabel('Glisser pour déplacer · Molette pour zoomer · Flèches : déplacements parcourus'
+                      ' (double flèche : aller et retour)\n'
+                      '◆ Position actuelle · Visité : passage découvert · Vaincu / fui / rencontré : état des adversaires'
+                      + ('\nBandeau et cadre doré : rue ou bâtiment visité · § 78 · 369 : même lieu revisité'
+                         if self.streets else ''))
         hint.setWordWrap(True)
         layout.addWidget(hint)
         close = QDialogButtonBox(QDialogButtonBox.Close)
@@ -305,15 +397,64 @@ class ExplorationMapDialog(QDialog):
             self.details.setPlainText('Votre carte se dessinera dès votre entrée dans l’aventure.')
         QTimer.singleShot(0, self.focus_current)
 
+    def _fill_index(self):
+        """Lister les lieux visités ; dans une ville, les regrouper par rue."""
+        groups = {}
+        for card, numbers in self.cards.items():
+            groups.setdefault(self.places[card].get('street', '') if self.streets else '', []).append(card)
+        for street, cards in groups.items():
+            if street:
+                header = QListWidgetItem(f'— {street} —')
+                header.setFlags(Qt.NoItemFlags)
+                header.setData(SEARCH_ROLE, street.casefold())
+                font = header.font()
+                font.setBold(True)
+                header.setFont(font)
+                self.index.addItem(header)
+            for card in cards:
+                numbers = self.cards[card]
+                reference = '§ ' + ' · '.join(map(str, numbers))
+                item = QListWidgetItem(f"{reference} — {self.places[card]['title']}")
+                item.setData(Qt.UserRole, card)
+                titles = ' '.join(self.places[number]['title'] for number in numbers)
+                item.setData(SEARCH_ROLE, f'{item.text()} {titles} {street}'.casefold())
+                self.index.addItem(item)
+
+    def _card_place(self, card):
+        """Réunir les souvenirs des passages d'un même lieu, sans rien y ajouter."""
+        numbers = self.cards[card]
+        place = dict(self.places[card])
+        place['monsters'] = [monster for number in numbers for monster in self.places[number]['monsters']]
+        place['exits'] = list(dict.fromkeys(target for number in numbers
+                                            for target in self.places[number]['exits']
+                                            if target not in numbers))
+        return place
+
     def _build_graph(self):
-        """Relier seulement les lieux connus par les déplacements réellement effectués."""
-        directions = {(source, target): direction
-                      for source, place in self.places.items()
-                      for target, direction in place['directions'].items() if direction}
-        positions = place_positions(self.places, self.transitions, directions)
-        edges = list(dict.fromkeys((source, target) for source, target in self.transitions
-                                   if source in positions and target in positions and source != target))
-        for source, target in edges:
+        """Relier seulement les lieux connus par les déplacements réellement effectués.
+
+        Les passages d'un même lieu partagent une vignette ; un aller-retour dans
+        une même rue devient un seul trait à double flèche.
+        """
+        card = self.card_of
+        directions = {}
+        for source, place in self.places.items():
+            for target, direction in place['directions'].items():
+                if direction:
+                    directions.setdefault((card[source], card.get(target, target)), direction)
+        moves = [(card.get(source, source), card.get(target, target)) for source, target in self.transitions]
+        positions = place_positions(self.cards, moves, directions, near_source=self.streets)
+        last = moves[-1] if moves else None
+        edges = {}
+        for source, target in moves:
+            if source in positions and target in positions and source != target:
+                if (target, source) in edges:
+                    edges[(target, source)] = True
+                else:
+                    edges.setdefault((source, target), False)
+        if self.streets:
+            self._draw_streets(positions)
+        for (source, target), both in edges.items():
             delta = positions[target] - positions[source]
             if abs(delta.x()) / 330 >= abs(delta.y()) / 180:
                 sign = 1 if delta.x() > 0 else -1
@@ -328,25 +469,68 @@ class ExplorationMapDialog(QDialog):
             path = QPainterPath(start)
             control1, control2 = start + offset, end - offset
             path.cubicTo(control1, control2, end)
-            color = QColor(self.theme.color('gold' if (source, target) == (self.transitions[-1] if self.transitions else None)
-                                             else 'ornament'))
+            recent = last in ((source, target), (target, source))
+            color = QColor(self.theme.color('gold' if recent else 'ornament'))
             edge = self.scene.addPath(path, QPen(color, 2))
             edge.setZValue(-1)
-            angle = math.atan2(end.y() - control2.y(), end.x() - control2.x())
-            arrow = QPolygonF([end, end - QPointF(math.cos(angle - .45) * 11, math.sin(angle - .45) * 11),
-                              end - QPointF(math.cos(angle + .45) * 11, math.sin(angle + .45) * 11)])
-            self.scene.addPolygon(arrow, QPen(color), color).setZValue(-1)
-        for number, place in self.places.items():
-            node = PlaceItem(number, place, number == self.current, self.theme)
+            tips = [(end, control2)] + ([(start, control1)] if both else [])
+            for tip, control in tips:
+                angle = math.atan2(tip.y() - control.y(), tip.x() - control.x())
+                arrow = QPolygonF([tip, tip - QPointF(math.cos(angle - .45) * 11, math.sin(angle - .45) * 11),
+                                   tip - QPointF(math.cos(angle + .45) * 11, math.sin(angle + .45) * 11)])
+                self.scene.addPolygon(arrow, QPen(color), color).setZValue(-1)
+            self.edges[(source, target)] = both
+        for number, numbers in self.cards.items():
+            node = PlaceItem(number, self._card_place(number), self.current in numbers, self.theme, numbers)
             node.setPos(positions[number])
             node.activated.connect(self.select_place)
             self.scene.addItem(node)
-            self.nodes[number] = node
+            for alias in numbers:
+                self.nodes[alias] = node
         self.scene.setSceneRect(self.scene.itemsBoundingRect().adjusted(-180, -180, 180, 180))
+
+    def _draw_streets(self, positions):
+        """Encadrer chaque rue visitée quand son quartier ne chevauche aucune autre rue.
+
+        Un cadre n'est tracé qu'autour de vignettes déjà visitées ; une rue isolée
+        ou enchevêtrée garde seulement son bandeau sur la vignette.
+        """
+        streets = {}
+        for card in self.cards:
+            streets.setdefault(self.places[card].get('street', ''), []).append(card)
+        self.districts = {}
+        for street, cards in streets.items():
+            if not street or len(cards) < 2:
+                continue
+            area = QRectF()
+            for card in cards:
+                area = area.united(QRectF(positions[card], QPointF(positions[card].x() + PlaceItem.WIDTH,
+                                                                    positions[card].y() + PlaceItem.HEIGHT)))
+            area = area.adjusted(-18, -34, 18, 18)
+            others = [card for card in self.cards if card not in cards]
+            if any(area.intersects(QRectF(positions[card].x(), positions[card].y(),
+                                          PlaceItem.WIDTH, PlaceItem.HEIGHT)) for card in others):
+                continue
+            if any(area.intersects(other) for other in self.districts.values()):
+                continue
+            self.districts[street] = area
+            fill = QColor(self.theme.color('page'))
+            fill.setAlpha(46)
+            pen = QPen(QColor(self.theme.color('gold')), 1.4, Qt.DashLine)
+            self.scene.addRect(area, pen, fill).setZValue(-3)
+            label = self.scene.addSimpleText(street.upper())
+            font = QFont(self.owner.reading_font_family)
+            font.setPixelSize(15)
+            font.setBold(True)
+            font.setLetterSpacing(QFont.AbsoluteSpacing, 1.5)
+            label.setFont(font)
+            label.setBrush(QColor(self.theme.color('gold')))
+            label.setPos(area.left() + 10, area.top() + 6)
+            label.setZValue(-2)
 
     def _index_selected(self, current, previous):
         """Suivre la sélection clavier ou souris de l'index sans changer de paragraphe."""
-        if current is not None:
+        if current is not None and current.data(Qt.UserRole) is not None:
             self.select_place(current.data(Qt.UserRole), focus=True)
 
     def select_place(self, number, *, focus=False):
@@ -354,17 +538,26 @@ class ExplorationMapDialog(QDialog):
         if number not in self.places:
             return
         self.selected = number
+        card = self.card_of[number]
+        numbers = self.cards[card]
         self.scene.clearSelection()
         self.nodes[number].setSelected(True)
         self.index.blockSignals(True)
         for row in range(self.index.count()):
             item = self.index.item(row)
-            if item.data(Qt.UserRole) == number:
+            if item.data(Qt.UserRole) == card:
                 self.index.setCurrentItem(item)
                 break
         self.index.blockSignals(False)
-        place = self.places[number]
-        marker = '<p><b>◆ Vous êtes ici</b></p>' if number == self.current else '<p>Lieu visité</p>'
+        place = self._card_place(card)
+        here = self.current in numbers
+        marker = '<p><b>◆ Vous êtes ici</b></p>' if here else '<p>Lieu visité</p>'
+        street = (f'<p><i>{html.escape(place["street"])}</i></p>' if place.get('street') else '')
+        passages = ''
+        if len(numbers) > 1:
+            passages = ('<h4>Passages de ce lieu</h4><ul>'
+                        + ''.join(f'<li>§ {n} — {html.escape(self.places[n]["title"])}</li>' for n in numbers)
+                        + '</ul>')
         monsters = ''.join(f"<li>{html.escape(m['name'])} — <b>{html.escape(m['status'])}</b></li>"
                            for m in place['monsters'])
         exits = []
@@ -373,10 +566,12 @@ class ExplorationMapDialog(QDialog):
                 exits.append(f'<li><a href="place:{target}">§ {target} — {html.escape(self.places[target]["title"])}</a> · visité</li>')
             else:
                 exits.append(f'<li>§ {target} · non exploré</li>')
-        self.details.setHtml(f'<h3>{html.escape(place["title"])}</h3><p>§ {number}</p>{marker}'
+        reference = ' · '.join(f'§ {n}' for n in numbers)
+        self.details.setHtml(f'<h3>{html.escape(place["title"])}</h3>{street}<p>{reference}</p>{marker}'
+                             + passages
                              + ('<h4>Adversaires rencontrés</h4><ul>' + monsters + '</ul>' if monsters else '')
                              + '<h4>Sorties repérées</h4>' + ('<ul>' + ''.join(exits) + '</ul>' if exits else '<p>Aucune sortie repérée.</p>'))
-        self.travel_button.setEnabled(number != self.current and self.owner.character['endurance'] > 0
+        self.travel_button.setEnabled(not here and self.owner.character['endurance'] > 0
                                       and self.owner._adventurer_draft is None)
         if focus:
             self.view.resetTransform()
@@ -388,11 +583,22 @@ class ExplorationMapDialog(QDialog):
             self.select_place(int(url.path()), focus=True)
 
     def filter_places(self, text):
-        """Filtrer seulement l'index ; garder la carte et le lieu courant visibles."""
+        """Filtrer seulement l'index, par numéro, titre ou rue ; garder la carte visible."""
         query = text.casefold().strip()
+        header = None
+        shown = False
         for row in range(self.index.count()):
             item = self.index.item(row)
-            item.setHidden(query not in item.text().casefold())
+            if item.data(Qt.UserRole) is None:
+                if header is not None:
+                    header.setHidden(not shown)
+                header, shown = item, False
+                continue
+            hidden = query not in (item.data(SEARCH_ROLE) or item.text().casefold())
+            item.setHidden(hidden)
+            shown = shown or not hidden
+        if header is not None:
+            header.setHidden(not shown)
 
     def focus_current(self):
         """Recentrer à taille lisible sans déplacer le personnage ni effacer la recherche."""
