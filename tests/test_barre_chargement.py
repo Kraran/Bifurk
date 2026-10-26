@@ -196,11 +196,21 @@ class LoadingBarTests(unittest.TestCase):
         self.assertEqual(session.step_names(), ['Lecture du livre'])
 
     def test_interface_keeps_painting_during_work(self):
-        ticks = []
+        # Le travail dure jusqu'à trois images de l'animation, dans la limite de 5 s : une
+        # machine chargée retarde les images sans faire échouer le test, mais une interface
+        # figée pendant le travail n'en peint aucune et le test échoue à l'échéance.
+        ticks, seen = [], []
+
+        def work(report):
+            deadline = time.monotonic() + 5
+            while len(ticks) <= 2 and time.monotonic() < deadline:
+                time.sleep(.02)
+            seen.append(len(ticks))  # images peintes pendant le travail, pas après
+
         with LoadingSession(self.w, 'Ouverture du grimoire…', delay_ms=0) as session:
             self.w.loading_overlay._timer.timeout.connect(lambda: ticks.append(1))
-            session.run(lambda report: time.sleep(.25))
-        self.assertGreater(len(ticks), 2, "l'animation doit tourner pendant le travail")
+            session.run(work)
+        self.assertGreater(seen[0], 2, "l'animation doit tourner pendant le travail")
 
     def test_small_window_uses_compact_card_inside_window(self):
         # La fenêtre principale impose sa taille minimale : un hôte nu simule l'écran réduit.

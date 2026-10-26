@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QDialog, QListWidget, QMessageBox, QPushButton
 
 from grimoire_modules.cite import feedback, rules
 from grimoire_modules.cite.controller import COMBAT_REASON, PENDING_REASON
@@ -162,9 +162,20 @@ class CiteFourthHundredWindowTests(unittest.TestCase):
         button = self.event_button('prêteur sur gages')
         self.assertTrue(button.isEnabled())
         self.no_spoiler()
-        with patch.object(self.w, '_cite_pick_items', return_value=['Passe-partout — 15 Pièces d’Or']) as pick:
+        offered = []
+
+        def sell(dialog):
+            items = dialog.findChild(QListWidget, 'saleItems')
+            offered.extend(items.item(i).text() for i in range(items.count()))
+            for i in range(items.count()):
+                items.item(i).setSelected(items.item(i).text().startswith('Passe-partout'))
+            next(b for b in dialog.findChildren(QPushButton) if b.text() == 'Vendre…').click()
+            return QDialog.Accepted
+        with patch.object(QDialog, 'exec', sell), \
+                patch.object(self.w, '_cite_confirm_sale', return_value=True) as confirm:
             button.click()
-        self.assertIn('Miroir — 1 Pièce d’Or', pick.call_args[0][2])
+        confirm.assert_called_once_with(['Passe-partout'], 15)
+        self.assertIn('Miroir — 1 Pièce d’Or', offered)
         self.assertEqual(self.w.character['gold'], 45)
         self.assertNotIn('Passe-partout', self.w.character['inventory'])
         card = next(b for b in self.buttons() if '316' in b.text())

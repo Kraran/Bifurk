@@ -21,6 +21,8 @@ from grimoire_ui import ChoiceCard
 from grimoire_modules.registry import available_modules
 from grimoire_modules.foret import rules
 from grimoire_modules.foret.encounters import COMBATS
+from grimoire_modules.cite import rules as cite
+from tests import test_cite_mechanics as cite_mechanics
 
 KEY_SUFFIX = re.compile(r' · touche [1-9]$')
 
@@ -210,3 +212,75 @@ class SorcierTooltipTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+CITE_FORBIDDEN = ('§', 'inutile', 'plus tard', ' fois', 'servira', 'ensuite')
+
+
+class CiteTooltipTests(unittest.TestCase):
+    """Cité : un choix grisé dit seulement ce qui manque, tel que le livre l’écrit."""
+    setUpClass = classmethod(cite_mechanics.CiteMechanicsWindowTests.setUpClass.__func__)
+    setUp = cite_mechanics.CiteMechanicsWindowTests.setUp
+    open = cite_mechanics.CiteMechanicsWindowTests.open
+    start = cite_mechanics.CiteMechanicsWindowTests.start
+    buttons = cite_mechanics.CiteMechanicsWindowTests.buttons
+    play = cite_mechanics.CiteMechanicsWindowTests.play
+
+    def sweep(self, gold):
+        """Toutes les cartes de choix des 400 passages, à l’or donné : (source, cible, activée, infobulle)."""
+        self.play()
+        base = self.w._snapshot()
+        cards = []
+        for number in range(1, 401):
+            self.w._restore(base)
+            self.w.character['gold'] = gold
+            self.w.go_to(number)
+            if self.w.current_paragraph != number:
+                continue
+            for card in self.buttons():
+                match = re.search(r'§(\d+)$', card.text())
+                if match:
+                    cards.append((number, int(match[1]), card.isEnabled(), KEY_SUFFIX.sub('', card.toolTip())))
+        return cards
+
+    def test_greyed_cards_name_only_what_is_missing(self):
+        cards = self.sweep(gold=0)
+        self.assertGreater(len(cards), 500)
+        greyed = {(source, target): tip for source, target, enabled, tip in cards if not enabled}
+        for (source, target), tip in greyed.items():
+            self.assertTrue(tip.startswith('Indisponible : '), (source, target, tip))
+            for word in CITE_FORBIDDEN:
+                self.assertNotIn(word, tip.casefold(), (source, target, tip))
+        for key, cost in cite.ROUTE_COSTS.items():
+            if key in greyed:
+                self.assertTrue(greyed[key].startswith(
+                    f'Indisponible : pas assez d’or : il vous faut {cost} Pièce'), (key, greyed[key]))
+                self.assertIn('vous en avez 0', greyed[key])
+        items = [key for key, (_word, present) in cite.ITEM_ROUTES.items()
+                 if present and key in greyed and 'combat' not in greyed[key]]
+        self.assertGreater(len(items), 15)
+        for key in items:
+            self.assertTrue(greyed[key].startswith('Indisponible : il vous faut l’objet indiqué par le livre ('),
+                            (key, greyed[key]))
+        self.assertEqual(greyed[(336, 302)],
+                         'Indisponible : il vous faut l’objet indiqué par le livre (Pierres précieuses).')
+
+    def test_open_cards_show_the_printed_cost_without_destination(self):
+        for source, target, enabled, tip in self.sweep(gold=30):
+            if enabled:
+                self.assertNotIn('§', tip, (source, target))
+                self.assertNotIn(str(target), re.sub(r'\d+ Pièces? d’Or|\d+ portions', '', tip), (source, target, tip))
+
+    def test_tattoo_alley_names_both_printed_conditions(self):
+        self.play()
+        self.w.character['gold'] = 12
+        self.w.go_to(cite.PAWNBROKER)
+        cards = {re.search(r'§(\d+)$', c.text())[1]: KEY_SUFFIX.sub('', c.toolTip()) for c in self.buttons()}
+        self.assertEqual(cards['307'], 'Indisponible : condition du livre non remplie '
+                                       '(Pas de quoi vous offrir le tatouage).')
+        self.w.character['gold'] = 3
+        self.w.go_to(1)
+        self.w.go_to(cite.PAWNBROKER)
+        cards = {re.search(r'§(\d+)$', c.text())[1]: KEY_SUFFIX.sub('', c.toolTip()) for c in self.buttons()}
+        self.assertEqual(cards['307'], 'Condition du livre : Pas de quoi vous offrir le tatouage')
+        self.assertEqual(cards['316'], 'Indisponible : pas assez d’or : il vous faut 10 Pièces d’Or, '
+                                       'vous en avez 3 (De quoi payer le tatouage).')

@@ -7,6 +7,7 @@ ce que le passage affiché imprime (score à battre, prix, condition).
 """
 from copy import deepcopy
 
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -14,10 +15,14 @@ from PySide6.QtWidgets import (
     QInputDialog,
     QLabel,
     QListWidget,
+    QListWidgetItem,
     QMessageBox,
     QPushButton,
+    QSpinBox,
     QVBoxLayout,
 )
+
+from item_icons import item_qicon
 
 from ..fighting_fantasy.adventure import advance_group, damage_hero, new_group_combat
 from ..fighting_fantasy.controller import FightingFantasyActions
@@ -402,7 +407,8 @@ class CiteMechanicsActions(FightingFantasyActions):
             elif action == 'buy':
                 if number not in rules.SHOPS:
                     return
-                rules.buy(self.character, number, payload)
+                name, count = payload if isinstance(payload, (tuple, list)) else (payload, 1)
+                rules.buy(self.character, number, name, count)
             elif action == 'double_test':
                 if number not in rules.DOUBLE_TESTS or rules.test_resolved(self.character, number):
                     return
@@ -503,7 +509,9 @@ class CiteMechanicsActions(FightingFantasyActions):
 
     # ----- Dialogues ---------------------------------------------------------------
     def _cite_shop(self):
-        """Chaque achat est une transaction ; fermer le dialogue ne dépense rien."""
+        """Boutique sans révélation : prix, solde et règle d’achat imprimée, jamais l’usage.
+
+        Le choix seul ne dépense rien ; chaque achat est une transaction annulable."""
         number = self.current_paragraph
         shop = rules.SHOPS.get(number)
         if not shop:
@@ -511,40 +519,70 @@ class CiteMechanicsActions(FightingFantasyActions):
         dialog = QDialog(self)
         dialog.setWindowTitle('Les achats du passage')
         layout = QVBoxLayout(dialog)
-        header = QLabel('Un seul achat possible ici.' if shop['limit'] == 1
-                        else 'Autant d’exemplaires que vous le désirez.' if shop.get('repeat')
-                        else 'Chaque article ne s’achète qu’une fois.')
+        header = QLabel(rules.shop_rule(number) + ' Chaque article rejoint le sac à dos.')
         header.setWordWrap(True)
         layout.addWidget(header)
         selector = QComboBox()
+        selector.setIconSize(QSize(28, 28))
         for name, _price in shop['items']:
-            selector.addItem('', name)
+            selector.addItem(item_qicon(name), '', name)
         layout.addWidget(selector)
+        description = QLabel()
+        description.setObjectName('shopDescription')
+        description.setWordWrap(True)
+        layout.addWidget(description)
+        quantity = QSpinBox()
+        quantity.setRange(1, 99)
+        quantity.setPrefix('Quantité : ')
+        quantity.setVisible(bool(shop.get('repeat')))
+        layout.addWidget(quantity)
         balance = QLabel()
         balance.setObjectName('shopBalance')
         layout.addWidget(balance)
         buy = QPushButton('Acheter')
         layout.addWidget(buy)
+        prices = dict(shop['items'])
 
-        def refresh():
+        def label_items():
             bought = rules.shop_bought(self.character, number)
+            model = selector.model()
             for index, (name, price) in enumerate(shop['items']):
                 count = bought.count(name)
                 selector.setItemText(index, f'{name} — {_coins(price)}' + (
                     '' if not count else f' — acheté ×{count}' if shop.get('repeat') else ' — acheté'))
-            reason = rules.can_buy(self.character, number, selector.currentData())
-            balance.setText(f'Or disponible : {_coins(self.character.get("gold", 0))}')
+                reason = rules.can_buy(self.character, number, name)
+                closed = reason in ('Article déjà acheté.', 'Le livre ne permet qu’un seul achat ici.')
+                selector.setItemData(index, f'{_coins(price)}. ' + (reason if closed else rules.shop_rule(number)),
+                                     Qt.ToolTipRole)
+                item = model.item(index) if hasattr(model, 'item') else None
+                if item is not None:
+                    item.setEnabled(not closed or name == selector.currentData())
+
+        def refresh():
+            name = selector.currentData()
+            count = quantity.value() if shop.get('repeat') else 1
+            unit = prices[name]
+            gold = self.character.get('gold', 0)
+            description.setText(rules.shop_description(self.character, number, name))
+            balance.setText(f'Or disponible : {_coins(gold)} — total : {count} × {unit} = {_coins(unit * count)}'
+                            if shop.get('repeat') else
+                            f'Or disponible : {_coins(gold)} — prix : {_coins(unit)}')
+            reason = rules.can_buy(self.character, number, name, count)
             buy.setEnabled(reason is None and self.character['endurance'] > 0)
             buy.setToolTip(reason or '')
 
         def purchase():
-            self.perform_cite_action('buy', selector.currentData())
+            count = quantity.value() if shop.get('repeat') else 1
+            self.perform_cite_action('buy', (selector.currentData(), count))
+            label_items()
             refresh()
-        selector.currentIndexChanged.connect(refresh)
+        selector.currentIndexChanged.connect(lambda _index: (label_items(), refresh()))
+        quantity.valueChanged.connect(refresh)
         buy.clicked.connect(purchase)
         close = QPushButton('Revenir au grimoire')
         close.clicked.connect(dialog.accept)
         layout.addWidget(close)
+        label_items()
         refresh()
         dialog.exec()
         dialog.deleteLater()
@@ -630,17 +668,85 @@ class CiteMechanicsActions(FightingFantasyActions):
             self.perform_cite_action('loot', chosen)
 
     def _cite_pawn_dialog(self):
-        """§354 : autant de ventes que voulu ; chaque validation est une transaction."""
-        if self.current_paragraph != rules.PAWNBROKER:
-            return
-        offers = rules.pawn_choices(self.character)
-        labels = [f'{name} — {_coins(price)}' for name, price in offers]
-        names = dict(zip(labels, (name for name, _price in offers)))
-        chosen = self._cite_pick_items('Le prêteur sur gages',
-                                       'Sélectionnez ce que vous vendez, au prix offert.',
-                                       labels, None, 'Vendre la sélection')
-        if chosen:
-            self.perform_cite_action('pawn', [names[label] for label in chosen])
+        """§354 : le bouton du prêteur ouvre la fenêtre de vente."""
+        if self.current_paragraph == rules.PAWNBROKER:
+            self._cite_sale_dialog()
+
+    def _cite_sale_dialog(self):
+        """Vente symétrique de l’achat : prix offerts par le livre, solde, total, puis confirmation.
+
+        Autant de ventes que voulu ; chaque vente confirmée est une transaction annulable
+        et la pièce sonne quand l’or change."""
+        dialog = QDialog(self)
+        dialog.setWindowTitle('Le prêteur sur gages')
+        layout = QVBoxLayout(dialog)
+        header = QLabel('Sélectionnez ce que vous vendez, au prix offert. '
+                        'Rien n’est vendu avant votre confirmation.')
+        header.setWordWrap(True)
+        layout.addWidget(header)
+        items = QListWidget()
+        items.setObjectName('saleItems')
+        items.setIconSize(QSize(28, 28))
+        items.setSelectionMode(QAbstractItemView.MultiSelection)
+        layout.addWidget(items)
+        balance = QLabel()
+        balance.setObjectName('saleBalance')
+        layout.addWidget(balance)
+        sell = QPushButton('Vendre…')
+        layout.addWidget(sell)
+
+        def fill():
+            items.clear()
+            for name, price in rules.pawn_choices(self.character):
+                item = QListWidgetItem(item_qicon(name), f'{name} — {_coins(price)}')
+                item.setData(Qt.UserRole, (name, price))
+                item.setToolTip(f'Prix offert : {_coins(price)}.')
+                items.addItem(item)
+
+        def selection():
+            return [item.data(Qt.UserRole) for item in items.selectedItems()]
+
+        def refresh():
+            chosen = selection()
+            total = sum(price for _name, price in chosen)
+            gold = self.character.get('gold', 0)
+            balance.setText(f'Or disponible : {_coins(gold)} — vous recevrez {_coins(total)}' if chosen
+                            else f'Or disponible : {_coins(gold)} — rien de sélectionné')
+            sell.setEnabled(bool(chosen) and self.character['endurance'] > 0)
+            sell.setToolTip('' if chosen else 'Sélectionnez au moins un objet.')
+
+        def confirm_and_sell():
+            chosen = selection()
+            names = [name for name, _price in chosen]
+            if names and self._cite_confirm_sale(names, sum(price for _name, price in chosen)):
+                self.perform_cite_action('pawn', names)
+                fill()
+            refresh()
+        items.itemSelectionChanged.connect(refresh)
+        sell.clicked.connect(confirm_and_sell)
+        close = QPushButton('Revenir au grimoire')
+        close.clicked.connect(dialog.accept)
+        layout.addWidget(close)
+        fill()
+        refresh()
+        dialog.exec()
+        dialog.deleteLater()
+
+    def _cite_confirm_sale(self, names, total):
+        """Dernière étape de la vente : True si le joueur confirme."""
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Question)
+        box.setWindowTitle('Confirmer la vente')
+        listed = ', '.join(names[:-1]) + ' et ' + names[-1] if len(names) > 1 else names[0]
+        box.setText(f'Vendre {listed} pour {_coins(total)} ?')
+        box.setInformativeText('Les objets vendus quittent votre sac à dos.')
+        accept = box.addButton('Vendre', QMessageBox.AcceptRole)
+        box.addButton('Garder', QMessageBox.RejectRole)
+        box.setDefaultButton(accept)
+        box.exec()
+        chosen = box.clickedButton() is accept
+        box.deleteLater()
+        return chosen
 
     def _cite_trade_dialog(self):
         if self.current_paragraph != rules.TRADE or rules.traded(self.character):

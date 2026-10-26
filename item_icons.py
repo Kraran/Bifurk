@@ -1,6 +1,6 @@
 """Icônes dédiées des objets de la sacoche, peintes au QPainter (aucune image).
 
-Chaque objet connu des deux grimoires reçoit un dessin propre, dans le style des
+Chaque objet connu des grimoires reçoit un dessin propre, dans le style des
 vignettes historiques de adventurer_sheet.draw_item_art : formes pleines en
 dégradé, contour brun-noir de 1,2 px, éclairage venant du haut à gauche, or du
 grimoire pour les métaux précieux. Les dessins sont originaux et tracés dans un
@@ -1310,6 +1310,503 @@ def _d_lantern_magic(p):
     _sparkle(p, .55, -.3, .16, '#e8f6ff')
 
 
+# ------------------------------------------------- La Cité des Voleurs (phase 5)
+# Mêmes familles et même éclairage que les dessins des deux premiers grimoires :
+# rien n'illustre ce que fait l'objet, seulement ce qu'il est.
+def _d_ring_fire(p):
+    _glow(p, 0, -.5, .62, '#ff7a1a', 150)
+    _ring(p, 'gold', '#e8401a', stone_r=.25)
+    p.setPen(Qt.NoPen)
+    for x, h in ((-.22, .32), (0, .42), (.22, .3)):
+        p.setBrush(_c('#ffb02e', 220))
+        p.drawPath(_path([(x, -.62 - h), (x + .1, -.72, x, -.66), (x - .1, -.72, x, -.62 - h)]))
+
+
+def _d_ring_ice(p):
+    _ring(p, 'silver', '#9fe3ff', stone_r=.28)
+    p.setPen(QPen(_c('#e8fbff', 230), .05, Qt.SolidLine, Qt.RoundCap))
+    for a in range(0, 180, 60):
+        r = math.radians(a)
+        p.drawLine(QPointF(.62 + math.cos(r) * .18, -.62 + math.sin(r) * .18),
+                   QPointF(.62 - math.cos(r) * .18, -.62 - math.sin(r) * .18))
+    _sparkle(p, -.62, -.45, .13, '#e8fbff')
+
+
+def _d_ring_invisible(p):
+    p.save()
+    p.setOpacity(.5)
+    _ring(p, 'silver', '#f4fbff', stone_r=.24)
+    p.restore()
+    for x, y, r in ((.55, -.55, .16), (-.6, -.2, .12), (.2, .62, .1)):
+        _sparkle(p, x, y, r)
+
+
+def _d_ring_eye(p):
+    _ring(p, 'gold', None, thickness=.22)
+    _outline(p)
+    p.setBrush(_metal('gold', -.5, -.8, .5, -.1))
+    p.drawEllipse(QPointF(0, -.48), .5, .32)
+    p.setBrush(_c(IVORY))
+    p.drawPath(_path([(-.4, -.48), (0, -.78, .4, -.48), (0, -.18, -.4, -.48)]))
+    g = QRadialGradient(QPointF(-.05, -.53), .2)
+    g.setColorAt(0, _c('#fff0a8')); g.setColorAt(1, _c('#b07a1a'))
+    p.setBrush(g)
+    p.drawEllipse(QPointF(0, -.48), .17, .17)
+    p.setPen(Qt.NoPen); p.setBrush(_c('#1a0f0a'))
+    p.drawEllipse(QPointF(0, -.48), .05, .13)
+
+
+def _d_ring_jewels(p):
+    _ring(p, 'gold', None, thickness=.24)
+    for x, y, color in ((-.32, -.32, '#2e86de'), (.32, -.32, '#2ecc71'), (0, -.5, '#d6303a')):
+        _gem(p, x, y, .17, color, facets=False)
+
+
+def _brooch_scorpion(metal):
+    def draw(p):
+        brush = _metal(metal, -.8, -.8, .8, .8)
+        # Queue recourbée au-dessus du corps, dard au bout.
+        _outlined_stroke(p, brush, .12, (0, .2), (.05, .65, .45, .55), (.75, .4, .62, -.05))
+        _outline(p); p.setBrush(brush)
+        p.drawPolygon(_poly((.62, -.05), (.48, -.22), (.72, -.2)))
+        # Pinces.
+        for sx in (-1, 1):
+            _outlined_stroke(p, brush, .09, (sx * .18, -.35), (sx * .5, -.5, sx * .55, -.8))
+            _outline(p); p.setBrush(brush)
+            p.drawEllipse(QPointF(sx * .58, -.82), .14, .1)
+        # Pattes.
+        p.setPen(QPen(_c(METALS[metal][2]), .05, Qt.SolidLine, Qt.RoundCap))
+        for dy in (-.15, 0, .15):
+            p.drawLine(QPointF(-.18, dy), QPointF(-.5, dy + .12))
+            p.drawLine(QPointF(.18, dy), QPointF(.5, dy + .12))
+        _outline(p); p.setBrush(brush)
+        p.drawEllipse(QPointF(0, -.02), .22, .36)
+        p.drawEllipse(QPointF(0, -.42), .13, .1)
+        p.setPen(QPen(_c(METALS[metal][2]), .03))
+        for dy in (-.12, .05, .2):
+            p.drawLine(QPointF(-.18, dy), QPointF(.18, dy))
+        _sparkle(p, -.08, -.18, .1)
+    return draw
+
+
+def _d_bracelet_insect(p):
+    _outline(p)
+    p.setBrush(_metal('silver', -.8, -.5, .8, .5))
+    p.drawPath(_annulus(0, .1, .85, .52, .66, .34, 0, .07))
+    _outline(p)
+    p.setBrush(_grad(-.3, .1, .3, .7, '#9fe0b0', '#1f6a4a'))
+    p.drawEllipse(QPointF(0, .52), .3, .24)
+    _emblem_bug('#d4d9e0')(p, QPointF(0, .52))
+
+
+def _d_pearls_black(p):
+    p.setPen(QPen(_c('#d4d9e0'), .04)); p.setBrush(Qt.NoBrush)
+    p.drawArc(QRectF(-.82, -.7, 1.64, 1.4), 200 * 16, 140 * 16)
+    for i in range(6):
+        a = math.radians(205 + i * 26)
+        x, y = math.cos(a) * .78, -math.sin(a) * .66
+        g = QRadialGradient(QPointF(x - .06, y - .07), .22)
+        g.setColorAt(0, _c('#8a8aa0')); g.setColorAt(.5, _c('#2a2a38')); g.setColorAt(1, _c('#0a0a10'))
+        _outline(p); p.setBrush(g)
+        p.drawEllipse(QPointF(x, y), .18, .18)
+        _highlight(p, QRectF(x - .1, y - .11, .07, .05), 170)
+
+
+def _d_skeleton_key(p):
+    """Passe-partout : un anneau d'acier portant trois crochets fins."""
+    _outline(p)
+    p.setBrush(_metal('iron'))
+    p.drawPath(_annulus(-.5, -.5, .3, .3, .17, .17))
+    for angle, length, bit in ((-8, 1.25, (.12, .1)), (8, 1.15, (.1, -.12)), (0, 1.35, (.14, 0))):
+        p.save(); p.translate(-.5, -.5); p.rotate(45 + angle)
+        _outlined_stroke(p, _metal('steel'), .07, (.3, 0), (length, 0))
+        _outlined_stroke(p, _metal('steel'), .07, (length, 0), (length + bit[0], bit[1]))
+        p.restore()
+
+
+def _d_key_iron(p):
+    _key(p, 'iron')
+    p.setPen(QPen(_c('#b9b4ad', 150), .04)); p.drawLine(QPointF(-.1, -.06), QPointF(.4, .44))
+
+
+def _d_key_dwarf(p):
+    _key(p, 'bronze', bow='trefoil')
+    _gem(p, -.42, -.42, .12, '#3fd1a4', facets=False)
+    p.setPen(QPen(_c('#5a3a17'), .035))
+    for t in (.05, .2, .35):
+        p.drawLine(QPointF(t - .05, t + .05), QPointF(t + .05, t - .05))
+
+
+def _d_keyring(p):
+    _outline(p); p.setBrush(Qt.NoBrush)
+    p.setPen(QPen(QBrush(_metal('iron')), .1))
+    p.drawEllipse(QPointF(0, -.55), .3, .3)
+    for angle, metal in ((-35, 'iron'), (0, 'bronze'), (35, 'steel')):
+        p.save(); p.translate(0, -.3); p.rotate(angle)
+        brush = _metal(metal)
+        _outlined_stroke(p, brush, .12, (0, 0), (0, 1.0))
+        _outlined_stroke(p, brush, .1, (0, .85), (.2, .85))
+        _outlined_stroke(p, brush, .1, (0, .68), (.16, .68))
+        _outline(p); p.setBrush(brush); p.drawEllipse(QPointF(0, .05), .12, .12)
+        p.restore()
+
+
+def _d_poultice(p):
+    for sx in (-1, 1):
+        _outline(p); p.setBrush(_grad(-1, -1, 1, 1, '#8fd06a', '#2f6a22'))
+        p.drawPath(_path([(0, -.2), (sx * .35, -.95, sx * .85, -.7), (sx * .6, -.15, 0, -.2)]))
+    _outline(p)
+    p.setBrush(_grad(-.8, -.4, .8, .8, '#f5ecd6', '#c9b48a'))
+    p.drawRoundedRect(QRectF(-.75, -.35, 1.5, 1.1), .18, .18)
+    p.setBrush(_grad(-.2, -.4, .2, .8, '#8a5a2a', '#5b3417'))
+    p.drawRect(QRectF(-.12, -.38, .24, 1.16))
+    p.setPen(QPen(_c('#5a8a3a', 170), .05))
+    for x in (-.5, .45):
+        p.drawLine(QPointF(x - .1, .1), QPointF(x + .12, .45))
+
+
+def _d_shield_tower(p):
+    _glow(p, 0, 0, 1.0, '#7d3fb8', 90)
+    _outline(p)
+    body = QRectF(-.6, -.92, 1.2, 1.84)
+    p.setBrush(_metal('iron', -.6, -.9, .6, .9))
+    p.drawRoundedRect(body, .14, .14)
+    p.setBrush(_grad(-.5, -.8, .5, .8, '#4a3a5a', '#1a1222'))
+    p.drawRoundedRect(body.adjusted(.12, .12, -.12, -.12), .08, .08)
+    p.setPen(QPen(_c('#8a7a9a'), .05))
+    p.drawLine(QPointF(0, -.75), QPointF(0, .75))
+    _outline(p); p.setBrush(_metal('iron'))
+    for y in (-.6, .6):
+        for x in (-.38, .38):
+            p.drawEllipse(QPointF(x, y), .06, .06)
+
+
+def _d_shield_magnificent(p):
+    _outline(p)
+    outer = _path([(-.78, -.78), (.78, -.78), (.72, .05), (.5, .62, 0, .95), (-.5, .62, -.72, .05)])
+    p.setBrush(_metal('gold', -.8, -.8, .8, .8))
+    p.drawPath(outer)
+    inner = _path([(-.62, -.64), (.62, -.64), (.57, .03), (.4, .5, 0, .76), (-.4, .5, -.57, .03)])
+    p.setBrush(_metal('silver', -.6, -.6, .6, .6))
+    p.drawPath(inner)
+    p.setPen(QPen(_c(GOLD_DARK), .05)); p.setBrush(Qt.NoBrush)
+    p.drawLine(QPointF(-.55, -.2), QPointF(.55, -.2))
+    _gem(p, 0, .12, .2, '#2e86de')
+    for x in (-.4, .4):
+        _gem(p, x, -.45, .1, '#d6303a', facets=False)
+
+
+def _d_shield_knight(p):
+    _outline(p)
+    path = _path([(-.75, -.8), (.75, -.8), (.72, -.05), (.48, .6, 0, .92), (-.48, .6, -.72, -.05)])
+    p.setBrush(_metal('steel', -.8, -.8, .8, .8))
+    p.drawPath(path)
+    inner = _path([(-.62, -.68), (.62, -.68), (.6, -.06), (.4, .5, 0, .78), (-.4, .5, -.6, -.06)])
+    p.setBrush(_grad(-.6, -.6, .6, .6, '#d0404a', '#5e1410'))
+    p.drawPath(inner)
+    _emblem_cross('silver')(p, QPointF(0, -.02))
+
+
+def _petal_flower(p, x, y, r, petals, fill, center, outline=True):
+    for i in range(petals):
+        a = math.radians(i * 360 / petals - 90)
+        px, py = x + math.cos(a) * r * .55, y + math.sin(a) * r * .55
+        p.save(); p.translate(px, py); p.rotate(i * 360 / petals)
+        if outline:
+            _outline(p)
+        else:
+            p.setPen(Qt.NoPen)
+        p.setBrush(_grad(0, -r * .4, 0, r * .4, *fill))
+        p.drawEllipse(QPointF(0, 0), r * .22, r * .45)
+        p.restore()
+    _outline(p); p.setBrush(_c(center))
+    p.drawEllipse(QPointF(x, y), r * .26, r * .26)
+
+
+def _d_flower_golden(p):
+    _glow(p, 0, -.15, .95, '#ffe680', 120)
+    _outlined_stroke(p, '#6a8a2a', .08, (0, .25), (-.05, .6, .1, .95))
+    _petal_flower(p, 0, -.15, .8, 10, ('#fff3b0', '#c8961e'), '#b0520c')
+
+
+def _d_lotus(p):
+    _outline(p)
+    p.setBrush(_grad(-1, .4, 1, .9, '#6fb04a', '#1f4a1a'))
+    p.drawEllipse(QRectF(-.9, .45, 1.8, .4))
+    for angle, scale in ((-55, .8), (55, .8), (-25, .95), (25, .95), (0, 1.0)):
+        p.save(); p.translate(0, .5); p.rotate(angle)
+        _outline(p)
+        p.setBrush(_grad(0, -1, 0, 0, '#fff0f6', '#e86aa0'))
+        p.drawPath(_path([(0, 0), (-.28 * scale, -.45 * scale, 0, -1.0 * scale), (.28 * scale, -.45 * scale, 0, 0)]))
+        p.restore()
+    p.setPen(Qt.NoPen); p.setBrush(_c('#ffd84a')); p.drawEllipse(QPointF(0, .38), .12, .07)
+
+
+def _d_bouquet(p):
+    for x1, x2 in ((-.1, -.45), (0, 0), (.1, .45)):
+        _outlined_stroke(p, '#4f7a2a', .07, (0, .9), (x1, .3, x2, -.2))
+    for x, y, fill, petals in ((-.45, -.3, ('#ffe0ec', '#d6406a'), 5), (.45, -.3, ('#f0e8ff', '#7a5ad8'), 5),
+                               (0, -.55, ('#fff8d0', '#e8a81e'), 6)):
+        _petal_flower(p, x, y, .5, petals, fill, '#fff3b0')
+    _outline(p); p.setBrush(_grad(-.3, .3, .3, .6, '#e86a6a', '#7a1f2a'))
+    p.drawPolygon(_poly((-.22, .35), (.22, .35), (.3, .55), (-.3, .55)))
+
+
+def _d_pass_merchant(p):
+    _outline(p)
+    p.setBrush(_grad(-1, -1, 1, 1, '#f5e7c6', '#c9a86a'))
+    p.drawPolygon(_poly((-.8, -.65), (.8, -.65), (.8, .65), (-.8, .65)))
+    p.setPen(QPen(_c('#8a6633', 140), .03))
+    p.drawLine(QPointF(-.8, -.1), QPointF(.8, -.1))
+    p.setPen(QPen(_c('#5b3417', 150), .035))
+    for y in (-.48, -.32):
+        p.drawLine(QPointF(-.6, y), QPointF(.6, y))
+    p.drawLine(QPointF(-.6, .1), QPointF(.05, .1))
+    _outlined_stroke(p, '#c0392b', .07, (.2, .35), (.35, .9))
+    _outlined_stroke(p, '#c0392b', .07, (.45, .35), (.5, .92))
+    _outline(p); p.setBrush(_grad(.1, .1, .7, .7, '#d0404a', '#6c1f2a'))
+    p.drawEllipse(QPointF(.35, .32), .22, .22)
+    p.setPen(QPen(_c('#f0a0a0', 180), .04)); p.setBrush(Qt.NoBrush)
+    p.drawEllipse(QPointF(.35, .32), .11, .11)
+
+
+def _d_witch_hair(p):
+    """Mèche grise nouée d'un ruban : une boucle effilée en S."""
+    lock = _path([(-.18, -.6), (-.55, -.1, -.2, .2), (.2, .5, -.15, .92), (.05, .55, .32, .28),
+                  (.62, -.05, .2, -.6)])
+    _outline(p)
+    p.setBrush(_grad(-.6, -.6, .6, .9, '#c8c8d0', '#6a6a74', '#2e2e36'))
+    p.drawPath(lock)
+    p.setPen(QPen(_c('#e8e8f0', 150), .03)); p.setBrush(Qt.NoBrush)
+    for dx in (-.08, .04, .14):
+        path = QPainterPath(QPointF(dx, -.55))
+        path.quadTo(dx - .35, -.1, dx * .5, .2); path.quadTo(dx + .25, .45, -.08 + dx * .4, .8)
+        p.drawPath(path)
+    _outline(p); p.setBrush(_grad(-.4, -.8, .4, -.5, '#e0505a', '#7a1f2a'))
+    p.drawPath(_path([(0, -.62), (-.42, -.9), (-.5, -.5)]))
+    p.drawPath(_path([(0, -.62), (.42, -.9), (.5, -.5)]))
+    p.drawEllipse(QPointF(0, -.62), .11, .09)
+
+
+def _d_mirror(p):
+    _outlined_stroke(p, _metal('silver'), .2, (.3, .3), (.85, .85))
+    _outline(p)
+    p.setBrush(_metal('silver', -.8, -.8, .4, .4))
+    p.drawEllipse(QPointF(-.2, -.2), .68, .68)
+    g = QLinearGradient(QPointF(-.7, -.7), QPointF(.3, .3))
+    g.setColorAt(0, _c('#f4fbff')); g.setColorAt(.6, _c('#9ec4dc')); g.setColorAt(1, _c('#5a7a94'))
+    p.setBrush(g)
+    p.drawEllipse(QPointF(-.2, -.2), .54, .54)
+    p.setPen(QPen(_c('#ffffff', 200), .06, Qt.SolidLine, Qt.RoundCap))
+    p.drawLine(QPointF(-.5, -.25), QPointF(-.25, -.5))
+
+
+def _d_glass_ball(p):
+    _outline(p)
+    p.setBrush(_grad(-.6, .4, .6, .9, '#b57a44', '#4f2810'))
+    p.drawPolygon(_poly((-.5, .9), (.5, .9), (.32, .5), (-.32, .5)))
+    g = QRadialGradient(QPointF(-.2, -.35), .9)
+    g.setColorAt(0, _c('#ffffff', 230)); g.setColorAt(.4, _c('#b8d8f0', 170)); g.setColorAt(1, _c('#4a6a94', 210))
+    _outline(p); p.setBrush(g)
+    p.drawEllipse(QPointF(0, -.12), .68, .68)
+    _highlight(p, QRectF(-.42, -.55, .22, .16), 200)
+
+
+def _d_skull_ivory(p):
+    p.setPen(QPen(QBrush(_metal('silver')), .06, Qt.DotLine, Qt.RoundCap)); p.setBrush(Qt.NoBrush)
+    p.drawArc(QRectF(-.75, -.95, 1.5, 1.1), 0, 180 * 16)
+    _outline(p)
+    p.setBrush(_grad(-.5, -.6, .5, .7, '#fffaf0', '#e8dcc0', '#a89a78'))
+    p.drawPath(_path([(-.5, .1), (-.55, -.45, 0, -.55), (.55, -.45, .5, .1), (.35, .3), (.3, .65),
+                      (-.3, .65), (-.35, .3)]))
+    p.setPen(Qt.NoPen); p.setBrush(_c('#3a2a1a'))
+    p.drawEllipse(QPointF(-.2, -.08), .14, .12); p.drawEllipse(QPointF(.2, -.08), .14, .12)
+    p.drawPolygon(_poly((0, .08), (-.07, .22), (.07, .22)))
+    p.setPen(QPen(_c('#8a7a58'), .03))
+    for x in (-.15, 0, .15):
+        p.drawLine(QPointF(x, .45), QPointF(x, .62))
+
+
+def _d_owl_gold(p):
+    _outline(p)
+    p.setBrush(_metal('gold', -.6, -.8, .6, .8))
+    p.drawPath(_path([(-.5, .85), (-.62, .1, -.48, -.45), (-.55, -.85), (-.25, -.62), (0, -.68), (.25, -.62),
+                      (.55, -.85), (.48, -.45), (.62, .1, .5, .85)]))
+    p.setBrush(_c(GOLD_LIGHT))
+    for x in (-.22, .22):
+        p.drawEllipse(QPointF(x, -.3), .2, .2)
+    p.setPen(Qt.NoPen); p.setBrush(_c('#3a2a10'))
+    for x in (-.22, .22):
+        p.drawEllipse(QPointF(x, -.3), .08, .08)
+    _outline(p); p.setBrush(_metal('bronze'))
+    p.drawPolygon(_poly((-.07, -.15), (.07, -.15), (0, .02)))
+    p.setPen(QPen(_c(GOLD_DARK), .04)); p.setBrush(Qt.NoBrush)
+    for y in (.25, .45, .65):
+        p.drawArc(QRectF(-.3, y - .1, .6, .2), 200 * 16, 140 * 16)
+
+
+def _d_gems_two(p):
+    _gem(p, -.35, .1, .45, '#d6303a')
+    _gem(p, .38, -.15, .4, '#2e86de')
+
+
+def _emblem_spiral(color):
+    def draw(p, c):
+        p.setPen(QPen(_c(color), .05, Qt.SolidLine, Qt.RoundCap)); p.setBrush(Qt.NoBrush)
+        path = QPainterPath(QPointF(c.x(), c.y()))
+        for i in range(1, 30):
+            a = i * .45
+            r = .009 * i
+            path.lineTo(c.x() + math.cos(a) * r, c.y() + math.sin(a) * r)
+        p.drawPath(path)
+    return draw
+
+
+def _d_potion_mind(p):
+    _bottle(p, 'bottle', ('#f0a8ff', '#6a1a8a'), _emblem_spiral('#fff0ff'), level=.3, cork='#3a2410')
+
+
+def _d_flute_silver(p):
+    _flute(p, 'silver')
+    _sparkle(p, .45, -.55, .14)
+
+
+def _d_chalk(p):
+    p.save(); p.rotate(-30)
+    _outline(p)
+    p.setBrush(_grad(0, -.2, 0, .2, '#ffffff', '#d8d4cc'))
+    p.drawPolygon(_poly((-.75, -.2), (.55, -.2), (.75, -.05), (.7, .2), (-.75, .2)))
+    p.setPen(QPen(_c('#b8b2a8'), .03))
+    p.drawLine(QPointF(-.4, -.18), QPointF(-.45, .18))
+    p.restore()
+    p.setPen(QPen(_c('#f5f2ea', 200), .06, Qt.SolidLine, Qt.RoundCap)); p.setBrush(Qt.NoBrush)
+    path = QPainterPath(QPointF(-.85, .75)); path.quadTo(-.4, .45, 0, .75); path.quadTo(.4, .95, .85, .7)
+    p.drawPath(path)
+
+
+def _d_eyepatch(p):
+    p.setPen(QPen(_c('#3a2a1a'), .06)); p.setBrush(Qt.NoBrush)
+    p.drawArc(QRectF(-.9, -.75, 1.8, .9), 10 * 16, 160 * 16)
+    p.drawLine(QPointF(-.82, -.2), QPointF(-.9, .3)); p.drawLine(QPointF(.82, -.2), QPointF(.9, .3))
+    _outline(p)
+    p.setBrush(_grad(-.5, -.3, .5, .6, '#4a4048', '#0e0b10'))
+    p.drawPath(_path([(-.55, -.2), (.55, -.2), (.5, .3, 0, .6), (-.5, .3, -.55, -.2)]))
+    p.setPen(QPen(_c('#8a8090', 140), .04))
+    p.drawLine(QPointF(-.35, -.08), QPointF(-.15, .25))
+
+
+def _d_goblet_silver(p):
+    _outline(p)
+    p.setBrush(_metal('silver', -.6, -.8, .6, .2))
+    p.drawPath(_path([(-.6, -.8), (.6, -.8), (.55, -.2, .1, .05), (-.1, .05), (-.55, -.2, -.6, -.8)]))
+    p.setBrush(_metal('silver', -.2, 0, .2, .8))
+    p.drawRect(QRectF(-.08, .02, .16, .6))
+    p.drawEllipse(QRectF(-.45, .55, .9, .3))
+    p.setPen(QPen(_c('#ffffff', 170), .05)); p.drawLine(QPointF(-.38, -.68), QPointF(-.3, -.25))
+
+
+def _d_chalice_silver(p):
+    _outline(p)
+    p.setBrush(_metal('silver', -.7, -.9, .7, -.1))
+    p.drawPath(_path([(-.7, -.85), (.7, -.85), (.7, -.4, 0, -.15), (-.7, -.4, -.7, -.85)]))
+    p.setBrush(_metal('gold', -.2, -.2, .2, .6))
+    p.drawPath(_path([(-.1, -.15), (.1, -.15), (.06, .2), (.18, .3), (.06, .4), (.12, .6), (-.12, .6),
+                      (-.06, .4), (-.18, .3), (-.06, .2)]))
+    p.setBrush(_metal('silver', -.6, .5, .6, .9))
+    p.drawPath(_path([(-.12, .55), (.12, .55), (.6, .85), (-.6, .85)]))
+    _gem(p, 0, -.55, .12, '#d6303a', facets=False)
+
+
+def _d_spoon_silver(p):
+    p.save(); p.rotate(40)
+    _outline(p)
+    p.setBrush(_metal('silver', -.3, -.9, .3, -.2))
+    p.drawEllipse(QPointF(0, -.55), .3, .4)
+    _outlined_stroke(p, _metal('silver', -.1, 0, .1, 1), .11, (0, -.15), (0, .9))
+    _outline(p); p.setBrush(_metal('silver'))
+    p.drawEllipse(QPointF(0, .88), .1, .1)
+    p.setPen(QPen(_c('#ffffff', 180), .05)); p.drawLine(QPointF(-.12, -.75), QPointF(-.15, -.45))
+    p.restore()
+
+
+def _d_knucklebones(p):
+    for x, y, angle in ((-.45, -.3, -20), (.4, -.35, 25), (-.25, .4, 60), (.42, .38, -10)):
+        p.save(); p.translate(x, y); p.rotate(angle)
+        _outline(p)
+        p.setBrush(_grad(-.3, -.2, .3, .2, '#fffaf0', '#d8c8a0', '#9a8a68'))
+        p.drawPath(_path([(-.3, -.12), (-.38, -.2, -.3, -.24), (0, -.14), (.3, -.24), (.38, -.2, .3, -.12),
+                          (.3, .12), (.38, .2, .3, .24), (0, .14), (-.3, .24), (-.38, .2, -.3, .12)]))
+        p.restore()
+
+
+def _d_bread_stale(p):
+    _outline(p)
+    p.setBrush(_grad(-.8, -.5, .8, .6, '#d0a868', '#8a6030', '#5a3a18'))
+    p.drawPath(_path([(-.85, .3), (-.8, -.35, -.2, -.45), (.6, -.5, .85, .0), (.75, .45), (.1, .55),
+                      (-.5, .5, -.85, .3)]))
+    p.setBrush(_c('#e8d6a8'))
+    p.drawPolygon(_poly((.6, -.42), (.85, .0), (.75, .45), (.5, .2)))
+    p.setPen(QPen(_c('#4a2e10'), .04)); p.setBrush(Qt.NoBrush)
+    p.drawPolyline(_poly((-.5, -.2), (-.35, 0), (-.45, .15)))
+    p.drawPolyline(_poly((0, -.3), (.1, -.05), (.0, .2)))
+    p.setPen(Qt.NoPen); p.setBrush(_c('#5a7a3a', 200))
+    p.drawEllipse(QPointF(-.2, .3), .1, .07); p.drawEllipse(QPointF(.3, .32), .07, .05)
+
+
+def _d_candle_coloured(p):
+    _glow(p, 0, -.6, .55, '#ffd27a', 160)
+    _outline(p)
+    p.setBrush(_grad(-.3, 0, .3, 0, '#ff9ab8', '#a8204a'))
+    p.drawPath(_path([(-.22, -.3), (.22, -.3), (.22, .6), (-.22, .6)]))
+    p.setPen(QPen(_c('#ffe0a0', 200), .06))
+    for y in (-.05, .2, .45):
+        p.drawLine(QPointF(-.2, y), QPointF(.2, y - .08))
+    _outline(p)
+    p.setBrush(_metal('iron', -.7, .5, .7, .9))
+    p.drawEllipse(QRectF(-.55, .55, 1.1, .28))
+    p.setPen(Qt.NoPen); p.setBrush(_c('#ff9a2e'))
+    p.drawPath(_path([(0, -.85), (.16, -.56, 0, -.38), (-.16, -.56, 0, -.85)]))
+    p.setBrush(_c('#fff3c0')); p.drawEllipse(QPointF(0, -.5), .05, .07)
+
+
+def _d_butcher_hook(p):
+    _outline(p)
+    p.setBrush(_grad(-.4, -.95, .4, -.5, '#a86c34', '#5b3417'))
+    p.drawRoundedRect(QRectF(-.45, -.95, .9, .3), .1, .1)
+    _outlined_stroke(p, _metal('steel', -.5, -.6, .5, .9), .13, (0, -.66), (0, .1), (0, .78, -.4, .72),
+                     (-.7, .65, -.62, .3))
+    _outline(p); p.setBrush(_metal('steel'))
+    p.drawPolygon(_poly((-.7, .32), (-.52, .32), (-.62, .12)))
+
+
+def _d_rope_plain(p):
+    brush = _grad(-1, -1, 1, 1, '#d8b47a', '#7a4a1a')
+    for r in (.72, .52, .32):
+        p.setBrush(Qt.NoBrush)
+        p.setPen(QPen(_c(OUTLINE), .17)); p.drawEllipse(QPointF(0, .05), r, r * .75)
+        p.setPen(QPen(QBrush(brush), .12)); p.drawEllipse(QPointF(0, .05), r, r * .75)
+    p.setPen(QPen(_c('#5b3417'), .025))
+    for i in range(16):
+        a = math.radians(i * 22.5)
+        p.drawLine(QPointF(math.cos(a) * .67, .05 + math.sin(a) * .5), QPointF(math.cos(a) * .77, .05 + math.sin(a) * .58))
+    _outlined_stroke(p, brush, .12, (.6, .45), (.85, .85))
+    _outline(p); p.setBrush(_metal('iron'))
+    p.drawPolygon(_poly((.78, .78), (.98, .7), (.9, .98)))
+
+
+def _d_boots_magic(p):
+    _glow(p, 0, .2, 1.0, '#7ad8ff', 110)
+    for dx, light, dark in ((.18, '#5a7ab0', '#1a2a50'), (-.18, '#4a6698', '#14203e')):
+        _outline(p)
+        p.setBrush(_grad(-1, -1, 1, 1, light, dark))
+        p.drawPath(_path([(-.35 + dx, -.75), (.15 + dx, -.75), (.12 + dx, .35), (.6 + dx, .5), (.62 + dx, .85),
+                          (-.38 + dx, .85)]))
+        p.setBrush(_metal('gold', -1, -.8, 1, -.6))
+        p.drawRect(QRectF(-.37 + dx, -.78, .54, .14))
+    for x, y in ((.55, -.6), (-.7, -.2), (.7, .1)):
+        _sparkle(p, x, y, .15, '#dff6ff')
+
+
 class _Legacy(str):
     """Tracé historique de adventurer_sheet.draw_item_art, peint en pixels."""
 
@@ -1358,6 +1855,22 @@ DRAWINGS = {
     'silver_box': _d_silver_box, 'belladonna': _d_belladonna, 'candle_blue': _d_candle_blue,
     'cheese': _d_cheese, 'leather_case': _d_case, 'y_stick': _d_y_stick, 'y_sticks': _d_y_sticks,
     'scroll_old': _d_scroll, 'vampire_book': _d_vampire_book, 'lantern_magic': _d_lantern_magic,
+    # La Cité des Voleurs : bijoux, clés, armures, curiosités et marchandises.
+    'ring_fire': _d_ring_fire, 'ring_ice': _d_ring_ice, 'ring_invisible': _d_ring_invisible,
+    'ring_eye': _d_ring_eye, 'ring_jewels': _d_ring_jewels,
+    'brooch_scorpion_gold': _brooch_scorpion('gold'), 'brooch_scorpion_silver': _brooch_scorpion('silver'),
+    'brooch_scorpion_copper': _brooch_scorpion('copper'), 'bracelet_insect': _d_bracelet_insect,
+    'pearls_black': _d_pearls_black, 'gems_two': _d_gems_two, 'owl_gold': _d_owl_gold,
+    'skull_ivory': _d_skull_ivory, 'key_skeleton': _d_skeleton_key, 'key_iron': _d_key_iron,
+    'key_dwarf': _d_key_dwarf, 'keyring': _d_keyring, 'shield_tower': _d_shield_tower,
+    'shield_magnificent': _d_shield_magnificent, 'shield_knight': _d_shield_knight,
+    'boots_magic': _d_boots_magic, 'eyepatch': _d_eyepatch, 'poultice': _d_poultice,
+    'potion_mind': _d_potion_mind, 'flower_golden': _d_flower_golden, 'lotus': _d_lotus,
+    'bouquet': _d_bouquet, 'witch_hair': _d_witch_hair, 'pass_merchant': _d_pass_merchant,
+    'mirror': _d_mirror, 'glass_ball': _d_glass_ball, 'flute_silver': _d_flute_silver,
+    'chalk': _d_chalk, 'goblet_silver': _d_goblet_silver, 'chalice_silver': _d_chalice_silver,
+    'spoon_silver': _d_spoon_silver, 'knucklebones': _d_knucklebones, 'bread_stale': _d_bread_stale,
+    'candle_coloured': _d_candle_coloured, 'butcher_hook': _d_butcher_hook, 'rope_plain': _d_rope_plain,
 }
 
 # Nom exact de l'objet dans la sacoche → dessin. Les variantes d'apostrophe et
@@ -1410,6 +1923,31 @@ ITEM_ICONS = {
     'Chandelle bleue': 'candle_blue', 'Fromage': 'cheese', 'Mallette': 'leather_case',
     'Morceau de bois en Y': 'y_stick', 'Deux morceaux de bois en Y': 'y_sticks',
     'Vieux parchemin': 'scroll_old', 'Livre du Vampire': 'vampire_book',
+    # La Cité des Voleurs — boutiques, butins, trouvailles et objets de la mission.
+    'Anneau de Feu': 'ring_fire', 'Anneau de Glace': 'ring_ice', 'Anneau d’Invisibilité': 'ring_invisible',
+    'Anneau de l’Œil d’Or': 'ring_eye', 'Bague ornée de pierreries': 'ring_jewels',
+    'Broche scorpion d’or': 'brooch_scorpion_gold', 'Broche scorpion d’argent': 'brooch_scorpion_silver',
+    'Broche scorpion de cuivre': 'brooch_scorpion_copper', 'Bracelet-insecte d’argent': 'bracelet_insect',
+    'Six perles noires': 'pearls_black', 'Perles noires': 'pearls_black',
+    'Deux pierres précieuses': 'gems_two', 'Chouette en or': 'owl_gold',
+    'Crâne d’ivoire à chaîne d’argent': 'skull_ivory',
+    'Passe-partout': 'key_skeleton', 'Clef en fer': 'key_iron', 'Clef spéciale du Nain': 'key_dwarf',
+    'Trousseau de clefs': 'keyring',
+    'Bouclier': 'shield_wood', 'Bouclier à la tour': 'shield_tower', 'Bouclier magnifique': 'shield_magnificent',
+    'Bouclier du chevalier': 'shield_knight', 'Cotte de mailles': 'armor_chain',
+    'Épée de combat ordinaire': 'sword', 'Arc en bois d’if': 'bow', 'Poignard de Jet': 'knife',
+    'Lance en Fer': 'spear', 'Bottes magiques': 'boots_magic', 'Bandeau pour l’œil': 'eyepatch',
+    'Emplâtre d’herbes': 'poultice', 'Potion de Contrôle de l’esprit': 'potion_mind',
+    'Gousse d’ail': 'garlic',
+    'Fleur dorée à dix pétales': 'flower_golden', 'Fleurs d’or': 'flower_golden',
+    'Fleur de lotus': 'lotus', 'Bouquet de fleurs': 'bouquet',
+    'Mèche de cheveux de Sorcière': 'witch_hair', 'Cheveux de Sorcière': 'witch_hair',
+    'Laissez-passer de marchand': 'pass_merchant', 'Miroir': 'mirror', 'Boule de verre': 'glass_ball',
+    'Flûte en argent': 'flute_silver', 'Morceau de craie': 'chalk',
+    'Gobelet en argent': 'goblet_silver', 'Calice en argent': 'chalice_silver',
+    'Cuillère en argent': 'spoon_silver', 'Vieux osselets': 'knucklebones',
+    'Morceau de pain rassis': 'bread_stale', 'Bougie de couleur': 'candle_coloured',
+    'Croc de Boucher': 'butcher_hook', 'Corde d’Escalade': 'rope_plain',
 }
 
 
@@ -1483,3 +2021,22 @@ def draw_generic_key_number(p, number, center, half_size):
     p.scale(half_size, half_size)
     _numbered_tag(p, number)
     p.restore()
+
+
+def item_qicon(name, size=28):
+    """Icône Qt d'un objet (boutiques, ventes) : le même dessin que la sacoche, net à 100–200 %."""
+    from PySide6.QtGui import QIcon, QPixmap
+
+    from adventurer_sheet import paint_item
+    icon = QIcon()
+    for ratio in (1, 1.25, 1.5, 2):
+        side = max(1, round(size * ratio))
+        pixmap = QPixmap(side, side)
+        pixmap.fill(Qt.transparent)
+        p = QPainter(pixmap)
+        p.setRenderHint(QPainter.Antialiasing)
+        paint_item(p, name, QPointF(side / 2, side / 2), side * .42)
+        p.end()
+        pixmap.setDevicePixelRatio(ratio)
+        icon.addPixmap(pixmap)
+    return icon
