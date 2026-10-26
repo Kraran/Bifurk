@@ -1,3 +1,13 @@
+# Bifurk 1.3.1 — Lecture à voix haute
+
+## Nouveautés depuis la 1.3.0
+
+- **Lecture vocale des paragraphes** avec les voix neurales Microsoft Edge (connexion Internet requise) : bouton 🔊 près du paragraphe, second clic pour arrêter. Voix par défaut : Rémy Multilingue.
+- La voix démarre dès la première phrase et enchaîne la suite sans blanc ; les retours à la ligne du livre ne coupent plus la lecture.
+- En changeant de paragraphe pendant une lecture, la voix enchaîne sur le nouveau.
+- Réglages → Ambiance : choix de la voix française et curseur « Volume de la voix » jusqu'à 150 %.
+- Nouvelle vidéo d'introduction, avec une version 21:9 jouée automatiquement sur les écrans ultra-larges.
+
 # Bifurk 1.3.0 — La Cité des Voleurs
 
 ## Nouveautés depuis la 1.2.1
