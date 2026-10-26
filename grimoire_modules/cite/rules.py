@@ -191,11 +191,11 @@ LOOTS = {
 }
 # §287 : un repas chaud facultatif, (prix, Endurance gagnée).
 HOT_MEAL, HOT_MEAL_PRICE, HOT_MEAL_GAIN = 287, 1, 2
-# §293 : la fleur dorée contre un objet magique, une arme ou deux Provisions.
+# §293 : la fleur dorée contre un objet magique, une pièce d’armure ou deux Provisions
+# (VO : « piece of armour » ; la traduction dit « une arme »).
 TRADE, TRADE_PROVISIONS = 293, 2
 TRADE_PROVISIONS_LABEL = 'Deux portions de Provisions'
-WEAPON_KEYWORDS = ('epee', 'poignard', 'lance', 'croc de boucher', 'hache', 'dague', 'couteau',
-                   'massue', 'gourdin', 'arc')
+ARMOUR_KEYWORDS = ('armure', 'cotte de mailles', 'bouclier', 'casque', 'cuirasse', 'heaume')
 
 # Boutiques facultatives : (article, prix), nombre maximal d’achats, et
 # « repeat » quand un article s’achète en autant d’exemplaires qu’on le désire.
@@ -846,11 +846,11 @@ def _word(name, keywords):
 
 
 def trade_choices(character):
-    """§293 : un objet magique (comme au §187), une arme, ou deux Provisions."""
+    """§293 : un objet magique (comme au §187), une pièce d’armure, ou deux Provisions."""
     locked = set(character.get('locked_items', []))
     choices = [TRADE_PROVISIONS_LABEL] if character.get('provisions', 0) >= TRADE_PROVISIONS else []
     choices += [name for name in character.get('inventory', [])
-                if name not in locked and (_word(name, WEAPON_KEYWORDS)
+                if name not in locked and (_word(name, ARMOUR_KEYWORDS)
                                            or any(_fold(k) in _fold(name) for k in MAGIC_KEYWORDS))]
     if character.get('potion') and character.get('potion_doses', 0) > 0:
         choices.append(f"{character['potion']} ({STARTING_POTION})")

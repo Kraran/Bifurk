@@ -268,7 +268,7 @@ class CiteMechanicsActions(FightingFantasyActions):
         if number == rules.TRADE and not rules.traded(self.character):
             choices = rules.trade_choices(self.character)
             add('Échanger contre la fleur dorée…', 'trade', enabled=bool(choices),
-                tooltip='Un objet magique, une arme ou deux portions de Provisions.' if choices
+                tooltip='Un objet magique, une pièce d’armure ou deux portions de Provisions.' if choices
                 else 'Rien de ce que demande le livre dans votre sac.')
         if number in rules.SHOPS:
             add('Faire ses achats…', 'shop', tooltip='Achats facultatifs, aux prix indiqués par le livre.')

@@ -55,14 +55,18 @@ Réservées au SHA-256 de l'édition, elles ne remplacent que des caractères ma
 reconnus et ne citent aucun passage :
 
 - mots de renvoi illisibles aux §110, §258 et §262 (« ai », « an », « »u » → « au ») ;
-- deux chiffres mal lus, déduits de paragraphes autrement inaccessibles et de
-  l'enchaînement exact du récit : §168 → 359 et §182 → 354 — **à confirmer sur un
-  exemplaire papier** ;
+- renvois corrigés d'après l'édition originale anglaise (VO), qui fait référence
+  en cas de litige : §81 → 304, §112 → 334, §113 → 375, §145 → 24, §168 → 359 et
+  §182 → 354 (le PDF ne permet pas de savoir si l'erreur est imprimée ou due à
+  la reconnaissance) ;
+- valeurs alignées sur la VO là où la traduction diverge : §8 (+2 Chance), §37
+  (+2 Chance au lieu d'Endurance), §137 (−2 Chance au lieu d'Endurance après la
+  volée), §293 (une pièce d'armure au lieu d'une arme) ;
 - coquilles typographiques (tirets « ŕ », mots coupés ou mal reconnus).
 
-Les conjectures OCR restantes (§119, §180, §342 ; les §1 et §73 sont résolus en
-phase 3.1) et les valeurs illisibles
-ou ambiguës (§109, §217) sont listées dans `source_issues` pour la phase 3.
+Les conjectures OCR (§1, §73, §109, §119, §180, §342) et la valeur ambiguë du
+§217 (second Chien de Lune 11/9) sont résolues, par l'exemplaire papier (§1) ou
+la VO, et consignées dans `source_issues`.
 
 ### Audit
 
@@ -158,7 +162,7 @@ mêmes principes.
 - **Événements** : bousculade du §266 (deux objets du sac, au choix du joueur) ;
   butins facultatifs des §208, §220 (contenu de la caisse du §146) et §285 ;
   bougies du §241 en nombre illimité ; repas chaud du §287 (1 Pièce d'Or,
-  Endurance +2, une fois) ; fleur dorée du §293 contre un objet magique, une arme ou
+  Endurance +2, une fois) ; fleur dorée du §293 contre un objet magique, une pièce d’armure ou
   deux portions de Provisions.
 - **Combats** : §201, §207, §217, §225, §226 (fuite vers le §78), §230, §249, §253
   (morsures de 4 points), §270, §296.

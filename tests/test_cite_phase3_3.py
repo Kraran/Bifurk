@@ -135,14 +135,17 @@ class CiteThirdHundredRulesTests(unittest.TestCase):
             rules.hot_meal(character)
 
     def test_golden_flower_trade(self):
-        character = hero(inventory=['Épée', 'Lanterne', 'Marchandise', 'Anneau de Feu'], provisions=1,
-                         potion=None)
-        self.assertEqual(rules.trade_choices(character), ['Épée', 'Anneau de Feu'])
+        # VO : une pièce d’armure, pas une arme (« une arme » dans la traduction).
+        character = hero(inventory=['Épée', 'Armure de cuir', 'Lanterne', 'Marchandise', 'Anneau de Feu',
+                                    rules.SHIELD], provisions=1, potion=None)
+        self.assertEqual(rules.trade_choices(character), ['Armure de cuir', 'Anneau de Feu', rules.SHIELD])
         rules.trade_flower(character, 'Anneau de Feu')
         self.assertIn(rules.GOLDEN_FLOWER, character['inventory'])
         self.assertNotIn('Anneau de Feu', character['inventory'])
         with self.assertRaises(ValueError):
-            rules.trade_flower(character, 'Épée')
+            rules.trade_flower(character, 'Armure de cuir')
+        with self.assertRaises(ValueError):
+            rules.trade_flower(hero(potion=None), 'Épée')
         hungry = hero(inventory=['Lanterne'], potion=None)
         rules.trade_flower(hungry, rules.TRADE_PROVISIONS_LABEL)
         self.assertEqual(hungry['provisions'], 8)

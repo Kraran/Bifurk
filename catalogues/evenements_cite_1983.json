@@ -6526,8 +6526,9 @@
       "paragraph": 342,
       "severity": "information",
       "kind": "ocr_conjecture",
-      "details": "Prix « I Pièce » lu « 1 Pièce » d’après le contexte.",
-      "status": "to_confirm"
+      "details": "Prix « I Pièce » lu « 1 Pièce » : la VO donne bien 1 Pièce d’Or.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige"
     },
     {
       "paragraph": 109,
@@ -6566,6 +6567,14 @@
       "severity": "information",
       "kind": "translation_discrepancy",
       "details": "Après la volée de flèches, la traduction retire 2 points d’Endurance, la VO 2 points de Chance : Chance appliquée et affichée.",
+      "status": "resolved",
+      "resolution_source": "Édition originale anglaise (VO), référence en cas de litige"
+    },
+    {
+      "paragraph": 293,
+      "severity": "information",
+      "kind": "translation_discrepancy",
+      "details": "Mme Pipe demande « une arme » dans la traduction, « a piece of armour » dans la VO : une pièce d’armure est proposée à l’échange.",
       "status": "resolved",
       "resolution_source": "Édition originale anglaise (VO), référence en cas de litige"
     }

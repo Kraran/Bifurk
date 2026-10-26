@@ -103,12 +103,14 @@ CITE_VO_ERRATA = {
     8: (('ajoutez 1 points de CHANCE', 'ajoutez 2 points de CHANCE'),),
     37: (('Ajoutez deux points\nD’ENDURANCE', 'Ajoutez deux points\nde CHANCE'),),
     137: (('également 2\npoints D’ENDURANCE', 'également 2\npoints de CHANCE'),),
+    # VO : « any magic item, piece of armour or food (two portions) ».
+    293: (('quelconque, une arme ou de la', 'quelconque, une pièce d’armure ou de la'),),
 }
 
 # Coquilles de reconnaissance relevées paragraphe par paragraphe dans l’édition
 # identifiée. Chaque remplacement est borné à son passage et ne touche ni un
 # renvoi, ni une caractéristique ; le seul nombre rétabli (§342) est un prix
-# lu « I » au lieu de « 1 ». Le texte de remplacement ne contient jamais le
+# lu « I » au lieu de « 1 » (1 Pièce d’Or dans la VO). Le texte de remplacement ne contient jamais le
 # motif d’origine : une seconde passe ne modifie rien.
 CITE_TYPOGRAPHY = {
     1: (('.moindre', 'rejoindre'), ('célebre', 'célèbre'), ('l\'échiné', 'l\'échine'),

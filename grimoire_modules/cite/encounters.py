@@ -51,7 +51,7 @@ COMBATS = {
     201: {'groups': (), 'victory': 138, 'creature_die': True},
     207: {'groups': ((_enemy('Premier Faucon de la Mort', 4, 5),),
                      (_enemy('Deuxième Faucon de la Mort', 4, 4),)), 'victory': 314},
-    # Second Chien de Lune : « 1 1 9 » dans le PDF, lu Habileté 11 (à confirmer sur papier).
+    # Second Chien de Lune : « 1 1 9 » dans le PDF ; la VO donne Habileté 11, Endurance 9.
     217: {'groups': ((_enemy('Premier Chien de Lune', 9, 10),),
                      (_enemy('Deuxième Chien de Lune', 11, 9),)), 'victory': 259},
     225: {'groups': ((_enemy('Premier Vagabond', 7, 5),), (_enemy('Deuxième Vagabond', 6, 7),),
