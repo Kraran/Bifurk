@@ -355,11 +355,11 @@ Tests : `tests/test_exploration_map.py` (`StreetMapTests`) et
   à l'avance.
 - **Ambiance de ville** : `assets/sounds/ambient_cite.wav`, boucle de marché de 45 s
   (« Outdoor market #2 », Joseph SARDIN, BigSoundBank, CC0 1.0), préparée par
-  `scripts/prepare_cite_ambience.py` au format et au niveau RMS de la caverne
-  (mono 16 bits 22,05 kHz, −27,7 dBFS). Elle remplace la caverne quand la Cité est
-  ouverte, dans la même case **Ambiance de fond** (libellé « ville », désactivée par
-  défaut, même volume) ; le Sorcier, la Forêt et l'écran sans livre gardent la
-  caverne. `sound_effects.AMBIENT_TRACKS` associe le moteur du livre à sa boucle.
+  `scripts/prepare_book_ambiences.py` au format de la caverne (mono 16 bits
+  22,05 kHz) et à −31,7 dBFS RMS, 4 dB sous la caverne. Elle remplace la caverne quand
+  la Cité est ouverte, dans la même case **Ambiance de fond** (libellé « ville »,
+  désactivée par défaut, même volume) ; la Forêt a sa propre boucle (« forêt »,
+  `ambient_foret.wav`), le Sorcier et l'écran sans livre gardent la caverne. `sound_effects.AMBIENT_TRACKS` associe le moteur du livre à sa boucle.
 
 Tests : `tests/test_cite_phase7.py` (catalogue, contrôle de chaque image sur le PDF
 privé s'il est présent, annonce, décor, boucle de ville) et `tests/test_windows_distribution.py`
