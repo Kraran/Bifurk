@@ -89,8 +89,9 @@ Une seule indication de résultat est jouée par action pour limiter les superpo
 Ni annulation ni chargement ne rejouent ces effets.
 
 Dans **⚙ → Ambiance sonore…**, une liste et le bouton **Écouter** permettent de tester chaque
-son individuellement. L’**ambiance de fond : caverne** a sa propre commande,
-indépendante des effets, et reste désactivée par défaut. La boucle joue à faible volume.
+son individuellement. L’**ambiance de fond** a sa propre commande,
+indépendante des effets, et reste désactivée par défaut. La boucle joue à faible volume :
+la caverne, ou la ville quand La Cité des Voleurs est ouverte (le libellé nomme la boucle).
 
 La musique d’accueil (`FantasyFair.m4a`, seul morceau) est lue par un `QMediaPlayer`
 distinct du flux des effets. Par défaut, elle s’éteint en dix secondes à l’entrée dans
@@ -139,7 +140,7 @@ choisir la sauvegarde dans la fenêtre d’accueil, ou Nouvelle partie pour retr
 l’introduction. Vérifier la suppression avec refus puis confirmation.
 Dans **⚙ → Ambiance sonore…**, tester les effets avec **Écouter**, puis une page et un combat réel.
 Vérifier le choc avant la boîte de résultat et la réaction immédiate de la page.
-Activer puis couper la caverne séparément des effets. Cocher **Garder la musique en fond
+Activer puis couper la caverne séparément des effets ; ouvrir la Cité : la ville la remplace. Cocher **Garder la musique en fond
 pendant la partie**, commencer l’aventure : la musique continue. Relancer pour vérifier la mémorisation.
 Déposer quelques MP3/M4A/OGG (et un fichier corrompu renommé en `.mp3`) dans `musique_perso`, cocher
 **Jouer ma musique** : vérifier l’enchaînement aléatoire, le saut du fichier corrompu, puis le retour

@@ -56,6 +56,8 @@ APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False)
 # portables restent à côté de Bifurk.exe. __file__ fonctionne aussi en mode source.
 RESOURCE_DIR = Path(__file__).resolve().parent
 ASSET_DIR = RESOURCE_DIR / "assets"
+# Décors de lecture fournis pour chaque livre ; les autres gardent le décor neutre.
+BOOK_BACKGROUNDS = {'foret-1983': 'foret.jpg', 'cite-1983': 'cite.jpg'}
 DATA_DIR = APP_DIR / "donnees"
 SAVES_DIR = DATA_DIR / "sauvegardes"
 BOOKS_DIR = DATA_DIR / "grimoires"
@@ -794,7 +796,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self._save_preferences()
         sound.toggled.connect(set_sound)
         audio_layout.addWidget(sound)
-        ambient = QCheckBox("Ambiance de fond : caverne")
+        # Même réglage pour tous les livres ; le libellé nomme la boucle du livre ouvert.
+        ambient = QCheckBox(f"Ambiance de fond : {self.sounds.ambient_label()}")
         ambient.setChecked(self.sounds.ambient_enabled)
         def set_ambient(enabled):
             """Appliquer et mémoriser l’interrupteur indépendant de l’ambiance."""
@@ -2131,8 +2134,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         """Choisir couverture, illustration courante ou décor de repli selon l’écran affiché."""
         # La couverture est réservée à l'introduction. Pendant la lecture, le
         # décor fourni remplit la surface sans devenir une illustration active.
-        background_name = ('foret.jpg' if getattr(self.book_module, 'engine', '') == 'foret-1983'
-                           else 'illustration-background.jpg')
+        background_name = BOOK_BACKGROUNDS.get(getattr(self.book_module, 'engine', ''),
+                                               'illustration-background.jpg')
         background = None if prefer_cover else QPixmap(str(ASSET_DIR / background_name))
         self.scene_art.set_background_art(background)
         self.scene_entry = None
@@ -2426,6 +2429,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.adventure_tracking = read_tracking(None)
         self._update_tracking_badge()
         self.book_module = book_module
+        self.sounds.set_ambient_track(getattr(book_module, 'engine', None))
         self.pdf_path = path
         self.illustration_catalogue = illustrations
         self.book_event_catalogue = events
@@ -3443,6 +3447,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self.paragraphs = paragraphs
             self.illustration_catalogue = illustration_catalogue
             self.book_module = book_module
+            self.sounds.set_ambient_track(getattr(book_module, 'engine', None))
             self.book_event_catalogue = events
             self.book_label.setText(book_module.title if book_module else Path(pdf).name)
             self.book_label.setToolTip(self.book_label.text())

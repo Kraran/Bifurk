@@ -81,7 +81,8 @@ class CiteCatalogueTests(unittest.TestCase):
             keys = ({'status', 'mode', 'title', 'place', 'spot', 'routes', 'source_page_pdf'}
                     | ({'analysis'} if analysed else set()))
             self.assertLessEqual(set(entry), keys)
-        self.assertEqual([entry['type'] for entry in art['illustrations']], ['couverture'])
+        # P7 : la couverture reste en tête ; illustrations et ornements suivent (test_cite_phase7).
+        self.assertEqual(art['illustrations'][0]['type'], 'couverture')
         self.assertEqual(art['pdf_pages'], 177)
 
     def test_catalogue_files_are_plain_json_without_book_text(self):

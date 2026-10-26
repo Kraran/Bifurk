@@ -113,5 +113,22 @@
         "ambient.ogg"
       ]
     }
+  },
+  "book_ambiences": {
+    "ambient_cite": {
+      "book": "cite-1983",
+      "title": "Outdoor market #2 (place du marché de Nogent-le-Rotrou)",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/outdoor-market-2-s2729.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "archive": "bigsoundbank-2729.flac",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/2729.flac",
+      "sha256": "eb326fc543e7d6a7d84ddf25f80b6ec185095bbe24f61cfd0118924da8a4b045",
+      "start_seconds": 20,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -27.7
+    }
   }
 }

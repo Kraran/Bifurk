@@ -18,9 +18,12 @@ nécessaire au lancement du jeu.
 | victory.wav | jingles_PIZZI00.ogg | [Kenney — Music Jingles](https://kenney.nl/assets/music-jingles) |
 | death.wav | jingles_PIZZI16.ogg | Kenney — Music Jingles |
 | ambient.wav | dungeon_ambient_1_0.ogg | [JaggedStone — Loopable Dungeon Ambience](https://opengameart.org/content/loopable-dungeon-ambience) |
+| ambient_cite.wav | 2729.flac « Outdoor market #2 » | [Joseph SARDIN — BigSoundBank](https://bigsoundbank.com/outdoor-market-2-s2729.html) |
 
 Les licences Kenney d’origine sont conservées dans les fichiers `LICENSE-Kenney-*`.
 Les pages OpenGameArt des deux autres ressources indiquent également **CC0**.
+La page BigSoundBank de `ambient_cite.wav` indique « CC0 (public domain) »
+([licences BigSoundBank](https://bigsoundbank.com/licences.html)).
 
 Préparation : conversion en PCM mono 16 bits, normalisation des crêtes à 27 500,
 suppression du silence de début des effets courts (seuil −45 dB),
@@ -55,3 +58,22 @@ Les fichiers finaux durent 1,60 s et 1,86 s et pèsent environ 69 et 80 Kio.
 `scripts/prepare_book_sounds.py` permet de les reconstruire avec NumPy, requis
 uniquement pour cet outil. `book_sounds.json` contient les empreintes et mesures.
 Les annonces suivent le réglage des effets sonores, sans boucle ni superposition.
+
+## Ambiance de ville de La Cité des Voleurs — CC0 1.0
+
+`ambient_cite.wav` provient de « Outdoor market #2 » de Joseph SARDIN
+(BigSoundBank), prise de son de la place du marché de Nogent-le-Rotrou :
+<https://bigsoundbank.com/outdoor-market-2-s2729.html>, publiée sous
+[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (page indiquant
+« CC0 (public domain) »). Archive : <https://bigsoundbank.com/UPLOAD/flac/2729.flac>
+(FLAC stéréo 48 kHz, 24 bits, 129,65 s), empreinte dans `sources.json`
+(`book_ambiences`). L’archive n’est pas incluse.
+
+Préparation (`scripts/prepare_cite_ambience.py`, FFmpeg et NumPy, outil seulement) :
+passe-haut à 120 Hz contre les grondements, mono 22 050 Hz, extrait de 45 s à partir
+de 20 s, fondu enchaîné à puissance constante de 3 s de la fin vers le début pour une
+boucle sans couture, retrait du décalage continu, niveau RMS aligné sur la caverne
+(−27,7 dBFS) sous le plafond de crête des effets (27 500), PCM mono 16 bits.
+Résultat : 45 s, 1 984 544 octets. Des voix lointaines en français restent audibles.
+La boucle joue à la place de la caverne lorsque la Cité est ouverte, avec le même
+volume et la même case.

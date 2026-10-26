@@ -69,7 +69,7 @@ class PcmAudioTests(unittest.TestCase):
 
     def test_every_shipped_asset_produces_nonzero_pcm(self):
         folder = Path(__file__).resolve().parents[1] / 'assets/sounds'
-        for name in [*EFFECT_LABELS, 'ambient']:
+        for name in [*EFFECT_LABELS, 'ambient', 'ambient_cite']:
             with self.subTest(name=name):
                 effect = PcmEffect(self.parent)
                 effect.setSource(QUrl.fromLocalFile(str(folder / f'{name}.wav')))

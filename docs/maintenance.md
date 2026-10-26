@@ -208,7 +208,7 @@ Cette continuité évite la perte de l'attaque des effets très courts sur Windo
 
 Les assets sont mono 16 bits ; les sons à 22,05 kHz sont doublés en mémoire.
 Le mélange additionne les voix et sature les échantillons pour empêcher le
-débordement numérique. Les boucles infinies sont réservées à l'ambiance actuelle.
+débordement numérique. Les boucles infinies sont réservées aux ambiances (`AMBIENT_LABELS`), une seule à la fois.
 Ne pas ajouter d'accès aux widgets ou au disque dans le callback `readData`.
 Arrêter le sink avant destruction du mixer pour éviter les rappels natifs tardifs.
 

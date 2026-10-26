@@ -1,6 +1,7 @@
 """Banque des sons locaux, réglages de lecture et diagnostics audio.
 
-Les effets et l'ambiance ont des interrupteurs indépendants. Une demande peut
+Les effets et l'ambiance ont des interrupteurs indépendants ; la boucle
+d'ambiance dépend du livre ouvert (caverne par défaut, ville pour la Cité). Une demande peut
 attendre la disponibilité de son fichier ; couper le son supprime les demandes
 concernées pour éviter un déclenchement tardif. Le backend PCM est désactivé avec
 les plateformes Qt offscreen/minimal ; les tests injectent leurs propres doublures.
@@ -14,7 +15,11 @@ EFFECT_LABELS = {
     'item': 'Objet récupéré', 'coins': 'Pièces', 'key': 'Serrure',
     'potion': 'Potion', 'hit': 'Blessure', 'victory': 'Victoire', 'death': 'Défaite',
 }
-BOOK_SOUNDS = {'sorcier-1982': 'book_sorcier', 'foret-1983': 'book_foret'}
+BOOK_SOUNDS = {'sorcier-1982': 'book_sorcier', 'foret-1983': 'book_foret', 'cite-1983': 'book_cite'}
+# Une seule boucle d’ambiance à la fois, choisie par le module du livre ouvert ;
+# la caverne reste celle du Sorcier, de la Forêt et de l’écran sans livre.
+AMBIENT_TRACKS = {'cite-1983': 'ambient_cite'}
+AMBIENT_LABELS = {'ambient': 'caverne', 'ambient_cite': 'ville'}
 
 
 class SoundBank(QObject):
@@ -39,6 +44,7 @@ class SoundBank(QObject):
         self.folder = folder
         self.enabled = enabled
         self.ambient_enabled = ambient_enabled
+        self.ambient = 'ambient'
         self.effects = {}
         self.pending = set()
         self.logger.info('session effects=%s ambient=%s', enabled, ambient_enabled)
@@ -76,15 +82,15 @@ class SoundBank(QObject):
         backend = self._backend()
         if backend is None:
             return
-        for name in [*EFFECT_LABELS, *BOOK_SOUNDS.values(), 'ambient']:
+        for name in [*EFFECT_LABELS, *BOOK_SOUNDS.values(), *AMBIENT_LABELS]:
             path = self.folder / f'{name}.wav'
             if name in self.effects or not path.is_file():
                 continue
             effect = backend(self)
             self.effects[name] = effect
-            effect.setVolume(.10 if name == 'ambient' else .80 if name in BOOK_SOUNDS.values()
+            effect.setVolume(.10 if name in AMBIENT_LABELS else .80 if name in BOOK_SOUNDS.values()
                              else .72 if name == 'swords' else .50)
-            if name == 'ambient':
+            if name in AMBIENT_LABELS:
                 # Les PySide6 récents exposent Loop comme une énumération ; le setter attend un entier.
                 effect.setLoopCount(getattr(backend.Infinite, 'value', backend.Infinite))
             effect.statusChanged.connect(lambda n=name: self._ready(n))
@@ -92,8 +98,27 @@ class SoundBank(QObject):
             effect.setSource(QUrl.fromLocalFile(str(path)))
 
     def _allowed(self, name):
-        """Vérifier le réglage propre à l’ambiance ou celui des effets ponctuels."""
-        return self.ambient_enabled if name == 'ambient' else self.enabled
+        """Vérifier le réglage propre à l’ambiance du livre courant ou celui des effets ponctuels."""
+        if name in AMBIENT_LABELS:
+            return self.ambient_enabled and name == self.ambient
+        return self.enabled
+
+    def ambient_label(self):
+        """Nommer la boucle du livre courant dans le réglage d’ambiance."""
+        return AMBIENT_LABELS[self.ambient]
+
+    def set_ambient_track(self, engine):
+        """Remplacer la boucle selon le module ouvert, sous le même interrupteur d’ambiance."""
+        name = AMBIENT_TRACKS.get(engine, 'ambient')
+        if name == self.ambient:
+            return
+        self.logger.info('ambient track=%s', name)
+        self.pending.discard(self.ambient)
+        if self.ambient in self.effects:
+            self.effects[self.ambient].stop()
+        self.ambient = name
+        if self.ambient_enabled:
+            self.play(name)
 
     def play_book_intro(self, engine):
         """Une seule annonce à la fois, y compris si une demande attend le chargement."""
@@ -124,9 +149,9 @@ class SoundBank(QObject):
         self.enabled = bool(enabled)
         self.logger.info('effects enabled=%s', self.enabled)
         if not self.enabled:
-            self.pending.intersection_update({'ambient'})
+            self.pending.intersection_update(AMBIENT_LABELS)
             for name, effect in self.effects.items():
-                if name != 'ambient':
+                if name not in AMBIENT_LABELS:
                     effect.stop()
         else:
             self.preload()
@@ -135,11 +160,11 @@ class SoundBank(QObject):
         """Démarrer ou interrompre la boucle d’ambiance indépendamment des effets."""
         self.ambient_enabled = bool(enabled)
         if enabled:
-            self.play('ambient')
+            self.play(self.ambient)
         else:
-            self.pending.discard('ambient')
-            if 'ambient' in self.effects:
-                self.effects['ambient'].stop()
+            self.pending.discard(self.ambient)
+            if self.ambient in self.effects:
+                self.effects[self.ambient].stop()
 
     def play(self, name):
         """Déclencher un effet prêt ou mémoriser sa demande pendant le chargement.

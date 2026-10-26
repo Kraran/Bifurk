@@ -2,6 +2,8 @@
 
 Usage : python scripts/prepare_book_sounds.py DOSSIER_DES_SOURCES
 Les originaux restent intacts ; les annonces sont distinctes des effets CC0.
+Seules les sources présentes dans le dossier sont préparées ; les autres
+annonces gardent leur fichier et leur entrée du manifeste.
 """
 import hashlib
 import json
@@ -11,12 +13,17 @@ import wave
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCES = {'book_foret': 'La foret.wav', 'book_sorcier': 'Le Sorcier.wav'}
+SOURCES = {'book_foret': 'La foret.wav', 'book_sorcier': 'Le Sorcier.wav',
+           'book_cite': 'La Cite des Voleurs.wav'}
 
 
 def prepare(folder):
-    report = {}
-    for name, filename in SOURCES.items():
+    manifest = ROOT/'assets/sounds/book_sounds.json'
+    report = json.loads(manifest.read_text(encoding='utf-8'))['sounds'] if manifest.is_file() else {}
+    present = {name: filename for name, filename in SOURCES.items() if (Path(folder)/filename).is_file()}
+    if not present:
+        raise ValueError('Aucune source attendue dans le dossier.')
+    for name, filename in present.items():
         source = Path(folder)/filename
         with wave.open(str(source)) as stream:
             if stream.getnchannels() != 1 or stream.getsampwidth() != 2:
@@ -57,10 +64,11 @@ def prepare(folder):
                         'source_seconds': duration, 'output_seconds': len(samples)/22050,
                         'gain_db': float(20*np.log10(gain)), 'peak_dbfs': float(20*np.log10(max(abs(samples)))),
                         'rms_dbfs': float(20*np.log10(np.sqrt(np.mean(samples**2)))), 'bytes': target.stat().st_size}
-    (ROOT/'assets/sounds/book_sounds.json').write_text(
+    manifest.write_text(
         json.dumps({'provenance':'Fichiers fournis par l’utilisateur ; non couverts par les licences CC0 des autres effets.',
-                    'format':'WAV mono PCM 16 bits 22050 Hz', 'sounds':report}, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-    print(json.dumps(report, ensure_ascii=False, indent=2))
+                    'format':'WAV mono PCM 16 bits 22050 Hz',
+                    'sounds':{name: report[name] for name in SOURCES if name in report}}, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+    print(json.dumps({name: report[name] for name in present}, ensure_ascii=False, indent=2))
 
 
 if __name__ == '__main__':

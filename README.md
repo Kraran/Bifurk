@@ -113,7 +113,7 @@ chargement d’un des cinq emplacements. Une sauvegarde automatique technique
 comme sixième emplacement et n’est pas reprise automatiquement.
 
 **⚙ → Ambiance sonore…** permet de couper les effets sonores, d’activer
-l’ambiance de caverne, de régler la musique d’accueil ou de la garder pendant la partie, de jouer sa propre musique
+l’ambiance de fond (caverne, ou ville dans la Cité), de régler la musique d’accueil ou de la garder pendant la partie, de jouer sa propre musique
 (dossier `musique_perso`), d’écouter chaque effet et
 de choisir l’habillage du grimoire. Une annonce propre au livre accompagne sa
 couverture et le chargement d’une sauvegarde ; elle suit le réglage des effets
@@ -293,4 +293,5 @@ Le troisième module est reconnu : couverture, prologue « Les terribles message
 de Zanbar Bone », règles et profil de départ (30 pièces d'or, potion au choix,
 10 repas pris à tout moment hors combat). Les renvois permettent de consulter le
 livre ; les événements et combats seront intégrés par tranches de 100 paragraphes.
+La Cité a son annonce sonore, son décor de lecture et ses illustrations pleine page.
 Voir [La Cité — présentation](docs/cite-module-presentation.md).
