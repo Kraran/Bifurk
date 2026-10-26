@@ -219,6 +219,18 @@ def draw_icon(p, kind, c, s, color=GOLD_LIGHT):
         for k in (0, .28):
             p.drawLine(QPointF(x - s + k * s, y), QPointF(x - s * 1.2 + k * s, y - s * .35))
             p.drawLine(QPointF(x - s + k * s, y), QPointF(x - s * 1.2 + k * s, y + s * .35))
+    elif kind == 'speaker':
+        # Haut-parleur et deux ondes : lecture vocale du paragraphe.
+        body = QPolygonF([QPointF(x - s * .95, y - s * .3), QPointF(x - s * .55, y - s * .3),
+                          QPointF(x - s * .05, y - s * .75), QPointF(x - s * .05, y + s * .75),
+                          QPointF(x - s * .55, y + s * .3), QPointF(x - s * .95, y + s * .3)])
+        p.drawPolygon(body)
+        for k in (.45, .85):
+            p.drawArc(QRectF(x - s * .05 - s * k, y - s * k, s * k * 2, s * k * 2), -50 * 16, 100 * 16)
+    elif kind == 'speaker_stop':
+        p.setBrush(color)
+        p.setPen(Qt.NoPen)
+        p.drawRoundedRect(QRectF(x - s * .55, y - s * .55, s * 1.1, s * 1.1), s * .12, s * .12)
     else:
         draw_glyph(p, kind, c, s, color)
 

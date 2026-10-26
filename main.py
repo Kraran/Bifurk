@@ -24,7 +24,7 @@ from grimoire_library import imported_grimoires, GrimoireLibraryDialog
 from themes import available_themes
 from sound_effects import SoundBank, EFFECT_LABELS
 from intro_music import IntroMusic
-from tts import ParagraphReader, available_french_voices, DEFAULT_VOICE
+from tts import DEFAULT_VOICE, ParagraphReader, available_french_voices
 from audio_configuration import configure_audio_backend
 from adventure_tracking import LABELS, new_tracking, read_tracking, mark_assisted
 from save_slots import SaveSlotsDialog, read_save
@@ -457,8 +457,12 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.sounds = SoundBank(ASSET_DIR / "sounds", self.preferences.get("sound_enabled", True), self,
                             ambient_enabled=self.preferences.get("ambient_enabled", False),
                             diagnostic_path=SETTINGS_DIR / "audio.log")
+        # Lecture vocale (voix Edge) : synthèse en arrière-plan, jamais bloquante.
         self.tts = ParagraphReader(self)
         self.tts.set_voice(self.preferences.get("tts_voice", DEFAULT_VOICE))
+        self.tts.started.connect(lambda: self._show_tts_state(True))
+        self.tts.finished.connect(lambda: self._show_tts_state(False))
+        self.tts.error.connect(self._show_tts_error)
 
         self.intro_music = IntroMusic(ASSET_DIR / 'sounds' / 'FantasyFair.m4a',
                                       self.preferences.get('music_enabled', True), self,
@@ -776,16 +780,31 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
 
     def _speak_current_paragraph(self):
-        """Lire le paragraphe courant avec la voix TTS choisie."""
-        if self.current_paragraph is None or self.current_paragraph not in self.paragraphs:
+        """Lire à voix haute le paragraphe affiché ; un second clic arrête la lecture."""
+        if self.tts.is_busy():
+            self.tts.stop()
             return
-        text = self.paragraphs[self.current_paragraph]
-        # Nettoyage léger : retirer les renvois bruts excessifs si besoin
-        self.tts.speak(text)
-        if self.tts.is_playing():
-            self.tts_button.setText("⏹")
-        else:
-            self.tts_button.setText("🔊")
+        if self.current_paragraph in self.paragraphs:
+            self.tts.speak(self.paragraphs[self.current_paragraph])
+
+    TTS_TOOLTIP = "Lire le paragraphe à voix haute"
+
+    def _show_tts_state(self, busy):
+        """Bouton 🔊 / ⏹ selon la lecture en cours."""
+        if not hasattr(self, 'tts_button'):
+            return
+        self.tts_button.glyph = 'speaker_stop' if busy else 'speaker'
+        self.tts_button.setText("⏹" if busy else "🔊")
+        if busy:
+            self.tts_button.setToolTip("Arrêter la lecture à voix haute")
+        elif self.tts_button.toolTip() == "Arrêter la lecture à voix haute":
+            self.tts_button.setToolTip(self.TTS_TOOLTIP)
+        self.tts_button.update()
+
+    def _show_tts_error(self, message):
+        """Échec discret (réseau, paquet absent) : seule l’infobulle du bouton l’indique."""
+        if hasattr(self, 'tts_button'):
+            self.tts_button.setToolTip(f"{self.TTS_TOOLTIP}\n{message}")
 
     def show_ambience(self):
         """Construire les réglages de thème et sons, avec préécoute des effets disponibles."""
@@ -823,24 +842,28 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self._save_preferences()
         ambient.toggled.connect(set_ambient)
         audio_layout.addWidget(ambient)
-        # Lecture vocale des paragraphes (voix Edge)
+        # Lecture vocale des paragraphes (voix Edge) : liste en cache, jamais d’attente réseau.
         voice_row = QHBoxLayout()
         voice_row.addWidget(QLabel("Voix de lecture"))
-        self.tts_voice_combo = QComboBox()
-        for vid, label in available_french_voices().items():
-            self.tts_voice_combo.addItem(label, vid)
+        voice = QComboBox()
+        voice.setObjectName('ttsVoice')
+        voice.setAccessibleName('Voix de lecture à voix haute')
         current = self.preferences.get("tts_voice", DEFAULT_VOICE)
-        idx = self.tts_voice_combo.findData(current)
-        if idx >= 0:
-            self.tts_voice_combo.setCurrentIndex(idx)
-        def on_voice_changed(index):
-            vid = self.tts_voice_combo.itemData(index)
-            if vid:
-                self.tts.set_voice(vid)
-                self.preferences["tts_voice"] = vid
+        voices = available_french_voices() or {DEFAULT_VOICE: DEFAULT_VOICE}
+        if current not in voices:
+            voices[current] = current
+        for voice_id, label in voices.items():
+            voice.addItem(label, voice_id)
+        voice.setCurrentIndex(max(0, voice.findData(current)))
+        def set_voice(index):
+            """Appliquer et mémoriser la voix choisie."""
+            voice_id = voice.itemData(index)
+            if voice_id:
+                self.tts.set_voice(voice_id)
+                self.preferences["tts_voice"] = voice_id
                 self._save_preferences()
-        self.tts_voice_combo.currentIndexChanged.connect(on_voice_changed)
-        voice_row.addWidget(self.tts_voice_combo, 1)
+        voice.currentIndexChanged.connect(set_voice)
+        voice_row.addWidget(voice, 1)
         audio_layout.addLayout(voice_row)
         music_row = QHBoxLayout()
         music_row.addWidget(QLabel('Musique d’accueil'))
@@ -1252,14 +1275,15 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         cover_button.clicked.connect(self.show_cover)
         title_row.addWidget(cover_button)
         title_row.addWidget(self.art_toggle)
+        # Avec les outils de gauche : le cartouche du numéro reste centré.
+        self.tts_button = PageToolButton("speaker", self.TTS_TOOLTIP, text="🔊")
+        self.tts_button.setObjectName('ttsButton')
+        self.tts_button.clicked.connect(self._speak_current_paragraph)
+        title_row.addWidget(self.tts_button)
         title_row.addStretch(1)
         # Le ruban du marque-page équilibre une marge égale à gauche : le cartouche reste centré.
         title_row.addSpacing(self.bookmark_ribbon.width() + title_row.spacing())
         title_row.addWidget(self.paragraph_number)
-        self.tts_button = PageToolButton("volume_up", "Lire le paragraphe à voix haute", text="🔊")
-        self.tts_button.setToolTip("Lire le paragraphe (voix neurale Microsoft)")
-        self.tts_button.clicked.connect(self._speak_current_paragraph)
-        title_row.addWidget(self.tts_button)
         title_row.addWidget(self.bookmark_ribbon, 0, Qt.AlignTop)
         title_row.addStretch(1)
         minus_btn = PageToolButton("font_minus", "Réduire la taille du texte", text="A−")
@@ -3277,8 +3301,6 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                 self.current_paragraph = target
                 if hasattr(self, 'tts'):
                     self.tts.stop()
-                    if hasattr(self, 'tts_button'):
-                        self.tts_button.setText("🔊")
                 if target is None and self.pdf_path and self.paragraphs:
                     self._show_book_title()
         finally:

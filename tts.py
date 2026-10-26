@@ -1,27 +1,22 @@
 """Lecture vocale des paragraphes avec les voix neurales Microsoft Edge (edge-tts).
 
-Utilise le même service gratuit que « Lire à haute voix » de Edge. Les voix sont
-en ligne (connexion Internet requise). La lecture passe par QMediaPlayer pour
-s’intégrer au reste de l’audio de Bifurk.
-
-Voix françaises proposées (identifiants techniques) :
-- fr-FR-RemyMultilingualNeural   (Rémy Multilingue, recommandé)
-- fr-FR-VivienneMultilingualNeural (Vivienne Multilingue)
-- fr-FR-DeniseNeural
-- fr-FR-HenriNeural
-- fr-FR-EloiseNeural
+Même service que « Lire à haute voix » d’Edge : une connexion Internet est requise.
+La synthèse tourne dans un fil secondaire (``asyncio.run``) vers un MP3 temporaire ;
+la lecture est confiée au fil principal par ``QMetaObject.invokeMethod`` et passe par
+QMediaPlayer. Toute erreur (réseau absent, paquet manquant) reste silencieuse pour
+l’interface : seul le signal ``error`` porte un message court.
 """
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import tempfile
+import threading
 from pathlib import Path
-from typing import Callable, Optional
 
-from PySide6.QtCore import QObject, QUrl, Signal, Slot
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import Q_ARG, QMetaObject, QObject, Qt, QUrl, Signal, Slot
 
-# Voix françaises disponibles via edge-tts (ordre d’affichage prévu dans les réglages).
+# Liste de secours, affichée immédiatement et sans réseau.
 FRENCH_VOICES = {
     "fr-FR-RemyMultilingualNeural": "Rémy Multilingue",
     "fr-FR-VivienneMultilingualNeural": "Vivienne Multilingue",
@@ -30,42 +25,83 @@ FRENCH_VOICES = {
     "fr-FR-EloiseNeural": "Eloise",
 }
 DEFAULT_VOICE = "fr-FR-RemyMultilingualNeural"
+_voice_cache: dict[str, str] = dict(FRENCH_VOICES)
+_voice_refresh: threading.Thread | None = None
+
+
+def _voice_label(voice: dict) -> str:
+    """« fr-CA-SylvieNeural » → « Sylvie (fr-CA) », en gardant les libellés connus."""
+    short = voice.get("ShortName", "")
+    if short in FRENCH_VOICES:
+        return FRENCH_VOICES[short]
+    name = short.split("-", 2)[-1].removesuffix("Neural").replace("Multilingual", " Multilingue").strip()
+    return f"{name} ({voice.get('Locale', short[:5])})"
+
+
+def _refresh_voices() -> None:
+    """Interroger le service une fois, en arrière-plan ; garder la liste de secours sinon."""
+    try:
+        import edge_tts
+        voices = asyncio.run(edge_tts.list_voices())
+    except Exception:  # noqa: BLE001 - toute panne réseau ou de service garde le secours
+        return
+    found = {v["ShortName"]: _voice_label(v) for v in voices
+             if str(v.get("Locale", "")).startswith("fr-") and v.get("ShortName")}
+    if found:
+        _voice_cache.update(found)
+
+
+def available_french_voices(refresh: bool = True) -> dict[str, str]:
+    """Voix françaises connues, sans jamais attendre le réseau.
+
+    Renvoie aussitôt le cache (liste de secours au départ) ; le premier appel lance une
+    seule mise à jour en arrière-plan qui enrichira les appels suivants.
+    """
+    global _voice_refresh
+    if refresh and _voice_refresh is None:
+        _voice_refresh = threading.Thread(target=_refresh_voices, daemon=True)
+        _voice_refresh.start()
+    return dict(_voice_cache) or dict(FRENCH_VOICES)
 
 
 class ParagraphReader(QObject):
-    """Génère et joue le texte d’un paragraphe avec une voix Edge.
+    """Synthétise puis lit un paragraphe ; un nouvel appel arrête le précédent."""
 
-    Émet `finished` à la fin naturelle ou après `stop()`. `error` en cas de
-    problème réseau ou de génération.
-    """
+    started = Signal()
     finished = Signal()
     error = Signal(str)
 
-    def __init__(self, parent: Optional[QObject] = None):
+    def __init__(self, parent: QObject | None = None):
         super().__init__(parent)
         self._player = None
         self._output = None
-        self._temp_file: Optional[Path] = None
         self._voice = DEFAULT_VOICE
         self._rate = "+0%"
         self._volume = 0.8
-        self._task: Optional[asyncio.Task] = None
+        self._pending = False
+        self._request = 0  # Numéro de la demande en cours ; les synthèses périmées sont ignorées.
+        self._temp_file: Path | None = None
+
+    @property
+    def voice(self) -> str:
+        return self._voice
 
     def set_voice(self, voice_id: str) -> None:
-        """Choisir une voix parmi FRENCH_VOICES."""
-        if voice_id in FRENCH_VOICES:
+        if voice_id and (voice_id in _voice_cache or voice_id.startswith("fr-")):
             self._voice = voice_id
 
     def set_rate(self, percent: int) -> None:
-        """Vitesse relative (-50 à +100). 0 = normal."""
         percent = max(-50, min(100, int(percent)))
         self._rate = f"{percent:+d}%"
 
     def set_volume(self, volume: float) -> None:
-        """Volume 0.0–1.0."""
         self._volume = max(0.0, min(1.0, float(volume)))
         if self._output is not None:
             self._output.setVolume(self._volume)
+
+    def is_busy(self) -> bool:
+        """Synthèse en attente ou lecture en cours."""
+        return self._pending or self.is_playing()
 
     def is_playing(self) -> bool:
         if self._player is None:
@@ -74,84 +110,91 @@ class ParagraphReader(QObject):
         return self._player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
 
     def stop(self) -> None:
-        """Arrêter la lecture en cours et nettoyer."""
-        if self._task and not self._task.done():
-            self._task.cancel()
+        """Arrêter la lecture et rendre caduque toute synthèse en cours."""
+        self._request += 1
+        was_busy = self._pending or self.is_playing()
+        self._pending = False
         if self._player is not None:
             self._player.stop()
+            self._player.setSource(QUrl())
         self._cleanup_temp()
-        self.finished.emit()
+        if was_busy:
+            self.finished.emit()
 
     def speak(self, text: str) -> None:
-        """Lancer la génération + lecture du texte (asynchrone)."""
+        self.stop()
         text = (text or "").strip()
         if not text:
-            self.finished.emit()
             return
-        if QGuiApplication.platformName() in ("offscreen", "minimal"):
-            self.error.emit("Lecture vocale indisponible en mode sans écran.")
-            return
-        self.stop()  # annuler une éventuelle lecture précédente
-        self._task = asyncio.create_task(self._generate_and_play(text))
+        request, voice, rate = self._request, self._voice, self._rate
+        self._pending = True
+        self.started.emit()
+        threading.Thread(target=self._synthesize, args=(request, text, voice, rate), daemon=True).start()
 
-    async def _generate_and_play(self, text: str) -> None:
+    # --- Fil secondaire ---------------------------------------------------------
+    def _synthesize(self, request: int, text: str, voice: str, rate: str) -> None:
+        path = None
         try:
             import edge_tts
-        except ImportError:
-            self.error.emit("Le paquet edge-tts n’est pas installé.")
+            with tempfile.NamedTemporaryFile(prefix="bifurk-tts-", suffix=".mp3", delete=False) as tmp:
+                path = Path(tmp.name)
+            asyncio.run(edge_tts.Communicate(text, voice, rate=rate).save(str(path)))
+            if path.stat().st_size == 0:
+                raise RuntimeError("fichier audio vide")
+        except Exception as exc:  # noqa: BLE001 - aucune exception ne doit sortir du fil
+            if path is not None:
+                with contextlib.suppress(OSError):
+                    path.unlink()
+            message = "Lecture vocale indisponible (paquet edge-tts absent)." if isinstance(exc, ImportError) \
+                else "Lecture vocale indisponible (connexion au service de voix impossible)."
+            QMetaObject.invokeMethod(self, "_fail", Qt.QueuedConnection, Q_ARG(int, request), Q_ARG(str, message))
             return
+        QMetaObject.invokeMethod(self, "_play", Qt.QueuedConnection, Q_ARG(int, request), Q_ARG(str, str(path)))
 
-        try:
-            communicate = edge_tts.Communicate(text, self._voice, rate=self._rate)
-            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
-                self._temp_file = Path(tmp.name)
-            await communicate.save(str(self._temp_file))
+    # --- Fil principal ----------------------------------------------------------
+    @Slot(int, str)
+    def _fail(self, request: int, message: str) -> None:
+        if request != self._request:
+            return
+        self._pending = False
+        self.error.emit(message)
+        self.finished.emit()
 
-            if not self._temp_file.exists() or self._temp_file.stat().st_size == 0:
-                raise RuntimeError("Fichier audio vide.")
-
-            self._play_file(self._temp_file)
-        except Exception as exc:  # noqa: BLE001
-            self.error.emit(f"Échec de la génération vocale : {exc}")
-            self._cleanup_temp()
-            self.finished.emit()
-
-    def _play_file(self, path: Path) -> None:
+    @Slot(int, str)
+    def _play(self, request: int, filename: str) -> None:
+        path = Path(filename)
+        if request != self._request:  # Demande remplacée ou arrêtée entre-temps.
+            with contextlib.suppress(OSError):
+                path.unlink()
+            return
+        self._pending = False
+        self._temp_file = path
         from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
-
         if self._player is None:
             self._output = QAudioOutput(self)
             self._player = QMediaPlayer(self)
             self._player.setAudioOutput(self._output)
             self._player.mediaStatusChanged.connect(self._on_media_status)
             self._player.errorOccurred.connect(self._on_error)
-
         self._output.setVolume(self._volume)
         self._player.setSource(QUrl.fromLocalFile(str(path.resolve())))
         self._player.play()
 
-    @Slot()
     def _on_media_status(self, status) -> None:
         from PySide6.QtMultimedia import QMediaPlayer
         if status == QMediaPlayer.MediaStatus.EndOfMedia:
+            self._player.setSource(QUrl())
             self._cleanup_temp()
             self.finished.emit()
 
-    @Slot()
     def _on_error(self, *_args) -> None:
-        self.error.emit("Erreur de lecture audio.")
+        self._player.setSource(QUrl())
         self._cleanup_temp()
+        self.error.emit("Erreur de lecture audio.")
         self.finished.emit()
 
     def _cleanup_temp(self) -> None:
-        if self._temp_file and self._temp_file.exists():
-            try:
+        if self._temp_file is not None:
+            with contextlib.suppress(OSError):
                 self._temp_file.unlink()
-            except OSError:
-                pass
         self._temp_file = None
-
-
-def available_french_voices() -> dict[str, str]:
-    """Retourner le dictionnaire id → libellé pour l’interface des réglages."""
-    return dict(FRENCH_VOICES)
