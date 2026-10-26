@@ -47,6 +47,7 @@ class WindowsDistributionTests(unittest.TestCase):
                          '_internal/assets/cite.jpg',
                          '_internal/assets/sounds/FantasyFair.m4a',
                          '_internal/assets/video/introduction.mp4',
+                         '_internal/assets/video/introduction_21x9.mp4',
                          '_internal/assets/sounds/swords.wav',
                          '_internal/assets/sounds/book_sorcier.wav',
                          '_internal/assets/sounds/book_foret.wav',

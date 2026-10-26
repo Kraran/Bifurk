@@ -553,10 +553,21 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if startup:
             QTimer.singleShot(0, self._show_startup_menu)
 
+    def _intro_video_path(self):
+        """Choisir le film 21:9 sur un écran ultra-large, le 16:9 partout ailleurs."""
+        video = ASSET_DIR / 'video'
+        screen = self.screen() or QApplication.primaryScreen()
+        if screen is not None:
+            size = screen.size()
+            if size.height() > 0 and size.width() / size.height() >= 2.0 \
+                    and (video / 'introduction_21x9.mp4').is_file():
+                return video / 'introduction_21x9.mp4'
+        return video / 'introduction.mp4'
+
     def _play_startup_intro(self):
         """Jouer le film puis afficher le jeu en plein écran, avec la même musique."""
         self.intro_music.menu()
-        path = ASSET_DIR / 'video' / 'introduction.mp4'
+        path = self._intro_video_path()
         if QApplication.platformName() in ('offscreen', 'minimal') or not path.is_file():
             self.showFullScreen()
             self._show_startup_menu()
