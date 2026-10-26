@@ -10,6 +10,7 @@ STATS = (('habilete', 'Habileté'), ('endurance', 'Endurance'), ('chance', 'Chan
 def snapshot(character):
     return {'stats': {key: character.get(key) for key, _ in STATS},
             'inventory': list(character.get('inventory', [])),
+            'marks': rules.marks(character),
             'skill': rules.effective_skill(character) if 'habilete' in character else None}
 
 
@@ -28,6 +29,9 @@ def describe_changes(before, after):
         parts.append('Obtenu : ' + _items(gained))
     if lost:
         parts.append('Retiré du sac : ' + _items(lost))
+    marked = [name for name in after.get('marks', ()) if name not in before.get('marks', ())]
+    if marked:
+        parts.append('Marque : ' + ', '.join(marked))
     return parts
 
 

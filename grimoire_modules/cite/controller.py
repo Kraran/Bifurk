@@ -15,7 +15,7 @@ from PySide6.QtWidgets import QInputDialog, QLabel, QMessageBox
 from grimoire_ui import ChoiceCard
 from navigation import choice_caption
 
-from . import feedback, rules
+from . import feedback, rules, sheet
 from .actions import CiteMechanicsActions, _coins
 
 TITLE = 'La Cité des Voleurs'
@@ -155,6 +155,8 @@ class CiteController(CiteMechanicsActions):
         if number not in self.paragraphs:
             QMessageBox.information(self, 'Paragraphe absent', f'Le paragraphe {number} est introuvable.')
             return
+        # Sauvegarde antérieure à P4 : le tatouage quitte le sac pour les marques.
+        rules.migrate_marks(self.character)
         previous = self.current_paragraph
         self._ff_note_move(number)
         arrival = feedback.snapshot(self.character) if not self._restoring and previous != number else None
@@ -171,9 +173,12 @@ class CiteController(CiteMechanicsActions):
             self._cite_prepare_combat()
             self._refresh_character()
         if arrival is not None:
-            changes = feedback.describe_changes(arrival, feedback.snapshot(self.character))
+            after = feedback.snapshot(self.character)
+            changes = feedback.describe_changes(arrival, after)
             if changes:
                 self.rules_log.setText(f'À l’arrivée au §{number} : ' + ', '.join(changes) + '.')
+            self._announce_marks([sheet.MARKS[name].key for name in after['marks']
+                                  if name not in arrival['marks'] and name in sheet.MARKS])
         self.goto_spin.setValue(number)
         self.paragraph_title.setText(self._paragraph_name(number) or TITLE)
         self.paragraph_number.setText(f'§ {number}')
@@ -204,6 +209,8 @@ class CiteController(CiteMechanicsActions):
         targets, reason = CiteController._reading_link_gate(self)
         for choice in CiteController._cite_routes(self):
             target = choice['target']
+            if not rules.route_shown(self.character, self.current_paragraph, target):
+                continue
             button = ChoiceCard(choice_caption(choice['label'], target))
             button.setObjectName('choiceCard')
             button.setEnabled(target in targets)

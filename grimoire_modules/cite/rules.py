@@ -122,8 +122,8 @@ ENTRY_EFFECTS = {
     243: {'endurance': -5},
     273: {'chance': 2, 'gain': (GOLD_BROOCH,)},
     274: {'gold': 5},
-    # Le tatouage figure dans l’inventaire ; il ne peut être ni volé ni remis.
-    279: {'gain': (TATTOO,), 'lock': True},
+    # Le tatouage est une marque sur le corps, pas un objet : il reste hors du sac.
+    279: {'mark': TATTOO},
     295: {'gold': 12, 'chance': 1},
     298: {'endurance': -4},
     # ----- Phase 3.4 : §301 à 400 (valeurs relues sur la VO) -----
@@ -215,6 +215,8 @@ MIXTURES = (('Cheveux de Sorcière et perles noires', 9),
             ('Perles noires et fleur de lotus', 129),
             ('Fleur de lotus et cheveux de Sorcière', 337))
 MIXTURE_ROUTES = 244
+# Marques sur le corps (P4) : gardées dans la sauvegarde, jamais dans le sac à dos.
+MARKS = (TATTOO,)
 CREATURE = 201
 CREATURES = {1: ('Orque', 5, 4), 2: ('Serpent Géant', 6, 6), 3: ('Loup', 5, 5),
              4: ('Pygmée', 4, 4), 5: ('Homme-Singe', 7, 6), 6: ('Troll des Cavernes', 8, 7)}
@@ -266,7 +268,12 @@ ROUTE_LUCK = {(300, 347): 2}
 GOLD_SHOWN_ROUTES = {(276, 109): 5, (354, 316): 10}
 # §264 : partager ses vivres coûte deux portions de Provisions.
 PROVISION_ROUTES = {(264, 121): 2}
-COST_LABELS = {(315, 8): '6 Pièces d’Or', (315, 132): '6 Pièces d’Or'}
+# §398 → §378 : jouer exige de posséder la mise de 5 Pièces d’Or (choix de Franck) ;
+# la condition reprend la phrase du livre (VO : « whoever drops the cannon-ball must
+# pay the other 5 Gold Pieces »).
+STAKE_ROUTES = {(398, 378): 5}
+COST_LABELS = {(315, 8): '6 Pièces d’Or', (315, 132): '6 Pièces d’Or',
+               (398, 378): 'celui qui laisse tomber le boulet verse 5 Pièces d’Or à l’autre'}
 # §150 : l’amende est tout l’or du sac ; §182 : renoncer seulement sans 10 Pièces d’Or.
 ALL_GOLD_ROUTES = {(150, 367), (335, 367)}
 GOLD_BELOW_ROUTES = {(182, 354): 10, (354, 307): 10}
@@ -412,6 +419,8 @@ def apply_entry(character, number):
         _change(character, 'endurance', effect['arrow_heal'] * peek(character).get('arrows', 0))
     character['gold'] = character.get('gold', 0) + effect.get('gold', 0)
     inventory.extend(effect.get('gain', ()))
+    if effect.get('mark'):
+        add_mark(character, effect['mark'])
     if effect.get('lock'):
         character.setdefault('locked_items', []).extend(effect.get('gain', ()))
     for key in ('habilete', 'chance'):
@@ -583,11 +592,48 @@ def route_cost(source, target):
     return ROUTE_COSTS.get((source, target))
 
 
+def marks(character):
+    """Marques portées sur le corps (§279), dans l’ordre où elles ont été faites."""
+    return list(peek(character).get('marks', ()))
+
+
+def add_mark(character, name):
+    current = state(character).setdefault('marks', [])
+    if name not in current:
+        current.append(name)
+
+
+def migrate_marks(character):
+    """Sauvegardes antérieures à P4 : le tatouage rangé dans le sac devient une marque.
+
+    Idempotent ; True si la fiche a été modifiée."""
+    inventory = character.get('inventory', [])
+    moved = [name for name in MARKS if name in inventory]
+    for name in moved:
+        while name in inventory:
+            inventory.remove(name)
+        locked = character.get('locked_items', [])
+        while name in locked:
+            locked.remove(name)
+        add_mark(character, name)
+    return bool(moved)
+
+
 def mission_ready(character, visited=()):
     """§108/§156/§239 : les quatre objets réunis et le tatouage fait (§279 lu)."""
     return (all(has_item(character, keyword) for keyword in MISSION_ITEMS)
-            and (TATTOO in character.get('inventory', [])
+            and (TATTOO in marks(character) or TATTOO in character.get('inventory', [])
                  or any(number in visited for number in TATTOO_PARAGRAPHS)))
+
+
+def route_shown(character, source, target):
+    """§244 : seul le mélange préparé au §201 est proposé ; jamais de carte grisée.
+
+    Sans mélange enregistré (partie ancienne), les trois questions restent ouvertes."""
+    if source == MIXTURE_ROUTES:
+        mixture = peek(character).get('mixture')
+        return mixture is None or mixture == target
+    return True
 
 
 def item_payment_choices(character, key):
@@ -626,6 +672,8 @@ def route_available(character, source, target, visited=()):
         return character.get('gold', 0) < GOLD_BELOW_ROUTES[key]
     if key in GOLD_SHOWN_ROUTES:
         return character.get('gold', 0) >= GOLD_SHOWN_ROUTES[key]
+    if key in STAKE_ROUTES:
+        return character.get('gold', 0) >= STAKE_ROUTES[key]
     if key in CREATURE_ROUTES:
         creature = peek(character).get('creature')
         return creature is None or (creature == APE_MAN) == CREATURE_ROUTES[key]
