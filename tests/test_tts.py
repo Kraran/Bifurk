@@ -169,3 +169,13 @@ class PrepareSpeechTextTests(unittest.TestCase):
     def test_compound_words_keep_their_hyphen(self):
         from tts import prepare_speech_text
         self.assertEqual(prepare_speech_text("allez au\nRendez-\nVous"), "allez au Rendez-Vous")
+
+
+class SplitSpeechChunksTests(unittest.TestCase):
+    def test_first_chunk_is_short_and_nothing_is_lost(self):
+        from tts import split_speech_chunks
+        text = ' '.join(f'Phrase numéro {i} de la ruelle sombre.' for i in range(30))
+        chunks = split_speech_chunks(text)
+        self.assertGreater(len(chunks), 2)
+        self.assertLessEqual(len(chunks[0]), 160)
+        self.assertEqual(' '.join(chunks), text)

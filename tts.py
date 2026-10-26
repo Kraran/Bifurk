@@ -88,8 +88,25 @@ def prepare_speech_text(text: str) -> str:
     return re.sub(r"[ \t]{2,}", " ", text).strip()
 
 
+def split_speech_chunks(text: str, first_limit: int = 160, limit: int = 450) -> list[str]:
+    """Découper en phrases regroupées : un premier morceau court pour démarrer vite."""
+    sentences = [part.strip() for part in re.split(r"(?<=[.!?…»])\s+|\n+", text or "") if part.strip()]
+    chunks: list[str] = []
+    current = ""
+    for sentence in sentences:
+        cap = first_limit if not chunks else limit
+        if current and len(current) + 1 + len(sentence) > cap:
+            chunks.append(current)
+            current = sentence
+        else:
+            current = f"{current} {sentence}".strip()
+    if current:
+        chunks.append(current)
+    return chunks
+
+
 class ParagraphReader(QObject):
-    """Synthétise puis lit un paragraphe ; un nouvel appel arrête le précédent."""
+    """Synthétise et lit un paragraphe par morceaux ; un nouvel appel arrête le précédent."""
 
     started = Signal()
     finished = Signal()
@@ -105,6 +122,8 @@ class ParagraphReader(QObject):
         self._pending = False
         self._request = 0  # Numéro de la demande en cours ; les synthèses périmées sont ignorées.
         self._temp_file: Path | None = None
+        self._queue: list[Path] = []
+        self._synth_done = True
 
     @property
     def voice(self) -> str:
@@ -138,42 +157,56 @@ class ParagraphReader(QObject):
         self._request += 1
         was_busy = self._pending or self.is_playing()
         self._pending = False
+        self._synth_done = True
         if self._player is not None:
             self._player.stop()
             self._player.setSource(QUrl())
         self._cleanup_temp()
+        while self._queue:
+            with contextlib.suppress(OSError):
+                self._queue.pop(0).unlink()
         if was_busy:
             self.finished.emit()
 
     def speak(self, text: str) -> None:
         self.stop()
-        text = prepare_speech_text(text)
-        if not text:
+        chunks = split_speech_chunks(prepare_speech_text(text))
+        if not chunks:
             return
         request, voice, rate = self._request, self._voice, self._rate
         self._pending = True
+        self._synth_done = False
         self.started.emit()
-        threading.Thread(target=self._synthesize, args=(request, text, voice, rate), daemon=True).start()
+        threading.Thread(target=self._synthesize, args=(request, chunks, voice, rate), daemon=True).start()
 
     # --- Fil secondaire ---------------------------------------------------------
-    def _synthesize(self, request: int, text: str, voice: str, rate: str) -> None:
-        path = None
-        try:
-            import edge_tts
-            with tempfile.NamedTemporaryFile(prefix="bifurk-tts-", suffix=".mp3", delete=False) as tmp:
-                path = Path(tmp.name)
-            asyncio.run(edge_tts.Communicate(text, voice, rate=rate).save(str(path)))
-            if path.stat().st_size == 0:
-                raise RuntimeError("fichier audio vide")
-        except Exception as exc:  # noqa: BLE001 - aucune exception ne doit sortir du fil
-            if path is not None:
-                with contextlib.suppress(OSError):
-                    path.unlink()
-            message = "Lecture vocale indisponible (paquet edge-tts absent)." if isinstance(exc, ImportError) \
-                else "Lecture vocale indisponible (connexion au service de voix impossible)."
-            QMetaObject.invokeMethod(self, "_fail", Qt.QueuedConnection, Q_ARG(int, request), Q_ARG(str, message))
-            return
-        QMetaObject.invokeMethod(self, "_play", Qt.QueuedConnection, Q_ARG(int, request), Q_ARG(str, str(path)))
+    def _synthesize(self, request: int, chunks: list[str] | str, voice: str, rate: str) -> None:
+        """Synthétiser morceau par morceau : le premier est joué pendant que la suite se prépare."""
+        if isinstance(chunks, str):
+            chunks = [chunks]
+        for index, chunk in enumerate(chunks):
+            if request != self._request:
+                return
+            path = None
+            try:
+                import edge_tts
+                with tempfile.NamedTemporaryFile(prefix="bifurk-tts-", suffix=".mp3", delete=False) as tmp:
+                    path = Path(tmp.name)
+                asyncio.run(edge_tts.Communicate(chunk, voice, rate=rate).save(str(path)))
+                if path.stat().st_size == 0:
+                    raise RuntimeError("fichier audio vide")
+            except Exception as exc:  # noqa: BLE001 - aucune exception ne doit sortir du fil
+                if path is not None:
+                    with contextlib.suppress(OSError):
+                        path.unlink()
+                if index == 0:
+                    message = "Lecture vocale indisponible (paquet edge-tts absent)." if isinstance(exc, ImportError) \
+                        else "Lecture vocale indisponible (connexion au service de voix impossible)."
+                    QMetaObject.invokeMethod(self, "_fail", Qt.QueuedConnection, Q_ARG(int, request), Q_ARG(str, message))
+                    return
+                break  # Coupure en cours de route : on lit ce qui est déjà prêt.
+            QMetaObject.invokeMethod(self, "_play", Qt.QueuedConnection, Q_ARG(int, request), Q_ARG(str, str(path)))
+        QMetaObject.invokeMethod(self, "_done", Qt.QueuedConnection, Q_ARG(int, request))
 
     # --- Fil principal ----------------------------------------------------------
     @Slot(int, str)
@@ -186,12 +219,33 @@ class ParagraphReader(QObject):
 
     @Slot(int, str)
     def _play(self, request: int, filename: str) -> None:
+        """Ajouter un morceau prêt à la file ; le jouer aussitôt si rien n’est en cours."""
         path = Path(filename)
         if request != self._request:  # Demande remplacée ou arrêtée entre-temps.
             with contextlib.suppress(OSError):
                 path.unlink()
             return
-        self._pending = False
+        self._queue.append(path)
+        if self._temp_file is None:
+            self._play_next()
+
+    @Slot(int)
+    def _done(self, request: int) -> None:
+        if request != self._request:
+            return
+        self._synth_done = True
+        if self._temp_file is None and not self._queue and self._pending:
+            self._pending = False
+            self.finished.emit()
+
+    def _play_next(self) -> None:
+        self._cleanup_temp()
+        if not self._queue:
+            if self._synth_done and self._pending:
+                self._pending = False
+                self.finished.emit()
+            return
+        path = self._queue.pop(0)
         self._temp_file = path
         from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
         if self._player is None:
@@ -208,14 +262,12 @@ class ParagraphReader(QObject):
         from PySide6.QtMultimedia import QMediaPlayer
         if status == QMediaPlayer.MediaStatus.EndOfMedia:
             self._player.setSource(QUrl())
-            self._cleanup_temp()
-            self.finished.emit()
+            self._play_next()
 
     def _on_error(self, *_args) -> None:
         self._player.setSource(QUrl())
-        self._cleanup_temp()
         self.error.emit("Erreur de lecture audio.")
-        self.finished.emit()
+        self._play_next()
 
     def _cleanup_temp(self) -> None:
         if self._temp_file is not None:
