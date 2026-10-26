@@ -519,7 +519,7 @@ class CiteMechanicsActions(FightingFantasyActions):
         dialog = QDialog(self)
         dialog.setWindowTitle('Les achats du passage')
         layout = QVBoxLayout(dialog)
-        header = QLabel(rules.shop_rule(number) + ' Chaque article rejoint le sac à dos.')
+        header = QLabel(rules.shop_rule(number))
         header.setWordWrap(True)
         layout.addWidget(header)
         selector = QComboBox()
@@ -552,7 +552,7 @@ class CiteMechanicsActions(FightingFantasyActions):
                     '' if not count else f' — acheté ×{count}' if shop.get('repeat') else ' — acheté'))
                 reason = rules.can_buy(self.character, number, name)
                 closed = reason in ('Article déjà acheté.', 'Le livre ne permet qu’un seul achat ici.')
-                selector.setItemData(index, f'{_coins(price)}. ' + (reason if closed else rules.shop_rule(number)),
+                selector.setItemData(index, f'{_coins(price)}.' + (f' {reason}' if closed else ''),
                                      Qt.ToolTipRole)
                 item = model.item(index) if hasattr(model, 'item') else None
                 if item is not None:

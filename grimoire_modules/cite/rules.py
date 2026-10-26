@@ -598,12 +598,16 @@ def shop_rule(number):
 
 
 def shop_description(character, number, name):
-    """Description neutre d’un article : ce qu’il devient et la règle d’achat, jamais son usage."""
+    """Description neutre d’un article : ce qu’il devient, jamais son usage.
+
+    La règle d’achat de la boutique (shop_rule) n’est dite qu’une fois, en tête de la
+    fenêtre ; la description n’ajoute que l’état propre à l’article (déjà acheté, achat
+    unique déjà fait)."""
     text = f'{name} rejoint votre sac à dos une fois payé. Son usage n’est dit que par le livre.'
     reason = can_buy(character, number, name)
     if reason in ('Article déjà acheté.', 'Le livre ne permet qu’un seul achat ici.'):
         return f'{text} {reason}'
-    return f'{text} {shop_rule(number)}'
+    return text
 
 
 def missing_reason(character, source, target, condition=None):

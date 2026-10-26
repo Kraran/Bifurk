@@ -269,7 +269,8 @@ quelque chose (scores des dés, objets gardés).
   l'article rejoint le sac à dos et que son usage n'est dit que par le livre
   (aucun chiffre, aucun renvoi). L'or disponible et le prix restent visibles ; la
   règle du livre (« un seul achat possible ici », « chaque article ne s'achète
-  qu'une fois ») ferme les articles concernés. Au §241, seule boutique où le livre
+  qu'une fois ») est dite une seule fois, en tête de la fenêtre, et ferme les
+  articles concernés. Au §241, seule boutique où le livre
   permet plusieurs exemplaires, un compteur règle la quantité et le solde affiche
   le total (« 3 × 1 = 3 Pièces d'Or »).
 - **Fenêtre de vente** (§354) : symétrique de l'achat. Liste à sélection

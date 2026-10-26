@@ -278,6 +278,13 @@ class CiteShopRulesTests(unittest.TestCase):
             for name, _price in shop['items']:
                 _cite_text_is_neutral(self, cite.shop_description(character, number, name), name)
 
+    def test_shop_rule_is_said_once_in_the_header_not_per_item(self):
+        character = cite_mechanics.hero(gold=99)
+        for number, shop in cite.SHOPS.items():
+            rule = cite.shop_rule(number)
+            for name, _price in shop['items']:
+                self.assertNotIn(rule, cite.shop_description(character, number, name), (number, name))
+
     def test_quantity_only_where_the_book_allows_copies(self):
         character = cite_mechanics.hero(gold=5)
         cite.buy(character, 241, 'Bougie de couleur', 3)
@@ -338,7 +345,8 @@ class CiteShopAndSaleWindowTests(unittest.TestCase):
         for text, tip, description, balance in seen:
             _cite_text_is_neutral(self, description, text)
             self.assertNotIn('§', tip)
-            self.assertRegex(tip, r'^\d+ Pièces? d’Or\. ')
+            self.assertRegex(tip, r'^\d+ Pièces? d’Or\.$')
+            self.assertNotIn(cite.shop_rule(52), description)
             self.assertTrue(balance.startswith('Or disponible : 30 Pièces d’Or — prix : '))
         self.assertEqual(seen[1][0], 'Corde d’Escalade — 2 Pièces d’Or')
         self.assertEqual(self.w.character['gold'], 28)
