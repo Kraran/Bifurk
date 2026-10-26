@@ -114,3 +114,70 @@ class PlaceLabelsTests(unittest.TestCase):
         self.assertEqual(w.paragraph_number.text(), '§ 1')
         self.assertEqual(w.choice_layout.itemAt(0).widget().text(),
                          'Poursuivre le chemin  →  §71')
+
+
+class CiteStreetCatalogueTests(unittest.TestCase):
+    """Cité des Voleurs : rues, lieux partagés et directions relues pour la carte (P6)."""
+    STREETS = frozenset({'Porte du Sable Noir', 'Rue du Port', 'Rue du Sabot', "Rue de l'Écurie", 'Rue de la Tour',
+               'Rue du Moulin', 'Rue du Marché', 'Rue de la Clef', "Rue de l'Horloge", 'Rue de la Bougie',
+               'Rue du Pont', 'Jardin public', 'Remparts', 'Égouts', 'Tour de Zanbar Bone', 'Hors les murs'})
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+        path = DATA_PATH.parent / 'evenements_cite_1983.json'
+        cls.catalogue = json.loads(path.read_text(encoding='utf-8'))
+
+    def test_every_passage_has_a_street_or_building(self):
+        paragraphs = self.catalogue['paragraphs']
+        self.assertTrue(self.catalogue['street_map'])
+        self.assertEqual({entry['place'] for entry in paragraphs.values()}, self.STREETS)
+        self.assertEqual(len(paragraphs), 400)
+
+    def test_shared_places_group_passages_of_the_same_street(self):
+        spots = {}
+        for number, entry in self.catalogue['paragraphs'].items():
+            if 'spot' in entry:
+                spots.setdefault(entry['spot'], []).append(int(number))
+        self.assertEqual(sorted(map(sorted, spots.values())),
+                         [[30, 333], [78, 369], [103, 196, 304], [104, 174], [182, 316]])
+        for numbers in spots.values():
+            self.assertEqual(len({self.catalogue['paragraphs'][str(n)]['place'] for n in numbers}), 1)
+
+    def test_reviewed_directions_are_cardinal_and_cover_the_city(self):
+        directions = {}
+        for number, entry in self.catalogue['paragraphs'].items():
+            for route in entry['routes']:
+                if 'direction' in route:
+                    self.assertIn(route['direction'], {'nord', 'sud', 'est', 'ouest'})
+                    directions[(int(number), route['target'])] = route['direction']
+        self.assertGreaterEqual(len(directions), 160)
+        expected = {(74, 116): 'nord', (74, 95): 'ouest', (74, 17): 'est', (78, 216): 'est',
+                    (369, 216): 'est', (30, 76): 'nord', (333, 76): 'nord', (304, 148): 'nord'}
+        self.assertEqual({key: directions.get(key) for key in expected}, expected)
+
+    def test_city_map_hides_unvisited_streets_and_titles(self):
+        w = MainWindow()
+        self.addCleanup(w.deleteLater)
+        self.addCleanup(w.close)
+        w.paragraphs = {n: 'Passage de test.' for n in range(1, 401)}
+        w.book_event_catalogue = self.catalogue
+        w.visited_paragraphs = [1, 33, 381, 74, 116]
+        w.transitions = [[1, 33], [33, 381], [381, 74], [74, 116]]
+        w.current_paragraph = 116
+        captured = []
+
+        def inspect(dialog):
+            self.assertLess(dialog.nodes[116].pos().y(), dialog.nodes[74].pos().y())
+            dialog.select_place(74)
+            captured.append(dialog.details.toPlainText())
+            captured.extend(dialog.index.item(i).text() for i in range(dialog.index.count()))
+            captured.extend(item.toolTip() for item in dialog.scene.items())
+            return QDialog.Rejected
+        with patch.object(QDialog, 'exec', inspect):
+            w.show_map()
+        text = '\n'.join(captured)
+        self.assertIn('§ 95 · non exploré', text)
+        self.assertIn('— Rue du Marché —', text)
+        for hidden in ('Rue de la Clef', "Rue de l'Horloge", 'serrurier', 'haillons'):
+            self.assertNotIn(hidden, text)

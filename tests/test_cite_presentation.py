@@ -77,7 +77,9 @@ class CiteCatalogueTests(unittest.TestCase):
         for number, entry in events['paragraphs'].items():
             analysed = int(number) <= 400
             self.assertEqual(entry['status'], 'analyse_verifiee' if analysed else 'renvois_verifies')
-            keys = {'status', 'mode', 'title', 'routes', 'source_page_pdf'} | ({'analysis'} if analysed else set())
+            # P6 : rue ou bâtiment (place) et lieu partagé (spot) pour la carte.
+            keys = ({'status', 'mode', 'title', 'place', 'spot', 'routes', 'source_page_pdf'}
+                    | ({'analysis'} if analysed else set()))
             self.assertLessEqual(set(entry), keys)
         self.assertEqual([entry['type'] for entry in art['illustrations']], ['couverture'])
         self.assertEqual(art['pdf_pages'], 177)

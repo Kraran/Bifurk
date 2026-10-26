@@ -10,6 +10,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La porte du Port du Sable Noir",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 202,
@@ -31,6 +32,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le bracelet sur la carapace",
+      "place": "Égouts",
       "routes": [
         {
           "target": 377,
@@ -48,6 +50,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le joueur de lyre",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 37,
@@ -66,6 +69,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le domestique blafard",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 339,
@@ -83,6 +87,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'Homme Orque à la hache",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 371,
@@ -97,10 +102,12 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Une hôtesse peu aimable",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 333,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         },
         {
           "target": 88,
@@ -114,6 +121,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les perles noires",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 232,
@@ -122,7 +130,8 @@
         },
         {
           "target": 78,
-          "label": "Quitter le navire vers le nord"
+          "label": "Quitter le navire vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 22,
@@ -132,10 +141,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La broche porte-bonheur",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 334,
-          "label": "Partir vers le nord"
+          "label": "Partir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 22,
@@ -145,6 +156,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le dernier rire de Zanbar Bone",
+      "place": "Tour de Zanbar Bone",
       "routes": [],
       "source_page_pdf": 23,
       "analysis": "fin"
@@ -153,6 +165,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le garde furieux",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 212,
@@ -172,6 +185,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Réfugié dans l'arbre",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 358,
@@ -185,6 +199,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'homme au bain",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 176,
@@ -202,6 +217,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La broche scorpion",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 273,
@@ -214,7 +230,8 @@
         },
         {
           "target": 334,
-          "label": "Quitter la maison vers le nord"
+          "label": "Quitter la maison vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 24,
@@ -224,6 +241,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les haies vivantes",
+      "place": "Jardin public",
       "routes": [
         {
           "target": 237,
@@ -243,6 +261,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La course entre les serpents",
+      "place": "Rue du Pont",
       "routes": [
         {
           "target": 75,
@@ -262,10 +281,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le sac de pièces",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 333,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 25,
@@ -275,6 +296,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'homme en haillons",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 331,
@@ -282,7 +304,8 @@
         },
         {
           "target": 161,
-          "label": "Continuer vers l'est"
+          "label": "Continuer vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 25,
@@ -292,6 +315,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le couteau lancé",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 102,
@@ -311,6 +335,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les javelots empoisonnés",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 340,
@@ -329,6 +354,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les poches du pirate",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 84,
@@ -342,6 +368,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La chambre de la tour",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 288,
@@ -359,6 +386,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les Lutins querelleurs",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 198,
@@ -373,6 +401,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'orfèvre au gourdin",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 146,
@@ -387,6 +416,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boutique au rideau de fer",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 336,
@@ -394,7 +424,8 @@
         },
         {
           "target": 196,
-          "label": "Poursuivre vers l'ouest"
+          "label": "Poursuivre vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 28,
@@ -404,6 +435,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le forgeron de l'écurie",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 169,
@@ -415,7 +447,8 @@
         },
         {
           "target": 115,
-          "label": "Poursuivre vers le nord"
+          "label": "Poursuivre vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 29,
@@ -425,10 +458,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les spectateurs calmés",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 296,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 29,
@@ -438,6 +473,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'homme à la cagoule",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 223,
@@ -455,10 +491,12 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Une ombre dans le tunnel",
+      "place": "Égouts",
       "routes": [
         {
           "target": 265,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         },
         {
           "target": 104,
@@ -472,6 +510,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Réflexion en cellule",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 143,
@@ -489,10 +528,13 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le croisement de la rue de l'Écurie",
+      "place": "Rue de l'Écurie",
+      "spot": "carrefour-ecurie-tour",
       "routes": [
         {
           "target": 76,
-          "label": "Tourner vers le nord"
+          "label": "Tourner vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 31,
@@ -502,6 +544,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le pont sur la rivière",
+      "place": "Rue du Pont",
       "routes": [
         {
           "target": 329,
@@ -519,6 +562,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La morsure de la Reine Serpent",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 249,
@@ -533,6 +577,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le prétendu butin",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 381,
@@ -554,10 +599,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La voiture lancée",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 171,
-          "label": "Continuer vers l'ouest"
+          "label": "Continuer vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 34,
@@ -567,6 +614,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le domestique insensible",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 189,
@@ -590,10 +638,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le marchand d'anneaux",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 196,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 35,
@@ -603,6 +653,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La chanson porte-bonheur",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 398,
@@ -616,10 +667,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le bracelet-insecte",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 296,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 35,
@@ -629,6 +682,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Reine Serpent impatiente",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 32,
@@ -646,6 +700,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le jeu derrière le mur",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 168,
@@ -653,7 +708,8 @@
         },
         {
           "target": 91,
-          "label": "Repartir par la rue du Port"
+          "label": "Repartir par la rue du Port",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 36,
@@ -663,6 +719,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le prix de l'entrée",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -676,10 +733,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Payé en provisions",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 100,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 38,
@@ -689,6 +748,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La coupe brûlante",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 175,
@@ -716,6 +776,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les trois vagabonds",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 18,
@@ -735,6 +796,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le casque de fumée",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 376,
@@ -742,7 +804,8 @@
         },
         {
           "target": 161,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 39,
@@ -752,10 +815,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La cotte de mailles",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 115,
-          "label": "Poursuivre vers le nord"
+          "label": "Poursuivre vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 39,
@@ -765,6 +830,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'éclair",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 313,
@@ -784,6 +850,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'échelle du tunnel",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 321,
@@ -791,7 +858,8 @@
         },
         {
           "target": 205,
-          "label": "Poursuivre vers l'est"
+          "label": "Poursuivre vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 40,
@@ -801,6 +869,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La cloche du corps de garde",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 10,
@@ -820,6 +889,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La cale du navire",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 271,
@@ -837,6 +907,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le vieil homme relevé",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 325,
@@ -854,10 +925,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'étal des petites armes",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 200,
-          "label": "Partir vers le nord"
+          "label": "Partir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 41,
@@ -867,6 +940,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Reine Serpent attend un présent",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 328,
@@ -886,6 +960,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La fouille du corps de garde",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -899,6 +974,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les pétales trempés",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 180,
@@ -912,6 +988,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Enchaîné dans la tour",
+      "place": "Remparts",
       "routes": [],
       "source_page_pdf": 43,
       "analysis": "fin"
@@ -920,6 +997,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les chiens du Nain",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 360,
@@ -934,10 +1012,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le coup de fouet",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 171,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 44,
@@ -947,6 +1027,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le poignard de la Sorcière",
+      "place": "Égouts",
       "routes": [],
       "source_page_pdf": 44,
       "analysis": "fin"
@@ -955,6 +1036,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le palier aux deux portes",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 349,
@@ -972,6 +1054,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les fleurs du Seigneur Azzur",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 172,
@@ -991,6 +1074,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La taverne enfumée",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 136,
@@ -1010,7 +1094,8 @@
         },
         {
           "target": 296,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 45,
@@ -1020,10 +1105,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les chandelles pourpres",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 280,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 47,
@@ -1033,6 +1120,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le loup du chenil",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 353,
@@ -1052,6 +1140,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La porte blanche et la porte noire",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 319,
@@ -1073,10 +1162,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les clefs du Nain",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 300,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 48,
@@ -1086,6 +1177,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La question derrière les rideaux",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 195,
@@ -1103,6 +1195,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La soupe répugnante",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 380,
@@ -1120,6 +1213,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Échapper aux gardes",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 355,
@@ -1139,6 +1233,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le reflet dans le miroir",
+      "place": "Tour de Zanbar Bone",
       "routes": [],
       "source_page_pdf": 49,
       "analysis": "fin"
@@ -1147,6 +1242,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La chambre de l'Ogre",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 324,
@@ -1154,7 +1250,8 @@
         },
         {
           "target": 282,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 49,
@@ -1164,6 +1261,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le faux garçon blessé",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 208,
@@ -1178,6 +1276,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les deux Trolls",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 110,
@@ -1197,18 +1296,22 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les rues du port",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 95,
-          "label": "Prendre la rue de la Clef"
+          "label": "Prendre la rue de la Clef",
+          "direction": "ouest"
         },
         {
           "target": 116,
-          "label": "Prendre la rue du Marché"
+          "label": "Prendre la rue du Marché",
+          "direction": "nord"
         },
         {
           "target": 17,
-          "label": "Prendre la rue de l'Horloge"
+          "label": "Prendre la rue de l'Horloge",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 50,
@@ -1218,10 +1321,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La pluie s'arrête",
+      "place": "Rue du Pont",
       "routes": [
         {
           "target": 31,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 51,
@@ -1231,6 +1336,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La vieille grange",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 25,
@@ -1238,7 +1344,8 @@
         },
         {
           "target": 115,
-          "label": "Poursuivre vers le nord"
+          "label": "Poursuivre vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 51,
@@ -1248,6 +1355,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le deuxième étage",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 292,
@@ -1265,14 +1373,18 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'embranchement du quai",
+      "place": "Rue du Port",
+      "spot": "embranchement-quai",
       "routes": [
         {
           "target": 256,
-          "label": "Remonter la rue du Port"
+          "label": "Remonter la rue du Port",
+          "direction": "nord"
         },
         {
           "target": 216,
-          "label": "Prendre la rue du Sabot"
+          "label": "Prendre la rue du Sabot",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 51,
@@ -1282,6 +1394,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La Reine Serpent surgit",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 295,
@@ -1296,6 +1409,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La créature au long museau",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 392,
@@ -1315,6 +1429,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La fuite sous l'éclair",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 304,
@@ -1334,6 +1449,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La potion contre la Sorcière",
+      "place": "Égouts",
       "routes": [
         {
           "target": 104,
@@ -1347,6 +1463,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La jarre bien étiquetée",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 322,
@@ -1354,7 +1471,8 @@
         },
         {
           "target": 93,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 54,
@@ -1364,6 +1482,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les tonneaux et les caisses",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 50,
@@ -1371,7 +1490,8 @@
         },
         {
           "target": 78,
-          "label": "Quitter le navire vers la rue du Port"
+          "label": "Quitter le navire vers la rue du Port",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 54,
@@ -1381,10 +1501,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La flèche d'argent",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 100,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 55,
@@ -1394,6 +1516,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boule de fumée",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 45,
@@ -1415,6 +1538,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le pont du navire",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 120,
@@ -1432,6 +1556,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le boudoir",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 295,
@@ -1441,7 +1566,8 @@
         {
           "target": 333,
           "label": "Fuir par la rue de l'Écurie",
-          "condition_text": "Fuite après trois Assauts"
+          "condition_text": "Fuite après trois Assauts",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 57,
@@ -1451,10 +1577,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le gant brûlant",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 282,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 57,
@@ -1464,6 +1592,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La chaîne trop solide",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 199,
@@ -1481,6 +1610,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le mendiant",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 332,
@@ -1499,6 +1629,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le miroir dans le mur",
+      "place": "Égouts",
       "routes": [
         {
           "target": 174,
@@ -1512,6 +1643,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La taverne du Chien Tacheté",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 62,
@@ -1519,7 +1651,8 @@
         },
         {
           "target": 296,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 58,
@@ -1529,6 +1662,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La poussière étincelante",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 234,
@@ -1542,6 +1676,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boutique du serrurier",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 224,
@@ -1559,6 +1694,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La pièce macabre",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 257,
@@ -1581,6 +1717,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La clef du chenil",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 353,
@@ -1594,10 +1731,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La bouteille d'endurance",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 363,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 60,
@@ -1607,6 +1746,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'arrestation",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 285,
@@ -1621,14 +1761,17 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'embranchement de la rue de la Tour",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 127,
-          "label": "Prendre la rue de la Tour"
+          "label": "Prendre la rue de la Tour",
+          "direction": "nord"
         },
         {
           "target": 246,
-          "label": "Continuer par la rue de l'Écurie"
+          "label": "Continuer par la rue de l'Écurie",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 60,
@@ -1638,6 +1781,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'Homme Orque narquois",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 5,
@@ -1645,7 +1789,8 @@
         },
         {
           "target": 93,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 61,
@@ -1655,10 +1800,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les vagabonds hésitent",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 372,
-          "label": "Filer vers le nord"
+          "label": "Filer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 61,
@@ -1668,6 +1815,8 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le carrefour de la rue du Marché",
+      "place": "Rue du Marché",
+      "spot": "carrefour-marche-clef-horloge",
       "routes": [
         {
           "target": 148,
@@ -1681,15 +1830,19 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Retour à l'orifice d'accès",
+      "place": "Égouts",
+      "spot": "orifice-egout",
       "routes": [
         {
           "target": 205,
-          "label": "Remonter vers la rue"
+          "label": "Remonter vers la rue",
+          "direction": "est"
         },
         {
           "target": 118,
           "label": "Suivre l'égout vers le sud",
-          "condition_text": "Si ce n'est déjà fait"
+          "condition_text": "Si ce n'est déjà fait",
+          "direction": "sud"
         }
       ],
       "source_page_pdf": 61,
@@ -1699,6 +1852,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La maison isolée",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 64,
@@ -1706,7 +1860,8 @@
         },
         {
           "target": 304,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 62,
@@ -1716,6 +1871,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Momie en flammes",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 163,
@@ -1733,6 +1889,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le coffre boulonné",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 128,
@@ -1750,6 +1907,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Hors des remparts",
+      "place": "Hors les murs",
       "routes": [
         {
           "target": 201,
@@ -1769,6 +1927,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le pot-de-vin refusé",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 151,
@@ -1782,10 +1941,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les badauds",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 239,
-          "label": "Fuir par la rue du Moulin"
+          "label": "Fuir par la rue du Moulin",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 63,
@@ -1795,6 +1956,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La bourse du pirate",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 232,
@@ -1803,7 +1965,8 @@
         },
         {
           "target": 78,
-          "label": "Quitter le navire vers la rue du Port"
+          "label": "Quitter le navire vers la rue du Port",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 63,
@@ -1813,6 +1976,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La maison rouge",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 154,
@@ -1820,7 +1984,8 @@
         },
         {
           "target": 334,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 64,
@@ -1830,6 +1995,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La pièce aux jouets",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 141,
@@ -1837,7 +2003,8 @@
         },
         {
           "target": 375,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 64,
@@ -1847,10 +2014,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le tiroir de la boutique",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 196,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 65,
@@ -1860,6 +2029,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le prisonnier enchaîné",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 90,
@@ -1877,6 +2047,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'herboristerie",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 250,
@@ -1884,7 +2055,8 @@
         },
         {
           "target": 93,
-          "label": "Continuer par la rue du Marché"
+          "label": "Continuer par la rue du Marché",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 66,
@@ -1894,6 +2066,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La rue du Pont sous la pluie",
+      "place": "Rue du Pont",
       "routes": [
         {
           "target": 188,
@@ -1911,6 +2084,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Une ombre dans l'égout",
+      "place": "Égouts",
       "routes": [
         {
           "target": 2,
@@ -1930,6 +2104,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'eau pétillante",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 233,
@@ -1938,7 +2113,8 @@
         },
         {
           "target": 247,
-          "label": "Garder son or"
+          "label": "Garder son or",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 67,
@@ -1948,6 +2124,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La bûche",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 84,
@@ -1967,10 +2144,12 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'Ogre repu",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 282,
-          "label": "Obéir et partir vers le nord"
+          "label": "Obéir et partir vers le nord",
+          "direction": "nord"
         },
         {
           "target": 140,
@@ -1984,6 +2163,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les deux hommes hagards",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 277,
@@ -2001,10 +2181,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le passe-partout",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 300,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 68,
@@ -2014,6 +2196,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La ruelle vers le sud",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 326,
@@ -2031,6 +2214,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le bouclier maudit",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 21,
@@ -2044,10 +2228,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La peau de mouton",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 112,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 68,
@@ -2057,6 +2243,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La rixe",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 177,
@@ -2064,7 +2251,8 @@
         },
         {
           "target": 348,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 69,
@@ -2074,6 +2262,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les fléchettes du coffre",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 340,
@@ -2098,6 +2287,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le mauvais choix",
+      "place": "Tour de Zanbar Bone",
       "routes": [],
       "source_page_pdf": 69,
       "analysis": "fin"
@@ -2106,6 +2296,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les renforts du corps de garde",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -2120,6 +2311,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La voix derrière les rideaux",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 67,
@@ -2141,10 +2333,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La broche en argent",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 334,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 70,
@@ -2154,6 +2348,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le croisement de la rue du Moulin",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 182,
@@ -2171,10 +2366,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La bosse sur la tête",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 396,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 71,
@@ -2184,6 +2381,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'homme à l'œuf",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 229,
@@ -2201,6 +2399,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'aubergiste hostile",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 270,
@@ -2208,7 +2407,8 @@
         },
         {
           "target": 296,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 73,
@@ -2218,6 +2418,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La volée de flèches",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 327,
@@ -2232,6 +2433,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Selon l'adversaire",
+      "place": "Hors les murs",
       "routes": [
         {
           "target": 312,
@@ -2251,6 +2453,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le pot de fleurs",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 113,
@@ -2258,7 +2461,8 @@
         },
         {
           "target": 375,
-          "label": "Continuer vers l'est"
+          "label": "Continuer vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 73,
@@ -2268,6 +2472,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'Ogre armé d'un os",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 71,
@@ -2277,7 +2482,8 @@
         {
           "target": 282,
           "label": "Fuir vers le nord",
-          "condition_text": "Fuite après trois Assauts"
+          "condition_text": "Fuite après trois Assauts",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 74,
@@ -2287,6 +2493,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La dispute des vieilles dames",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 68,
@@ -2294,7 +2501,8 @@
         },
         {
           "target": 375,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 74,
@@ -2304,6 +2512,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le carreau d'arbalète",
+      "place": "Tour de Zanbar Bone",
       "routes": [],
       "source_page_pdf": 74,
       "analysis": "fin"
@@ -2312,6 +2521,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le prisonnier gémissant",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 306,
@@ -2329,6 +2539,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le sortilège rompu",
+      "place": "Égouts",
       "routes": [
         {
           "target": 303,
@@ -2343,6 +2554,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boutique de Mme Pipe",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 293,
@@ -2350,7 +2562,8 @@
         },
         {
           "target": 24,
-          "label": "Refuser et partir vers l'ouest"
+          "label": "Refuser et partir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 75,
@@ -2360,6 +2573,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le placard vitré",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 220,
@@ -2379,6 +2593,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le butin des voleurs",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 338,
@@ -2386,7 +2601,8 @@
         },
         {
           "target": 105,
-          "label": "Prendre l'or et partir vers le nord"
+          "label": "Prendre l'or et partir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 76,
@@ -2396,6 +2612,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La foule en liesse",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 287,
@@ -2409,6 +2626,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La fléchette empoisonnée",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 340,
@@ -2427,6 +2645,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La rue du Poivre",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 367,
@@ -2444,6 +2663,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les cellules du sous-sol",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 351,
@@ -2462,6 +2682,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le pirate au sabre",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 20,
@@ -2476,6 +2697,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La chouette d'or",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 65,
@@ -2489,6 +2711,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les deux scorpions",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 273,
@@ -2504,7 +2727,8 @@
         },
         {
           "target": 334,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 79,
@@ -2514,11 +2738,13 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Renversé par la voiture",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 171,
           "label": "Repartir vers l'ouest",
-          "condition_text": "Si vous survivez"
+          "condition_text": "Si vous survivez",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 80,
@@ -2528,6 +2754,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Escorté jusqu'à la Porte Nord",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 201,
@@ -2547,6 +2774,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le combat dans la cellule",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 54,
@@ -2561,6 +2789,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'Armure en marche",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 122,
@@ -2578,6 +2807,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La pièce au sol de marbre",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 278,
@@ -2599,6 +2829,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La charrette de fruits",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 211,
@@ -2618,6 +2849,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La porte ouverte",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 245,
@@ -2625,7 +2857,8 @@
         },
         {
           "target": 282,
-          "label": "Poursuivre vers le nord"
+          "label": "Poursuivre vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 82,
@@ -2635,6 +2868,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La bourse du dormeur",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 7,
@@ -2654,6 +2888,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le sarcophage",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 231,
@@ -2667,10 +2902,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "À l'abri des archers",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 112,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 83,
@@ -2680,6 +2917,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La rue de la Bougie",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 139,
@@ -2697,6 +2935,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le Mille-Pattes Géant",
+      "place": "Égouts",
       "routes": [
         {
           "target": 272,
@@ -2711,10 +2950,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'emplâtre d'herbes",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 93,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 83,
@@ -2724,6 +2965,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La partie de balle",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 359,
@@ -2743,6 +2985,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La cotte de mailles cachée",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 46,
@@ -2761,6 +3004,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le joaillier à la hache",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 114,
@@ -2770,7 +3014,8 @@
         {
           "target": 196,
           "label": "Fuir vers l'ouest",
-          "condition_text": "Fuite"
+          "condition_text": "Fuite",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 85,
@@ -2780,6 +3025,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La taverne du Homard Noir",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 399,
@@ -2787,7 +3033,8 @@
         },
         {
           "target": 78,
-          "label": "Remonter la rue du Port"
+          "label": "Remonter la rue du Port",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 85,
@@ -2797,10 +3044,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le bouquet remis",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 333,
-          "label": "Repartir par la rue de l'Écurie"
+          "label": "Repartir par la rue de l'Écurie",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 85,
@@ -2810,6 +3059,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les Nains joueurs de dés",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 206,
@@ -2817,7 +3067,8 @@
         },
         {
           "target": 296,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 87,
@@ -2827,15 +3078,19 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Retour à l'orifice d'accès",
+      "place": "Égouts",
+      "spot": "orifice-egout",
       "routes": [
         {
           "target": 205,
-          "label": "Remonter vers la rue"
+          "label": "Remonter vers la rue",
+          "direction": "est"
         },
         {
           "target": 356,
           "label": "Suivre l'égout vers le nord",
-          "condition_text": "Si ce n'est déjà fait"
+          "condition_text": "Si ce n'est déjà fait",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 87,
@@ -2845,6 +3100,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le scorpion sous le gobelet",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 204,
@@ -2864,6 +3120,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le baigneur inquiet",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 271,
@@ -2872,7 +3129,8 @@
         },
         {
           "target": 78,
-          "label": "Quitter le navire vers la rue du Port"
+          "label": "Quitter le navire vers la rue du Port",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 87,
@@ -2882,6 +3140,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Au secours du vieillard",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 51,
@@ -2896,6 +3155,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'Ogre inquiet",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 264,
@@ -2907,7 +3167,8 @@
         },
         {
           "target": 282,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 88,
@@ -2917,6 +3178,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le sac jeté",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 16,
@@ -2924,7 +3186,8 @@
         },
         {
           "target": 333,
-          "label": "Repartir par la rue de l'Écurie"
+          "label": "Repartir par la rue de l'Écurie",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 89,
@@ -2934,6 +3197,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le bruit de sabots",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 344,
@@ -2951,6 +3215,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La clef dans la serrure",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 159,
@@ -2964,6 +3229,8 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le tatoueur",
+      "place": "Rue du Moulin",
+      "spot": "boutique-tatoueur",
       "routes": [
         {
           "target": 279,
@@ -2983,6 +3250,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les mélanges de l'herboriste",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 366,
@@ -2996,7 +3264,8 @@
         },
         {
           "target": 93,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 90,
@@ -3006,6 +3275,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les fleurs de Mme Pipe",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 55,
@@ -3025,6 +3295,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'armure brisée",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 122,
@@ -3042,6 +3313,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La table de la Lézardine",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 387,
@@ -3059,6 +3331,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le marchandage avec les gardes",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 260,
@@ -3078,6 +3351,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La maison abandonnée",
+      "place": "Rue du Pont",
       "routes": [
         {
           "target": 253,
@@ -3095,6 +3369,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La flèche dans la poitrine",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 125,
@@ -3116,6 +3391,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le jeu des poignards",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 38,
@@ -3125,7 +3401,8 @@
         {
           "target": 296,
           "label": "Payer et partir vers le nord",
-          "condition_text": "Deux dés > Habileté"
+          "condition_text": "Deux dés > Habileté",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 92,
@@ -3135,6 +3412,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les Bêtes-Feuilles",
+      "place": "Jardin public",
       "routes": [
         {
           "target": 133,
@@ -3148,10 +3426,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le saut depuis le nid",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 304,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 93,
@@ -3161,6 +3441,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Momie",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 286,
@@ -3180,10 +3461,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La boule rangée",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 161,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 94,
@@ -3193,6 +3476,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'expéditeur des fleurs",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 61,
@@ -3214,6 +3498,8 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le carrefour de la rue de la Clef",
+      "place": "Rue du Marché",
+      "spot": "carrefour-marche-clef-horloge",
       "routes": [
         {
           "target": 148,
@@ -3227,6 +3513,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'armure noire",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 301,
@@ -3248,10 +3535,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La fouille des Lutins",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 296,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 95,
@@ -3261,10 +3550,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le chasseur de primes",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 222,
-          "label": "Filer vers le nord"
+          "label": "Filer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 95,
@@ -3274,6 +3565,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La tente de Madame Étoile",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 394,
@@ -3281,7 +3573,8 @@
         },
         {
           "target": 117,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 95,
@@ -3291,6 +3584,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La marche vers la tour",
+      "place": "Hors les murs",
       "routes": [
         {
           "target": 138,
@@ -3305,6 +3599,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le maître du corps de garde",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 151,
@@ -3326,6 +3621,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La flèche d'argent décochée",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 244,
@@ -3340,6 +3636,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le scorpion écrasé",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 209,
@@ -3367,6 +3664,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La rue de l'Écurie oblique",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 44,
@@ -3384,6 +3682,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "« Qui gagne prend »",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 296,
@@ -3397,6 +3696,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le toit de la tour",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 314,
@@ -3411,10 +3711,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La poche du Lutin",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 317,
-          "label": "Partir par la rue du Sabot"
+          "label": "Partir par la rue du Sabot",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 101,
@@ -3424,6 +3726,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les pièces sous le gobelet",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 175,
@@ -3451,6 +3754,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le regard hypnotique",
+      "place": "Tour de Zanbar Bone",
       "routes": [],
       "source_page_pdf": 101,
       "analysis": "fin"
@@ -3459,10 +3763,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les prunes",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 307,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 101,
@@ -3472,6 +3778,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Vers la ville",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -3485,6 +3792,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'orfèvre",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 248,
@@ -3496,7 +3804,8 @@
         },
         {
           "target": 100,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 102,
@@ -3506,6 +3815,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La hache de l'Armure",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 158,
@@ -3525,6 +3835,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les broches scorpions",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 315,
@@ -3532,7 +3843,8 @@
         },
         {
           "target": 334,
-          "label": "Refuser et repartir vers le nord"
+          "label": "Refuser et repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 102,
@@ -3542,6 +3854,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La rue du Sabot",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 72,
@@ -3559,6 +3872,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les Chiens de Lune",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 259,
@@ -3573,10 +3887,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'ennemi de Nicodème",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 300,
-          "label": "Repartir par la rue de la Clef"
+          "label": "Repartir par la rue de la Clef",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 103,
@@ -3586,6 +3902,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le Troll Grincheux",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 150,
@@ -3603,10 +3920,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La grille de la vitrine",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 100,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 104,
@@ -3616,10 +3935,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'impasse",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 396,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 104,
@@ -3629,6 +3950,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le Jardin Public",
+      "place": "Jardin public",
       "routes": [
         {
           "target": 370,
@@ -3647,6 +3969,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La pilule",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 165,
@@ -3661,6 +3984,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le vieux Nain serrurier",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 66,
@@ -3678,6 +4002,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les vagabonds à tour de rôle",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 397,
@@ -3692,6 +4017,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les pirates réveillés",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 111,
@@ -3701,7 +4027,8 @@
         {
           "target": 78,
           "label": "Fuir vers la rue du Port",
-          "condition_text": "Fuite"
+          "condition_text": "Fuite",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 107,
@@ -3711,6 +4038,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les vieilles bottes",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 362,
@@ -3718,7 +4046,8 @@
         },
         {
           "target": 103,
-          "label": "Continuer vers l'est"
+          "label": "Continuer vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 108,
@@ -3728,6 +4057,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'entrée aux portraits",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 125,
@@ -3749,6 +4079,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'œuf lancé",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 23,
@@ -3768,6 +4099,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La pierre descellée",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 54,
@@ -3782,6 +4114,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Retour sur le palier",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 96,
@@ -3799,6 +4132,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La baignoire",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 12,
@@ -3816,10 +4150,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'eau ordinaire",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 247,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 110,
@@ -3829,6 +4165,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le renseignement du petit homme",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 96,
@@ -3842,6 +4179,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "À plat ventre",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 65,
@@ -3855,6 +4193,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le Nain soupçonneux",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 57,
@@ -3872,6 +4211,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le jet de feu",
+      "place": "Jardin public",
       "routes": [
         {
           "target": 133,
@@ -3885,6 +4225,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La porte aux six crânes",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 27,
@@ -3892,7 +4233,8 @@
         },
         {
           "target": 139,
-          "label": "Continuer vers l'est"
+          "label": "Continuer vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 111,
@@ -3902,6 +4244,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La poursuite",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 201,
@@ -3921,6 +4264,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les pierres vendues",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 36,
@@ -3928,7 +4272,8 @@
         },
         {
           "target": 196,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 113,
@@ -3938,6 +4283,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le fabricant de bougies",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 63,
@@ -3945,7 +4291,8 @@
         },
         {
           "target": 280,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 113,
@@ -3955,10 +4302,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les pommes acides",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 307,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 114,
@@ -3968,6 +4317,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Feindre la mort",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 304,
@@ -3981,6 +4331,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le Prince de la Nuit paralysé",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 9,
@@ -4002,6 +4353,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La pièce au sol de paille",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 178,
@@ -4009,7 +4361,8 @@
         },
         {
           "target": 282,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 115,
@@ -4019,6 +4372,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La potion du petit homme",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 98,
@@ -4027,7 +4381,8 @@
         },
         {
           "target": 363,
-          "label": "Poursuivre vers l'est"
+          "label": "Poursuivre vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 115,
@@ -4037,6 +4392,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'embuscade",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 384,
@@ -4056,6 +4412,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La commande de flèche",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 85,
@@ -4075,6 +4432,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'assaut de la Reine Serpent",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 295,
@@ -4089,6 +4447,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'herboristerie de l'Homme Orque",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 183,
@@ -4110,6 +4469,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le petit arbalétrier",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 269,
@@ -4129,6 +4489,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La voiture qui ne s'arrête pas",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 275,
@@ -4148,6 +4509,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les serpents",
+      "place": "Rue du Pont",
       "routes": [
         {
           "target": 75,
@@ -4162,6 +4524,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La gousse d'ail",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 310,
@@ -4175,10 +4538,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le laissez-passer présenté",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 227,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 119,
@@ -4188,6 +4553,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les pêcheuses",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 320,
@@ -4205,6 +4571,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le coffre et le crâne d'or",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 385,
@@ -4224,6 +4591,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le maître du Diablotin",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 318,
@@ -4243,6 +4611,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La porte fermée à clef",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 228,
@@ -4267,6 +4636,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le pot-de-vin accepté",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 222,
@@ -4280,6 +4650,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le Seigneur Azzur",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -4293,10 +4664,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La soupe recrachée",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 375,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 121,
@@ -4306,6 +4679,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La pièce obscure",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 153,
@@ -4325,6 +4699,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'Ogre affamé",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 121,
@@ -4343,6 +4718,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Sorcière du tunnel",
+      "place": "Égouts",
       "routes": [
         {
           "target": 82,
@@ -4362,10 +4738,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le match perdu",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 91,
-          "label": "Fuir par la rue du Port"
+          "label": "Fuir par la rue du Port",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 123,
@@ -4375,6 +4753,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le prix de l'entrée",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -4388,6 +4767,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La colère de la Reine Serpent",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 32,
@@ -4405,10 +4785,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'arbalétrier s'enfuit",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 30,
-          "label": "Continuer vers l'est"
+          "label": "Continuer vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 124,
@@ -4418,6 +4800,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le Troll de la trappe",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 26,
@@ -4432,6 +4815,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les pirates endormis",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 162,
@@ -4449,6 +4833,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La herse de l'égout",
+      "place": "Égouts",
       "routes": [
         {
           "target": 377,
@@ -4466,6 +4851,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le scorpion porte-bonheur",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 13,
@@ -4478,7 +4864,8 @@
         },
         {
           "target": 334,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 126,
@@ -4488,10 +4875,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le meurtrier livré",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 222,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 127,
@@ -4501,10 +4890,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Indemne dans le caniveau",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 171,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 127,
@@ -4514,6 +4905,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le prix de la liberté",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 109,
@@ -4538,6 +4930,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Vers l'étage",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 207,
@@ -4551,6 +4944,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les trois gobelets",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 175,
@@ -4580,6 +4974,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La séance de tatouage",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 307,
@@ -4593,6 +4988,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'enseigne de l'orfèvre",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 213,
@@ -4600,7 +4996,8 @@
         },
         {
           "target": 100,
-          "label": "Continuer vers l'est"
+          "label": "Continuer vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 129,
@@ -4610,6 +5007,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "À tâtons",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 391,
@@ -4627,6 +5025,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le petit garçon au tonneau",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 119,
@@ -4634,7 +5033,8 @@
         },
         {
           "target": 247,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 129,
@@ -4644,10 +5044,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le cadavre de la créature",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 217,
-          "label": "Poursuivre vers le nord"
+          "label": "Poursuivre vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 129,
@@ -4657,6 +5059,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Dans la coursive",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 232,
@@ -4665,7 +5068,8 @@
         },
         {
           "target": 78,
-          "label": "Quitter le navire vers la rue du Port"
+          "label": "Quitter le navire vers la rue du Port",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 129,
@@ -4675,10 +5079,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La fouille des gardes",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 227,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 130,
@@ -4688,6 +5094,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'Anneau de Feu contre la Momie",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 163,
@@ -4701,6 +5108,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les étals du marché",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 3,
@@ -4718,6 +5126,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "La nuit dans la tour",
+      "place": "Tour de Zanbar Bone",
       "routes": [],
       "source_page_pdf": 131,
       "analysis": "fin"
@@ -4726,6 +5135,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La pièce envolée",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 5,
@@ -4733,7 +5143,8 @@
         },
         {
           "target": 93,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 131,
@@ -4743,6 +5154,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les Trolls soupçonneux",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 219,
@@ -4762,6 +5174,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La lance jetée",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -4781,6 +5194,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La dame en noir",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 254,
@@ -4800,10 +5214,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La fleur dorée",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 24,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 133,
@@ -4813,6 +5229,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le pirate de l'échelle",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 78,
@@ -4830,6 +5247,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le sac de la Reine Serpent",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 333,
@@ -4843,6 +5261,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les hommes en robe noire",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 147,
@@ -4857,6 +5276,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'odeur des zombies",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 207,
@@ -4870,6 +5290,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le venin",
+      "place": "Rue du Pont",
       "routes": [
         {
           "target": 75,
@@ -4884,6 +5305,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le retour impossible",
+      "place": "Hors les murs",
       "routes": [],
       "source_page_pdf": 135,
       "analysis": "fin"
@@ -4892,6 +5314,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les présences invisibles",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 347,
@@ -4909,6 +5332,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La hache de l'armure",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 214,
@@ -4926,6 +5350,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les pierres précieuses",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 240,
@@ -4943,6 +5368,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La mèche de cheveux",
+      "place": "Égouts",
       "routes": [
         {
           "target": 104,
@@ -4956,10 +5382,13 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le carrefour à quatre voies",
+      "place": "Rue du Marché",
+      "spot": "carrefour-marche-clef-horloge",
       "routes": [
         {
           "target": 148,
-          "label": "Suivre la foule vers le nord"
+          "label": "Suivre la foule vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 136,
@@ -4969,6 +5398,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le miroir sans effet",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 189,
@@ -4986,6 +5416,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La ruse de la peste",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -4999,6 +5430,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les gardes Trolls",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 290,
@@ -5016,6 +5448,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La ruelle vide",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 180,
@@ -5029,6 +5462,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le loup",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 97,
@@ -5043,6 +5477,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le troisième étage",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 263,
@@ -5060,6 +5495,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les gardes du portail",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -5074,6 +5510,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La chouette d'or",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 217,
@@ -5087,10 +5524,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Hors de la maison",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 304,
-          "label": "Partir vers le nord"
+          "label": "Partir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 140,
@@ -5100,6 +5539,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le bocal renversé",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 234,
@@ -5117,6 +5557,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les broches magiques",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 8,
@@ -5134,6 +5575,8 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Retour chez le tatoueur",
+      "place": "Rue du Moulin",
+      "spot": "boutique-tatoueur",
       "routes": [
         {
           "target": 279,
@@ -5147,6 +5590,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le fabricant de bougies",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 241,
@@ -5154,7 +5598,8 @@
         },
         {
           "target": 280,
-          "label": "Continuer vers l'est"
+          "label": "Continuer vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 141,
@@ -5164,10 +5609,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'éclair absorbé",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 304,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 141,
@@ -5177,6 +5624,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le sarcophage",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 352,
@@ -5194,6 +5642,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les poissonnières",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 216,
@@ -5207,14 +5656,17 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'égout",
+      "place": "Égouts",
       "routes": [
         {
           "target": 356,
-          "label": "Suivre le tunnel vers le nord"
+          "label": "Suivre le tunnel vers le nord",
+          "direction": "nord"
         },
         {
           "target": 118,
-          "label": "Partir vers le sud"
+          "label": "Partir vers le sud",
+          "direction": "sud"
         }
       ],
       "source_page_pdf": 143,
@@ -5224,10 +5676,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La tirelire",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 93,
-          "label": "Partir vers le nord"
+          "label": "Partir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 143,
@@ -5237,6 +5691,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le forgeron furieux",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 395,
@@ -5251,6 +5706,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boîte fracassée",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 89,
@@ -5258,7 +5714,8 @@
         },
         {
           "target": 282,
-          "label": "Quitter la maison vers le nord"
+          "label": "Quitter la maison vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 144,
@@ -5268,10 +5725,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La Taverne du Porc et de la Grenouille",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 348,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 144,
@@ -5281,6 +5740,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La ruelle aux ordures",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 184,
@@ -5290,7 +5750,8 @@
         {
           "target": 180,
           "label": "Fuir vers la rue du Port",
-          "condition_text": "Fuite"
+          "condition_text": "Fuite",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 145,
@@ -5300,6 +5761,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La pelote d'épingles",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 126,
@@ -5307,7 +5769,8 @@
         },
         {
           "target": 164,
-          "label": "Poursuivre vers le nord"
+          "label": "Poursuivre vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 145,
@@ -5317,10 +5780,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le cadeau à la Reine Serpent",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 333,
-          "label": "Continuer par la rue de l'Écurie"
+          "label": "Continuer par la rue de l'Écurie",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 146,
@@ -5330,14 +5795,17 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La cabane sous le pont",
+      "place": "Rue du Pont",
       "routes": [
         {
           "target": 91,
-          "label": "Avancer vers l'ouest par la rue du Port"
+          "label": "Avancer vers l'ouest par la rue du Port",
+          "direction": "ouest"
         },
         {
           "target": 238,
-          "label": "Tourner vers l'est par la rue de la Bougie"
+          "label": "Tourner vers l'est par la rue de la Bougie",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 146,
@@ -5347,10 +5815,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le carreau dans l'épaule",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 30,
-          "label": "Continuer vers l'est"
+          "label": "Continuer vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 148,
@@ -5360,6 +5830,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le dément",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 86,
@@ -5374,10 +5845,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La bénédiction du mendiant",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 124,
-          "label": "Poursuivre vers l'ouest"
+          "label": "Poursuivre vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 149,
@@ -5387,10 +5860,13 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le croisement de la rue de l'Écurie",
+      "place": "Rue de l'Écurie",
+      "spot": "carrefour-ecurie-tour",
       "routes": [
         {
           "target": 76,
-          "label": "Poursuivre vers le nord"
+          "label": "Poursuivre vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 149,
@@ -5400,6 +5876,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le contrôle des papiers",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 255,
@@ -5419,6 +5896,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'arrestation",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 367,
@@ -5436,6 +5914,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La bijouterie",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 36,
@@ -5458,6 +5937,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La chute du Prince de la Nuit",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 400,
@@ -5471,10 +5951,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La Potion d'Infortune",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 105,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 150,
@@ -5484,6 +5966,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'hospitalité de la tour",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 288,
@@ -5501,6 +5984,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le coffre ouvert",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 60,
@@ -5508,7 +5992,8 @@
         },
         {
           "target": 304,
-          "label": "Quitter la maison vers le nord"
+          "label": "Quitter la maison vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 151,
@@ -5518,10 +6003,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les pièces jetées",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 222,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 152,
@@ -5531,6 +6018,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les renseignements de l'Homme-Orque",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 289,
@@ -5539,7 +6027,8 @@
         },
         {
           "target": 93,
-          "label": "Quitter la boutique vers le nord"
+          "label": "Quitter la boutique vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 152,
@@ -5549,6 +6038,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'évanouissement",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 100,
@@ -5563,6 +6053,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le carrosse doré",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 58,
@@ -5580,6 +6071,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le bijoutier en colère",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 240,
@@ -5601,6 +6093,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le saut des remparts",
+      "place": "Remparts",
       "routes": [],
       "source_page_pdf": 154,
       "analysis": "fin"
@@ -5609,10 +6102,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'or abandonné",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 112,
-          "label": "Presser le pas vers le nord"
+          "label": "Presser le pas vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 154,
@@ -5622,6 +6117,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le pont métallique",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 251,
@@ -5629,7 +6125,8 @@
         },
         {
           "target": 30,
-          "label": "Passer sous le pont"
+          "label": "Passer sous le pont",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 156,
@@ -5639,6 +6136,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le Lutin de Feu",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 258,
@@ -5658,6 +6156,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La recherche des fleurs",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 32,
@@ -5675,6 +6174,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La clef du vieillard",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 54,
@@ -5689,6 +6189,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Momie",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 193,
@@ -5707,6 +6208,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La grosse poignée en cuivre",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 181,
@@ -5719,7 +6221,8 @@
         },
         {
           "target": 304,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 157,
@@ -5729,6 +6232,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le tatouage impayable",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 316,
@@ -5747,6 +6251,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les gardes assommés",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -5760,6 +6265,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les rats de l'égout",
+      "place": "Égouts",
       "routes": [
         {
           "target": 28,
@@ -5774,6 +6280,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'Ogre",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 71,
@@ -5783,7 +6290,8 @@
         {
           "target": 282,
           "label": "Fuir vers le nord",
-          "condition_text": "Fuite"
+          "condition_text": "Fuite",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 161,
@@ -5793,6 +6301,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Sur les remparts",
+      "place": "Remparts",
       "routes": [
         {
           "target": 346,
@@ -5815,10 +6324,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La victoire des Bays",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 91,
-          "label": "Prendre la rue du Port"
+          "label": "Prendre la rue du Port",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 161,
@@ -5828,6 +6339,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La fuite de Wraggins",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 123,
@@ -5835,7 +6347,8 @@
         },
         {
           "target": 300,
-          "label": "Partir par la rue de la Clef"
+          "label": "Partir par la rue de la Clef",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 162,
@@ -5845,6 +6358,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les zombis",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 297,
@@ -5859,10 +6373,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les bottes magiques",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 103,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 163,
@@ -5872,6 +6388,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le trou d'homme",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 48,
@@ -5879,7 +6396,8 @@
         },
         {
           "target": 205,
-          "label": "Continuer vers l'est"
+          "label": "Continuer vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 163,
@@ -5889,6 +6407,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'homme au visage émacié",
+      "place": "Rue du Pont",
       "routes": [
         {
           "target": 329,
@@ -5902,6 +6421,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La porte enfoncée",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 339,
@@ -5919,6 +6439,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le mélange à fumer",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 101,
@@ -5926,7 +6447,8 @@
         },
         {
           "target": 93,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 164,
@@ -5936,6 +6458,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'amende payée",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 201,
@@ -5955,10 +6478,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La boule de cristal",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 117,
-          "label": "Sortir vers le nord"
+          "label": "Sortir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 165,
@@ -5968,10 +6493,13 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Retour à l'embranchement",
+      "place": "Rue du Port",
+      "spot": "embranchement-quai",
       "routes": [
         {
           "target": 216,
-          "label": "Prendre la rue du Sabot"
+          "label": "Prendre la rue du Sabot",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 165,
@@ -5981,6 +6509,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les jardins",
+      "place": "Jardin public",
       "routes": [
         {
           "target": 14,
@@ -5988,7 +6517,8 @@
         },
         {
           "target": 133,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 165,
@@ -5998,6 +6528,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le Baume Cicatrisant",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 83,
@@ -6015,6 +6546,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La maison blanche",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 131,
@@ -6022,7 +6554,8 @@
         },
         {
           "target": 333,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 167,
@@ -6032,6 +6565,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le poison du gobelet",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 209,
@@ -6059,6 +6593,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le bouclier du chevalier",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 21,
@@ -6072,6 +6607,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le haut mur",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 40,
@@ -6079,7 +6615,8 @@
         },
         {
           "target": 91,
-          "label": "Retourner à l'embranchement"
+          "label": "Retourner à l'embranchement",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 168,
@@ -6089,10 +6626,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le casque magique",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 161,
-          "label": "Repartir vers l'est"
+          "label": "Repartir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 168,
@@ -6102,6 +6641,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La grille boulonnée",
+      "place": "Égouts",
       "routes": [
         {
           "target": 92,
@@ -6119,6 +6659,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La balle au chasseur",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 52,
@@ -6132,6 +6673,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le bras blessé",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 122,
@@ -6149,10 +6691,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La soupe bénéfique",
+      "place": "Rue de la Bougie",
       "routes": [
         {
           "target": 375,
-          "label": "Partir vers l'est"
+          "label": "Partir vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 169,
@@ -6162,6 +6706,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le garde sceptique",
+      "place": "Porte du Sable Noir",
       "routes": [
         {
           "target": 74,
@@ -6180,6 +6725,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'Anneau de Glace",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 189,
@@ -6197,6 +6743,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le navire",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 271,
@@ -6205,7 +6752,8 @@
         },
         {
           "target": 78,
-          "label": "Remonter la rue du Port"
+          "label": "Remonter la rue du Port",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 170,
@@ -6215,6 +6763,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le Nain au gourdin",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 221,
@@ -6222,7 +6771,8 @@
         },
         {
           "target": 396,
-          "label": "Repartir vers l'ouest"
+          "label": "Repartir vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 170,
@@ -6232,6 +6782,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les squelettes",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 203,
@@ -6246,6 +6797,7 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le pirate",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 20,
@@ -6260,10 +6812,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La broche de cuivre",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 334,
-          "label": "Repartir vers le nord"
+          "label": "Repartir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 171,
@@ -6273,10 +6827,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les barreaux du placard",
+      "place": "Rue du Sabot",
       "routes": [
         {
           "target": 100,
-          "label": "Continuer vers l'est"
+          "label": "Continuer vers l'est",
+          "direction": "est"
         }
       ],
       "source_page_pdf": 172,
@@ -6286,6 +6842,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'épaule contre la porte",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 159,
@@ -6295,7 +6852,8 @@
         {
           "target": 304,
           "label": "Repartir vers le nord",
-          "condition_text": "Deux dés > Habileté"
+          "condition_text": "Deux dés > Habileté",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 172,
@@ -6305,6 +6863,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Sorcière",
+      "place": "Égouts",
       "routes": [
         {
           "target": 144,
@@ -6324,6 +6883,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le fil tendu",
+      "place": "Tour de Zanbar Bone",
       "routes": [
         {
           "target": 235,
@@ -6343,11 +6903,13 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La créature outrée",
+      "place": "Rue de la Clef",
       "routes": [
         {
           "target": 334,
           "label": "Fuir vers le nord",
-          "condition_text": "Fuite"
+          "condition_text": "Fuite",
+          "direction": "nord"
         },
         {
           "target": 186,
@@ -6362,6 +6924,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le fabricant d'armes",
+      "place": "Rue du Moulin",
       "routes": [
         {
           "target": 156,
@@ -6379,6 +6942,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La diseuse de bonne aventure",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 368,
@@ -6387,7 +6951,8 @@
         },
         {
           "target": 117,
-          "label": "Sortir vers le nord"
+          "label": "Sortir vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 174,
@@ -6397,10 +6962,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le remords",
+      "place": "Rue de la Tour",
       "routes": [
         {
           "target": 115,
-          "label": "Continuer vers le nord"
+          "label": "Continuer vers le nord",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 174,
@@ -6410,6 +6977,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boutique du fleuriste",
+      "place": "Rue de l'Horloge",
       "routes": [
         {
           "target": 145,
@@ -6417,7 +6985,8 @@
         },
         {
           "target": 24,
-          "label": "Continuer vers l'ouest"
+          "label": "Continuer vers l'ouest",
+          "direction": "ouest"
         }
       ],
       "source_page_pdf": 174,
@@ -6427,10 +6996,12 @@
       "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les poches des vagabonds",
+      "place": "Rue de l'Écurie",
       "routes": [
         {
           "target": 372,
-          "label": "Prendre la rue de l'Écurie"
+          "label": "Prendre la rue de l'Écurie",
+          "direction": "nord"
         }
       ],
       "source_page_pdf": 174,
@@ -6440,6 +7011,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'homme au torse nu",
+      "place": "Rue du Marché",
       "routes": [
         {
           "target": 378,
@@ -6457,6 +7029,7 @@
       "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'échelle de corde",
+      "place": "Rue du Port",
       "routes": [
         {
           "target": 87,
@@ -6474,6 +7047,7 @@
       "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le départ de la tour",
+      "place": "Tour de Zanbar Bone",
       "routes": [],
       "source_page_pdf": 177,
       "analysis": "fin"
@@ -6694,5 +7268,6 @@
     ],
     "analysed_status": "analyse_verifiee",
     "engine": "grimoire_modules/cite (rules.py, encounters.py)"
-  }
+  },
+  "street_map": true
 }
