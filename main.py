@@ -3488,6 +3488,8 @@ def _track_action(method, label):
 for _name, _label in {
     'perform_foret_action': 'Résoudre une mécanique de la Forêt',
     'follow_foret_route': 'Choisir un chemin dans la Forêt',
+    'perform_cite_action': 'Résoudre une mécanique de la Cité',
+    'follow_cite_route': 'Choisir un chemin dans la Cité',
     'use_care': 'Utiliser un soin',
     "go_to": "Changer de paragraphe", "apply_detected_event": "Appliquer un événement",
     "perform_book_action": "Résoudre une action du livre",

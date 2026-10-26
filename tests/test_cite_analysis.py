@@ -84,10 +84,13 @@ class CiteAnalysisTests(unittest.TestCase):
 
     def owner(self, number, paragraphs):
         owner = SimpleNamespace(book_event_catalogue=self.data, current_paragraph=number,
-                                paragraphs=paragraphs, visited=[])
+                                paragraphs=paragraphs, visited=[], visited_paragraphs=[],
+                                character={'endurance': 10, 'gold': 0, 'inventory': []})
         owner._paragraph_choices = lambda text: []
         owner._reading_link_targets = lambda: CiteController._reading_link_targets(owner)
-        owner.go_to = owner.visited.append
+        owner.combat_available = lambda: False
+        owner._cite_combat = lambda: None
+        owner.follow_cite_route = owner.visited.append
         return owner
 
     def test_only_catalogued_routes_present_in_the_pdf_are_links(self):

@@ -97,7 +97,8 @@ CITE_ROUTE_ERRATA = {
 # lu « I » au lieu de « 1 ». Le texte de remplacement ne contient jamais le
 # motif d’origine : une seconde passe ne modifie rien.
 CITE_TYPOGRAPHY = {
-    1: (('.moindre', 'rejoindre'), ('célebre', 'célèbre'), ('l\'échiné', 'l\'échine')),
+    1: (('.moindre', 'rejoindre'), ('célebre', 'célèbre'), ('l\'échiné', 'l\'échine'),
+        ('collines;', 'collines ;'), ('le- groupe', 'le groupe'), ('affronter du garde', 'affronter un garde')),
     3: (('lu somme', 'la somme'),),
     5: (('lirant votre', 'Tirant votre'),),
     8: (('dfl votre', 'de votre'),),

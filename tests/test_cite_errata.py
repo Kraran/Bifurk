@@ -72,6 +72,15 @@ class CiteErrataTests(unittest.TestCase):
         modules['cite-1983'].repair_paragraphs(data)
         self.assertEqual(targets(data[110]), [239])
 
+    def test_first_paragraph_fragments_follow_the_paper_copy(self):
+        # Fragments seuls, relus sur l'exemplaire papier ; les renvois restent ceux du catalogue.
+        data = {1: 'des collines; sans, le- groupe, affronter du garde. Rendez-vous au 202, '
+                   'rendez-vous au 33, rendez-vous au 49.'}
+        repair_cite_ocr(data)
+        self.assertEqual(data[1], 'des collines ; sans, le groupe, affronter un garde. Rendez-vous au 202, '
+                                  'rendez-vous au 33, rendez-vous au 49.')
+        self.assertEqual(targets(data[1]), [202, 33, 49])
+
 
 if __name__ == '__main__':
     unittest.main()
