@@ -148,9 +148,9 @@ mêmes principes.
 - **Effets d'arrivée** : nuit de repos et arc en bois d'if du §201, or trouvé
   (§209, §274, §295), amende de tout l'or et Chance −2 au §221, pierres précieuses
   vendues 9 Pièces d'Or au §240, blessures (§242, §243, §298), broche en or du §273,
-  tatouage au front du §279 (objet verrouillé, compté pour les préparatifs).
+  tatouage au front du §279 (une marque, hors du sac depuis la phase 4 ; comptée pour les préparatifs).
 - **§201** : choix des deux ingrédients du mélange (un objet « Mélange » s'ajoute,
-  les ingrédients restent) ; au §244, seule la mixture préparée est praticable.
+  les ingrédients restent) ; au §244, seule la mixture préparée est proposée.
   Puis un dé désigne la créature du tableau, combattue selon les règles ; le §138
   n'ouvre que le renvoi correspondant à la créature affrontée.
 - **Épreuves** : §203 (Chance ; l'échec est une fin imprimée), §214, §229, §247,
@@ -217,6 +217,34 @@ cas de litige : aucune nouvelle divergence n'est apparue dans cette tranche (les
 Interprétations retenues : le gant du §324 n'est pas pris ; la « clef métallique »
 du §353 est la clef en fer ; au §343, tous les objets en argent fondent (flèche
 d'argent comprise) ; §370 et §387 sans autre effet que ceux imprimés.
+
+## Phase 4 : vente, jeux d'argent, états, quête finale
+
+Relecture transversale des mécaniques déjà posées en phases 3.1 à 3.4, puce par
+puce du plan, avec deux changements.
+
+- **États qui ne sont pas des objets** : le tatouage du §279 devient une
+  *marque* rangée dans la sauvegarde (`book_state.cite.marks`), jamais dans le sac :
+  il ne peut être ni volé, ni vendu, ni donné en paiement, et n'apparaît pas parmi
+  les objets. Le message d'arrivée l'annonce (« Marque : Tatouage au front »). Une
+  sauvegarde antérieure où il figure dans le sac est migrée à l'ouverture d'un
+  paragraphe. La créature du §201 reste mémorisée pour le §138.
+- **§244, choix final** : seule la carte de la mixture préparée au §201 est
+  affichée (aucune carte grisée, aucune infobulle, aucun indice) ; sans mixture
+  enregistrée (ancienne sauvegarde), les trois cartes restent ouvertes.
+- **Vente au prix du texte** : §240 (9 Pièces d'Or) et prêteur du §354.
+- **Jeux d'argent** : §206, §223 et §378, dés affichés à l'écran, mise et solde
+  vérifiés avant chaque partie.
+- **Variantes de combat** : §157 (Force d'Attaque −3), §253 (morsures de 4),
+  §392 (souffle de feu), §10 (victoire en six assauts au plus → §212, sinon §130),
+  §140 (fuite après trois assauts), §326 (deux chiens à la fois).
+- **Soins et pertes** : dé d'Endurance du §83 et emplâtre du §167 (plafonnés) ;
+  armure du §11 ; or et objets volés (§63, §148, §266), tous annulables.
+- **Quête finale** : les objets requis sont vérifiés par les renvois écrits
+  (§108, §156, §239, §367), sans liste visible.
+
+Aucun nombre caché dans le livre : seuls les §206 et §285 demandent de noter
+quelque chose (scores des dés, objets gardés).
 
 ## Fichiers et validation
 

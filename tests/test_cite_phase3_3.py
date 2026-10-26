@@ -34,12 +34,13 @@ class CiteThirdHundredRulesTests(unittest.TestCase):
         rules.apply_entry(character, 243)
         self.assertEqual(character['endurance'], 15)
 
-    def test_tattoo_is_locked_and_counts_for_the_mission(self):
+    def test_tattoo_is_a_mark_and_counts_for_the_mission(self):
         character = hero(inventory=['Épée'] + MISSION)
         self.assertFalse(rules.mission_ready(character, ()))
         rules.apply_entry(character, 279)
-        self.assertIn(rules.TATTOO, character['inventory'])
-        self.assertIn(rules.TATTOO, character['locked_items'])
+        # P4 : une marque sur le corps, hors du sac (ni volable, ni vendable, ni remise).
+        self.assertNotIn(rules.TATTOO, character['inventory'])
+        self.assertEqual(rules.marks(character), [rules.TATTOO])
         self.assertTrue(rules.mission_ready(character, ()))
         self.assertTrue(rules.route_available(character, 239, 201))
         self.assertFalse(rules.route_available(character, 239, 299))

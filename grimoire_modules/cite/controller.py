@@ -155,6 +155,8 @@ class CiteController(CiteMechanicsActions):
         if number not in self.paragraphs:
             QMessageBox.information(self, 'Paragraphe absent', f'Le paragraphe {number} est introuvable.')
             return
+        # Sauvegarde antérieure à P4 : le tatouage quitte le sac pour les marques.
+        rules.migrate_marks(self.character)
         previous = self.current_paragraph
         self._ff_note_move(number)
         arrival = feedback.snapshot(self.character) if not self._restoring and previous != number else None
@@ -204,6 +206,8 @@ class CiteController(CiteMechanicsActions):
         targets, reason = CiteController._reading_link_gate(self)
         for choice in CiteController._cite_routes(self):
             target = choice['target']
+            if not rules.route_shown(self.character, self.current_paragraph, target):
+                continue
             button = ChoiceCard(choice_caption(choice['label'], target))
             button.setObjectName('choiceCard')
             button.setEnabled(target in targets)
