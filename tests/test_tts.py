@@ -1,0 +1,159 @@
+"""Lecture vocale des paragraphes (voix Edge) sans réseau : edge_tts est simulé.
+
+Exécution : QT_QPA_PLATFORM=offscreen python -m unittest tests.test_tts
+"""
+import gc
+import json
+import sys
+import tempfile
+import threading
+import types
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from PySide6.QtCore import QCoreApplication, QEvent, QTimer
+from PySide6.QtWidgets import QApplication, QComboBox, QDialog
+
+import main
+import tts
+
+
+def fake_edge_tts(fail=False):
+    """Module edge_tts minimal : écrit un faux MP3 ou échoue comme sans réseau."""
+    calls = []
+
+    class Communicate:
+        def __init__(self, text, voice, rate='+0%'):
+            calls.append((text, voice, rate))
+
+        async def save(self, path):
+            if fail:
+                raise OSError('réseau indisponible')
+            Path(path).write_bytes(b'ID3fake')
+
+    async def list_voices():
+        raise OSError('réseau indisponible')
+
+    return types.SimpleNamespace(Communicate=Communicate, list_voices=list_voices), calls
+
+
+def wait_for(condition, app, timeout=3.0):
+    done = threading.Event()
+    QTimer.singleShot(int(timeout*1000), done.set)
+    while not condition() and not done.is_set():
+        app.processEvents()
+    return condition()
+
+
+class ReaderTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_default_voice_and_offline_voice_list(self):
+        module, _ = fake_edge_tts()
+        with patch.dict(sys.modules, {'edge_tts': module}):
+            tts._refresh_voices()  # Service injoignable : la liste de secours reste.
+        with patch('threading.Thread'):
+            voices = tts.available_french_voices()
+        self.assertEqual(tts.DEFAULT_VOICE, 'fr-FR-RemyMultilingualNeural')
+        self.assertIn(tts.DEFAULT_VOICE, voices)
+        self.assertEqual(tts.ParagraphReader().voice, tts.DEFAULT_VOICE)
+
+    def test_synthesis_runs_off_the_main_thread_and_plays_on_it(self):
+        module, calls = fake_edge_tts()
+        reader = tts.ParagraphReader()
+        played = []
+        def play(request, filename):
+            played.append((threading.current_thread() is threading.main_thread(), Path(filename).read_bytes()))
+            Path(filename).unlink()
+        with patch.dict(sys.modules, {'edge_tts': module}), \
+                patch.object(tts.ParagraphReader, '_play', autospec=True,
+                             side_effect=lambda self, r, f: play(r, f)):
+            reader.speak('  Vous entrez dans la forêt.  ')
+            self.assertTrue(reader.is_busy())
+            self.assertTrue(wait_for(lambda: played, self.app))
+        self.assertEqual(calls, [('Vous entrez dans la forêt.', tts.DEFAULT_VOICE, '+0%')])
+        self.assertEqual(played, [(True, b'ID3fake')])
+
+    def test_network_failure_is_quiet(self):
+        module, _ = fake_edge_tts(fail=True)
+        reader = tts.ParagraphReader()
+        errors, finished = [], []
+        reader.error.connect(errors.append)
+        reader.finished.connect(lambda: finished.append(1))
+        with patch.dict(sys.modules, {'edge_tts': module}):
+            reader.speak('Texte')
+            self.assertTrue(wait_for(lambda: finished, self.app))
+        self.assertEqual(len(errors), 1)
+        self.assertIn('indisponible', errors[0])
+        self.assertFalse(reader.is_busy())
+
+    def test_new_request_supersedes_the_previous_one(self):
+        reader = tts.ParagraphReader()
+        with patch('threading.Thread'):
+            reader.speak('Premier')
+            first = reader._request
+            reader.speak('Second')
+        path = Path(tempfile.mkstemp(suffix='.mp3')[1])
+        reader._play(first, str(path))  # Synthèse périmée : fichier supprimé, rien n’est joué.
+        self.assertFalse(path.exists())
+        self.assertIsNone(reader._player)
+
+
+class WindowTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def setUp(self):
+        self.settings = Path(tempfile.mkdtemp())
+        patcher = patch.object(main, 'SETTINGS_DIR', self.settings)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.w = main.MainWindow()
+
+    def tearDown(self):
+        self.w.close()
+        self.w.deleteLater()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        gc.collect()
+
+    def test_button_reads_the_current_paragraph(self):
+        button = self.w.tts_button
+        self.assertIsInstance(button, main.PageToolButton)
+        self.assertEqual(button.toolTip(), 'Lire le paragraphe à voix haute')
+        self.assertEqual(self.w.tts.voice, tts.DEFAULT_VOICE)
+        self.w.paragraphs = {12: 'Un loup surgit des fourrés.'}
+        self.w.current_paragraph = 12
+        with patch.object(self.w.tts, 'speak') as speak:
+            button.click()
+        speak.assert_called_once_with('Un loup surgit des fourrés.')
+        with patch.object(self.w.tts, 'is_busy', return_value=True), patch.object(self.w.tts, 'stop') as stop:
+            button.click()  # Second clic pendant la lecture : arrêt.
+        stop.assert_called_once()
+
+    def test_voice_choice_is_saved_and_restored(self):
+        chosen = []
+        def capture():
+            dialog = self.w.findChild(QDialog, 'ambienceDialog')
+            combo = dialog.findChild(QComboBox, 'ttsVoice')
+            chosen.append(combo.currentData())
+            combo.setCurrentIndex(combo.findData('fr-FR-DeniseNeural'))
+            dialog.reject()
+        QTimer.singleShot(0, capture)
+        self.w.show_ambience()
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        gc.collect()
+        self.assertEqual(chosen, [tts.DEFAULT_VOICE])
+        self.assertEqual(self.w.tts.voice, 'fr-FR-DeniseNeural')
+        saved = json.loads((self.settings/'preferences.json').read_text(encoding='utf-8'))
+        self.assertEqual(saved['tts_voice'], 'fr-FR-DeniseNeural')
+        again = main.MainWindow()
+        self.addCleanup(again.deleteLater)
+        self.assertEqual(again.tts.voice, 'fr-FR-DeniseNeural')
+
+
+if __name__ == '__main__':
+    unittest.main()
