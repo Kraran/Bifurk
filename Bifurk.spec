@@ -62,7 +62,7 @@ for distribution in ('PyMuPDF', 'PySide6', 'PySide6_Addons', 'PySide6_Essentials
 
 a = Analysis(
     [str(ROOT / 'main.py')], pathex=[str(ROOT)], binaries=[], datas=datas,
-    hiddenimports=['pymupdf', 'pcm_audio'], hookspath=[], hooksconfig={},
+    hiddenimports=['pymupdf', 'pcm_audio', 'edge_tts', 'certifi'], hookspath=[], hooksconfig={},
     runtime_hooks=[], excludes=[], noarchive=False, optimize=0,
 )
 pyz = PYZ(a.pure)
