@@ -1,5 +1,6 @@
 """Cycle de l'introduction : entrée consommée, fin/erreur et continuité musicale."""
 from pathlib import Path
+import types
 import unittest
 from unittest.mock import patch
 
@@ -128,3 +129,19 @@ class IntroVideoTests(unittest.TestCase):
             self.assertFalse(window.isFullScreen())
             fade.assert_not_called()
             self.assertIsNone(window._intro_dialog)
+
+
+class IntroVideoChoiceTests(unittest.TestCase):
+    def test_wide_screens_get_the_21x9_film(self):
+        from unittest.mock import MagicMock
+
+        from PySide6.QtCore import QSize
+
+        import main
+        window = types.SimpleNamespace(screen=lambda: screen)
+        screen = MagicMock()
+        choose = main.MainWindow._intro_video_path
+        screen.size.return_value = QSize(3440, 1440)
+        self.assertEqual(choose(window).name, 'introduction_21x9.mp4')
+        screen.size.return_value = QSize(1920, 1080)
+        self.assertEqual(choose(window).name, 'introduction.mp4')
