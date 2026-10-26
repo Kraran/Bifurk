@@ -1,7 +1,8 @@
 """Contrôler le catalogue des renvois de la Cité des Voleurs.
 
 Sans PDF, vérifier la couverture des 400 paragraphes, les renvois, les
-paragraphes orphelins et l’accessibilité depuis le §1. Avec --pdf, vérifier
+paragraphes orphelins, l’accessibilité depuis le §1 et la concordance des
+fins du catalogue avec celles du moteur. Avec --pdf, vérifier
 aussi l’édition, la page source de chaque en-tête et la concordance entre les
 routes cataloguées et les renvois du texte réparé. Seules des métriques sont
 affichées : aucun texte du livre ni aucune image ne sont exportés.
@@ -59,6 +60,14 @@ def _text_targets(pdf):
     return result
 
 
+def _endings():
+    """Fins (morts et victoire) déclarées par le moteur Python du module."""
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    from grimoire_modules.cite import rules
+    return sorted(rules.ENDINGS)
+
+
 def audit(catalogue, pdf=None):
     """Retourner des métriques ; lever ValueError si une garantie est violée."""
     entries = catalogue['paragraphs']
@@ -107,6 +116,12 @@ def audit(catalogue, pdf=None):
     unreachable = sorted(set(range(1, 401)) - reached)
     if unreachable:
         raise ValueError(f'Paragraphes inaccessibles depuis le §1 : {unreachable}')
+    terminals = sorted(int(n) for n, e in entries.items() if not e['routes'])
+    endings = _endings()
+    if len(analysed) == 400 and terminals != endings:
+        raise ValueError(f'Fins du catalogue différentes des fins du moteur : {terminals} / {endings}')
+    if set(endings) - reached:
+        raise ValueError(f'Fins inaccessibles depuis le §1 : {sorted(set(endings) - reached)}')
     if pdf:
         pdf = Path(pdf)
         if hashlib.sha256(pdf.read_bytes()).hexdigest() != catalogue['pdf_sha256']:
@@ -124,7 +139,7 @@ def audit(catalogue, pdf=None):
                 raise ValueError(f'Routes différentes des renvois du texte : {number}')
     issues = catalogue['source_issues']
     return {'paragraphs': len(entries), 'routes': route_count,
-            'terminal_paragraphs': sorted(int(n) for n, e in entries.items() if not e['routes']),
+            'terminal_paragraphs': terminals, 'endings_reachable': len(set(endings) & reached),
             'orphans': orphans, 'unreachable': unreachable,
             'blocking_source_issues': [i['paragraph'] for i in issues if i['severity'] == 'blocking'],
             'open_source_issues': [i['paragraph'] for i in issues if i.get('status') != 'resolved'],

@@ -4906,7 +4906,7 @@
       "analysis": "renvoi conditionnel"
     },
     "301": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La hache de l'armure",
       "routes": [
@@ -4919,10 +4919,11 @@
           "label": "Renverser l'armure"
         }
       ],
-      "source_page_pdf": 135
+      "source_page_pdf": 135,
+      "analysis": "récit"
     },
     "302": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les pierres précieuses",
       "routes": [
@@ -4935,10 +4936,11 @@
           "label": "Marchander"
         }
       ],
-      "source_page_pdf": 136
+      "source_page_pdf": 136,
+      "analysis": "récit"
     },
     "303": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La mèche de cheveux",
       "routes": [
@@ -4947,10 +4949,11 @@
           "label": "Retourner à l'orifice d'accès"
         }
       ],
-      "source_page_pdf": 136
+      "source_page_pdf": 136,
+      "analysis": "récit"
     },
     "304": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le carrefour à quatre voies",
       "routes": [
@@ -4959,10 +4962,11 @@
           "label": "Suivre la foule vers le nord"
         }
       ],
-      "source_page_pdf": 136
+      "source_page_pdf": 136,
+      "analysis": "récit"
     },
     "305": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le miroir sans effet",
       "routes": [
@@ -4975,10 +4979,11 @@
           "label": "Utiliser l'Anneau de Glace"
         }
       ],
-      "source_page_pdf": 136
+      "source_page_pdf": 136,
+      "analysis": "effet d’arrivée"
     },
     "306": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La ruse de la peste",
       "routes": [
@@ -4987,10 +4992,11 @@
           "label": "Gagner les rues de la ville"
         }
       ],
-      "source_page_pdf": 138
+      "source_page_pdf": 138,
+      "analysis": "effet d’arrivée"
     },
     "307": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les gardes Trolls",
       "routes": [
@@ -5003,10 +5009,11 @@
           "label": "Escalader l'arbre"
         }
       ],
-      "source_page_pdf": 138
+      "source_page_pdf": 138,
+      "analysis": "récit"
     },
     "308": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La ruelle vide",
       "routes": [
@@ -5015,10 +5022,11 @@
           "label": "Tourner dans la rue du Port"
         }
       ],
-      "source_page_pdf": 138
+      "source_page_pdf": 138,
+      "analysis": "récit"
     },
     "309": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le loup",
       "routes": [
@@ -5028,10 +5036,11 @@
           "condition_text": "Loup vaincu"
         }
       ],
-      "source_page_pdf": 138
+      "source_page_pdf": 138,
+      "analysis": "combat"
     },
     "310": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le troisième étage",
       "routes": [
@@ -5044,10 +5053,11 @@
           "label": "Monter à l'étage suivant"
         }
       ],
-      "source_page_pdf": 139
+      "source_page_pdf": 139,
+      "analysis": "récit"
     },
     "311": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les gardes du portail",
       "routes": [
@@ -5057,10 +5067,11 @@
           "condition_text": "Gardes vaincus"
         }
       ],
-      "source_page_pdf": 139
+      "source_page_pdf": 139,
+      "analysis": "combat"
     },
     "312": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La chouette d'or",
       "routes": [
@@ -5069,10 +5080,11 @@
           "label": "Continuer le voyage"
         }
       ],
-      "source_page_pdf": 140
+      "source_page_pdf": 140,
+      "analysis": "effet d’arrivée"
     },
     "313": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Hors de la maison",
       "routes": [
@@ -5081,10 +5093,11 @@
           "label": "Partir vers le nord"
         }
       ],
-      "source_page_pdf": 140
+      "source_page_pdf": 140,
+      "analysis": "récit"
     },
     "314": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le bocal renversé",
       "routes": [
@@ -5097,10 +5110,11 @@
           "label": "Demander des soins"
         }
       ],
-      "source_page_pdf": 140
+      "source_page_pdf": 140,
+      "analysis": "récit"
     },
     "315": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les broches magiques",
       "routes": [
@@ -5113,10 +5127,11 @@
           "label": "Choisir la santé"
         }
       ],
-      "source_page_pdf": 140
+      "source_page_pdf": 140,
+      "analysis": "renvoi conditionnel"
     },
     "316": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Retour chez le tatoueur",
       "routes": [
@@ -5125,10 +5140,11 @@
           "label": "Se faire tatouer"
         }
       ],
-      "source_page_pdf": 141
+      "source_page_pdf": 141,
+      "analysis": "renvoi conditionnel"
     },
     "317": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le fabricant de bougies",
       "routes": [
@@ -5141,10 +5157,11 @@
           "label": "Continuer vers l'est"
         }
       ],
-      "source_page_pdf": 141
+      "source_page_pdf": 141,
+      "analysis": "récit"
     },
     "318": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'éclair absorbé",
       "routes": [
@@ -5153,10 +5170,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 141
+      "source_page_pdf": 141,
+      "analysis": "récit"
     },
     "319": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le sarcophage",
       "routes": [
@@ -5169,10 +5187,11 @@
           "label": "Ressortir à l'air libre"
         }
       ],
-      "source_page_pdf": 141
+      "source_page_pdf": 141,
+      "analysis": "récit"
     },
     "320": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les poissonnières",
       "routes": [
@@ -5181,10 +5200,11 @@
           "label": "Prendre la rue du Sabot"
         }
       ],
-      "source_page_pdf": 143
+      "source_page_pdf": 143,
+      "analysis": "récit"
     },
     "321": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'égout",
       "routes": [
@@ -5197,10 +5217,11 @@
           "label": "Partir vers le sud"
         }
       ],
-      "source_page_pdf": 143
+      "source_page_pdf": 143,
+      "analysis": "récit"
     },
     "322": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La tirelire",
       "routes": [
@@ -5209,10 +5230,11 @@
           "label": "Partir vers le nord"
         }
       ],
-      "source_page_pdf": 143
+      "source_page_pdf": 143,
+      "analysis": "effet d’arrivée"
     },
     "323": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le forgeron furieux",
       "routes": [
@@ -5222,10 +5244,11 @@
           "condition_text": "Forgeron vaincu"
         }
       ],
-      "source_page_pdf": 144
+      "source_page_pdf": 144,
+      "analysis": "combat"
     },
     "324": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boîte fracassée",
       "routes": [
@@ -5238,10 +5261,11 @@
           "label": "Quitter la maison vers le nord"
         }
       ],
-      "source_page_pdf": 144
+      "source_page_pdf": 144,
+      "analysis": "effet d’arrivée"
     },
     "325": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La Taverne du Porc et de la Grenouille",
       "routes": [
@@ -5250,10 +5274,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 144
+      "source_page_pdf": 144,
+      "analysis": "effet d’arrivée"
     },
     "326": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La ruelle aux ordures",
       "routes": [
@@ -5268,10 +5293,11 @@
           "condition_text": "Fuite"
         }
       ],
-      "source_page_pdf": 145
+      "source_page_pdf": 145,
+      "analysis": "combat"
     },
     "327": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La pelote d'épingles",
       "routes": [
@@ -5284,10 +5310,11 @@
           "label": "Poursuivre vers le nord"
         }
       ],
-      "source_page_pdf": 145
+      "source_page_pdf": 145,
+      "analysis": "récit"
     },
     "328": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le cadeau à la Reine Serpent",
       "routes": [
@@ -5296,10 +5323,11 @@
           "label": "Continuer par la rue de l'Écurie"
         }
       ],
-      "source_page_pdf": 146
+      "source_page_pdf": 146,
+      "analysis": "effet d’arrivée"
     },
     "329": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La cabane sous le pont",
       "routes": [
@@ -5312,10 +5340,11 @@
           "label": "Tourner vers l'est par la rue de la Bougie"
         }
       ],
-      "source_page_pdf": 146
+      "source_page_pdf": 146,
+      "analysis": "récit"
     },
     "330": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le carreau dans l'épaule",
       "routes": [
@@ -5324,10 +5353,11 @@
           "label": "Continuer vers l'est"
         }
       ],
-      "source_page_pdf": 148
+      "source_page_pdf": 148,
+      "analysis": "effet d’arrivée"
     },
     "331": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le dément",
       "routes": [
@@ -5337,10 +5367,11 @@
           "condition_text": "Dément vaincu"
         }
       ],
-      "source_page_pdf": 149
+      "source_page_pdf": 149,
+      "analysis": "combat"
     },
     "332": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La bénédiction du mendiant",
       "routes": [
@@ -5349,10 +5380,11 @@
           "label": "Poursuivre vers l'ouest"
         }
       ],
-      "source_page_pdf": 149
+      "source_page_pdf": 149,
+      "analysis": "effet d’arrivée"
     },
     "333": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le croisement de la rue de l'Écurie",
       "routes": [
@@ -5361,10 +5393,11 @@
           "label": "Poursuivre vers le nord"
         }
       ],
-      "source_page_pdf": 149
+      "source_page_pdf": 149,
+      "analysis": "récit"
     },
     "334": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le contrôle des papiers",
       "routes": [
@@ -5379,10 +5412,11 @@
           "condition_text": "Pas de laissez-passer"
         }
       ],
-      "source_page_pdf": 149
+      "source_page_pdf": 149,
+      "analysis": "renvoi conditionnel"
     },
     "335": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'arrestation",
       "routes": [
@@ -5395,10 +5429,11 @@
           "label": "Refuser l'arrestation"
         }
       ],
-      "source_page_pdf": 149
+      "source_page_pdf": 149,
+      "analysis": "renvoi conditionnel"
     },
     "336": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La bijouterie",
       "routes": [
@@ -5416,10 +5451,11 @@
           "label": "Attaquer le bijoutier"
         }
       ],
-      "source_page_pdf": 150
+      "source_page_pdf": 150,
+      "analysis": "renvoi conditionnel"
     },
     "337": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La chute du Prince de la Nuit",
       "routes": [
@@ -5428,10 +5464,11 @@
           "label": "Poursuivre"
         }
       ],
-      "source_page_pdf": 150
+      "source_page_pdf": 150,
+      "analysis": "récit"
     },
     "338": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La Potion d'Infortune",
       "routes": [
@@ -5440,10 +5477,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 150
+      "source_page_pdf": 150,
+      "analysis": "effet d’arrivée"
     },
     "339": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'hospitalité de la tour",
       "routes": [
@@ -5456,10 +5494,11 @@
           "label": "Explorer la tour"
         }
       ],
-      "source_page_pdf": 151
+      "source_page_pdf": 151,
+      "analysis": "récit"
     },
     "340": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le coffre ouvert",
       "routes": [
@@ -5472,10 +5511,11 @@
           "label": "Quitter la maison vers le nord"
         }
       ],
-      "source_page_pdf": 151
+      "source_page_pdf": 151,
+      "analysis": "effet d’arrivée"
     },
     "341": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les pièces jetées",
       "routes": [
@@ -5484,10 +5524,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 152
+      "source_page_pdf": 152,
+      "analysis": "effet d’arrivée"
     },
     "342": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les renseignements de l'Homme-Orque",
       "routes": [
@@ -5501,10 +5542,11 @@
           "label": "Quitter la boutique vers le nord"
         }
       ],
-      "source_page_pdf": 152
+      "source_page_pdf": 152,
+      "analysis": "renvoi conditionnel"
     },
     "343": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'évanouissement",
       "routes": [
@@ -5514,10 +5556,11 @@
           "condition_text": "Si vous survivez"
         }
       ],
-      "source_page_pdf": 152
+      "source_page_pdf": 152,
+      "analysis": "effet d’arrivée"
     },
     "344": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le carrosse doré",
       "routes": [
@@ -5530,10 +5573,11 @@
           "label": "Rester au milieu de la rue"
         }
       ],
-      "source_page_pdf": 154
+      "source_page_pdf": 154,
+      "analysis": "récit"
     },
     "345": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le bijoutier en colère",
       "routes": [
@@ -5550,17 +5594,19 @@
           "label": "Attaquer le bijoutier"
         }
       ],
-      "source_page_pdf": 154
+      "source_page_pdf": 154,
+      "analysis": "récit"
     },
     "346": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le saut des remparts",
       "routes": [],
-      "source_page_pdf": 154
+      "source_page_pdf": 154,
+      "analysis": "fin"
     },
     "347": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'or abandonné",
       "routes": [
@@ -5569,10 +5615,11 @@
           "label": "Presser le pas vers le nord"
         }
       ],
-      "source_page_pdf": 154
+      "source_page_pdf": 154,
+      "analysis": "récit"
     },
     "348": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le pont métallique",
       "routes": [
@@ -5585,10 +5632,11 @@
           "label": "Passer sous le pont"
         }
       ],
-      "source_page_pdf": 156
+      "source_page_pdf": 156,
+      "analysis": "récit"
     },
     "349": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le Lutin de Feu",
       "routes": [
@@ -5603,10 +5651,11 @@
           "condition_text": "Fuite"
         }
       ],
-      "source_page_pdf": 156
+      "source_page_pdf": 156,
+      "analysis": "combat"
     },
     "350": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La recherche des fleurs",
       "routes": [
@@ -5619,10 +5668,11 @@
           "label": "Attaquer la Reine Serpent"
         }
       ],
-      "source_page_pdf": 156
+      "source_page_pdf": 156,
+      "analysis": "récit"
     },
     "351": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La clef du vieillard",
       "routes": [
@@ -5632,10 +5682,11 @@
           "condition_text": "Gardes vaincus"
         }
       ],
-      "source_page_pdf": 156
+      "source_page_pdf": 156,
+      "analysis": "combat, effet d’arrivée"
     },
     "352": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Momie",
       "routes": [
@@ -5649,10 +5700,11 @@
           "condition_text": "Lanterne"
         }
       ],
-      "source_page_pdf": 157
+      "source_page_pdf": 157,
+      "analysis": "renvoi conditionnel"
     },
     "353": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La grosse poignée en cuivre",
       "routes": [
@@ -5670,10 +5722,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 157
+      "source_page_pdf": 157,
+      "analysis": "renvoi conditionnel"
     },
     "354": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le tatouage impayable",
       "routes": [
@@ -5687,10 +5740,11 @@
           "label": "Rejoindre la rue du Moulin"
         }
       ],
-      "source_page_pdf": 158
+      "source_page_pdf": 158,
+      "analysis": "événement, renvoi conditionnel"
     },
     "355": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les gardes assommés",
       "routes": [
@@ -5699,10 +5753,11 @@
           "label": "Gagner la ville"
         }
       ],
-      "source_page_pdf": 159
+      "source_page_pdf": 159,
+      "analysis": "récit"
     },
     "356": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les rats de l'égout",
       "routes": [
@@ -5712,10 +5767,11 @@
           "condition_text": "Rats vaincus"
         }
       ],
-      "source_page_pdf": 159
+      "source_page_pdf": 159,
+      "analysis": "combat"
     },
     "357": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'Ogre",
       "routes": [
@@ -5730,10 +5786,11 @@
           "condition_text": "Fuite"
         }
       ],
-      "source_page_pdf": 161
+      "source_page_pdf": 161,
+      "analysis": "combat"
     },
     "358": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Sur les remparts",
       "routes": [
@@ -5751,10 +5808,11 @@
           "label": "Affronter les gardes"
         }
       ],
-      "source_page_pdf": 161
+      "source_page_pdf": 161,
+      "analysis": "renvoi conditionnel"
     },
     "359": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La victoire des Bays",
       "routes": [
@@ -5763,10 +5821,11 @@
           "label": "Prendre la rue du Port"
         }
       ],
-      "source_page_pdf": 161
+      "source_page_pdf": 161,
+      "analysis": "effet d’arrivée"
     },
     "360": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La fuite de Wraggins",
       "routes": [
@@ -5779,10 +5838,11 @@
           "label": "Partir par la rue de la Clef"
         }
       ],
-      "source_page_pdf": 162
+      "source_page_pdf": 162,
+      "analysis": "récit"
     },
     "361": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les zombis",
       "routes": [
@@ -5792,10 +5852,11 @@
           "condition_text": "Zombis vaincus"
         }
       ],
-      "source_page_pdf": 162
+      "source_page_pdf": 162,
+      "analysis": "combat"
     },
     "362": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les bottes magiques",
       "routes": [
@@ -5804,10 +5865,11 @@
           "label": "Repartir vers l'est"
         }
       ],
-      "source_page_pdf": 163
+      "source_page_pdf": 163,
+      "analysis": "effet d’arrivée"
     },
     "363": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le trou d'homme",
       "routes": [
@@ -5820,10 +5882,11 @@
           "label": "Continuer vers l'est"
         }
       ],
-      "source_page_pdf": 163
+      "source_page_pdf": 163,
+      "analysis": "récit"
     },
     "364": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "L'homme au visage émacié",
       "routes": [
@@ -5832,10 +5895,11 @@
           "label": "Descendre sous le pont"
         }
       ],
-      "source_page_pdf": 163
+      "source_page_pdf": 163,
+      "analysis": "effet d’arrivée"
     },
     "365": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La porte enfoncée",
       "routes": [
@@ -5848,10 +5912,11 @@
           "label": "Attaquer l'homme"
         }
       ],
-      "source_page_pdf": 163
+      "source_page_pdf": 163,
+      "analysis": "effet d’arrivée"
     },
     "366": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le mélange à fumer",
       "routes": [
@@ -5864,10 +5929,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 164
+      "source_page_pdf": 164,
+      "analysis": "effet d’arrivée"
     },
     "367": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'amende payée",
       "routes": [
@@ -5882,10 +5948,11 @@
           "condition_text": "Objets manquants ou pas de tatouage"
         }
       ],
-      "source_page_pdf": 164
+      "source_page_pdf": 164,
+      "analysis": "effet d’arrivée, renvoi conditionnel"
     },
     "368": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La boule de cristal",
       "routes": [
@@ -5894,10 +5961,11 @@
           "label": "Sortir vers le nord"
         }
       ],
-      "source_page_pdf": 165
+      "source_page_pdf": 165,
+      "analysis": "récit"
     },
     "369": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Retour à l'embranchement",
       "routes": [
@@ -5906,10 +5974,11 @@
           "label": "Prendre la rue du Sabot"
         }
       ],
-      "source_page_pdf": 165
+      "source_page_pdf": 165,
+      "analysis": "récit"
     },
     "370": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Les jardins",
       "routes": [
@@ -5922,10 +5991,11 @@
           "label": "Continuer vers le nord"
         }
       ],
-      "source_page_pdf": 165
+      "source_page_pdf": 165,
+      "analysis": "récit"
     },
     "371": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le Baume Cicatrisant",
       "routes": [
@@ -5938,10 +6008,11 @@
           "label": "Continuer la fouille"
         }
       ],
-      "source_page_pdf": 167
+      "source_page_pdf": 167,
+      "analysis": "récit"
     },
     "372": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La maison blanche",
       "routes": [
@@ -5954,10 +6025,11 @@
           "label": "Continuer vers le nord"
         }
       ],
-      "source_page_pdf": 167
+      "source_page_pdf": 167,
+      "analysis": "récit"
     },
     "373": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le poison du gobelet",
       "routes": [
@@ -5980,10 +6052,11 @@
           "label": "Monter l'escalier"
         }
       ],
-      "source_page_pdf": 167
+      "source_page_pdf": 167,
+      "analysis": "effet d’arrivée, renvoi conditionnel"
     },
     "374": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le bouclier du chevalier",
       "routes": [
@@ -5992,10 +6065,11 @@
           "label": "Monter à l'étage"
         }
       ],
-      "source_page_pdf": 167
+      "source_page_pdf": 167,
+      "analysis": "effet d’arrivée"
     },
     "375": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le haut mur",
       "routes": [
@@ -6008,10 +6082,11 @@
           "label": "Retourner à l'embranchement"
         }
       ],
-      "source_page_pdf": 168
+      "source_page_pdf": 168,
+      "analysis": "récit"
     },
     "376": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le casque magique",
       "routes": [
@@ -6020,10 +6095,11 @@
           "label": "Repartir vers l'est"
         }
       ],
-      "source_page_pdf": 168
+      "source_page_pdf": 168,
+      "analysis": "effet d’arrivée"
     },
     "377": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La grille boulonnée",
       "routes": [
@@ -6036,10 +6112,11 @@
           "label": "Revenir à l'orifice d'accès"
         }
       ],
-      "source_page_pdf": 168
+      "source_page_pdf": 168,
+      "analysis": "récit"
     },
     "378": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La balle au chasseur",
       "routes": [
@@ -6048,10 +6125,11 @@
           "label": "Avancer après la partie"
         }
       ],
-      "source_page_pdf": 169
+      "source_page_pdf": 169,
+      "analysis": "événement"
     },
     "379": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le bras blessé",
       "routes": [
@@ -6064,10 +6142,11 @@
           "label": "Monter à l'étage"
         }
       ],
-      "source_page_pdf": 169
+      "source_page_pdf": 169,
+      "analysis": "effet d’arrivée"
     },
     "380": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La soupe bénéfique",
       "routes": [
@@ -6076,10 +6155,11 @@
           "label": "Partir vers l'est"
         }
       ],
-      "source_page_pdf": 169
+      "source_page_pdf": 169,
+      "analysis": "effet d’arrivée"
     },
     "381": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le garde sceptique",
       "routes": [
@@ -6093,10 +6173,11 @@
           "condition_text": "3 Pièces d'Or"
         }
       ],
-      "source_page_pdf": 169
+      "source_page_pdf": 169,
+      "analysis": "renvoi conditionnel"
     },
     "382": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'Anneau de Glace",
       "routes": [
@@ -6109,10 +6190,11 @@
           "label": "Utiliser le miroir"
         }
       ],
-      "source_page_pdf": 170
+      "source_page_pdf": 170,
+      "analysis": "récit"
     },
     "383": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le navire",
       "routes": [
@@ -6126,10 +6208,11 @@
           "label": "Remonter la rue du Port"
         }
       ],
-      "source_page_pdf": 170
+      "source_page_pdf": 170,
+      "analysis": "renvoi conditionnel"
     },
     "384": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le Nain au gourdin",
       "routes": [
@@ -6142,10 +6225,11 @@
           "label": "Repartir vers l'ouest"
         }
       ],
-      "source_page_pdf": 170
+      "source_page_pdf": 170,
+      "analysis": "récit"
     },
     "385": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les squelettes",
       "routes": [
@@ -6155,10 +6239,11 @@
           "condition_text": "Squelettes vaincus"
         }
       ],
-      "source_page_pdf": 170
+      "source_page_pdf": 170,
+      "analysis": "combat"
     },
     "386": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le pirate",
       "routes": [
@@ -6168,10 +6253,11 @@
           "condition_text": "Pirate vaincu"
         }
       ],
-      "source_page_pdf": 171
+      "source_page_pdf": 171,
+      "analysis": "combat"
     },
     "387": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "La broche de cuivre",
       "routes": [
@@ -6180,10 +6266,11 @@
           "label": "Repartir vers le nord"
         }
       ],
-      "source_page_pdf": 171
+      "source_page_pdf": 171,
+      "analysis": "effet d’arrivée"
     },
     "388": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les barreaux du placard",
       "routes": [
@@ -6192,10 +6279,11 @@
           "label": "Continuer vers l'est"
         }
       ],
-      "source_page_pdf": 172
+      "source_page_pdf": 172,
+      "analysis": "récit"
     },
     "389": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'épaule contre la porte",
       "routes": [
@@ -6210,10 +6298,11 @@
           "condition_text": "Deux dés > Habileté"
         }
       ],
-      "source_page_pdf": 172
+      "source_page_pdf": 172,
+      "analysis": "épreuve"
     },
     "390": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La Sorcière",
       "routes": [
@@ -6228,10 +6317,11 @@
           "condition_text": "Chance ratée"
         }
       ],
-      "source_page_pdf": 172
+      "source_page_pdf": 172,
+      "analysis": "épreuve"
     },
     "391": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le fil tendu",
       "routes": [
@@ -6246,10 +6336,11 @@
           "condition_text": "Chance ratée"
         }
       ],
-      "source_page_pdf": 172
+      "source_page_pdf": 172,
+      "analysis": "épreuve"
     },
     "392": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La créature outrée",
       "routes": [
@@ -6264,10 +6355,11 @@
           "condition_text": "Créature vaincue"
         }
       ],
-      "source_page_pdf": 173
+      "source_page_pdf": 173,
+      "analysis": "combat"
     },
     "393": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "Le fabricant d'armes",
       "routes": [
@@ -6280,10 +6372,11 @@
           "label": "Attaquer les Trolls"
         }
       ],
-      "source_page_pdf": 173
+      "source_page_pdf": 173,
+      "analysis": "récit"
     },
     "394": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La diseuse de bonne aventure",
       "routes": [
@@ -6297,10 +6390,11 @@
           "label": "Sortir vers le nord"
         }
       ],
-      "source_page_pdf": 174
+      "source_page_pdf": 174,
+      "analysis": "renvoi conditionnel"
     },
     "395": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Le remords",
       "routes": [
@@ -6309,10 +6403,11 @@
           "label": "Continuer vers le nord"
         }
       ],
-      "source_page_pdf": 174
+      "source_page_pdf": 174,
+      "analysis": "effet d’arrivée"
     },
     "396": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "La boutique du fleuriste",
       "routes": [
@@ -6325,10 +6420,11 @@
           "label": "Continuer vers l'ouest"
         }
       ],
-      "source_page_pdf": 174
+      "source_page_pdf": 174,
+      "analysis": "récit"
     },
     "397": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "suite",
       "title": "Les poches des vagabonds",
       "routes": [
@@ -6337,10 +6433,11 @@
           "label": "Prendre la rue de l'Écurie"
         }
       ],
-      "source_page_pdf": 174
+      "source_page_pdf": 174,
+      "analysis": "effet d’arrivée"
     },
     "398": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'homme au torse nu",
       "routes": [
@@ -6353,10 +6450,11 @@
           "label": "Continuer son chemin"
         }
       ],
-      "source_page_pdf": 176
+      "source_page_pdf": 176,
+      "analysis": "récit"
     },
     "399": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "choix",
       "title": "L'échelle de corde",
       "routes": [
@@ -6369,14 +6467,16 @@
           "label": "Emprunter la passerelle"
         }
       ],
-      "source_page_pdf": 176
+      "source_page_pdf": 176,
+      "analysis": "récit"
     },
     "400": {
-      "status": "renvois_verifies",
+      "status": "analyse_verifiee",
       "mode": "fin",
       "title": "Le départ de la tour",
       "routes": [],
-      "source_page_pdf": 177
+      "source_page_pdf": 177,
+      "analysis": "fin"
     }
   },
   "source_issues": [
@@ -6590,7 +6690,7 @@
     },
     "analysed_range": [
       1,
-      300
+      400
     ],
     "analysed_status": "analyse_verifiee",
     "engine": "grimoire_modules/cite (rules.py, encounters.py)"

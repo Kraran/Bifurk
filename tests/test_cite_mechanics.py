@@ -20,7 +20,7 @@ from grimoire_modules.cite.controller import (
 )
 from grimoire_modules.cite.encounters import COMBATS, escape_status, victory_target
 from grimoire_modules.fighting_fantasy.adventure import new_group_combat
-from tests.test_cite_presentation import CitePresentationTests
+from tests import test_cite_presentation as presentation
 
 CATALOGUE = json.loads((Path(__file__).resolve().parents[1] / 'catalogues/evenements_cite_1983.json')
                        .read_text(encoding='utf-8'))
@@ -63,18 +63,18 @@ class CiteTablesTests(unittest.TestCase):
         for number in rules.ENDINGS:
             self.assertEqual(routes(number), [])
 
-    def test_analysed_slice_is_the_first_three_hundred(self):
+    def test_analysed_slice_is_the_whole_book(self):
         tables = (set(rules.ENTRY_EFFECTS) | set(rules.BRANCH_TESTS) | set(rules.SHOPS) | set(COMBATS)
                   | {rules.DIE_HEAL, rules.THEFT, rules.VOLLEY, rules.POCKET} | set(rules.DOUBLE_TESTS)
                   | {s for s, _ in rules.ITEM_ROUTES} | {s for s, _ in rules.NOT_YET_ROUTES}
                   | {s for s, _ in rules.MISSION_ROUTES} | {s for s, _ in rules.ITEM_PAYMENTS}
                   | set(rules.ENDINGS) | set(rules.TEST_PENALTIES) | set(rules.DIE_TESTS)
                   | set(rules.LOOTS) | {rules.MIXTURE, rules.CREATURE, rules.GAMBLE, rules.BRAWL,
-                                        rules.HOT_MEAL, rules.TRADE})
+                                        rules.HOT_MEAL, rules.TRADE, rules.PAWNBROKER,
+                                        rules.CANNONBALL})
         self.assertTrue(all(n in rules.ANALYSED for n in tables))
-        for number in range(1, 301):
+        for number in range(1, 401):
             self.assertEqual(CATALOGUE['paragraphs'][str(number)]['status'], 'analyse_verifiee')
-        self.assertEqual(CATALOGUE['paragraphs']['301']['status'], 'renvois_verifies')
 
 
 class CiteRulesTests(unittest.TestCase):
@@ -235,11 +235,11 @@ class CiteEncounterTests(unittest.TestCase):
 
 
 class CiteMechanicsWindowTests(unittest.TestCase):
-    setUpClass = classmethod(CitePresentationTests.setUpClass.__func__)
-    setUp = CitePresentationTests.setUp
-    open = CitePresentationTests.open
-    start = CitePresentationTests.start
-    buttons = CitePresentationTests.buttons
+    setUpClass = classmethod(presentation.CitePresentationTests.setUpClass.__func__)
+    setUp = presentation.CitePresentationTests.setUp
+    open = presentation.CitePresentationTests.open
+    start = presentation.CitePresentationTests.start
+    buttons = presentation.CitePresentationTests.buttons
 
     def play(self):
         self.open()
@@ -366,14 +366,15 @@ class CiteMechanicsWindowTests(unittest.TestCase):
         self.assertEqual(self.w.character['endurance'], 13)
         self.assertTrue(all(b.isEnabled() for b in self.buttons()))
 
-    def test_endings_and_unanalysed_passages(self):
+    def test_endings_and_analysed_notice(self):
         self.play()
         self.w.go_to(56)
         self.assertTrue(self.w.character['book_facts']['adventure_ended'])
         self.assertTrue(any('Aventure terminée' in w.text() for w in self.events() if isinstance(w, QLabel)))
         self.w.undo_action()
         self.w.go_to(302)
-        self.assertTrue(any(isinstance(w, QLabel) and w.text() == PREVIEW_NOTICE for w in self.events()))
+        self.assertTrue(any(isinstance(w, QLabel) and w.text() == ANALYSED_NOTICE for w in self.events()))
+        self.assertFalse(any(isinstance(w, QLabel) and w.text() == PREVIEW_NOTICE for w in self.events()))
         self.assertTrue(all(b.isEnabled() for b in self.buttons() if b.toolTip()[:11] != 'Indisponibl'))
 
     def test_gate_is_the_only_source_for_links(self):

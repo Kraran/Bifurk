@@ -1,8 +1,8 @@
 # La Cité des Voleurs — module et présentation
 
 Les phases 1 et 2 ajoutent l'identité du troisième livre, sa consultation et le
-catalogue des renvois relus ; les phases 3.1, 3.2 et 3.3 rendent jouables les
-événements des §1 à 300. Rien n'est présenté comme jouable avant vérification.
+catalogue des renvois relus ; les phases 3.1 à 3.4 rendent jouables les
+événements des §1 à 400. Rien n'est présenté comme jouable avant vérification.
 
 ## Édition reconnue
 
@@ -137,7 +137,7 @@ destination ni événement à venir affiché.
 - **Fins** : §129 et §142.
 
 Reportés hors tranche : le prêteur sur gages du §354 et les effets des §370 et
-§387 (phase 3.4) ; les dés du §206, la créature du §201 et les §279 et §293 sont
+§387 (traités en phase 3.4) ; les dés du §206, la créature du §201 et les §279 et §293 sont
 traités en phase 3.3.
 
 ## Phase 3.3 : événements des §201 à 300
@@ -175,6 +175,49 @@ mêmes principes.
 Non automatisé : les pétales de la fleur dorée changés en or au sang de chien
 (gérés à la main).
 
+## Phase 3.4 : événements des §301 à 400
+
+Tout le livre est analysé (`analysed_range` [1, 400]). Chaque route, valeur,
+prix et effet a été vérifié sur l'édition anglaise (VO), qui fait référence en
+cas de litige : aucune nouvelle divergence n'est apparue dans cette tranche (les
+écarts suspectés relevaient de l'OCR de la VO et ont été relus sur la page).
+
+- **Effets d'arrivée** : blessures (§305, §330, §366, §373, §379), soins (§325,
+  §380), or trouvé (§306, §322, §324, §328, §340, §359, §397) et prix payés (§341,
+  §364, au plus l'or possédé), Chance (§332, §338, §340, §376, §395), objets reçus
+  (laissez-passer, chouette en or, pierres précieuses, clef en fer, bottes
+  magiques, boucliers, casque magique, broche scorpion de cuivre…), Habileté
+  (§362, §365, §373, §374, §387 ; gain plafonné au score initial), objets en
+  argent fondus au §343.
+- **Boucliers et casque** : le Bouclier magnifique (§340) et le Casque magique
+  (§376) ajoutent chacun 1 à la Force d'Attaque tant qu'ils sont dans le sac.
+- **§354, prêteur sur gages** : ventes facultatives et répétables aux prix du
+  texte (gobelet 8, passe-partout 15, broche scorpion 10, anneau 12, bracelet 5,
+  casque 7, flûte 5, bandeau, osselets et miroir 1) ; les objets verrouillés ne
+  se vendent pas. Le renvoi vers le §316 demande 10 Pièces d'Or à montrer.
+- **§378, boulet de canon** : un dé chacun, le héros d'abord, jusqu'au premier 1 ;
+  celui qui le fait lâche le boulet et paie 5 Pièces d'Or (au plus ce qu'il a).
+- **Amendes des §150 et §335** : l'infobulle annonce tout l'or remis ; le §367
+  rend la Pièce d'Or que le texte laisse au héros.
+- **Combats** : §309, §311 (le premier garde, puis deux gardes à la fois), §323
+  (barre incandescente : 3 points par blessure), §326 (deux chiens à la fois, fuite
+  vers le §180), §331, §349, §351, §356, §357 (fuite après trois assauts), §361,
+  §385, §386, §392 (souffle de feu : un dé par assaut, 1 à 3 brûlent d'un point,
+  Chance possible). En combat simultané, des boutons « Cibler » choisissent
+  l'adversaire attaqué ; les autres sont seulement parés et blessent s'ils
+  l'emportent.
+- **Épreuves** : §389 (Habileté), §390 et §391 (Chance).
+- **Renvois** : prix du texte (§316→279, §381→261, §394→368) ; conditions d'objets
+  (§334, §336, §352, §353, §358) ; article en argent remis au §53 ; préparatifs au
+  §367 ; « pas encore visité » (§373, §383).
+- **Fins** : §346 (mort) et §400 (victoire, annoncée comme telle). Le livre compte
+  11 fins, toutes accessibles depuis le §1 ; l'audit vérifie qu'elles coïncident
+  avec celles du moteur.
+
+Interprétations retenues : le gant du §324 n'est pas pris ; la « clef métallique »
+du §353 est la clef en fer ; au §343, tous les objets en argent fondent (flèche
+d'argent comprise) ; §370 et §387 sans autre effet que ceux imprimés.
+
 ## Fichiers et validation
 
 - `catalogues/modules/cite_voleurs_1983.json` : manifeste, pages et ressources initiales.
@@ -188,7 +231,7 @@ Non automatisé : les pétales de la fleur dorée changés en or au sang de chie
 - `tests/test_cite_errata.py`, `tests/test_cite_analysis.py` : réparations, audit
   et liens de lecture.
 - `tests/test_cite_mechanics.py`, `tests/test_cite_phase3_2.py`,
-  `tests/test_cite_phase3_3.py` : règles des §1 à 300, cohérence des tables avec le catalogue et scénarios d'interface sans divulgation.
+  `tests/test_cite_phase3_3.py`, `tests/test_cite_phase3_4.py` : règles des §1 à 400, cohérence des tables avec le catalogue et scénarios d'interface sans divulgation.
 - `tests/test_cite_presentation.py` : reconnaissance, couverture, prologue, profil,
   repas, consultation sans effets, sauvegarde et changement de module.
 
