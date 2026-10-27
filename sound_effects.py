@@ -21,6 +21,8 @@ BOOK_SOUNDS = {'sorcier-1982': 'book_sorcier', 'foret-1983': 'book_foret', 'cite
 # la caverne reste celle du Sorcier et de l’écran sans livre.
 AMBIENT_TRACKS = {'cite-1983': 'ambient_cite', 'foret-1983': 'ambient_foret'}
 AMBIENT_LABELS = {'ambient': 'caverne', 'ambient_cite': 'ville', 'ambient_foret': 'forêt'}
+# Extensions cherchées, dans cet ordre, pour chaque son de la banque.
+SOUND_SUFFIXES = ('.wav', '.ogg')
 
 
 class SoundBank(QObject):
@@ -76,7 +78,7 @@ class SoundBank(QObject):
             return None
 
     def preload(self):
-        """Créer chaque effet au plus une fois et connecter ses signaux avant de charger le WAV.
+        """Créer chaque effet au plus une fois et connecter ses signaux avant de charger le fichier.
 
         Les paramètres par défaut des lambdas figent le nom de chaque effet : éviter
         la capture tardive de la variable de boucle."""
@@ -84,8 +86,11 @@ class SoundBank(QObject):
         if backend is None:
             return
         for name in [*EFFECT_LABELS, *BOOK_SOUNDS.values(), *AMBIENT_LABELS]:
-            path = self.folder / f'{name}.wav'
-            if name in self.effects or not path.is_file():
+            # Effets courts en WAV (attaque immédiate) ; boucles d'ambiance en OGG Vorbis.
+            path = next((candidate for candidate in (self.folder / f'{name}{suffix}'
+                                                     for suffix in SOUND_SUFFIXES)
+                         if candidate.is_file()), None)
+            if name in self.effects or path is None:
                 continue
             effect = backend(self)
             self.effects[name] = effect

@@ -30,8 +30,8 @@ Rien n'est repris du livre.
 
 # Ambiances de ville et de forêt
 
-`sounds/ambient_cite.wav` (La Cité des Voleurs) est tirée de « Outdoor market #2 »
-et `sounds/ambient_foret.wav` (La Forêt de la Malédiction) de « Forest #4 », deux
+`sounds/ambient_cite.ogg` (La Cité des Voleurs) est tirée de « Outdoor market #2 »
+et `sounds/ambient_foret.ogg` (La Forêt de la Malédiction) de « Forest #4 », deux
 enregistrements de Joseph SARDIN (BigSoundBank) sous licence CC0 1.0 (domaine public) :
 <https://bigsoundbank.com/outdoor-market-2-s2729.html> et
 <https://bigsoundbank.com/forest-4-s2749.html>

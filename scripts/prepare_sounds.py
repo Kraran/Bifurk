@@ -86,6 +86,14 @@ def prepare(folder):
                         '-c:a','pcm_s16le',str(OUT/f'{name}.wav')]
             subprocess.run(command, check=True)
             normalize(OUT/f'{name}.wav', trim_attack=name == 'page')
+            if name == 'ambient':
+                # La boucle de la caverne est livrée en OGG Vorbis, comme celles des livres
+                # (mêmes réglages que scripts/prepare_book_ambiences.encode_loop).
+                subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(OUT/'ambient.wav'),
+                                '-c:a', 'libvorbis', '-q:a', '4', '-map_metadata', '-1',
+                                '-fflags', '+bitexact', '-flags:a', '+bitexact',
+                                str(OUT/'ambient.ogg')], check=True)
+                (OUT/'ambient.wav').unlink()
 
 
 if __name__ == '__main__':

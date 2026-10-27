@@ -11,11 +11,11 @@ import sys
 import unittest
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QUrl
+from PySide6.QtCore import QObject, QTimer, QUrl
 from PySide6.QtWidgets import QApplication
 
 from pcm_audio import Mixer, PcmEffect
-from sound_effects import EFFECT_LABELS
+from sound_effects import EFFECT_LABELS, SOUND_SUFFIXES
 
 
 def decode(data):
@@ -71,12 +71,40 @@ class PcmAudioTests(unittest.TestCase):
         folder = Path(__file__).resolve().parents[1] / 'assets/sounds'
         for name in [*EFFECT_LABELS, 'ambient', 'ambient_cite', 'ambient_foret']:
             with self.subTest(name=name):
+                path = next(folder / f'{name}{suffix}' for suffix in SOUND_SUFFIXES
+                            if (folder / f'{name}{suffix}').is_file())
                 effect = PcmEffect(self.parent)
-                effect.setSource(QUrl.fromLocalFile(str(folder / f'{name}.wav')))
+                effect.setSource(QUrl.fromLocalFile(str(path)))
+                self.wait_loaded(effect)
                 self.assertEqual(effect.status(), effect.Ready)
                 effect.play()
                 self.assertTrue(any(decode(self.mixer.readData(44100 * 4))))
                 effect.stop()
+
+    def wait_loaded(self, effect, timeout=5.0):
+        """Laisser QAudioDecoder terminer le décodage asynchrone d'un OGG."""
+        expired = []
+        QTimer.singleShot(int(timeout * 1000), lambda: expired.append(True))
+        while effect.status() == effect.Loading and not expired:
+            self.app.processEvents()
+
+    def test_ogg_loops_decode_to_exact_44k_samples(self):
+        folder = Path(__file__).resolve().parents[1] / 'assets/sounds'
+        for name, seconds in (('ambient_cite', 45), ('ambient_foret', 45)):
+            with self.subTest(name=name):
+                effect = PcmEffect(self.parent)
+                effect.setSource(QUrl.fromLocalFile(str(folder / f'{name}.ogg')))
+                self.wait_loaded(effect)
+                self.assertEqual(effect.status(), effect.Ready)
+                # Aucun échantillon ajouté ni perdu : la boucle reste sans couture.
+                self.assertEqual(len(effect.samples), seconds * Mixer.RATE)
+
+    def test_bad_compressed_asset_reports_error(self):
+        effect = PcmEffect(self.parent)
+        with self.assertLogs('pcm-test', level='ERROR'):
+            effect.setSource(QUrl.fromLocalFile('/missing/ambient.ogg'))
+            self.wait_loaded(effect)
+        self.assertEqual(effect.status(), effect.Error)
 
     def test_bad_asset_reports_error_instead_of_playing(self):
         effect = PcmEffect(self.parent)
