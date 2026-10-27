@@ -16,6 +16,71 @@ from dialog_chrome import DialogHeading
 from adventure_tracking import LABELS, read_tracking
 
 
+def _is_int(value):
+    """Entier JSON strict : ni booléen, ni flottant, ni texte."""
+    return type(value) is int
+
+
+def check_game_state(state, where='Sauvegarde'):
+    """Contrôler un instantané de partie avant de le confier à MainWindow._restore.
+
+    Sert à l'état principal comme à chaque entrée d'Annuler / Rétablir : une
+    sauvegarde abîmée est refusée au chargement au lieu de planter au premier
+    Annuler. Les clés facultatives des anciens formats ne sont contrôlées que
+    si elles sont présentes."""
+    def invalid(detail):
+        return ValueError(f'{where} invalide : {detail}.')
+    if not isinstance(state, dict):
+        raise invalid('état absent')
+    character = state.get('character')
+    if not isinstance(character, dict):
+        raise invalid('aventurier absent')
+    for key in ('habilete', 'endurance', 'chance'):
+        if not _is_int(character.get(key)):
+            raise invalid('caractéristiques')
+    if not isinstance(character.get('inventory', []), list):
+        raise invalid('inventaire')
+    if 'current_paragraph' not in state or not (
+            state['current_paragraph'] is None or _is_int(state['current_paragraph'])):
+        raise invalid('paragraphe courant')
+    visited = state.get('visited_paragraphs')
+    if not isinstance(visited, list) or not all(_is_int(n) for n in visited):
+        raise invalid('paragraphes visités')
+    transitions = state.get('transitions', [])
+    if not isinstance(transitions, list) or not all(
+            isinstance(t, list) and len(t) == 2 and all(_is_int(n) for n in t) for t in transitions):
+        raise invalid('transitions')
+    if not isinstance(state.get('encounter_history', {}), dict):
+        raise invalid('rencontres')
+    for key in ('completed_book_events', 'completed_optional_events', 'prepared_book_encounters'):
+        if not isinstance(state.get(key, []), list):
+            raise invalid('événements du livre')
+    assaults = state.get('book_combat_assaults', {})
+    if not isinstance(assaults, dict) or not all(
+            str(k).lstrip('-').isdigit() and _is_int(v) for k, v in assaults.items()):
+        raise invalid('assauts')
+    for key in ('enemy_skill', 'enemy_endurance'):
+        if key in state and not _is_int(state[key]):
+            raise invalid('adversaire')
+    if 'enemy_name' in state and not isinstance(state['enemy_name'], str):
+        raise invalid('adversaire')
+
+
+def _check_history(data):
+    """Journal de libellés et piles [libellé, état] d'Annuler / Rétablir."""
+    if not isinstance(data['action_history'], list) or not all(
+            isinstance(label, str) for label in data['action_history']):
+        raise ValueError('Journal des actions invalide.')
+    for key, name in (('undo_stack', 'Annuler'), ('redo_stack', 'Rétablir')):
+        stack = data[key]
+        if not isinstance(stack, list):
+            raise ValueError(f'Historique « {name} » invalide.')
+        for index, entry in enumerate(stack, 1):
+            if not (isinstance(entry, list) and len(entry) == 2 and isinstance(entry[0], str)):
+                raise ValueError(f'Historique « {name} » invalide (entrée {index}).')
+            check_game_state(entry[1], f'Historique « {name} » (entrée {index})')
+
+
 def read_save(path):
     """Lire et contrôler les champs obligatoires du format actuel.
 
@@ -37,6 +102,8 @@ def read_save(path):
     for key in ('habilete', 'endurance', 'chance'):
         if type(data['character'].get(key)) is not int:
             raise ValueError('Caractéristiques invalides.')
+    check_game_state(data)
+    _check_history(data)
     if not isinstance(data.get('book_title', ''), str):
         raise ValueError('Titre du grimoire invalide.')
     read_tracking(data.get('adventure_tracking'))

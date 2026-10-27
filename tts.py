@@ -5,6 +5,9 @@ La synthèse tourne dans un fil secondaire (``asyncio.run``) vers un MP3 tempora
 la lecture est confiée au fil principal par ``QMetaObject.invokeMethod`` et passe par
 QMediaPlayer. Toute erreur (réseau absent, paquet manquant) reste silencieuse pour
 l’interface : seul le signal ``error`` porte un message court.
+
+Une lecture interrompue (nouveau paragraphe, bouton ⏹) s’éteint en un court fondu
+(``fade_out``) ; ``shutdown`` coupe net et efface tout, pour la fermeture du programme.
 """
 from __future__ import annotations
 
@@ -15,7 +18,8 @@ import tempfile
 import threading
 from pathlib import Path
 
-from PySide6.QtCore import Q_ARG, QMetaObject, QObject, Qt, QUrl, Signal, Slot
+from PySide6.QtCore import (Q_ARG, QEasingCurve, QMetaObject, QObject, Qt, QUrl, QVariantAnimation,
+                            Signal, Slot)
 
 # Liste de secours, affichée immédiatement et sans réseau.
 FRENCH_VOICES = {
@@ -119,7 +123,7 @@ class ParagraphReader(QObject):
         self._spare = None    # Second lecteur : le morceau suivant y est préchargé.
         self._spare_output = None
         self._spare_file: Path | None = None
-        self._gain = "+0%"   # Renfort demandé au service au-delà de 100 %.
+        self._gain = "+0%"   # Renfort demandé au service au-delà de 100 % (figé à chaque speak()).
         self._voice = DEFAULT_VOICE
         self._rate = "+0%"
         self._volume = 0.8
@@ -128,6 +132,10 @@ class ParagraphReader(QObject):
         self._temp_file: Path | None = None
         self._queue: list[Path] = []
         self._synth_done = True
+        # Fondu de sortie : une seule animation, réutilisée, et le lecteur qu’elle éteint.
+        self._fade: QVariantAnimation | None = None
+        self._fading = None  # (lecteur, sortie, fichier) retirés de la lecture.
+        self._idle: list = []  # Lecteurs éteints, réutilisés plutôt que détruits.
 
     @property
     def voice(self) -> str:
@@ -142,9 +150,13 @@ class ParagraphReader(QObject):
         self._rate = f"{percent:+d}%"
 
     MAX_VOLUME = 1.5
+    FADE_MS = 250  # Durée du fondu de sortie d’une lecture interrompue.
 
     def set_volume(self, volume: float) -> None:
-        """0 à 1 : volume du lecteur ; 1 à 1,5 : voix renforcée par le service (morceaux suivants)."""
+        """0 à 1 : volume du lecteur, appliqué aussitôt ; 1 à 1,5 : voix renforcée par le service.
+
+        Le renfort est demandé à la synthèse : le paragraphe en cours, déjà synthétisé
+        à son lancement, le garde inchangé ; il s’applique à partir de la prochaine lecture."""
         volume = max(0.0, min(self.MAX_VOLUME, float(volume)))
         self._volume = min(1.0, volume)
         self._gain = f"{round((volume - 1.0) * 100):+d}%" if volume > 1.0 else "+0%"
@@ -162,12 +174,26 @@ class ParagraphReader(QObject):
         from PySide6.QtMultimedia import QMediaPlayer
         return self._player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
 
-    def stop(self) -> None:
-        """Arrêter la lecture et rendre caduque toute synthèse en cours."""
+    def fade_out(self) -> None:
+        """Arrêter la lecture par un court fondu ; la synthèse en cours devient caduque."""
+        self.stop(fade_ms=self.FADE_MS)
+
+    def shutdown(self) -> None:
+        """Fermeture du programme : couper net, terminer les fondus et effacer les MP3."""
+        self.stop()
+        self._finish_fade()
+
+    def stop(self, fade_ms: int = 0) -> None:
+        """Arrêter la lecture et rendre caduque toute synthèse en cours.
+
+        fade_ms > 0 : le morceau audible s’éteint en fondu sur son propre lecteur, retiré
+        du lecteur actif ; une nouvelle lecture peut démarrer aussitôt sur un autre."""
         self._request += 1
         was_busy = self._pending or self.is_playing()
         self._pending = False
         self._synth_done = True
+        if fade_ms > 0 and self.is_playing():
+            self._detach_and_fade(fade_ms)
         for player in (self._player, self._spare):
             if player is not None:
                 player.stop()
@@ -180,8 +206,53 @@ class ParagraphReader(QObject):
         if was_busy:
             self.finished.emit()
 
+    def is_fading(self) -> bool:
+        """Un morceau interrompu est encore en train de s’éteindre."""
+        return self._fading is not None
+
+    def _detach_and_fade(self, duration: int) -> None:
+        """Retirer le lecteur audible de la lecture et baisser son volume jusqu’au silence.
+
+        Un fondu précédent encore en cours se termine net : un seul lecteur s’éteint à la fois."""
+        self._finish_fade()
+        player, output, path = self._player, self._output, self._temp_file
+        self._player = self._output = None
+        self._temp_file = None
+        # Plus actif ni de réserve : _on_media_status et _on_error l’ignorent désormais,
+        # il n’enchaîne donc plus aucun morceau.
+        self._fading = (player, output, path)
+        if self._fade is None:
+            self._fade = QVariantAnimation(self)
+            self._fade.setEndValue(0.0)
+            self._fade.setEasingCurve(QEasingCurve.Type.InQuad)
+            self._fade.valueChanged.connect(self._fade_step)
+            self._fade.finished.connect(self._finish_fade)
+        self._fade.setStartValue(float(output.volume()))
+        self._fade.setDuration(duration)
+        self._fade.start()
+
+    def _fade_step(self, value) -> None:
+        if self._fading is not None:
+            self._fading[1].setVolume(float(value))
+
+    def _finish_fade(self) -> None:
+        """Arrêter le lecteur éteint, effacer son MP3 et le remettre en réserve."""
+        fading, self._fading = self._fading, None
+        if fading is None:
+            return
+        if self._fade is not None:
+            self._fade.stop()  # Sans effet si l’animation vient de se terminer.
+        player, output, path = fading
+        player.stop()
+        player.setSource(QUrl())
+        if path is not None:
+            with contextlib.suppress(OSError):
+                path.unlink()
+        # Pas de deleteLater : il reste enfant du lecteur vocal et sert à la prochaine lecture.
+        self._idle.append((player, output))
+
     def speak(self, text: str) -> None:
-        self.stop()
+        self.fade_out()  # L’ancienne lecture s’éteint pendant la synthèse de la nouvelle.
         chunks = split_speech_chunks(prepare_speech_text(text))
         if not chunks:
             return
@@ -287,6 +358,8 @@ class ParagraphReader(QObject):
             self.finished.emit()
 
     def _make_player(self):
+        if self._idle:  # Lecteur éteint par un fondu, déjà relié à ce lecteur vocal.
+            return self._idle.pop()
         from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
         output = QAudioOutput(self)
         player = QMediaPlayer(self)
@@ -347,6 +420,8 @@ class ParagraphReader(QObject):
             self._play_next()
 
     def _on_error(self, player=None) -> None:
+        if player is not None and player is not self._player and player is not self._spare:
+            return  # Lecteur en fondu ou déjà retiré.
         if player is not None and player is not self._player:
             self._drop_spare()
             return
