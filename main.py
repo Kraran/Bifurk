@@ -744,6 +744,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             session.abandon()
         for dialog in self.findChildren(QDialog):
             dialog.reject()
+        # Couper net la voix et effacer ses MP3 temporaires (%TEMP%\\bifurk-tts-*).
+        self.tts.shutdown()
         self.intro_music.set_enabled(False)
         self.sounds.set_enabled(False)
         self.sounds.set_ambient_enabled(False)
@@ -800,7 +802,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def _speak_current_paragraph(self):
         """Lire à voix haute le paragraphe affiché ; un second clic arrête la lecture."""
         if self.tts.is_busy():
-            self.tts.stop()
+            self.tts.fade_out()
             return
         if self.current_paragraph in self.paragraphs:
             self.tts.speak(self.paragraphs[self.current_paragraph])
@@ -811,9 +813,15 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if tts is None or not tts.is_busy():
             return
         if self._restoring or number not in self.paragraphs:
-            tts.stop()
+            tts.fade_out()
         else:
             tts.speak(self.paragraphs[number])
+
+    def _fade_out_reading(self):
+        """Éteindre en fondu une lecture vocale en cours quand son paragraphe quitte la page."""
+        tts = getattr(self, 'tts', None)
+        if tts is not None and tts.is_busy():
+            tts.fade_out()
 
     TTS_TOOLTIP = "Lire le paragraphe à voix haute"
 
@@ -2301,6 +2309,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
         Un simple rafraîchissement conserve le tirage, le nom et le compteur de relances."""
         self.intro_music.menu()
+        self._fade_out_reading()  # Le paragraphe lu quitte la page.
         if self._adventurer_draft is None:
             self._prepare_adventurer()
         self.paragraph_number.hide()
@@ -2482,6 +2491,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def _show_death_page(self):
         """Afficher la fin d’aventure et proposer recommencer ou charger ; bloquer les actions de jeu."""
         import html
+        self._fade_out_reading()  # La page de fin remplace le paragraphe lu.
         self.paragraph_number.hide()
         self._refresh_character()
         name = html.escape(self.character.get('name') or 'Aventurier')
@@ -3361,7 +3371,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             else:
                 self.current_paragraph = target
                 if hasattr(self, 'tts'):
-                    self.tts.stop()
+                    self.tts.fade_out()
                 if target is None and self.pdf_path and self.paragraphs:
                     self._show_book_title()
         finally:
@@ -3583,7 +3593,65 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         return True
 
     def _apply_loaded_save(self, data, book):
-        """Restaurer dans le thread de l’interface une sauvegarde validée par read_save_for_loading."""
+        """Restaurer dans le thread de l’interface une sauvegarde validée par read_save_for_loading.
+
+        Tout ou rien : si la restauration échoue en cours de route, la partie précédente
+        (livre, aventurier, historique, carnet) est remise en place avant de relancer
+        l’erreur, qui sera présentée par load_game."""
+        previous = self._capture_session()
+        try:
+            self._install_loaded_save(data, book)
+        except Exception:
+            try:
+                self._rollback_session(previous)
+            except Exception:  # noqa: BLE001 - l'erreur d'origine reste celle à signaler
+                pass
+            raise
+
+    def _capture_session(self):
+        """Copier tout ce qu'un chargement remplace, pour pouvoir l'annuler."""
+        return {
+            'book': (self.pdf_path, self._book_digest, self.paragraphs, self.book_module,
+                     self.illustration_catalogue, self.book_event_catalogue),
+            'label': (self.book_label.text(), self.book_label.toolTip()),
+            'goto_maximum': self.goto_spin.maximum(),
+            'state': self._snapshot(),
+            'history': (list(self.action_history), list(self.undo_stack), list(self.redo_stack)),
+            'tracking': copy.deepcopy(self.adventure_tracking),
+            'carnet': copy.deepcopy(self._carnet_save_fields()),
+            'creation': (copy.deepcopy(self._adventurer_draft), self._creation_name,
+                         self._creation_rerolls),
+        }
+
+    def _rollback_session(self, previous):
+        """Remettre la partie copiée par _capture_session après un chargement manqué."""
+        (self.pdf_path, self._book_digest, self.paragraphs, self.book_module,
+         self.illustration_catalogue, self.book_event_catalogue) = previous['book']
+        self.sounds.set_ambient_track(getattr(self.book_module, 'engine', None))
+        self.book_label.setText(previous['label'][0])
+        self.book_label.setToolTip(previous['label'][1])
+        self.goto_spin.setMaximum(previous['goto_maximum'])
+        self._restore(previous['state'])
+        # À l'introduction, _restore peut préparer un nouveau tirage : rétablir
+        # exactement l'aventurier, le brouillon et le suivi d'avant le chargement.
+        self.character = copy.deepcopy(previous['state']['character'])
+        draft, self._creation_name, self._creation_rerolls = previous['creation']
+        self._adventurer_draft = copy.deepcopy(draft)
+        self.action_history, self.undo_stack, self.redo_stack = (
+            list(items) for items in previous['history'])
+        self.adventure_tracking = previous['tracking']
+        self._update_tracking_badge()
+        self._load_carnet(previous['carnet'])
+        if self.current_paragraph is None:
+            if self.pdf_path and self.paragraphs and self._adventurer_draft is not None:
+                self._show_book_title()
+            elif not self.pdf_path:
+                self._show_welcome()
+        self._refresh_character()
+        self._update_history_controls()
+
+    def _install_loaded_save(self, data, book):
+        """Appliquer une sauvegarde validée ; _apply_loaded_save garantit le tout ou rien."""
         if book is not None:
             pdf, paragraphs, book_module, illustration_catalogue, events, digest = book
             self._close_book_dialogs()

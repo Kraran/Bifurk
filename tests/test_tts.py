@@ -240,6 +240,7 @@ class ParagraphChangeTests(unittest.TestCase):
     def test_reading_follows_the_new_paragraph_only_when_active(self):
         calls = []
         fake = types.SimpleNamespace(is_busy=lambda: busy[0], stop=lambda: calls.append('stop'),
+                                     fade_out=lambda: calls.append('stop'),
                                      speak=lambda text: calls.append(('speak', text)))
         busy = [False]
         window = types.SimpleNamespace(tts=fake, _restoring=False, paragraphs={2: 'Deux.'})
