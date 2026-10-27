@@ -107,6 +107,183 @@
         "Audio/Pizzicato jingles/jingles_PIZZI16.ogg"
       ]
     },
+    "page_2": {
+      "pack": "rpg",
+      "files": [
+        "Audio/bookFlip2.ogg"
+      ]
+    },
+    "page_3": {
+      "pack": "rpg",
+      "files": [
+        "Audio/bookFlip3.ogg"
+      ]
+    },
+    "dice_2": {
+      "pack": "casino",
+      "files": [
+        "Audio/dice-throw-1.ogg"
+      ]
+    },
+    "dice_3": {
+      "pack": "casino",
+      "files": [
+        "Audio/dice-throw-3.ogg"
+      ]
+    },
+    "swords_2": {
+      "pack": "impact",
+      "files": [
+        "Audio/impactMetal_medium_001.ogg"
+      ]
+    },
+    "swords_3": {
+      "pack": "impact",
+      "files": [
+        "Audio/impactMetal_heavy_002.ogg"
+      ]
+    },
+    "item_2": {
+      "pack": "rpg",
+      "files": [
+        "Audio/handleSmallLeather2.ogg"
+      ]
+    },
+    "item_3": {
+      "pack": "rpg",
+      "files": [
+        "Audio/beltHandle1.ogg"
+      ]
+    },
+    "coins_2": {
+      "pack": "rpg",
+      "files": [
+        "Audio/handleCoins.ogg"
+      ]
+    },
+    "key_2": {
+      "pack": "rpg",
+      "files": [
+        "Audio/metalClick.ogg"
+      ]
+    },
+    "hit_2": {
+      "pack": "impact",
+      "files": [
+        "Audio/impactPunch_medium_001.ogg"
+      ]
+    },
+    "hit_3": {
+      "pack": "impact",
+      "files": [
+        "Audio/impactPunch_medium_002.ogg"
+      ]
+    },
+    "hit_4": {
+      "pack": "impact",
+      "files": [
+        "Audio/impactPunch_medium_003.ogg"
+      ]
+    },
+    "door": {
+      "pack": "rpg",
+      "files": [
+        "Audio/doorOpen_1.ogg"
+      ]
+    },
+    "door_2": {
+      "pack": "rpg",
+      "files": [
+        "Audio/doorOpen_2.ogg"
+      ]
+    },
+    "flee": {
+      "pack": "rpg",
+      "files": [
+        "Audio/footstep00.ogg",
+        "Audio/footstep02.ogg",
+        "Audio/footstep04.ogg",
+        "Audio/footstep06.ogg"
+      ]
+    },
+    "meal": {
+      "pack": "rpg",
+      "files": [
+        "Audio/metalPot1.ogg"
+      ]
+    },
+    "meal_2": {
+      "pack": "rpg",
+      "files": [
+        "Audio/metalPot2.ogg"
+      ]
+    },
+    "growl": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/NPC/gutteral beast/mnstr1.wav"
+      ]
+    },
+    "growl_2": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/NPC/gutteral beast/mnstr4.wav"
+      ]
+    },
+    "growl_3": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/NPC/gutteral beast/mnstr7.wav"
+      ]
+    },
+    "growl_giant": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/NPC/ogre/ogre1.wav"
+      ]
+    },
+    "growl_giant_2": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/NPC/giant/giant1.wav"
+      ]
+    },
+    "growl_shade": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/NPC/shade/shade1.wav"
+      ]
+    },
+    "growl_shade_2": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/NPC/shade/shade5.wav"
+      ]
+    },
+    "growl_slime": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/NPC/slime/slime1.wav"
+      ]
+    },
+    "growl_slime_2": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/NPC/slime/slime4.wav"
+      ]
+    },
+    "magic": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/battle/magic1.wav"
+      ]
+    },
+    "magic_2": {
+      "pack": "oga-rpg",
+      "files": [
+        "RPG Sound Pack/battle/spell.wav"
+      ]
+    },
     "ambient": {
       "pack": "ambient",
       "files": [

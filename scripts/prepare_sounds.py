@@ -1,6 +1,9 @@
 """Préparation reproductible des assets CC0 ; FFmpeg requis seulement pour cet outil.
 
-Usage : python scripts/prepare_sounds.py /chemin/vers/les/archives
+Usage : python scripts/prepare_sounds.py /chemin/vers/les/archives [NOM ...]
+Sans NOM, tous les sons du manifeste sont reconstruits ; avec des noms (« page_2 »,
+« door »…), seuls ceux-ci. Un nom « base_N » est une variante de « base » : même
+traitement que lui (retrait d'amorce de la page, hauteur du jingle de défaite).
 Les archives sont téléchargées séparément, puis vérifiées avec les SHA-256 de
 assets/sounds/sources.json. Extraction temporaire, conversion mono PCM 16 bits,
 normalisation et retrait de l'amorce faible précèdent l'écriture des WAV livrés.
@@ -46,18 +49,29 @@ def normalize(path, trim_attack=False):
         f.setparams(params); f.writeframes(samples.tobytes())
 
 
-def prepare(folder):
+def _base(name):
+    """Nom de l'effet de base d'une variante (« page_2 » → « page »)."""
+    head, _, tail = name.rpartition('_')
+    return head if head and tail.isdigit() else name
+
+
+def prepare(folder, names=()):
     """Vérifier les archives créditées puis reconstruire chaque WAV du manifeste avec FFmpeg.
 
     Les intermédiaires sont temporaires. L’ambiance reste à 22,05 kHz ; les effets
     sont à 44,1 kHz, avec concaténation ou changement de hauteur si spécifié ici."""
-    manifest = json.loads((OUT/'sources.json').read_text())
-    for pack in manifest['packs'].values():
+    manifest = json.loads((OUT/'sources.json').read_text(encoding='utf-8'))
+    unknown = set(names) - set(manifest['effects'])
+    if unknown:
+        raise ValueError(f"Son inconnu : {', '.join(sorted(unknown))}")
+    effects = {name: spec for name, spec in manifest['effects'].items() if not names or name in names}
+    for pack in (manifest['packs'][spec['pack']] for spec in effects.values()):
         if hashlib.sha256((folder/pack['archive']).read_bytes()).hexdigest() != pack['sha256']:
             raise ValueError(f"Archive différente de la source créditée : {pack['archive']}")
     with tempfile.TemporaryDirectory() as temporary:
         temporary = Path(temporary)
-        for name, spec in manifest['effects'].items():
+        for name, spec in effects.items():
+            base = _base(name)
             inputs = []
             for index, member in enumerate(spec['files']):
                 pack = manifest['packs'][spec['pack']]
@@ -71,11 +85,13 @@ def prepare(folder):
                 inputs += ['-i', str(path)]
             command = ['ffmpeg','-v','error','-y',*inputs]
             if len(spec['files']) > 1:
-                command += ['-filter_complex','[0:a][1:a]concat=n=2:v=0:a=1[out]','-map','[out]']
+                count = len(spec['files'])
+                streams = ''.join(f'[{i}:a]' for i in range(count))
+                command += ['-filter_complex', f'{streams}concat=n={count}:v=0:a=1[out]', '-map', '[out]']
             filters = []
             if name != 'ambient':
                 filters += ['silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.003']
-            if name == 'death': filters += ['asetrate=33075','aresample=44100']
+            if base == 'death': filters += ['asetrate=33075','aresample=44100']
             if filters:
                 if len(spec['files']) > 1:
                     position = command.index('-filter_complex') + 1
@@ -85,7 +101,7 @@ def prepare(folder):
             command += ['-ac','1','-ar','22050' if name=='ambient' else '44100',
                         '-c:a','pcm_s16le',str(OUT/f'{name}.wav')]
             subprocess.run(command, check=True)
-            normalize(OUT/f'{name}.wav', trim_attack=name == 'page')
+            normalize(OUT/f'{name}.wav', trim_attack=base == 'page')
             if name == 'ambient':
                 # La boucle de la caverne est livrée en OGG Vorbis, comme celles des livres
                 # (mêmes réglages que scripts/prepare_book_ambiences.encode_loop).
@@ -97,4 +113,4 @@ def prepare(folder):
 
 
 if __name__ == '__main__':
-    prepare(Path(sys.argv[1]))
+    prepare(Path(sys.argv[1]), tuple(sys.argv[2:]))

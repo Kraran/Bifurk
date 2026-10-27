@@ -17,6 +17,21 @@ nécessaire au lancement du jeu.
 | hit.wav | impactPunch_medium_000.ogg | [Kenney — Impact Sounds](https://kenney.nl/assets/impact-sounds) |
 | victory.wav | jingles_PIZZI00.ogg | [Kenney — Music Jingles](https://kenney.nl/assets/music-jingles) |
 | death.wav | jingles_PIZZI16.ogg | Kenney — Music Jingles |
+| page_2.wav, page_3.wav | bookFlip2.ogg, bookFlip3.ogg | Kenney — RPG Audio |
+| dice_2.wav, dice_3.wav | dice-throw-1.ogg, dice-throw-3.ogg | Kenney — Casino Audio |
+| swords_2.wav, swords_3.wav | impactMetal_medium_001.ogg, impactMetal_heavy_002.ogg | Kenney — Impact Sounds |
+| item_2.wav, item_3.wav | handleSmallLeather2.ogg, beltHandle1.ogg | Kenney — RPG Audio |
+| coins_2.wav | handleCoins.ogg | Kenney — RPG Audio |
+| key_2.wav | metalClick.ogg | Kenney — RPG Audio |
+| hit_2.wav à hit_4.wav | impactPunch_medium_001 à 003.ogg | Kenney — Impact Sounds |
+| door.wav, door_2.wav | doorOpen_1.ogg, doorOpen_2.ogg | Kenney — RPG Audio |
+| flee.wav | footstep00/02/04/06.ogg enchaînés | Kenney — RPG Audio |
+| meal.wav, meal_2.wav | metalPot1.ogg, metalPot2.ogg | Kenney — RPG Audio |
+| growl.wav à growl_3.wav | NPC/gutteral beast/mnstr1, 4, 7.wav | artisticdude — RPG Sound Pack |
+| growl_giant.wav, growl_giant_2.wav | NPC/ogre/ogre1.wav, NPC/giant/giant1.wav | artisticdude — RPG Sound Pack |
+| growl_shade.wav, growl_shade_2.wav | NPC/shade/shade1.wav, shade5.wav | artisticdude — RPG Sound Pack |
+| growl_slime.wav, growl_slime_2.wav | NPC/slime/slime1.wav, slime4.wav | artisticdude — RPG Sound Pack |
+| magic.wav, magic_2.wav | battle/magic1.wav, battle/spell.wav | artisticdude — RPG Sound Pack |
 | ambient.ogg | dungeon_ambient_1_0.ogg | [JaggedStone — Loopable Dungeon Ambience](https://opengameart.org/content/loopable-dungeon-ambience) |
 | ambient_cite.ogg | 2729.flac « Outdoor market #2 » | [Joseph SARDIN — BigSoundBank](https://bigsoundbank.com/outdoor-market-2-s2729.html) |
 | ambient_foret.ogg | 2749.flac « Forest #4 » | [Joseph SARDIN — BigSoundBank](https://bigsoundbank.com/forest-4-s2749.html) |

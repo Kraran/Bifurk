@@ -1,0 +1,86 @@
+BIFURK — LICENCES ET REMERCIEMENTS
+==================================
+
+Ce fichier recense les ressources de tiers livrées avec Bifurk, leur licence et
+leurs auteurs, que nous remercions chaleureusement. Le détail fichier par fichier
+(source exacte, empreinte SHA-256, traitements) est dans assets/sounds/CREDITS.md,
+assets/sounds/sources.json, assets/ABOUT-CREDITS.md et docs/windows/COMPOSANTS-TIERS.md.
+Ces licences d'assets ne définissent pas la licence du code de Bifurk.
+
+Aucun livre n'est fourni : Bifurk lit le PDF du joueur. Rien n'est repris des livres
+dans les sons, décors et thèmes.
+
+
+EFFETS SONORES ET AMBIANCES
+---------------------------
+
+Kenney (https://kenney.nl) — licence CC0 1.0 (domaine public)
+  - RPG Audio      https://kenney.nl/assets/rpg-audio
+                   pages, objets, pièces, serrure, portes, pas de fuite, repas
+  - Casino Audio   https://kenney.nl/assets/casino-audio
+                   dés
+  - Impact Sounds  https://kenney.nl/assets/impact-sounds
+                   blessures, chocs d'armes
+  - Music Jingles  https://kenney.nl/assets/music-jingles
+                   victoire, défaite
+  Textes d'origine : assets/sounds/LICENSE-Kenney-*.txt
+
+artisticdude — RPG Sound Pack — licence CC0 1.0
+  https://opengameart.org/content/rpg-sound-pack
+  épées, potion, cris de bêtes, d'ogres et de géants, spectres, créatures
+  visqueuses, magie
+
+JaggedStone — Loopable Dungeon Ambience — licence CC0 1.0
+  https://opengameart.org/content/loopable-dungeon-ambience
+  ambiance de la caverne
+
+Joseph SARDIN — BigSoundBank — licence CC0 1.0
+  https://bigsoundbank.com (licences : https://bigsoundbank.com/licences.html)
+  « Outdoor market #2 » : ambiance de la ville (La Cité des Voleurs)
+  « Forest #4 »        : ambiance de la forêt (La Forêt de la Malédiction)
+
+Les ressources CC0 n'exigent aucune mention ; nous les créditons par gratitude.
+Les ressources libres de droits sous d'autres licences ajoutées plus tard seront
+listées ici avec leurs conditions (mention obligatoire, redistribution…).
+
+
+MUSIQUE
+-------
+
+« Tavern Loop One », Alexander Nakarada, album « Fantasy Fair »
+  fichier assets/sounds/FantasyFair.m4a, fourni par l'utilisateur.
+  La licence CC0 des effets ne s'applique pas à ce morceau : vérifier ses
+  conditions sur la page de l'auteur avant toute redistribution publique.
+
+
+POLICES
+-------
+
+EB Garamond — Georg Duffner — SIL Open Font License 1.1
+  assets/fonts/LICENSE-EB-Garamond.txt
+Lato — Łukasz Dziedzic — SIL Open Font License 1.1
+  assets/fonts/LICENSE-Lato.txt
+
+
+IMAGES, DÉCORS ET VIDÉO
+-----------------------
+
+Portrait du panneau « À propos » : Kraran, dépôt Gamelist Media Editor,
+  licence MIT — assets/about-author-LICENSE.txt
+Décor et annonce de La Cité des Voleurs, tatouage de la Cité : fournis par
+  Franck pour Bifurk (assets/ABOUT-CREDITS.md).
+Film d'introduction : fourni par l'utilisateur, préparé pour Bifurk
+  (assets/video/README.md).
+Thèmes des grimoires : textures dérivées de celles du thème Standard
+  (scripts/prepare_theme_textures.py).
+
+
+LOGICIELS
+---------
+
+Python (PSF), PySide6 / Qt (LGPL / GPL), PyMuPDF / MuPDF (AGPL-3.0),
+NumPy (BSD), edge-tts (lecture vocale par le service Microsoft Edge),
+PyInstaller (GPL avec exception) : voir docs/windows/COMPOSANTS-TIERS.md.
+
+
+Merci à toutes et à tous !

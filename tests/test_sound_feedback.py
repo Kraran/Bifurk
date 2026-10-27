@@ -61,6 +61,11 @@ class FakeEffect:
     def isPlaying(self): return self.play_count > self.stop_count
 
 
+def plays(bank, name):
+    """Lectures d'un effet, toutes variantes confondues (« page », « page_2 »…)."""
+    return sum(effect.play_count for effect in [bank.effects[name], *bank.variants.get(name, ())])
+
+
 class SoundFeedbackTests(unittest.TestCase):
     """Scénarios de régression groupés ; chaque test décrit le comportement attendu."""
     @classmethod
@@ -74,13 +79,13 @@ class SoundFeedbackTests(unittest.TestCase):
             page = bank.effects['page']
             bank.play('page')
             self.assertIs(bank.effects['page'], page)
-            self.assertEqual(page.play_count, 1)
+            self.assertEqual(plays(bank, 'page'), 1)
             page.state = FakeEffect.Loading
             bank.play('page')
             bank.set_enabled(False)
             page.state = FakeEffect.Ready
             page.statusChanged.emit()
-            self.assertEqual(page.play_count, 1)
+            self.assertEqual(plays(bank, 'page'), 1)
             self.assertNotIn('page', bank.pending)
         self.assertEqual(random.getstate(), state)
 
@@ -124,11 +129,11 @@ class SoundFeedbackTests(unittest.TestCase):
                     dialog.reject()
                 QTimer.singleShot(0, preview)
                 w.show_ambience()
-                self.assertEqual(w.sounds.effects['page'].play_count, 1)
+                self.assertEqual(plays(w.sounds, 'page'), 1)
                 w.go_to(1)
-                self.assertEqual(w.sounds.effects['page'].play_count, 2)
+                self.assertEqual(plays(w.sounds, 'page'), 2)
                 w.roll_free_dice('1d6')
-                self.assertEqual(w.sounds.effects['dice'].play_count, 1)
+                self.assertEqual(plays(w.sounds, 'dice'), 1)
                 with patch.object(QMessageBox, 'question', return_value=QMessageBox.Yes):
                     w.prepare_encounter({'name': 'Gardien', 'skill': 7, 'stamina': 6})
                 # Le bouton ouvre désormais le combat complet ; ce test audio
@@ -138,7 +143,7 @@ class SoundFeedbackTests(unittest.TestCase):
                 opened.assert_called_once()
                 with patch.object(QMessageBox, 'exec', return_value=QMessageBox.No):
                     w.combat_round()
-                self.assertEqual(w.sounds.effects['swords'].play_count, 1)
+                self.assertEqual(plays(w.sounds, 'swords'), 1)
             finally:
                 w.close()
                 w.deleteLater()

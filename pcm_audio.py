@@ -49,6 +49,7 @@ class Mixer(QIODevice):
         self.voices = []
         self.gain = 1.0  # Gain général : le fondu de fermeture le baisse jusqu'à 0.
         self.channels = {'effects': 1.0, 'ambient': 1.0}  # Curseurs de Réglages.
+        self.duck = self.duck_target = 1.0  # Baisse de l'ambiance pendant un combat.
         self.open(QIODevice.ReadOnly)
 
     def isSequential(self):
@@ -67,6 +68,12 @@ class Mixer(QIODevice):
         arrêter les autres à leur fin, puis saturer en 16 bits signé avant duplication
         gauche / droite. Sans voix, retourner du silence de même durée."""
         frames = maximum // 4  # Stereo signed 16-bit PCM.
+        if self.duck != self.duck_target and frames > 0:
+            # Rapprochement progressif (≈ 0,3 s) : pas de saut de volume audible.
+            step = min(1.0, frames / (self.RATE * .3))
+            self.duck += (self.duck_target - self.duck) * step
+            if abs(self.duck - self.duck_target) < .01:
+                self.duck = self.duck_target
         active = [voice for voice in self.voices if voice.isPlaying()]
         if not active or frames <= 0:
             return bytes(max(frames, 0) * 4)
@@ -85,7 +92,10 @@ class Mixer(QIODevice):
         if length == 0:
             voice.stop()
             return
-        level = voice.volume * self.gain * self.channels.get(getattr(voice, 'channel', 'effects'), 1.0)
+        channel = getattr(voice, 'channel', 'effects')
+        level = voice.volume * self.gain * self.channels.get(channel, 1.0)
+        if channel == 'ambient':
+            level *= self.duck
         envelope = voice.envelope(frames) if hasattr(voice, 'envelope') else None
         filled = 0
         while filled < frames:

@@ -23,7 +23,7 @@ from rules_viewer import RulesDialog
 from grimoire_library import imported_grimoires, GrimoireLibraryDialog
 from themes import available_themes, set_active_theme
 import theme_palette
-from sound_effects import SoundBank, EFFECT_LABELS
+from sound_effects import SoundBank, EFFECT_LABELS, creature_sound
 from intro_music import IntroMusic
 from tts import DEFAULT_VOICE, ParagraphReader, available_french_voices
 from audio_configuration import configure_audio_backend
@@ -507,6 +507,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.book_combat_assaults = {}
         self._combat_dialog = None  # Uniquement pendant l'exécution modale.
         self._combat_popup = None   # Chronique conservée si le combat est suspendu.
+        self._last_growl = None     # Combat dont le cri d'ouverture a déjà retenti.
         self.paragraphs = {}
         self.current_paragraph = None
         self.visited_paragraphs = []
@@ -3345,11 +3346,17 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                 popup.deleteLater()
             popup = self._combat_popup = CombatDialog(self)
         popup.refresh_stats()
+        if popup is not self._last_growl:
+            # Cri de l'adversaire à l'ouverture d'un nouveau combat (pas à la reprise).
+            self._last_growl = popup
+            self.sounds.play(creature_sound(self.enemy_name.text()))
         self._combat_dialog = popup
+        self.sounds.duck_ambient(True)
         try:
             popup.exec()
         finally:
             self._combat_dialog = None
+            self.sounds.duck_ambient(False)
             self._refresh_after_combat_dialog()
 
     def _refresh_after_combat_dialog(self):
@@ -3523,6 +3530,10 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if new.get("potion_doses", 0) < old.get("potion_doses", 0):
             self.sounds.play("potion")
             return
+        if (new.get("provisions", 0) < old.get("provisions", 0)
+                and new.get("endurance", 0) > old.get("endurance", 0)):
+            self.sounds.play("meal")
+            return
         source = before["current_paragraph"]
         if source != self.current_paragraph:
             entry = verified_entry(self.book_event_catalogue, source)
@@ -3533,12 +3544,40 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                 if keyed:
                     self.sounds.play("key")
                     return
+                if entry.get("combat", {}).get("escape_target") == self.current_paragraph \
+                        and new.get("endurance", 0) < old.get("endurance", 0):
+                    self.sounds.play("flee")
+                    return
+            arrival = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+            # Bruits de passage (catalogue, porte) : ils accompagnent la page tournée et
+            # n'empêchent pas le son d'issue (blessure, pièces, objet) de la même action.
+            if arrival.get("sound") in EFFECT_LABELS:
+                self.sounds.play(arrival["sound"])
+            elif self._route_through_door(source, self.current_paragraph):
+                self.sounds.play("door")
         if new.get("endurance", 0) < old.get("endurance", 0):
             self.sounds.play("hit")
         elif new.get("gold", 0) != old.get("gold", 0):
             self.sounds.play("coins")
         elif Counter(new.get("inventory", [])) - Counter(old.get("inventory", [])):
             self.sounds.play("item")
+
+    DOOR_WORDS = re.compile(r"(?i)\b(?:porte|portail|grille|trappe|herse)s?\b")
+    DOOR_VERBS = re.compile(r"(?i)\b(?:ouvr|pouss|franchi|enfonc|défonc|forc|essay|entr|frapp|déverrouill)\w*")
+    DOOR_REFUSAL = re.compile(r"(?i)\bne\s+pas\b|\bsans\b|\bignor\w*|\bplutôt que\b")
+
+    def _route_through_door(self, source, target):
+        """Vrai si le choix suivi passe une porte : « ouvrir la porte », « franchir la grille »…
+
+        Le libellé du choix doit nommer l'ouverture et le geste, sans le refuser
+        (« ne pas franchir la porte » reste une page tournée)."""
+        text = self.paragraphs.get(source)
+        if not text:
+            return False
+        return any(choice["target"] == target and self.DOOR_WORDS.search(choice["label"])
+                   and self.DOOR_VERBS.search(choice["label"])
+                   and not self.DOOR_REFUSAL.search(choice["label"])
+                   for choice in self._paragraph_choices(text))
 
     def _update_history_controls(self):
         """Mettre à jour les boutons et compteurs à partir des piles Undo / Redo."""
