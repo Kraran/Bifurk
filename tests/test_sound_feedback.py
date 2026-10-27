@@ -166,7 +166,9 @@ with patch.object(SoundBank, '_backend', return_value=PcmEffect):
     while any(effect.status() == effect.Loading for effect in pcm.effects.values()) \
             and time.monotonic() < deadline:
         app.processEvents()
-    assert all(effect.status() == effect.Ready for effect in pcm.effects.values())
+    # Les ambiances restent non décodées tant qu'elles ne sont pas demandées.
+    assert all(effect.status() == (effect.Unloaded if effect.channel == 'ambient' else effect.Ready)
+               for effect in pcm.effects.values())
     pcm.play('page')
     assert any(pcm._pcm_mixer.readData(44100 * 4))
     pcm._pcm_sink.stop()

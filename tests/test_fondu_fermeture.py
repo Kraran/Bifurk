@@ -93,7 +93,8 @@ class QuitFadeTests(unittest.TestCase):
 
     def test_mixer_gain_scales_every_voice(self):
         mixer = Mixer()
-        voice = MagicMock(samples=[10000, 10000], position=0, volume=0.5, loops=1)
+        voice = MagicMock(spec=['samples', 'position', 'volume', 'loops', 'isPlaying', 'stop'],
+                          samples=[10000, 10000], position=0, volume=0.5, loops=1)
         voice.isPlaying.return_value = True
         mixer.voices.append(voice)
         mixer.gain = 0.5
