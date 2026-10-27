@@ -9,7 +9,7 @@ transaction d'historique. _restoring interdit de rejouer les effets à la restau
 Les chemins portables dérivent du script ou de l'exécutable, jamais du répertoire
 courant du terminal. Voir docs/maintenance.md avant de modifier les sauvegardes,
 la navigation ou le cycle création / partie / mort."""
-import sys, re, json, random, copy, os, tempfile, hashlib, shutil, html
+import sys, re, json, random, copy, os, tempfile, shutil, html
 import shiboken6
 from collections import Counter
 from pathlib import Path
@@ -18,7 +18,7 @@ from illustrations import images_for_paragraph, cover
 from grimoire_modules.controller import ModuleActions, sheet_marks
 from carnet import CarnetMixin
 from grimoire_modules.fighting_fantasy.rules import POTION_STATS, POTION_DOSES
-from grimoire_modules.registry import module_for_pdf
+from grimoire_modules.registry import module_for_pdf, pdf_digest
 from rules_viewer import RulesDialog
 from grimoire_library import imported_grimoires, GrimoireLibraryDialog
 from themes import available_themes
@@ -85,21 +85,20 @@ def within_directory(path, directory):
         return False
 
 
-def import_book(source):
+def import_book(source, digest=None):
     """Importer un PDF par copie temporaire puis remplacement dans grimoires.
 
     La source reste intacte. Le nom combine son libellé et une empreinte de contenu
-    pour distinguer les éditions ; un livre déjà importé n’est pas recopié."""
+    pour distinguer les éditions ; un livre déjà importé n’est pas recopié.
+    digest (SHA-256 hexadécimal déjà calculé) évite une seconde lecture du livre."""
     source = Path(source).resolve()
     if not source.is_file() or source.suffix.lower() != '.pdf':
         raise ValueError("Sélectionnez un fichier PDF valide.")
     if within_directory(source, BOOKS_DIR):
         return str(source)
-    digest = hashlib.sha256()
-    with source.open('rb') as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b''):
-            digest.update(block)
-    target = BOOKS_DIR / f"{source.stem[:75]}_{digest.hexdigest()[:12]}.pdf"
+    if digest is None:
+        digest = pdf_digest(source)
+    target = BOOKS_DIR / f"{source.stem[:75]}_{digest[:12]}.pdf"
     if not target.exists():
         temp = None
         try:
@@ -195,7 +194,10 @@ def read_book_for_opening(path, report):
     L’empreinte n’est calculée qu’une fois pour reconnaître l’édition, puis transmise
     à l’extraction. Le livre n’est importé que s’il contient des paragraphes."""
     report(.02, "Lecture du livre")
-    book_module = module_for_pdf(path)
+    # Une seule lecture complète : l'empreinte sert à reconnaître l'édition, à
+    # nommer la copie importée et à identifier le livre dans les autosauvegardes.
+    digest = pdf_digest(path) if Path(path).is_file() else None
+    book_module = module_for_pdf(path, digest=digest)
     report(.08, "Extraction des paragraphes")
     paragraphs = extract_paragraphs(path, module=book_module,
                                     progress=_extraction_reporter(report, .08, .85))
@@ -204,15 +206,15 @@ def read_book_for_opening(path, report):
     events = book_module.catalogue('events') if book_module else None
     if paragraphs:
         report(.9, "Rangement dans la bibliothèque")
-        path = import_book(path)
-    return paragraphs, book_module, illustrations, events, path
+        path = import_book(path, digest=digest)
+    return paragraphs, book_module, illustrations, events, path, digest
 
 
 def read_save_for_loading(path, pdf_hash, report):
     """Lire et valider une sauvegarde sans widget, exécutable hors du thread de l’interface.
 
     Renvoie (données, livre) où livre vaut None si la sauvegarde ne référence aucun
-    grimoire, sinon (pdf, paragraphes, module, illustrations, événements). Toute
+    grimoire, sinon (pdf, paragraphes, module, illustrations, événements, empreinte). Toute
     incohérence lève une erreur avant que la partie en cours ne soit modifiée."""
     report(.02, "Lecture de la sauvegarde")
     data = read_save(Path(path))
@@ -224,9 +226,10 @@ def read_save_for_loading(path, pdf_hash, report):
         return data, None
     report(.05, "Vérification du grimoire")
     expected = data['pdf_sha256']
-    if expected and expected != pdf_hash(pdf):
+    actual = pdf_hash(pdf)
+    if expected and expected != actual:
         raise ValueError("Le PDF a changé depuis la sauvegarde.")
-    book_module = module_for_pdf(pdf)
+    book_module = module_for_pdf(pdf, digest=actual)
     saved_module = data.get('module_id')
     if saved_module is not None and (book_module is None or saved_module != book_module.id):
         raise ValueError("Le module de cette sauvegarde ne correspond pas au grimoire.")
@@ -236,7 +239,7 @@ def read_save_for_loading(path, pdf_hash, report):
     report(.87, "Préparation des catalogues")
     illustrations = book_module.catalogue('illustrations') if book_module else None
     events = book_module.catalogue('events') if book_module else None
-    return data, (pdf, paragraphs, book_module, illustrations, events)
+    return data, (pdf, paragraphs, book_module, illustrations, events, actual)
 
 
 def franciser_message(dialog):
@@ -477,6 +480,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.resize(1600, 900)
         self.setMinimumSize(930, 650)
         self.pdf_path = None
+        # (chemin, SHA-256) du livre ouvert, calculé à l'ouverture ou au chargement :
+        # l'autosauvegarde ne relit plus tout le PDF à chaque action.
+        self._book_digest = None
         self.book_module = None
         self.illustration_catalogue = None
         self.book_event_catalogue = None
@@ -845,6 +851,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         audio_layout = QVBoxLayout(audio_group)
         audio_layout.setSpacing(14)
         layout.addWidget(audio_group)
+        # Les curseurs émettent un signal à chaque cran : leurs valeurs ne sont
+        # écrites qu'une fois, à la fermeture de la fenêtre (voir finally).
+        volume_changed = []
         sound = QCheckBox("Activer les effets sonores")
         sound.setChecked(self.sounds.enabled)
         def set_sound(enabled):
@@ -903,11 +912,11 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         tts_value.setObjectName('ttsVolumeValue')
         tts_value.setMinimumWidth(70)
         def set_tts_volume(percent):
-            """Appliquer aussitôt, même pendant une lecture, et mémoriser le volume de la voix."""
+            """Appliquer aussitôt, même pendant une lecture ; mémoriser à la fermeture."""
             self.tts.set_volume(percent / 100)
             tts_value.setText(f'{percent} %' if percent else 'Muet')
             self.preferences['tts_volume'] = percent
-            self._save_preferences()
+            volume_changed.append(True)
         tts_value.setText(f'{tts_volume.value()} %' if tts_volume.value() else 'Muet')
         tts_volume.valueChanged.connect(set_tts_volume)
         tts_row.addWidget(tts_volume, 1)
@@ -936,7 +945,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             music_value.setText(f'{percent} %' if percent else 'Muet')
             self.preferences['music_volume'] = percent
             self.preferences['music_enabled'] = percent > 0
-            self._save_preferences()
+            volume_changed.append(True)
         music_value.setText(f'{music.value()} %' if music.value() else 'Muet')
         music.valueChanged.connect(set_music_volume)
         music_row.addWidget(music, 1)
@@ -1018,6 +1027,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         try:
             dialog.exec()
         finally:
+            if volume_changed:
+                self._save_preferences()
             dialog.deleteLater()
 
     def apply_theme(self, theme_id):
@@ -2512,7 +2523,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.last_loading = session
         with session:
             try:
-                paragraphs, book_module, illustrations, events, path = session.run(
+                paragraphs, book_module, illustrations, events, path, digest = session.run(
                     lambda report: read_book_for_opening(path, report))
             except LoadingCancelled:
                 return  # fenêtre fermée pendant la lecture : rien n'est appliqué
@@ -2521,7 +2532,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             else:
                 if paragraphs and self._accepts_loading_result(session):
                     session.step(.95, "Préparation de l’aventure")
-                    self._install_opened_book(path, paragraphs, book_module, illustrations, events)
+                    self._install_opened_book(path, paragraphs, book_module, illustrations, events,
+                                              digest=digest)
                     session.step(1.0, "Préparation de l’aventure")
         if not self._accepts_loading_result(session):
             return  # ni dialogue ni message après la fermeture
@@ -2534,7 +2546,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if self.illustration_catalogue is None and not startup:
             QMessageBox.information(self, "Illustrations", "Ce PDF ne correspond pas exactement à l’édition cataloguée. Les illustrations automatiques sont désactivées pour éviter les mauvaises associations.")
 
-    def _install_opened_book(self, path, paragraphs, book_module, illustrations, events):
+    def _install_opened_book(self, path, paragraphs, book_module, illustrations, events, *, digest=None):
         """Appliquer dans le thread de l’interface un livre lu et importé par read_book_for_opening."""
         self._discard_combat_popup()
         self._close_book_dialogs()
@@ -2543,6 +2555,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.book_module = book_module
         self.sounds.set_ambient_track(getattr(book_module, 'engine', None))
         self.pdf_path = path
+        self._book_digest = (str(path), digest) if digest else None
         self.illustration_catalogue = illustrations
         self.book_event_catalogue = events
         for key in ("book_state", "book_visits", "book_facts"):
@@ -3412,42 +3425,59 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                 **self._carnet_save_fields()}
 
     def _pdf_hash(self, path=None):
-        """Calculer le SHA-256 par blocs ; un chemin candidat permet de valider avant chargement."""
-        path = path or self.pdf_path
-        if not path or not Path(path).is_file():
-            return None
-        h = hashlib.sha256()
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(1024 * 1024), b""):
-                h.update(chunk)
-        return h.hexdigest()
+        """SHA-256 d'un PDF ; sans chemin, celui du livre ouvert.
 
-    def _write_atomic(self, path, data):
+        Un chemin explicite (validation avant chargement) est toujours relu : un
+        livre remplacé sur le disque doit être détecté. Le livre ouvert garde
+        l'empreinte calculée à son ouverture, celle du texte réellement extrait."""
+        if path is not None:
+            return pdf_digest(path) if Path(path).is_file() else None
+        if not self.pdf_path:
+            return None
+        cached = self._book_digest
+        if cached and cached[0] == str(self.pdf_path):
+            return cached[1]
+        digest = self._pdf_hash(self.pdf_path)
+        if digest:
+            self._book_digest = (str(self.pdf_path), digest)
+        return digest
+
+    def _write_atomic(self, path, data, *, compact=False, durable=True):
         """Écrire un JSON temporaire dans le même dossier, fsync puis os.replace.
 
         L’ancien fichier reste intact si l’écriture échoue avant remplacement ; nettoyer
-        le temporaire dans finally. Le même dossier permet le remplacement atomique."""
+        le temporaire dans finally. Le même dossier permet le remplacement atomique.
+        compact retire l'indentation ; durable=False saute le fsync (le remplacement
+        reste atomique face à un plantage du programme, pas à une coupure de courant)."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp = None
         try:
             with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False, suffix=".tmp") as f:
                 tmp = Path(f.name)
-                json.dump(data, f, ensure_ascii=False, indent=2)
+                if compact:
+                    json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
+                else:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
                 f.flush()
-                os.fsync(f.fileno())
+                if durable:
+                    os.fsync(f.fileno())
             os.replace(tmp, path)
         finally:
             if tmp and tmp.exists():
                 tmp.unlink()
 
     def _autosave(self):
-        """Écrire l’état technique séparé des cinq emplacements ; tolérer une erreur disque."""
+        """Écrire l’état technique séparé des cinq emplacements ; tolérer une erreur disque.
+
+        Écrite après chaque action, l'autosauvegarde reste compacte et sans fsync :
+        les cinq emplacements manuels gardent le JSON indenté et l'écriture durable."""
         if not self.pdf_path or self._restoring:
             return
         try:
             directory = SAVES_DIR
-            self._write_atomic(directory / "autosave.json", self._save_data())
+            self._write_atomic(directory / "autosave.json", self._save_data(),
+                               compact=True, durable=False)
         except OSError:
             pass  # La sauvegarde manuelle reste disponible.
 
@@ -3555,9 +3585,10 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def _apply_loaded_save(self, data, book):
         """Restaurer dans le thread de l’interface une sauvegarde validée par read_save_for_loading."""
         if book is not None:
-            pdf, paragraphs, book_module, illustration_catalogue, events = book
+            pdf, paragraphs, book_module, illustration_catalogue, events, digest = book
             self._close_book_dialogs()
             self.pdf_path = pdf
+            self._book_digest = (str(pdf), digest) if digest else None
             self.paragraphs = paragraphs
             self.illustration_catalogue = illustration_catalogue
             self.book_module = book_module

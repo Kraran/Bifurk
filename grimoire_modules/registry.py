@@ -62,14 +62,47 @@ class GrimoireModule:
             repair_cite_ocr(paragraphs)
 
 
+# Registres déjà validés, indexés par dossier et par signature (nom, taille, date)
+# de chaque JSON du dossier : modifier, ajouter ou retirer un manifeste ou un
+# catalogue invalide l'entrée. Les modules sont immuables et relisent leurs
+# catalogues à la demande : partager le tuple ne partage aucun état de partie.
+_MODULES_CACHE = {}
+
+
+def _catalogue_signature(root):
+    """Empreinte légère des JSON du registre, sans relire leur contenu."""
+    signature = []
+    for path in sorted(root.rglob('*.json')):
+        try:
+            stat = path.stat()
+        except OSError:
+            continue
+        signature.append((str(path.relative_to(root)), stat.st_size, stat.st_mtime_ns))
+    return tuple(signature)
+
+
 def available_modules(catalogue_root=None):
+    """Registre validé, relu seulement si un JSON du dossier a changé.
+
+    La validation complète (manifestes et catalogues) ne tourne qu'une fois par
+    état du dossier ; une erreur n'est jamais mise en cache."""
+    root = Path(catalogue_root or CATALOGUES).resolve()
+    signature = _catalogue_signature(root)
+    cached = _MODULES_CACHE.get(root)
+    if cached is not None and cached[0] == signature:
+        return cached[1]
+    modules = _read_modules(root)
+    _MODULES_CACHE[root] = (signature, modules)
+    return modules
+
+
+def _read_modules(root):
     """Lire et valider le registre ; les doublons sont des erreurs de distribution.
 
     Le moteur est une capacité du programme, jamais un import Python arbitraire
     issu du JSON. Un prochain livre doit livrer son adaptateur et ses tests avant
     d'être déclaré compatible. Le dossier injecté facilite les tests hors PDF privé.
     """
-    root = Path(catalogue_root or CATALOGUES).resolve()
     modules, ids, digests = [], set(), set()
     for path in sorted((root / 'modules').glob('*.json')):
         data = json.loads(path.read_text(encoding='utf-8'))
@@ -128,10 +161,13 @@ def available_modules(catalogue_root=None):
     return tuple(modules)
 
 
-def module_for_pdf(pdf_path, *, catalogue_root=None):
-    """Retourner le module exact ou None : un livre inconnu ne reçoit aucune base connue."""
+def module_for_pdf(pdf_path, *, catalogue_root=None, digest=None):
+    """Retourner le module exact ou None : un livre inconnu ne reçoit aucune base connue.
+
+    digest évite de relire le PDF quand l'appelant vient d'en calculer l'empreinte."""
     if not pdf_path or not Path(pdf_path).is_file():
         return None
-    digest = pdf_digest(pdf_path)
+    if digest is None:
+        digest = pdf_digest(pdf_path)
     return next((module for module in available_modules(catalogue_root)
                  if module.pdf_sha256 == digest), None)

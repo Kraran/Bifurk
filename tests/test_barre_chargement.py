@@ -87,7 +87,7 @@ class LoadingBarTests(unittest.TestCase):
             return real_extract(path, **kwargs)
 
         with patch('main.extract_paragraphs', side_effect=spy), \
-                patch('main.import_book', side_effect=lambda path: path), \
+                patch('main.import_book', side_effect=lambda path, digest=None: path), \
                 patch.object(QMessageBox, 'information'):
             self.w.open_pdf(str(self.pdf))
         self.assertEqual(len(threads), 1)
