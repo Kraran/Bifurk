@@ -201,12 +201,15 @@ Ces états visuels n'appartiennent pas à la sauvegarde.
 
 ## Audio et diagnostic Windows
 
-`SoundBank` orchestre les sons ; `PcmEffect` charge les WAV et partage un seul
+`SoundBank` orchestre les sons ; `PcmEffect` charge les WAV (effets) et décode les
+OGG Vorbis (boucles d'ambiance, par `QAudioDecoder`, en arrière-plan) ; il partage un seul
 `QAudioSink` avec toutes les voix de la banque. `Mixer` fournit en permanence
 des trames stéréo PCM 16 bits à 44,1 kHz, y compris du silence entre les actions.
 Cette continuité évite la perte de l'attaque des effets très courts sur Windows.
 
-Les assets sont mono 16 bits ; les sons à 22,05 kHz sont doublés en mémoire.
+Les assets sont mono 16 bits ; les sons à 22,05 kHz sont doublés en mémoire. Les
+boucles OGG sont décodées à 22,05 kHz puis doublées de même : le rééchantillonneur de
+FFmpeg perdrait quelques échantillons en fin de fichier et créerait une couture.
 Le mélange additionne les voix et sature les échantillons pour empêcher le
 débordement numérique. Les boucles infinies sont réservées aux ambiances (`AMBIENT_LABELS`), une seule à la fois.
 Ne pas ajouter d'accès aux widgets ou au disque dans le callback `readData`.

@@ -2,13 +2,19 @@
 
 Même format, même réglage et même volume de lecture que la caverne qu’elles remplacent ;
 niveau RMS commun fixé par scripts/prepare_book_ambiences.py, raccord sans couture,
-source CC0 créditée avec son empreinte.
+source CC0 créditée avec son empreinte. Les boucles sont livrées en OGG Vorbis et
+contrôlées après décodage, tel que le jeu les entend.
 """
+import array
 import json
 import math
 import unittest
-import wave
+from collections import namedtuple
 from unittest.mock import patch
+
+from PySide6.QtCore import QTimer, QUrl
+from PySide6.QtMultimedia import QAudioDecoder, QAudioFormat
+from PySide6.QtWidgets import QApplication
 
 import main
 from sound_effects import AMBIENT_LABELS, AMBIENT_TRACKS, SoundBank
@@ -18,12 +24,43 @@ LOOPS = {'ambient_cite': ('cite-1983', 'ville'), 'ambient_foret': ('foret-1983',
 TARGET_RMS_DBFS = -31.7
 
 
+Params = namedtuple('Params', 'nchannels sampwidth framerate nframes')
+_DECODED = {}
+
+
 def pcm(name):
-    """Lire un WAV livré : paramètres et échantillons 16 bits."""
-    with wave.open(str(main.ASSET_DIR/'sounds'/f'{name}.wav')) as stream:
-        params = stream.getparams()
-        data = stream.readframes(stream.getnframes())
-    return params, memoryview(data).cast('h')
+    """Décoder une boucle livrée à sa fréquence d'origine : paramètres et échantillons 16 bits."""
+    if name in _DECODED:
+        return _DECODED[name]
+    app = QApplication.instance() or QApplication([])
+    decoder = QAudioDecoder()
+    wanted = QAudioFormat()
+    wanted.setSampleRate(22050)
+    wanted.setChannelCount(1)
+    wanted.setSampleFormat(QAudioFormat.Int16)
+    decoder.setAudioFormat(wanted)
+    data, formats, done = bytearray(), set(), []
+
+    def ready():
+        buffer = decoder.read()
+        fmt = buffer.format()
+        formats.add((fmt.channelCount(), fmt.bytesPerSample(), fmt.sampleRate()))
+        data.extend(bytes(buffer.constData()))
+
+    decoder.bufferReady.connect(ready)
+    decoder.finished.connect(lambda: done.append(True))
+    decoder.error.connect(lambda *_: done.append(False))
+    decoder.setSource(QUrl.fromLocalFile(str(main.ASSET_DIR/'sounds'/f'{name}.ogg')))
+    QTimer.singleShot(10_000, lambda: done.append(False))
+    decoder.start()
+    while not done:
+        app.processEvents()
+    if done[0] is not True or len(formats) != 1:
+        raise AssertionError(f'Décodage impossible : {name}.ogg')
+    channels, width, rate = formats.pop()
+    samples = array.array('h', bytes(data))
+    _DECODED[name] = (Params(channels, width, rate, len(samples) // channels), samples)
+    return _DECODED[name]
 
 
 def rms_dbfs(samples):
@@ -40,7 +77,7 @@ class BookAmbienceAssetTests(unittest.TestCase):
                                  (cave_params.nchannels, cave_params.sampwidth, cave_params.framerate))
                 self.assertEqual((params.nchannels, params.sampwidth, params.framerate), (1, 2, 22050))
                 self.assertTrue(30 <= params.nframes/params.framerate <= 60)
-                self.assertLess((main.ASSET_DIR/f'sounds/{name}.wav').stat().st_size, 2_500_000)
+                self.assertLess((main.ASSET_DIR/f'sounds/{name}.ogg').stat().st_size, 400_000)
                 self.assertLess(abs(rms_dbfs(loop) - TARGET_RMS_DBFS), .3)
                 self.assertLessEqual(max(map(abs, loop)), 27500)
 
@@ -68,7 +105,7 @@ class BookAmbienceAssetTests(unittest.TestCase):
                 self.assertTrue(source['download'].startswith('https://bigsoundbank.com/UPLOAD/'))
                 self.assertRegex(source['sha256'], '^[0-9a-f]{64}$')
                 for text in credits.values():
-                    self.assertIn(f'{name}.wav', text)
+                    self.assertIn(f'{name}.ogg', text)
                     self.assertIn(source['page'], text)
 
 

@@ -6,6 +6,8 @@ est vérifié par SHA-256, filtré par FFmpeg (par défaut un passe-haut à 120 
 le grondement), réduit en mono PCM 16 bits à 22 050 Hz comme la caverne, puis bouclé
 sans couture par un fondu à puissance constante de la fin dans le début. Le niveau
 RMS visé est celui de l’entrée, sous le plafond de crête des effets (27 500).
+La boucle est livrée en OGG Vorbis (encode_loop) : Vorbis conserve le nombre exact
+d’échantillons, le raccord reste donc sans couture après décodage.
 Sans NOM, toutes les boucles sont reconstruites."""
 import hashlib
 import json
@@ -20,6 +22,15 @@ ROOT = Path(__file__).resolve().parents[1]
 SOUNDS = ROOT/'assets/sounds'
 RATE = 22050
 DEFAULT_FILTERS = 'highpass=f=120'
+VORBIS_QUALITY = '4'  # ≈ 10 fois plus léger que le WAV, sans perte audible à ce volume.
+
+
+def encode_loop(wav, target):
+    """Encoder un WAV préparé en OGG Vorbis reproductible, puis effacer le WAV intermédiaire."""
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(wav), '-c:a', 'libvorbis',
+                    '-q:a', VORBIS_QUALITY, '-map_metadata', '-1', '-fflags', '+bitexact',
+                    '-flags:a', '+bitexact', str(target)], check=True)
+    Path(wav).unlink()
 
 
 def prepare_one(folder, name, spec):
@@ -42,10 +53,11 @@ def prepare_one(folder, name, spec):
     loop -= loop.mean()
     gain = min(10**(spec['rms_dbfs']/20)/np.sqrt(np.mean(loop**2)), 27500/32768/abs(loop).max())
     loop *= gain
-    target = SOUNDS/f'{name}.wav'
-    with wave.open(str(target), 'wb') as stream:
+    wav, target = SOUNDS/f'{name}.wav', SOUNDS/f'{name}.ogg'
+    with wave.open(str(wav), 'wb') as stream:
         stream.setparams((1, 2, RATE, 0, 'NONE', 'not compressed'))
         stream.writeframes(np.rint(loop*32767).astype('<i2').tobytes())
+    encode_loop(wav, target)
     return {'file': target.name, 'seconds': len(loop)/RATE, 'bytes': target.stat().st_size,
             'rms_dbfs': round(float(20*np.log10(np.sqrt(np.mean(loop**2)))), 2),
             'peak_dbfs': round(float(20*np.log10(abs(loop).max())), 2),

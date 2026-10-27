@@ -3,7 +3,11 @@
 Un seul QAudioSink consomme Mixer pour toute une SoundBank. Même sans voix active,
 le flux produit du silence : la sortie Windows reste ouverte et ne perd pas
 l'attaque des sons courts. Les fichiers mono 16 bits deviennent un mélange stéréo
-44,1 kHz ; les ambiances 22,05 kHz sont doublées à la lecture du fichier.
+44,1 kHz ; un WAV à 22,05 kHz est doublé à la lecture du fichier. Les boucles
+d'ambiance sont livrées en OGG Vorbis : QAudioDecoder (moteur FFmpeg de Qt
+Multimedia) les décode une fois, en mémoire, en PCM mono 16 bits à 22,05 kHz,
+doublé comme un WAV. Le rééchantillonneur de FFmpeg perdrait quelques échantillons
+en fin de fichier : le doublement garde le compte exact, la boucle reste sans couture.
 
 readData est un rappel du système audio : ne pas y accéder aux widgets ni y faire
 d'E/S disque. Le propriétaire Qt doit arrêter le sink avant de détruire le mixer.
@@ -115,7 +119,12 @@ class PcmEffect(QObject):
         """Charger et valider un WAV mono PCM 16 bits puis émettre statusChanged.
 
         Accepter 44,1 kHz ou 22,05 kHz ; doubler les échantillons du second format.
+        Un autre format (OGG des ambiances) est décodé en arrière-plan : l'effet reste
+        Loading jusqu'à la fin, et SoundBank rejoue alors une demande en attente.
         Une erreur journalisée passe l’effet à Error sans empêcher l’ouverture du jeu."""
+        if not url.toLocalFile().lower().endswith('.wav'):
+            self._decode(url)
+            return
         try:
             with wave.open(url.toLocalFile(), 'rb') as source:
                 if (source.getnchannels() != 1 or source.getsampwidth() != 2
@@ -136,6 +145,56 @@ class PcmEffect(QObject):
             self.parent().logger.error('PCM asset error: %s', exc)
             self._status = self.Error
         self.statusChanged.emit()
+
+    def _decode(self, url):
+        """Décoder un fichier compressé en PCM mono 16 bits (22,05 kHz doublés, ou 44,1 kHz)."""
+        from PySide6.QtMultimedia import QAudioDecoder, QAudioFormat
+        wanted = QAudioFormat()
+        wanted.setSampleRate(Mixer.RATE // 2)
+        wanted.setChannelCount(1)
+        wanted.setSampleFormat(QAudioFormat.Int16)
+        # Gardé comme enfant (pas de deleteLater) : il ne sert qu'une fois par fichier.
+        decoder = self._decoder = QAudioDecoder(self)
+        decoder.setAudioFormat(wanted)
+        chunks = []
+        state = {'done': False, 'rate': None}
+
+        def finish(error=None):
+            if state['done']:
+                return
+            state['done'] = True
+            decoder.stop()
+            samples = array.array('h', b''.join(chunks))  # Int16 Qt : boutisme natif.
+            if state['rate'] == Mixer.RATE // 2:
+                samples = array.array('h', (s for s in samples for _ in range(2)))
+            if error is None and not samples:
+                error = 'Empty PCM asset'
+            if error is None:
+                self.samples = samples
+                self._status = self.Ready
+            else:
+                self.parent().logger.error('PCM asset error: %s (%s)', error, url.toLocalFile())
+                self._status = self.Error
+            self.statusChanged.emit()
+
+        def ready():
+            buffer = decoder.read()
+            if not buffer.isValid() or state['done']:
+                return
+            fmt = buffer.format()
+            if (fmt.channelCount(), fmt.sampleFormat()) != (1, QAudioFormat.Int16) or \
+                    fmt.sampleRate() not in (Mixer.RATE // 2, Mixer.RATE) or \
+                    state['rate'] not in (None, fmt.sampleRate()):
+                finish('Unsupported decoded format')
+                return
+            state['rate'] = fmt.sampleRate()
+            chunks.append(bytes(buffer.constData()))
+
+        decoder.bufferReady.connect(ready)
+        decoder.finished.connect(finish)
+        decoder.error.connect(lambda *_args: finish(decoder.errorString() or 'Decoder error'))
+        decoder.setSource(url)
+        decoder.start()
 
     def status(self):
         """Retourner l’état de disponibilité attendu par SoundBank."""

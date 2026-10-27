@@ -161,6 +161,11 @@ with patch.object(SoundBank, '_backend', return_value=QSoundEffect):
     assert bank.effects['ambient'].loopCount() == -2
 with patch.object(SoundBank, '_backend', return_value=PcmEffect):
     pcm = SoundBank(Path('assets/sounds'))
+    import time
+    deadline = time.monotonic() + 10  # Les boucles OGG se décodent en arrière-plan.
+    while any(effect.status() == effect.Loading for effect in pcm.effects.values()) \
+            and time.monotonic() < deadline:
+        app.processEvents()
     assert all(effect.status() == effect.Ready for effect in pcm.effects.values())
     pcm.play('page')
     assert any(pcm._pcm_mixer.readData(44100 * 4))
@@ -178,8 +183,9 @@ print('native preload OK')
         manifest = json.loads((ASSET_DIR/'sounds/sources.json').read_text())
         self.assertEqual(manifest['license'], 'CC0-1.0')
         self.assertTrue(set(EFFECT_LABELS) <= manifest['effects'].keys())
-        for name in [*EFFECT_LABELS, 'ambient']:
+        for name in EFFECT_LABELS:
             self.assertTrue((ASSET_DIR/'sounds'/f'{name}.wav').is_file())
+        self.assertTrue((ASSET_DIR/'sounds'/'ambient.ogg').is_file())  # Boucle livrée en OGG.
         with wave.open(str(ASSET_DIR/'sounds/page.wav')) as file:
             rate = file.getframerate()
             attack = array.array('h', file.readframes(int(rate * .04)))
