@@ -1,0 +1,35 @@
+{
+  "id": "sorcier",
+  "order": 1,
+  "name": "L’Antre de Zagor",
+  "book": "sorcier-1982",
+  "base": "grimoire",
+  "assets": {
+    "parchment": "parchment.jpg",
+    "leather": "leather.jpg",
+    "page": "page-parchment.jpg",
+    "sheet": "sheet-leather.jpg"
+  },
+  "recolor": {
+    "leather": [
+      "#16494a",
+      1.0,
+      1.0
+    ],
+    "seal": [
+      "#c25a26",
+      1.05,
+      1.08
+    ],
+    "page": [
+      45,
+      0.55,
+      0.8,
+      1.0
+    ],
+    "ground": [
+      "#0c1a1b",
+      0.9
+    ]
+  }
+}

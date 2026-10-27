@@ -9,6 +9,8 @@ import copy
 import html
 from string import Template
 
+from theme_palette import tint_hex
+
 from PySide6.QtCore import QEventLoop, Qt, QTimer
 from PySide6.QtGui import QTextOption
 from PySide6.QtWidgets import (QDialog, QFrame, QGridLayout, QHBoxLayout, QLabel,
@@ -81,9 +83,10 @@ Le même objet peut être rouvert pour conserver sa chronique dans cette session
             QPushButton#heroRoll:disabled { background: $scene_background; color: $ornament; }
             QLabel#combatAlert { font-size: 15px; font-style: italic; color: $gold;
                 border-top: 1px solid $ornament; border-bottom: 1px solid $ornament; padding: 5px; }
-            QPushButton#combatCare[urgent="true"] { background: #7c303b; color: #fff0cd;
+            QPushButton#combatCare[urgent="true"] { background: $care_urgent; color: #fff0cd;
                 border: 2px solid $gold; font-weight: bold; }
-        ''').substitute({**owner.theme.colors, 'ui_font': owner.ui_font_family}))
+        ''').substitute({**owner.theme.colors, 'ui_font': owner.ui_font_family,
+                         'care_urgent': tint_hex('#7c303b')}))
         layout = QVBoxLayout(self)
         layout.setContentsMargins(18, 18, 18, 18)
         layout.setSpacing(12)

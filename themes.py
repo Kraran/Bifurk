@@ -2,11 +2,16 @@
 
 Chaque manifeste résout ses assets depuis son propre répertoire. Le QSS utilise
 string.Template pour les couleurs, chemins et polices. Un thème incomplet est
-écarté de la liste ; le thème livré sert de repli aux fenêtres indépendantes.
+écarté de la liste ; le thème actif (Standard par défaut) sert de repli aux
+fenêtres indépendantes. Un thème dérivé (« base ») reprend le QSS, les couleurs et
+les assets de son thème de base, recolorés par sa section « recolor »
+(theme_palette), et ne déclare que ses propres textures.
 Voir docs/themes-et-ambiance.md avant d'ajouter une couleur ou un asset obligatoire."""
 import json
 from pathlib import Path
 from string import Template
+
+from theme_palette import parse_spec, tint_css, tint_hex
 
 
 class Theme:
@@ -14,12 +19,26 @@ class Theme:
     def __init__(self, manifest):
         """Charger JSON et QSS depuis le manifeste ; remonter les erreurs au validateur de thèmes."""
         self.root = Path(manifest).parent
-        self.data = json.loads(Path(manifest).read_text(encoding='utf-8'))
+        data = json.loads(Path(manifest).read_text(encoding='utf-8'))
+        self.recolor = parse_spec(data.get('recolor'))
+        own_assets = {key: (self.root / path).resolve() for key, path in data.get('assets', {}).items()}
+        if data.get('base'):
+            base = Theme(self.root.parent / data['base'] / 'theme.json')
+            if base.recolor is not None:
+                raise ValueError('Un thème de base ne peut pas être lui-même dérivé.')
+            self.data = {**base.data, **data}
+            self.assets = {**base.assets, **own_assets}
+            # Le QSS reçoit les couleurs d'origine puis est recoloré en une fois.
+            self._css_colors = dict(base.colors)
+            self.colors = {key: tint_hex(value, self.recolor) for key, value in base.colors.items()}
+            self.css = base.css
+        else:
+            self.data = data
+            self.assets = own_assets
+            self.colors = self._css_colors = data['colors']
+            self.css = (self.root / data['stylesheet']).read_text(encoding='utf-8')
         self.id = self.data['id']
         self.name = self.data['name']
-        self.assets = {key: (self.root / path).resolve() for key, path in self.data['assets'].items()}
-        self.colors = self.data['colors']
-        self.css = (self.root / self.data['stylesheet']).read_text(encoding='utf-8')
 
     def color(self, key):
         """Lire une couleur obligatoire ; une clé absente signale un thème incomplet."""
@@ -27,9 +46,10 @@ class Theme:
 
     def stylesheet(self, reading_font, ui_font):
         """Substituer chemins POSIX, polices et couleurs dans le QSS sans exécuter de code."""
-        return Template(self.css).substitute(
+        css = Template(self.css).substitute(
             {**{k: p.as_posix() for k, p in self.assets.items()},
-             'reading_font': reading_font, 'ui_font': ui_font, **self.colors})
+             'reading_font': reading_font, 'ui_font': ui_font, **self._css_colors})
+        return tint_css(css, self.recolor)
 
 
 def available_themes(root):
@@ -52,8 +72,19 @@ def available_themes(root):
     return themes
 
 
+_active = None
+
+
+def set_active_theme(theme):
+    """Mémoriser le thème affiché pour les vues autonomes ouvertes ensuite."""
+    global _active
+    _active = theme
+
+
 def default_theme():
-    """Charger paresseusement le thème livré pour les vues créées sans contrôleur.
+    """Thème actif, sinon le thème Standard livré, pour les vues créées sans contrôleur.
 
     Lu seulement quand une vue autonome (règles, illustration) en a besoin."""
+    if _active is not None:
+        return _active
     return Theme(Path(__file__).resolve().parent / 'assets/themes/grimoire/theme.json')

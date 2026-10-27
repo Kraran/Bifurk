@@ -1,0 +1,35 @@
+{
+  "id": "cite",
+  "order": 5,
+  "name": "Le Port du Sable Noir",
+  "book": "cite-1983",
+  "base": "grimoire",
+  "assets": {
+    "parchment": "parchment.jpg",
+    "leather": "leather.jpg",
+    "page": "page-parchment.jpg",
+    "sheet": "sheet-leather.jpg"
+  },
+  "recolor": {
+    "leather": [
+      "#173a26",
+      0.95,
+      0.92
+    ],
+    "seal": [
+      "#7a1e22",
+      0.95,
+      0.82
+    ],
+    "page": [
+      50,
+      0.6,
+      0.55,
+      0.98
+    ],
+    "ground": [
+      "#0c1610",
+      0.95
+    ]
+  }
+}
