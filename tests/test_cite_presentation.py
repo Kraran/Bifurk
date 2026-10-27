@@ -144,7 +144,7 @@ class CitePresentationTests(unittest.TestCase):
                 document.save(path)
             self.sources[name] = path
         engines = {'cite': 'cite-1983', 'foret': 'foret-1983'}
-        def recognize(path):
+        def recognize(path, **_):
             return self.modules[engines[Path(path).stem]]
         for target in ('main.module_for_pdf', 'grimoire_library.module_for_pdf'):
             mock = patch(target, side_effect=recognize)

@@ -44,7 +44,7 @@ class WindowCase(unittest.TestCase):
                 document.save(path)
             self.sources[name] = path
 
-        def recognize(path):
+        def recognize(path, **_):
             return self.modules['foret-1983' if 'foret' in Path(path).name else 'sorcier-1982']
         for target in ('main.module_for_pdf', 'grimoire_library.module_for_pdf'):
             mock = patch(target, side_effect=recognize)

@@ -45,7 +45,7 @@ class ForetPresentationTests(unittest.TestCase):
                         page.insert_text((30,40), '1\nUne foret. Rendez-vous au 2.\n2\nUne clairiere.\n86\nUne tour.\n350\nUn chemin.')
                 document.save(path)
             self.sources[name] = path
-        def recognize(path):
+        def recognize(path, **_):
             return self.modules['foret-1983' if 'foret' in Path(path).name else 'sorcier-1982']
         for target in ('main.module_for_pdf', 'grimoire_library.module_for_pdf'):
             mock = patch(target, side_effect=recognize)
