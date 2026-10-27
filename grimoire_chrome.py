@@ -6,12 +6,13 @@ textes, menus, info-bulles, raccourcis et accessibilité ne changent pas, seul l
 import math
 
 from PySide6.QtCore import Qt, QRectF, QPointF, QSize
-from PySide6.QtGui import (QColor, QPainter, QPainterPath, QPen, QBrush, QPixmap, QImage,
-                           QLinearGradient, QRadialGradient, QFontMetrics, QPolygonF, QTransform)
+from PySide6.QtGui import (QColor, QPainter, QPainterPath, QPen, QBrush, QImage,
+                           QLinearGradient, QRadialGradient, QFontMetrics, QPolygonF)
 from PySide6.QtWidgets import QFrame, QPushButton, QLabel, QGroupBox, QWidget, QSizePolicy
 
 from adventurer_sheet import (GOLD, GOLD_LIGHT, GOLD_DARK, BORDEAUX, BORDEAUX_DARK,
                               LEATHER, font, draw_diamond, draw_glyph)
+from theme_palette import pixmap as theme_pixmap, tint
 
 RUBRIC = QColor('#7a2632')
 PAGE_INK = QColor('#2e1d14')
@@ -19,8 +20,10 @@ BRONZE = QColor('#9c7440')
 
 
 # --------------------------------------------------------------------------- ornements
-def draw_corner_fleurons(p, outer, color=GOLD, light=GOLD_LIGHT, size=34):
+def draw_corner_fleurons(p, outer, color=None, light=None, size=34):
     """Volutes d'angle de la fiche (réutilisées par la page, l'illustration et le bandeau)."""
+    color = GOLD if color is None else color
+    light = GOLD_LIGHT if light is None else light
     k = size / 34
     for cx, cy, sx, sy in ((outer.left(), outer.top(), 1, 1), (outer.right(), outer.top(), -1, 1),
                            (outer.left(), outer.bottom(), 1, -1), (outer.right(), outer.bottom(), -1, -1)):
@@ -61,8 +64,10 @@ def draw_leaf(p, c, s, angle, color):
     p.restore()
 
 
-def draw_fleuron_rule(p, cx, cy, half, color=GOLD_DARK, accent=RUBRIC):
+def draw_fleuron_rule(p, cx, cy, half, color=None, accent=None):
     """Filet de séparation à fleuron central : lignes fondues, volutes, feuilles et losange."""
+    color = GOLD_DARK if color is None else color
+    accent = RUBRIC if accent is None else accent
     fade = QColor(color)
     fade.setAlpha(0)
     for sgn in (-1, 1):
@@ -86,8 +91,10 @@ def draw_fleuron_rule(p, cx, cy, half, color=GOLD_DARK, accent=RUBRIC):
     draw_diamond(p, QPointF(cx, cy), 2.2, GOLD_LIGHT)
 
 
-def draw_wax_seal(p, c, r, *, color=BORDEAUX, ring=GOLD, bumps=14):
+def draw_wax_seal(p, c, r, *, color=None, ring=None, bumps=14):
     """Sceau de cire au bord festonné, reflet et anneau doré."""
+    color = BORDEAUX if color is None else color
+    ring = GOLD if ring is None else ring
     poly = QPolygonF()
     for i in range(bumps * 2):
         a = math.pi * i / bumps
@@ -106,8 +113,9 @@ def draw_wax_seal(p, c, r, *, color=BORDEAUX, ring=GOLD, bumps=14):
 
 
 # --------------------------------------------------------------------------- pictogrammes
-def draw_icon(p, kind, c, s, color=GOLD_LIGHT):
+def draw_icon(p, kind, c, s, color=None):
     """Pictogrammes du bandeau et des outils de page ; repli sur ceux de la fiche."""
+    color = GOLD_LIGHT if color is None else color
     pen = QPen(color, max(1.5, s * .15), Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
     p.setPen(pen)
     p.setBrush(Qt.NoBrush)
@@ -241,9 +249,11 @@ class LeatherBanner(QFrame):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        leather = QPixmap(str(LEATHER))
-        # Cuir tourné : le grain suit la longueur du bandeau.
-        self._leather = leather.transformed(QTransform().rotate(90)) if not leather.isNull() else leather
+
+    @property
+    def _leather(self):
+        """Cuir du thème actif, tourné : le grain suit la longueur du bandeau."""
+        return theme_pixmap('sheet', LEATHER, rotate=90)
 
     def paintEvent(self, event):
         p = QPainter(self)
@@ -256,7 +266,7 @@ class LeatherBanner(QFrame):
             # Le cuir est étiré dans sa largeur pour garder le grain horizontal.
             p.drawPixmap(r.toRect(), self._leather)
         else:
-            p.fillRect(r, QColor('#3e1e1b'))
+            p.fillRect(r, tint('#3e1e1b'))
         shade = QLinearGradient(r.topLeft(), r.bottomLeft())
         shade.setColorAt(0, QColor(255, 220, 160, 26))
         shade.setColorAt(.5, QColor(0, 0, 0, 0))
@@ -386,20 +396,20 @@ class MedallionButton(QPushButton):
         p.drawEllipse(c + QPointF(0, 2), r + 1, r + 1)
         g = QRadialGradient(QPointF(c.x() - r * .35, c.y() - r * .45), r * 1.5)
         if not enabled:
-            g.setColorAt(0, QColor('#5b4a40'))
-            g.setColorAt(1, QColor('#2a211c'))
+            g.setColorAt(0, tint('#5b4a40'))
+            g.setColorAt(1, tint('#2a211c'))
         elif self.primary:
-            g.setColorAt(0, QColor('#fff1c4'))
-            g.setColorAt(.45, QColor('#d8b46c'))
-            g.setColorAt(1, QColor('#7d5a2a'))
+            g.setColorAt(0, tint('#fff1c4'))
+            g.setColorAt(.45, tint('#d8b46c'))
+            g.setColorAt(1, tint('#7d5a2a'))
         else:
-            g.setColorAt(0, QColor('#a8404e') if hover else QColor('#8f3140'))
+            g.setColorAt(0, tint('#a8404e') if hover else tint('#8f3140'))
             g.setColorAt(.6, BORDEAUX)
             g.setColorAt(1, BORDEAUX_DARK)
         p.setBrush(g)
         ring = QLinearGradient(QPointF(c.x(), c.y() - r), QPointF(c.x(), c.y() + r))
-        ring.setColorAt(0, GOLD_LIGHT if enabled else QColor('#8d7d6c'))
-        ring.setColorAt(1, GOLD_DARK if enabled else QColor('#4f443a'))
+        ring.setColorAt(0, GOLD_LIGHT if enabled else tint('#8d7d6c'))
+        ring.setColorAt(1, GOLD_DARK if enabled else tint('#4f443a'))
         p.setPen(QPen(QBrush(ring), 2.4))
         p.drawEllipse(c, r, r)
         p.setBrush(Qt.NoBrush)
@@ -408,13 +418,13 @@ class MedallionButton(QPushButton):
         if self.hasFocus():
             p.setPen(QPen(GOLD_LIGHT, 1.4, Qt.DotLine))
             p.drawEllipse(c, r + 4, r + 4)
-        color = (QColor('#4a141c') if self.primary else (GOLD_LIGHT if hover else GOLD)) if enabled \
-            else QColor('#9b8b78')
+        color = (tint('#4a141c') if self.primary else (GOLD_LIGHT if hover else GOLD)) if enabled \
+            else tint('#9b8b78')
         draw_icon(p, self.glyph, c, r * .5, color)
         if self.slim:
             return
         p.setFont(font('ui', 11, bold=True, spacing=.8))
-        p.setPen(GOLD_LIGHT if hover else (GOLD if enabled else QColor('#8d7d6c')))
+        p.setPen(GOLD_LIGHT if hover else (GOLD if enabled else tint('#8d7d6c')))
         p.drawText(QRectF(0, d + 5, self.width(), 16), Qt.AlignHCenter | Qt.AlignTop, self.caption)
 
 
@@ -449,8 +459,8 @@ class PageToolButton(QPushButton):
             p.setBrush(glow)
             p.drawEllipse(c, r + 3, r + 3)
         g = QRadialGradient(QPointF(c.x() - r * .3, c.y() - r * .4), r * 1.6)
-        g.setColorAt(0, QColor('#fff8e6'))
-        g.setColorAt(1, QColor('#e2c891'))
+        g.setColorAt(0, tint('#fff8e6'))
+        g.setColorAt(1, tint('#e2c891'))
         p.setBrush(g)
         p.setPen(QPen(RUBRIC if hover else GOLD_DARK, 1.6))
         p.drawEllipse(c, r, r)
@@ -463,7 +473,7 @@ class PageToolButton(QPushButton):
         glyph = self.glyph
         if self.isCheckable() and not self.isChecked() and self.checked_glyph:
             glyph = self.checked_glyph
-        color = RUBRIC if enabled else QColor('#b3a081')
+        color = RUBRIC if enabled else tint('#b3a081')
         draw_icon(p, glyph, c, r * .5, color)
 
 
@@ -498,7 +508,7 @@ class ParagraphCartouche(QLabel):
         path.lineTo(r.left() + 12, r.bottom())
         path.cubicTo(r.left() + 4, r.bottom(), r.left(), r.bottom() - h * .1, r.left() - 8, r.center().y())
         g = QLinearGradient(r.topLeft(), r.bottomLeft())
-        g.setColorAt(0, QColor('#9a3442'))
+        g.setColorAt(0, tint('#9a3442'))
         g.setColorAt(.55, BORDEAUX)
         g.setColorAt(1, BORDEAUX_DARK)
         p.setPen(QPen(QColor(60, 30, 10, 70), 3))
@@ -562,7 +572,7 @@ def illuminated_initial(letter, px, *, family=None, scale=2):
     p.setRenderHint(QPainter.TextAntialiasing)
     r = QRectF(1.5 * scale, 1.5 * scale, size - 3 * scale, size - 3 * scale)
     g = QLinearGradient(r.topLeft(), r.bottomRight())
-    g.setColorAt(0, QColor('#9a3442'))
+    g.setColorAt(0, tint('#9a3442'))
     g.setColorAt(.6, BORDEAUX)
     g.setColorAt(1, BORDEAUX_DARK)
     p.setPen(Qt.NoPen)
@@ -599,7 +609,7 @@ def illuminated_initial(letter, px, *, family=None, scale=2):
     p.setPen(QColor(0, 0, 0, 120))
     p.drawText(text_rect.translated(1.2 * scale, 1.6 * scale), Qt.AlignCenter, letter)
     tg = QLinearGradient(r.topLeft(), r.bottomLeft())
-    tg.setColorAt(0, QColor('#fff6d8'))
+    tg.setColorAt(0, tint('#fff6d8'))
     tg.setColorAt(.5, GOLD_LIGHT)
     tg.setColorAt(1, GOLD)
     p.setPen(QPen(QBrush(tg), 1))
@@ -610,7 +620,7 @@ def illuminated_initial(letter, px, *, family=None, scale=2):
     base_y = text_rect.center().y() + (fm.ascent() - fm.descent()) / 2
     path.addText(QPointF(base_x, base_y), f, letter)
     p.setBrush(QBrush(tg))
-    p.setPen(QPen(QColor('#5a3a12'), .6 * scale))
+    p.setPen(QPen(tint('#5a3a12'), .6 * scale))
     p.drawPath(path)
     p.end()
     img.setDevicePixelRatio(scale)

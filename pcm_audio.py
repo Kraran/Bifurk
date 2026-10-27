@@ -27,6 +27,7 @@ class Mixer(QIODevice):
         """Ouvrir le QIODevice en lecture et conserver les voix pour toute la durée de la banque."""
         super().__init__(parent)
         self.voices = []
+        self.gain = 1.0  # Gain général : le fondu de fermeture le baisse jusqu'à 0.
         self.open(QIODevice.ReadOnly)
 
     def isSequential(self):
@@ -53,6 +54,7 @@ class Mixer(QIODevice):
         # ni l'ambiance ni les autres effets déjà en cours.
         for voice in active:
             samples = voice.samples
+            level = voice.volume * self.gain
             for i in range(frames):
                 if voice.position == len(samples):
                     if voice.loops == -2:
@@ -60,7 +62,7 @@ class Mixer(QIODevice):
                     else:
                         voice.stop()
                         break
-                mixed[i] += int(samples[voice.position] * voice.volume)
+                mixed[i] += int(samples[voice.position] * level)
                 voice.position += 1
         stereo = array.array('h')
         for sample in mixed:

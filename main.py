@@ -21,7 +21,8 @@ from grimoire_modules.fighting_fantasy.rules import POTION_STATS, POTION_DOSES
 from grimoire_modules.registry import module_for_pdf, pdf_digest
 from rules_viewer import RulesDialog
 from grimoire_library import imported_grimoires, GrimoireLibraryDialog
-from themes import available_themes
+from themes import available_themes, set_active_theme
+import theme_palette
 from sound_effects import SoundBank, EFFECT_LABELS
 from intro_music import IntroMusic
 from tts import DEFAULT_VOICE, ParagraphReader, available_french_voices
@@ -45,7 +46,7 @@ from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, Page
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route, WEAPON_BONUSES
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale, QUrl
-from PySide6.QtGui import QDesktopServices, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
+from PySide6.QtGui import QActionGroup, QDesktopServices, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QAbstractSpinBox, QTextEdit, QPlainTextEdit,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
@@ -455,7 +456,11 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         except (OSError, ValueError):
             self.preferences = {}
         self.themes = available_themes(ASSET_DIR / "themes")
+        # Sans choix mémorisé (« theme »), chaque livre ouvre son propre thème ;
+        # avant tout livre, le thème Standard.
         self.theme = self.themes.get(self.preferences.get("theme"), self.themes["grimoire"])
+        theme_palette.configure(self.theme.recolor, self.theme.assets)
+        set_active_theme(self.theme)
         configure_audio_backend()
         self.sounds = SoundBank(ASSET_DIR / "sounds", self.preferences.get("sound_enabled", True), self,
                             ambient_enabled=self.preferences.get("ambient_enabled", False),
@@ -735,8 +740,72 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if answer == QMessageBox.Yes:
             self.close()
 
+    QUIT_FADE_MS = 600
+    # Fondu de fermeture : None (pas commencé), 'running' ou 'done'.
+    _quit_fade_state = None
+
+    def _audio_audible(self):
+        """Vrai si musique, voix, ambiance ou effet sont en train de jouer."""
+        music = self.intro_music
+        player, output = getattr(music, 'player', None), getattr(music, 'output', None)
+        if player is not None and output is not None and output.volume() > 0:
+            from PySide6.QtMultimedia import QMediaPlayer
+            if player.playbackState() == QMediaPlayer.PlaybackState.PlayingState:
+                return True
+        if self.tts.is_busy() or self.tts.is_fading():
+            return True
+        mixer = getattr(self.sounds, '_pcm_mixer', None)
+        return bool(mixer and any(voice.isPlaying() for voice in mixer.voices))
+
+    def _start_quit_fade(self):
+        """Baisser ensemble musique, ambiance, effets, voix et fenêtre, puis fermer pour de bon."""
+        from PySide6.QtCore import QVariantAnimation
+        self._quit_fade_state = 'running'
+        music = self.intro_music
+        if getattr(music, 'fade', None) is not None:
+            music.fade.stop()  # Le fondu lent de l'accueil cède la place à celui-ci.
+        music_output = getattr(music, 'output', None)
+        music_start = music_output.volume() if music_output is not None else 0.0
+        mixer = getattr(self.sounds, '_pcm_mixer', None)
+        opacity = self.windowOpacity()
+        self.centralWidget().setEnabled(False)  # Plus aucun clic pendant le fondu.
+
+        def step(value):
+            value = float(value)
+            if music_output is not None:
+                music_output.setVolume(music_start * value)
+            if mixer is not None:
+                mixer.gain = value
+            self.tts.duck(value)
+            self.setWindowOpacity(opacity * value)
+
+        def finished():
+            self._quit_fade_state = 'done'
+            self.close()
+
+        animation = self._quit_fade = QVariantAnimation(self)
+        animation.setStartValue(1.0)
+        animation.setEndValue(0.0)
+        animation.setDuration(self.QUIT_FADE_MS)
+        animation.valueChanged.connect(step)
+        animation.finished.connect(finished)
+        animation.start()
+
     def closeEvent(self, event):
-        """Fermer les vues et arrêter les flux avant la fermeture native Qt."""
+        """Fermer les vues et arrêter les flux avant la fermeture native Qt.
+
+        Si du son joue dans une fenêtre affichée, la fermeture est d'abord différée
+        le temps d'un court fondu (QUIT_FADE_MS) ; une seconde demande la termine net.
+        Fenêtre cachée ou plateforme sans écran (tests) : fermeture immédiate."""
+        if self._quit_fade_state == 'running':
+            self._quit_fade.stop()
+            self._quit_fade_state = 'done'  # Deuxième demande : fermer sans attendre.
+        elif (self._quit_fade_state is None and self.isVisible()
+              and QApplication.platformName() not in ('offscreen', 'minimal')
+              and self._audio_audible()):
+            event.ignore()
+            self._start_quit_fade()
+            return
         # Avant de rejeter les dialogues : leur signal finished ne doit plus rien relancer.
         self._closing = True
         # Chargements en cours : rendre la main sans attendre et ignorer leur résultat.
@@ -1021,10 +1090,11 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         theme_layout = QVBoxLayout(theme_group)
         layout.addWidget(theme_group)
         themes = QComboBox()
-        for key, theme in self.themes.items():
-            themes.addItem(theme.name, key)
-        themes.setCurrentIndex(themes.findData(self.theme.id))
-        themes.currentIndexChanged.connect(lambda index: self.apply_theme(themes.itemData(index)))
+        themes.setObjectName('themeChoice')
+        for key, label in self._theme_choices():
+            themes.addItem(label, key)
+        themes.setCurrentIndex(max(0, themes.findData(self._theme_choice())))
+        themes.currentIndexChanged.connect(lambda index: self.choose_theme(themes.itemData(index)))
         theme_layout.addWidget(themes)
         layout.addStretch()
         close = QDialogButtonBox(QDialogButtonBox.Close)
@@ -1039,9 +1109,88 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                 self._save_preferences()
             dialog.deleteLater()
 
+    AUTO_THEME = 'auto'
+
+    def _ordered_themes(self):
+        """Standard d'abord, puis les thèmes de livre dans l'ordre de la collection."""
+        return sorted(self.themes.items(),
+                      key=lambda item: (item[0] != 'grimoire', item[1].data.get('order', 99), item[1].name))
+
+    def _theme_choices(self):
+        """(clé, libellé) proposés dans Réglages : automatique puis chaque thème."""
+        return [(self.AUTO_THEME, 'Selon le grimoire ouvert')] + [
+            (key, theme.name) for key, theme in self._ordered_themes()]
+
+    def _theme_choice(self):
+        """Thème choisi explicitement, ou « auto » si aucun choix valide n'est mémorisé."""
+        choice = self.preferences.get('theme')
+        return choice if choice in self.themes else self.AUTO_THEME
+
+    def _book_theme_id(self):
+        """Thème associé au module du livre ouvert (« book » du manifeste), sinon Standard."""
+        engine = getattr(self.book_module, 'engine', None)
+        return next((key for key, theme in self.themes.items()
+                     if engine and theme.data.get('book') == engine), 'grimoire')
+
+    def _apply_book_theme(self, *, rerender=False):
+        """Sans choix mémorisé, prendre le thème du livre ouvert (ouverture ou chargement)."""
+        if self._theme_choice() != self.AUTO_THEME:
+            return
+        target = self._book_theme_id()
+        if target != self.theme.id:
+            self._activate_theme(target, rerender=rerender)
+
+    def _build_theme_menu(self, menu):
+        """Sous-menu Réglages → Thème : un choix exclusif, coché selon la préférence."""
+        self.theme_menu = menu
+        group = QActionGroup(menu)
+        group.setExclusive(True)
+        self.theme_actions = {}
+        for index, (key, label) in enumerate(self._theme_choices()):
+            action = menu.addAction(label)
+            action.setCheckable(True)
+            group.addAction(action)
+            action.triggered.connect(lambda checked=False, k=key: self.choose_theme(k))
+            self.theme_actions[key] = action
+            if index == 0:
+                menu.addSeparator()
+        self._sync_theme_menu()
+
+    def _sync_theme_menu(self):
+        actions = getattr(self, 'theme_actions', {})
+        choice = self._theme_choice()
+        for key, action in actions.items():
+            action.setChecked(key == choice)
+        if self.AUTO_THEME in actions:
+            actions[self.AUTO_THEME].setText(f'Selon le grimoire ouvert — {self.theme.name}'
+                                             if choice == self.AUTO_THEME else 'Selon le grimoire ouvert')
+
+    def choose_theme(self, choice):
+        """Choix de Réglages : « auto » efface la préférence, un thème la mémorise."""
+        if choice == self.AUTO_THEME:
+            if self.preferences.pop('theme', None) is not None:
+                self._save_preferences()
+            target = self._book_theme_id()
+            if target != self.theme.id:
+                self._activate_theme(target)
+            self._sync_theme_menu()
+        elif choice in self.themes:
+            self.apply_theme(choice)
+
     def apply_theme(self, theme_id):
-        """Appliquer un thème disponible et mémoriser ce choix sans modifier la progression."""
+        """Appliquer un thème choisi et le mémoriser : il prime alors sur celui de chaque livre."""
+        self._activate_theme(theme_id)
+        self.preferences["theme"] = theme_id
+        self._save_preferences()
+        self._sync_theme_menu()
+
+    def _activate_theme(self, theme_id, *, rerender=True):
+        """Afficher un thème sans rien mémoriser ni modifier la progression.
+
+        rerender=False laisse l'appelant (ouverture, chargement) redessiner la page."""
         self.theme = self.themes[theme_id]
+        theme_palette.configure(self.theme.recolor, self.theme.assets)
+        set_active_theme(self.theme)
         fonts = self.theme.data.get("fonts", {})
         self.reading_font_family = fonts.get("reading", self._default_fonts[0])
         self.ui_font_family = fonts.get("ui", self._default_fonts[1])
@@ -1051,17 +1200,23 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             page.set_theme(self.theme)
         for scene in self.findChildren(GrimoireScene):
             scene.set_theme(self.theme)
+        for widget in self.findChildren(QWidget):
+            if hasattr(widget, 'restyle_theme'):
+                widget.restyle_theme()
         self._refresh_character()
-        if self.current_paragraph is not None and self.character['endurance'] <= 0:
-            self._show_death_page()
-        elif self.current_paragraph in self.paragraphs:
-            self._render_paragraph_text(self.paragraphs[self.current_paragraph])
-        elif self.pdf_path and self.paragraphs:
-            self._show_book_title()
-        else:
-            self._show_welcome()
-        self.preferences["theme"] = theme_id
-        self._save_preferences()
+        self._sync_theme_menu()
+        if rerender:
+            if self.current_paragraph is not None and self.character['endurance'] <= 0:
+                self._show_death_page()
+            elif self.current_paragraph in self.paragraphs:
+                self._render_paragraph_text(self.paragraphs[self.current_paragraph])
+            elif self.pdf_path and self.paragraphs:
+                self._show_book_title()
+            else:
+                self._show_welcome()
+        # Couleurs peintes (cuir, sceaux, cartes) : tout redessiner.
+        for widget in self.findChildren(QWidget):
+            widget.update()
 
     def toggle_fullscreen(self):
         """Basculer entre plein écran immersif et fenêtre normale."""
@@ -1097,6 +1252,13 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def showEvent(self, event):
         """Appliquer les ajustements natifs une fois la fenêtre effectivement créée."""
         self._closing = False  # fenêtre réaffichée après une fermeture : de nouveau active
+        if self._quit_fade_state == 'done':  # Réaffichée après un fondu de fermeture.
+            self._quit_fade_state = None
+            self.setWindowOpacity(1.0)
+            self.centralWidget().setEnabled(True)
+            mixer = getattr(self.sounds, '_pcm_mixer', None)
+            if mixer is not None:
+                mixer.gain = 1.0
         super().showEvent(event)
         self._set_windows_titlebar_color()
 
@@ -1281,6 +1443,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.settings_button.setAccessibleName("Réglages")
         settings_menu = QMenu(self.settings_button)
         settings_menu.addAction("♫  Ambiance sonore…", self.show_ambience)
+        self._build_theme_menu(settings_menu.addMenu("🎨  Thème"))
         self.fullscreen_action = settings_menu.addAction("⛶  Plein écran\tF11", self.toggle_fullscreen)
         self.reading_action = settings_menu.addAction("📖  Mode lecture\tF10")
         self.reading_action.setCheckable(True)
@@ -1994,7 +2157,11 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
     def _set_theme(self):
         """Distribuer le QSS, les polices et les surfaces dessinées aux widgets existants."""
-        self.setStyleSheet(self.theme.stylesheet(self.reading_font_family, self.ui_font_family))
+        css = self.theme.stylesheet(self.reading_font_family, self.ui_font_family)
+        self.setStyleSheet(css)
+        app = QApplication.instance()
+        if app is not None and app.styleSheet():
+            app.setStyleSheet(css)  # Dialogues et messages suivent le thème affiché.
 
     def _toggle_scene_art(self, visible):
         """Afficher ou masquer la zone d’illustration sans changer le paragraphe."""
@@ -2564,6 +2731,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self._update_tracking_badge()
         self.book_module = book_module
         self.sounds.set_ambient_track(getattr(book_module, 'engine', None))
+        self._apply_book_theme()  # La page de titre est dessinée plus bas.
         self.pdf_path = path
         self._book_digest = (str(path), digest) if digest else None
         self.illustration_catalogue = illustrations
@@ -3628,6 +3796,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         (self.pdf_path, self._book_digest, self.paragraphs, self.book_module,
          self.illustration_catalogue, self.book_event_catalogue) = previous['book']
         self.sounds.set_ambient_track(getattr(self.book_module, 'engine', None))
+        self._apply_book_theme()
         self.book_label.setText(previous['label'][0])
         self.book_label.setToolTip(previous['label'][1])
         self.goto_spin.setMaximum(previous['goto_maximum'])
@@ -3661,6 +3830,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self.illustration_catalogue = illustration_catalogue
             self.book_module = book_module
             self.sounds.set_ambient_track(getattr(book_module, 'engine', None))
+            self._apply_book_theme()  # _restore redessine la page ensuite.
             self.book_event_catalogue = events
             self.book_label.setText(book_module.title if book_module else Path(pdf).name)
             self.book_label.setToolTip(self.book_label.text())

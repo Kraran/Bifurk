@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (QWidget, QAbstractButton, QPushButton, QTextEdit,
 from adventurer_sheet import (GOLD, GOLD_LIGHT, GOLD_DARK, IVORY,
                               font, draw_diamond)
 from grimoire_chrome import RUBRIC, PAGE_INK, BRONZE, draw_corner_fleurons, draw_fleuron_rule
+from theme_palette import tint, tint_css
 
 REFERENCE = re.compile(r'§\s?(\d{1,4})')
 LABEL_MAX = 60
@@ -104,9 +105,9 @@ def draw_ribbon(p, r, filled=True, hover=False):
         p.setBrush(QColor(0, 0, 0, 60))
         p.drawPath(path.translated(1.2, 1.5))
         g = QLinearGradient(r.topLeft(), r.topRight())
-        g.setColorAt(0, QColor('#5a1a24'))
-        g.setColorAt(.45, QColor('#a33545') if hover else QColor('#8e2c3a'))
-        g.setColorAt(1, QColor('#4a141c'))
+        g.setColorAt(0, tint('#5a1a24'))
+        g.setColorAt(.45, tint('#a33545') if hover else tint('#8e2c3a'))
+        g.setColorAt(1, tint('#4a141c'))
         p.setBrush(g)
         p.setPen(QPen(GOLD_DARK, 1))
         p.drawPath(path)
@@ -139,7 +140,7 @@ def paint_parchment(p, page, texture, *, gutter=None):
     clip.addRoundedRect(page, 4, 4)
     p.save()
     p.setClipPath(clip)
-    p.fillPath(clip, QColor('#ead9b8'))
+    p.fillPath(clip, tint('#ead9b8'))
     if not texture.isNull():
         p.setRenderHint(QPainter.SmoothPixmapTransform)
         p.drawPixmap(page, texture, QRectF(texture.rect()))
@@ -543,7 +544,7 @@ class BookmarkRow(QAbstractButton):
         text_left = tag.right() + 14
         text = QRectF(text_left, r.top() + 6, r.right() - text_left - 66, r.height() - 12)
         label = self.bookmark['label'] or self.title or 'Sans libellé'
-        p.setPen(PAGE_INK if self.bookmark['label'] else QColor('#7d6a52'))
+        p.setPen(PAGE_INK if self.bookmark['label'] else tint('#7d6a52'))
         p.setFont(font('title', 17, False, not self.bookmark['label']))
         top = text.adjusted(0, 0, 0, -text.height() / 2)
         p.drawText(top, Qt.AlignLeft | Qt.AlignBottom,
@@ -560,7 +561,7 @@ class BookmarkRow(QAbstractButton):
                 meta.append('marqué le ' + human_date(datetime.fromisoformat(self.bookmark['at'])))
             except ValueError:
                 pass
-        p.setPen(QColor('#8a6a45'))
+        p.setPen(tint('#8a6a45'))
         p.setFont(font('title', 13, False, True))
         bottom = text.adjusted(0, text.height() / 2 + 1, 0, 0)
         p.drawText(bottom, Qt.AlignLeft | Qt.AlignTop,
@@ -700,8 +701,12 @@ class CarnetBook(QWidget):
         self.page = 'notes'
         self._style()
 
+    def restyle_theme(self):
+        """Réappliquer la feuille de style accordée au thème actif (changement de grimoire)."""
+        self._style()
+
     def _style(self):
-        self.setStyleSheet("""
+        self.setStyleSheet(tint_css("""
             QLabel#carnetCoverTitle { color: #f4dc9e; font-family: 'EB Garamond'; font-size: 19px;
                 font-weight: bold; letter-spacing: 3px; background: transparent; }
             QLabel#carnetHint { color: #c9a46a; font-family: 'EB Garamond'; font-style: italic;
@@ -732,7 +737,7 @@ class CarnetBook(QWidget):
             QScrollArea#carnetScroll, QWidget#carnetMarksHolder { background: transparent; }
             QLabel#carnetEmpty { color: #7d6a52; font-family: 'EB Garamond'; font-style: italic;
                 font-size: 16px; background: transparent; }
-        """)
+        """))
         self.scroll.viewport().setAutoFillBackground(False)
 
     def _notes_changed(self):
@@ -828,9 +833,9 @@ class CarnetBook(QWidget):
         p.setBrush(QColor(0, 0, 0, 120))
         p.drawRoundedRect(r.translated(3, 5), 14, 14)
         g = QLinearGradient(r.topLeft(), r.bottomRight())
-        g.setColorAt(0, QColor('#5a1d24'))
-        g.setColorAt(.5, QColor('#47151b'))
-        g.setColorAt(1, QColor('#2c0d11'))
+        g.setColorAt(0, tint('#5a1d24'))
+        g.setColorAt(.5, tint('#47151b'))
+        g.setColorAt(1, tint('#2c0d11'))
         p.setBrush(g)
         p.setPen(QPen(GOLD_DARK, 2))
         p.drawRoundedRect(r, 14, 14)

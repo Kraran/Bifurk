@@ -164,6 +164,13 @@ class ParagraphReader(QObject):
             if output is not None:
                 output.setVolume(self._volume)
 
+    def duck(self, factor: float) -> None:
+        """Baisser la voix audible (0 à 1) sans changer le volume réglé : fondu de fermeture."""
+        factor = max(0.0, min(1.0, float(factor)))
+        for output in (self._output, self._spare_output):
+            if output is not None:
+                output.setVolume(self._volume * factor)
+
     def is_busy(self) -> bool:
         """Synthèse en attente ou lecture en cours."""
         return self._pending or self.is_playing()

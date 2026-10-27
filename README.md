@@ -18,10 +18,17 @@ récit et peuvent être masquées ou agrandies ; **A−** / **A+** règlent la t
 - **📖 Règles** (F1) affiche les pages de règles du PDF ouvert.
 - **🗺 Carte d’exploration** ouvre la carte des passages visités.
 - **✦ Grimoires…** choisit un grimoire déjà importé ou ajoute un livre PDF.
-- **⚙ Réglages** regroupe **Ambiance sonore…**, **Plein écran** (F11),
+- **⚙ Réglages** regroupe **Ambiance sonore…**, **Thème** (voir ci-dessous), **Plein écran** (F11),
   **Mode lecture** (F10), **Journal de la partie…**, **À propos de Bifurk**
   et **Quitter le jeu…**, qui demande confirmation puis ferme les fenêtres et
   arrête l’audio. Sauvegardez votre progression avant de quitter.
+
+**Réglages → Thème** propose **Standard** (le cuir bordeaux d’origine) et un thème
+par livre, accordé à son image de fond : **L’Antre de Zagor** (Sorcier : bleu-pétrole
+et braise), **Le Sous-bois de Darkwood** (Forêt : écorce, mousse et ambre) et
+**Le Port du Sable Noir** (Cité : vert bouteille, sang-de-bœuf et os). Par défaut,
+**Selon le grimoire ouvert**, chaque livre et ses sauvegardes s’ouvrent sur leur
+thème ; un thème choisi explicitement est mémorisé et s’applique à tous les livres.
 
 Le titre **Bifurk — Chroniques d’aventure**, icône comprise, ouvre aussi la
 fenêtre **À propos** : version, auteur, présentation et liens GitHub.

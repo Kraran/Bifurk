@@ -24,6 +24,7 @@ from PySide6.QtGui import QColor, QFont, QFontMetrics, QLinearGradient, QPainter
 from PySide6.QtWidgets import QApplication, QWidget
 
 from adventurer_sheet import BORDEAUX_DARK, FONTS, GOLD, GOLD_DARK, GOLD_LIGHT, IVORY, INK
+from theme_palette import pixmap as theme_pixmap, tint
 
 SHOW_DELAY_MS = 300
 MIN_VISIBLE_MS = 250
@@ -89,7 +90,7 @@ class LoadingOverlay(QWidget):
         self.shown_value = 0.0  # valeur peinte, qui rattrape la cible en douceur
         self.phase = 0.0        # reflet qui glisse sur la barre : l'interface vit
         self.frozen = False     # captures et tests : pas d'animation
-        self._parchment = QPixmap(str(PARCHMENT)) if PARCHMENT.is_file() else QPixmap()
+        self._parchment = theme_pixmap('page', PARCHMENT)  # Parchemin du thème actif.
         self._timer = QTimer(self)
         self._timer.setInterval(50)
         self._timer.timeout.connect(self._tick)
@@ -314,8 +315,8 @@ class LoadingOverlay(QWidget):
         radius = bar.height() / 2
         # Gorge de cuir sombre.
         groove = QLinearGradient(bar.topLeft(), bar.bottomLeft())
-        groove.setColorAt(0, QColor('#2a120c'))
-        groove.setColorAt(1, QColor('#4a2418'))
+        groove.setColorAt(0, tint('#2a120c'))
+        groove.setColorAt(1, tint('#4a2418'))
         p.setPen(QPen(GOLD_DARK, 1.6))
         p.setBrush(groove)
         p.drawRoundedRect(bar, radius, radius)

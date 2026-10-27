@@ -14,6 +14,7 @@ import html
 import re
 import adventurer_sheet
 from adventurer_sheet import GOLD, GOLD_LIGHT, GOLD_DARK, BORDEAUX, draw_diamond
+from theme_palette import tint, tint_hex
 from grimoire_chrome import (draw_gold_frame, draw_corner_fleurons, draw_wax_seal, draw_icon,
                              RUBRIC, BRONZE)
 
@@ -173,7 +174,7 @@ class IlluminatedPage(QWidget):
         p.drawRoundedRect(page.translated(5, 6), 8, 8)
         for k, shade in ((4, '#c9ad7c'), (2, '#dcc39a')):
             p.setBrush(QColor(shade))
-            p.setPen(QPen(QColor('#8f6e45'), .6))
+            p.setPen(QPen(tint('#8f6e45'), .6))
             p.drawRoundedRect(page.translated(k, k), 8, 8)
         clip = QPainterPath()
         clip.addRoundedRect(page, 8, 8)
@@ -194,7 +195,7 @@ class IlluminatedPage(QWidget):
         p.fillRect(page, aged)
         p.setClipping(False)
         p.setBrush(Qt.NoBrush)
-        p.setPen(QPen(QColor('#7d5a2e'), 1))
+        p.setPen(QPen(tint('#7d5a2e'), 1))
         p.drawRoundedRect(page, 8, 8)
         inset = 7 if self.compact else 11
         frame = page.adjusted(inset, inset, -inset, -inset)
@@ -269,7 +270,7 @@ class ChoiceCard(QPushButton):
             if tight and self._destination:
                 self._caption.setTextFormat(Qt.RichText)
                 self._caption.setText(
-                    f"{html.escape(self._action)}&nbsp;&nbsp;<span style=\"color:#7a2632; font-style:italic; "
+                    f"{html.escape(self._action)}&nbsp;&nbsp;<span style=\"color:{tint_hex('#7a2632')}; font-style:italic; "
                     f"font-weight:600; white-space:nowrap;\">→&nbsp;{html.escape(self._destination)}</span>")
             else:
                 self._caption.setTextFormat(Qt.PlainText)
@@ -313,32 +314,32 @@ class ChoiceCard(QPushButton):
         p.drawRoundedRect(r.translated(0, 2.5), 8, 8)
         g = QLinearGradient(r.topLeft(), r.bottomLeft())
         if not enabled:
-            g.setColorAt(0, QColor('#ece2cc'))
-            g.setColorAt(1, QColor('#d6c7a8'))
+            g.setColorAt(0, tint('#ece2cc'))
+            g.setColorAt(1, tint('#d6c7a8'))
         elif hover:
-            g.setColorAt(0, QColor('#fffaea'))
-            g.setColorAt(1, QColor('#f3dca9'))
+            g.setColorAt(0, tint('#fffaea'))
+            g.setColorAt(1, tint('#f3dca9'))
         else:
-            g.setColorAt(0, QColor('#fbf1d8'))
-            g.setColorAt(1, QColor('#e8cf9c'))
+            g.setColorAt(0, tint('#fbf1d8'))
+            g.setColorAt(1, tint('#e8cf9c'))
         p.setBrush(g)
         p.setPen(QPen(RUBRIC if hover else GOLD_DARK, 1.8))
         p.drawRoundedRect(r, 8, 8)
         inner = r.adjusted(4, 4, -4, -4)
         p.setBrush(Qt.NoBrush)
-        p.setPen(QPen(QColor(GOLD) if enabled else QColor('#c8b48e'), 1))
+        p.setPen(QPen(QColor(GOLD) if enabled else tint('#c8b48e'), 1))
         p.drawRoundedRect(inner, 5, 5)
         for pt in (inner.topLeft(), inner.topRight(), inner.bottomLeft(), inner.bottomRight()):
-            draw_diamond(p, pt, 2.6, GOLD_DARK if enabled else QColor('#b7a37f'))
+            draw_diamond(p, pt, 2.6, GOLD_DARK if enabled else tint('#b7a37f'))
         # Sceau numéroté.
         tight = bool(self._tight)
         c = QPointF(r.left() + (24 if tight else 31), r.center().y())
-        seal = BORDEAUX if enabled else QColor('#8b7d70')
+        seal = BORDEAUX if enabled else tint('#8b7d70')
         radius = 13 if tight else (16 if self._compact else 18)
         draw_wax_seal(p, c, radius + (1 if hover else 0), color=seal, ring=GOLD_LIGHT if hover else GOLD)
         if self._number is not None:
             p.setFont(adventurer_sheet.font('title', 15 if tight else (18 if self._compact else 20), bold=True))
-            p.setPen(GOLD_LIGHT if enabled else QColor('#e2d6c2'))
+            p.setPen(GOLD_LIGHT if enabled else tint('#e2d6c2'))
             p.drawText(QRectF(c.x() - 18, c.y() - 19, 36, 36), Qt.AlignCenter, str(self._number))
         else:
             draw_diamond(p, c, 6, GOLD_LIGHT)
@@ -349,7 +350,7 @@ class ChoiceCard(QPushButton):
             x0 = r.right() - 84
             p.setPen(QPen(QColor(138, 102, 51, 110), 1))
             p.drawLine(QPointF(x0, inner.top() + 8), QPointF(x0, inner.bottom() - 8))
-            color = RUBRIC if enabled else QColor('#a8987e')
+            color = RUBRIC if enabled else tint('#a8987e')
             dx = 4 if hover else 0
             draw_icon(p, 'arrow', QPointF(x0 + 22 + dx, r.center().y()), 9, color)
             p.setFont(adventurer_sheet.font('title', 18, bold=True, italic=True))
@@ -565,7 +566,7 @@ class GrimoireScene(QWidget):
         # Passe-partout de cuir sombre puis illustration dans le filet doré de la fiche.
         matte = QPainterPath()
         matte.addRoundedRect(outer, 10, 10)
-        painter.fillPath(matte, QColor('#1e120e'))
+        painter.fillPath(matte, tint('#1e120e'))
         box = outer.adjusted(8, 8, -8, -8)
         clip = QPainterPath()
         clip.addRoundedRect(box, 6, 6)

@@ -22,6 +22,9 @@ IVORY = QColor('#f5e7c6')
 INK = QColor('#1b100c')
 FONTS = {'title': 'EB Garamond', 'ui': 'Lato'}
 LEATHER = Path(__file__).resolve().parent / 'assets/themes/grimoire/sheet-leather.png'
+# Les constantes ci-dessus sont retintées par theme_palette.configure() au changement
+# de thème ; les dessins lisent donc le nom du module au moment de peindre.
+from theme_palette import pixmap as theme_pixmap, tint  # noqa: E402
 
 
 def font(kind, px, bold=False, italic=False, spacing=0):
@@ -42,7 +45,8 @@ def _gold_gradient(rect):
     return g
 
 
-def draw_diamond(p, center, r, color=GOLD):
+def draw_diamond(p, center, r, color=None):
+    color = GOLD if color is None else color
     p.setPen(Qt.NoPen)
     p.setBrush(color)
     p.drawPolygon(QPolygonF([QPointF(center.x(), center.y() - r), QPointF(center.x() + r, center.y()),
@@ -67,7 +71,7 @@ def paint_shield_gauge(p, shape, area, tint, ratio):
     p.setPen(Qt.NoPen)
     hollow = QRadialGradient(area.center() - QPointF(0, area.height() * .2), area.width() * .85)
     hollow.setColorAt(0, tint.darker(320))
-    hollow.setColorAt(1, QColor('#0d0706'))
+    hollow.setColorAt(1, QColor('#0d0706'))  # « tint » est ici la couleur de l'écu.
     p.setBrush(hollow)
     p.drawPath(shape)
     if ratio > 0:
@@ -87,8 +91,9 @@ def paint_shield_gauge(p, shape, area, tint, ratio):
     p.restore()
 
 
-def draw_glyph(p, kind, c, s, color=IVORY):
+def draw_glyph(p, kind, c, s, color=None):
     """Petits pictogrammes vectoriels (centre c, demi-taille s)."""
+    color = IVORY if color is None else color
     pen = QPen(color, max(1.6, s * .16), Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
     p.setPen(pen)
     p.setBrush(Qt.NoBrush)
@@ -232,7 +237,11 @@ class SheetPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._leather = QPixmap(str(LEATHER))
+
+    @property
+    def _leather(self):
+        """Cuir du thème actif (le Standard en repli)."""
+        return theme_pixmap('sheet', LEATHER)
 
     def paintEvent(self, event):
         p = QPainter(self)
@@ -241,7 +250,7 @@ class SheetPanel(QWidget):
         if not self._leather.isNull():
             p.drawPixmap(r.toRect(), self._leather)
         else:
-            p.fillRect(r, QColor('#3e1e1b'))
+            p.fillRect(r, tint('#3e1e1b'))
         vignette = QRadialGradient(r.center(), max(r.width(), r.height()) * .75)
         vignette.setColorAt(.55, QColor(0, 0, 0, 0))
         vignette.setColorAt(1, QColor(0, 0, 0, 170))
@@ -334,7 +343,7 @@ class HeroEmblem(QWidget):
         p.drawEllipse(r)
         inner = r.adjusted(4, 4, -4, -4)
         g = QRadialGradient(inner.center() - QPointF(6, 8), inner.width() * .7)
-        g.setColorAt(0, QColor('#a33a46'))
+        g.setColorAt(0, tint('#a33a46'))
         g.setColorAt(1, BORDEAUX_DARK)
         p.setBrush(g)
         p.drawEllipse(inner)
@@ -533,8 +542,8 @@ class ResourceToken(QWidget):
         p.setRenderHint(QPainter.Antialiasing)
         r = QRectF(self.rect()).adjusted(1, 1, -1, -1)
         g = QLinearGradient(r.topLeft(), r.bottomLeft())
-        g.setColorAt(0, QColor('#2a1410'))
-        g.setColorAt(1, QColor('#170b09'))
+        g.setColorAt(0, tint('#2a1410'))
+        g.setColorAt(1, tint('#170b09'))
         p.setPen(QPen(GOLD_DARK, 1.4))
         p.setBrush(g)
         p.drawRoundedRect(r, 9, 9)
@@ -631,7 +640,7 @@ class SealButton(QPushButton):
             a = i / 36 * 2 * math.pi
             rr = R + 2.2 * math.sin(a * 7) + 1.3 * math.cos(a * 11)
             poly.append(QPointF(c.x() + rr * math.cos(a), c.y() + rr * math.sin(a)))
-        wax = QColor('#8f2534') if enabled else QColor('#4b403a')
+        wax = tint('#8f2534') if enabled else tint('#4b403a')
         p.setPen(Qt.NoPen)
         p.setBrush(QColor(0, 0, 0, 120))
         p.drawPolygon(poly.translated(0, 3))
@@ -642,7 +651,7 @@ class SealButton(QPushButton):
         p.setBrush(g)
         p.drawPolygon(poly)
         ring = QRectF(c.x() - R + 6, c.y() - R + 6, 2 * R - 12, 2 * R - 12)
-        p.setPen(QPen(GOLD if enabled else QColor('#8a7a66'), 2))
+        p.setPen(QPen(GOLD if enabled else tint('#8a7a66'), 2))
         p.setBrush(Qt.NoBrush)
         p.drawEllipse(ring)
         p.setPen(QPen(QColor(0, 0, 0, 90), 1))
@@ -651,7 +660,7 @@ class SealButton(QPushButton):
             p.setPen(QPen(GOLD_LIGHT, 2))
             p.drawEllipse(c, R + 5, R + 5)
         draw_glyph(p, self.glyph, c, 7 if self.mini else (8 if self.compact else 10),
-                   GOLD_LIGHT if enabled else QColor('#a09080'))
+                   GOLD_LIGHT if enabled else tint('#a09080'))
         if self.mini:
             return
         caption = self.text().replace('&&', '&').replace('…', '')
@@ -660,7 +669,7 @@ class SealButton(QPushButton):
         while size > 8 and QFontMetrics(font('ui', size, bold=True, spacing=spacing)).horizontalAdvance(caption) > self.width() - 2:
             size, spacing = size - 1, 0
         p.setFont(font('ui', size, bold=True, spacing=spacing))
-        p.setPen(GOLD_LIGHT if hover else (GOLD if enabled else QColor('#8f826f')))
+        p.setPen(GOLD_LIGHT if hover else (GOLD if enabled else tint('#8f826f')))
         p.drawText(QRectF(0, self.height() - 21, self.width(), 20), Qt.AlignCenter,
                    QFontMetrics(p.font()).elidedText(caption, Qt.ElideRight, self.width()))
 
@@ -684,7 +693,7 @@ class RibbonButton(QPushButton):
         path.lineTo(r.left() + notch, r.center().y())
         path.closeSubpath()
         g = QLinearGradient(r.topLeft(), r.bottomLeft())
-        base = QColor('#8a2a36') if self.underMouse() else QColor('#6c1f2a')
+        base = tint('#8a2a36') if self.underMouse() else tint('#6c1f2a')
         g.setColorAt(0, base.lighter(130))
         g.setColorAt(1, base.darker(150))
         p.setPen(QPen(GOLD_DARK, 1.2))
@@ -853,7 +862,7 @@ def _paint_quantity(p, r, quantity, compact=False):
     p.drawRoundedRect(badge.translated(0, 1), size / 2, size / 2)
     fill = QLinearGradient(badge.topLeft(), badge.bottomLeft())
     fill.setColorAt(0, IVORY)
-    fill.setColorAt(1, QColor('#d9c08a'))
+    fill.setColorAt(1, tint('#d9c08a'))
     p.setBrush(QBrush(fill))
     p.setPen(QPen(GOLD_DARK, 1.2))
     p.drawRoundedRect(badge, size / 2, size / 2)
@@ -865,8 +874,8 @@ def _paint_quantity(p, r, quantity, compact=False):
 def _paint_slot(p, rect, filled, selected=False, equipped=False):
     r = QRectF(rect).adjusted(3, 3, -3, -3)
     g = QRadialGradient(r.center(), r.width() * .8)
-    g.setColorAt(0, QColor('#3a2219') if filled else QColor('#24140f'))
-    g.setColorAt(1, QColor('#140a07'))
+    g.setColorAt(0, tint('#3a2219') if filled else tint('#24140f'))
+    g.setColorAt(1, tint('#140a07'))
     p.setBrush(g)
     p.setPen(QPen(GOLD_LIGHT if selected else (GOLD if equipped else QColor(138, 102, 51, 200 if filled else 120)),
                   2 if selected or equipped else 1.2))
@@ -999,10 +1008,13 @@ class SheetStrip(QAbstractButton):
     WIDTH = 78
     STATS = (('habilete', 'H'), ('endurance', 'E'), ('chance', 'C'))
 
+    @property
+    def _leather(self):
+        return theme_pixmap('sheet', LEATHER)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName('sheetStrip')
-        self._leather = QPixmap(str(LEATHER))
         self.state = {}
         self.alerts = frozenset()
         self.pulse = ShieldPulse(self)
@@ -1094,7 +1106,7 @@ class SheetStrip(QAbstractButton):
         if not self._leather.isNull():
             p.drawPixmap(r.toRect(), self._leather)
         else:
-            p.fillRect(r, QColor('#3e1e1b'))
+            p.fillRect(r, tint('#3e1e1b'))
         shade = QLinearGradient(r.topLeft(), r.topRight())
         shade.setColorAt(0, QColor(0, 0, 0, 150))
         shade.setColorAt(.25, QColor(0, 0, 0, 30))

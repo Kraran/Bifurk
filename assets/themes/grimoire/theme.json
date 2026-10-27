@@ -1,13 +1,15 @@
 {
   "id": "grimoire",
-  "name": "Le Grimoire",
+  "order": 0,
+  "name": "Standard",
   "stylesheet": "theme.qss",
   "assets": {
     "parchment": "../../parchment.jpg",
     "leather": "../../leather.jpg",
     "scene": "../../grimoire-library.png",
     "checkmark": "../../check-bronze.svg",
-    "page": "page-parchment.jpg"
+    "page": "page-parchment.jpg",
+    "sheet": "sheet-leather.png"
   },
   "colors": {
     "page": "#ead9b8",

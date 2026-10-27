@@ -13,7 +13,7 @@ importé ; s’il manque, le sélecteur permet d’en importer un. Le PDF d’or
 être déplacé ou supprimé après import. La progression n’est pas reprise automatiquement.
 
 **⚙ Réglages → Ambiance sonore…** active ou coupe les sons, règle la musique d’accueil
-et choisit le thème. Ces préférences
+et choisit le thème, comme **⚙ Réglages → Thème**. Ces préférences
 et le chemin relatif du dernier livre sont conservés dans
 `donnees/parametres/preferences.json`, indépendamment des sauvegardes de partie.
 
@@ -22,11 +22,40 @@ assauts. Un rafraîchissement du même paragraphe ou une restauration de sauvega
 ne rejoue pas le bruit de page. Les sons sont coupés dans les plateformes Qt de
 test `offscreen` et `minimal` ; l’écoute doit être vérifiée sur un poste avec sortie audio.
 
+## Thèmes des grimoires
+
+Quatre thèmes sont fournis : **Standard** (`grimoire`, le cuir bordeaux d’origine)
+et un thème par livre, déclaré par la clé `book` de son manifeste :
+**L’Antre de Zagor** (`sorcier`, Sorcier), **Le Sous-bois de Darkwood** (`foret`,
+Forêt) et **Le Port du Sable Noir** (`cite`, Cité). Sans thème mémorisé (choix
+**Selon le grimoire ouvert**), l’ouverture d’un livre ou d’une de ses sauvegardes
+affiche son thème ; un livre non reconnu et l’accueil gardent Standard. Choisir un
+thème dans **Réglages → Thème** le mémorise (`theme` dans `preferences.json`) : il
+s’applique alors à tous les livres, jusqu’au retour à **Selon le grimoire ouvert**.
+
+Les thèmes de livre dérivent de Standard (`"base": "grimoire"`) : ils reprennent son
+QSS, ses couleurs et son décor d’accueil, recolorés par la section `recolor`
+(`theme_palette.py`) :
+
+- `leather` : teinte (`#rrggbb`), facteurs de saturation et de luminosité des bruns
+  rouges (cuir, encres sombres) ;
+- `seal` : idem pour les rouges francs (cire, rubriques, rubans) ;
+- `page` : teinte visée en degrés, part de cette teinte, facteurs de saturation et de
+  luminosité du parchemin ;
+- `ground` : teinte et saturation des fonds presque noirs.
+
+Les ors, les liens bleus, les écus Habileté / Endurance / Chance et les dessins
+d’objets ne changent pas. Les peintures QPainter passent par `theme_palette.tint()`
+(constantes de couleur des modules comprises, retintées au changement de thème) ;
+les textures recolorées (`leather.jpg`, `sheet-leather.jpg`, `parchment.jpg`,
+`page-parchment.jpg`) sont préparées par `scripts/prepare_theme_textures.py` avec
+les mêmes règles.
+
 ## Préparer un thème
 
-Le seul thème fourni est **Le Grimoire**. Les thèmes sont découverts au lancement
-dans `assets/themes/*/theme.json`. Pour en créer un, copier le dossier `grimoire`
-dans un nouveau dossier et modifier :
+Les thèmes sont découverts au lancement dans `assets/themes/*/theme.json`. Le plus
+simple est de dériver Standard comme les thèmes de livre ci-dessus. Pour un thème
+entièrement nouveau, copier le dossier `grimoire` dans un nouveau dossier et modifier :
 
 - `id` (identifiant unique) et `name` (nom affiché dans **Ambiance sonore…**) ;
 - `stylesheet`, chemin du fichier QSS relatif au manifeste ;
@@ -39,7 +68,7 @@ Le fichier QSS accepte les variables `${parchment}`, `${leather}`, `${scene}`,
 `${reading_font}`, `${ui_font}` et les clés de `colors`. La palette du manifeste
 décrit les éléments dessinés ; le QSS décrit les contrôles Qt. Un thème doit adapter
 les deux pour garder des contrastes cohérents. Tous les champs du manifeste fourni
-sont nécessaires, sauf `fonts`. Les thèmes incomplets sont ignorés ; Le Grimoire
+sont nécessaires, sauf `fonts`. Les thèmes incomplets sont ignorés ; Standard
 sert de repli si le thème mémorisé n’existe plus.
 
 Changer de thème ne modifie ni caractéristiques, ni inventaire, ni rencontres,
