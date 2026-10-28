@@ -98,6 +98,14 @@ MUSIQUE
     Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
     https://creativecommons.org/licenses/by/4.0/
 
+« Towards the Horizon », Alexander Nakarada (2017)
+  fichier assets/sounds/TowardsTheHorizon.ogg (musique de la mort du héros),
+  raccourci, nivelé et réencodé depuis le MP3 d'origine — licence CC BY 4.0 :
+
+    Music: Towards the Horizon by Alexander Nakarada (https://creatorchords.com)
+    Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/
+
   La licence CC0 des effets ne s'applique pas à ces morceaux.
 
 

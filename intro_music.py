@@ -12,6 +12,8 @@ musique habituelle reprend, sans dialogue d'erreur.
 La victoire (§400) passe par start_victory() : la musique en cours s'éteint en
 1,5 s et « Achievement » boucle au volume du curseur jusqu'à stop_victory(), qui
 rend la main à la musique d'accueil si elle doit jouer (menus ou musique permanente).
+La mort du héros fait de même avec « Towards the Horizon » (start_epilogue /
+stop_epilogue) : les deux morceaux partagent un second lecteur, un seul joue à la fois.
 """
 from PySide6.QtCore import QAbstractAnimation, QObject, QPropertyAnimation, QTimer, QUrl
 from PySide6.QtGui import QGuiApplication
@@ -28,7 +30,8 @@ class IntroMusic(QObject):
     VICTORY_FADE_MS = 1500
 
     def __init__(self, path, enabled=True, parent=None, volume_percent=DEFAULT_VOLUME_PERCENT,
-                 persistent=False, custom_folder=None, custom=False, victory_path=None):
+                 persistent=False, custom_folder=None, custom=False, victory_path=None,
+                 epilogue_path=None):
         """Préparer l'état sans ouvrir de périphérique audio avant le premier menu."""
         super().__init__(parent)
         self.path = path
@@ -44,7 +47,11 @@ class IntroMusic(QObject):
         self.bad_tracks = set()   # illisibles pendant la session ; réessayés après une bascule
         self.bag = ShuffleBag()
         self.victory_path = victory_path
-        self.victory = False   # suivi même sans sortie audio (tests hors écran)
+        self.epilogue_path = epilogue_path
+        # Morceau spécial en cours : 'victory', 'epilogue' ou None ; suivi même sans
+        # sortie audio (tests hors écran).
+        self.special = None
+        self._special_source = None
         self.victory_player = self.victory_output = self.victory_fade = None
 
     def _create_player(self):
@@ -62,10 +69,18 @@ class IntroMusic(QObject):
         self.player.errorOccurred.connect(self._media_error)
         return True
 
+    @property
+    def victory(self):
+        return self.special == 'victory'
+
+    def _special_path(self, kind):
+        return self.victory_path if kind == 'victory' else self.epilogue_path
+
     def _create_victory_player(self):
-        """Second lecteur, en boucle infinie, réservé à la musique de victoire."""
+        """Second lecteur, en boucle infinie, pour la victoire et la mort du héros."""
         if (QGuiApplication.platformName() in ('offscreen', 'minimal')
-                or self.victory_path is None or not self.victory_path.is_file()):
+                or not any(path is not None and path.is_file()
+                           for path in (self.victory_path, self.epilogue_path))):
             return False
         configure_audio_backend()
         from PySide6.QtMultimedia import QAudioOutput, QMediaPlayer
@@ -73,21 +88,35 @@ class IntroMusic(QObject):
         self.victory_player = QMediaPlayer(self)
         self.victory_player.setAudioOutput(self.victory_output)
         self.victory_player.setLoops(QMediaPlayer.Infinite.value)
-        self.victory_player.setSource(QUrl.fromLocalFile(str(self.victory_path.resolve())))
         self.victory_fade = QPropertyAnimation(self.victory_output, b'volume', self)
         self.victory_fade.finished.connect(self._victory_faded)
         return True
 
     def _victory_faded(self):
-        if not self.victory and self.victory_player is not None:
+        if self.special is None and self.victory_player is not None:
             self.victory_player.stop()
 
     def start_victory(self):
         """Victoire : éteindre la musique en cours en 1,5 s et boucler « Achievement »."""
-        if self.victory:
+        self.start_special('victory')
+
+    def stop_victory(self):
+        """Quitter la victoire : fondu de la boucle, puis reprise de l'accueil s'il doit jouer."""
+        self.stop_special('victory')
+
+    def start_epilogue(self):
+        """Mort du héros : « Towards the Horizon » remplace la musique en cours."""
+        self.start_special('epilogue')
+
+    def stop_epilogue(self):
+        self.stop_special('epilogue')
+
+    def start_special(self, kind):
+        if self.special == kind:
             return
-        self.victory = True
-        if self.player is not None and self.output is not None:
+        already = self.special is not None
+        self.special = kind
+        if not already and self.player is not None and self.output is not None:
             if self.fade is None:
                 self.fade = QPropertyAnimation(self.output, b'volume', self)
                 self.fade.finished.connect(self.player.stop)
@@ -96,20 +125,25 @@ class IntroMusic(QObject):
             self.fade.setStartValue(self.output.property('volume'))
             self.fade.setEndValue(0.0)
             self.fade.start()
-        self._play_victory()
+        self._play_special()
 
-    def _play_victory(self):
-        if not self.enabled or (self.victory_player is None and not self._create_victory_player()):
+    def _play_special(self):
+        path = self._special_path(self.special)
+        if (not self.enabled or path is None
+                or (self.victory_player is None and not self._create_victory_player())):
             return
+        if self._special_source != path:
+            self.victory_player.setSource(QUrl.fromLocalFile(str(path.resolve())))
+            self._special_source = path
         self.victory_fade.stop()
         self.victory_output.setVolume(self.target_volume)
         self.victory_player.play()
 
-    def stop_victory(self):
-        """Quitter la victoire : fondu de la boucle, puis reprise de l'accueil s'il doit jouer."""
-        if not self.victory:
+    def stop_special(self, kind=None):
+        """Fondu du morceau spécial (seulement s'il s'agit de kind), puis reprise de l'accueil."""
+        if self.special is None or (kind is not None and self.special != kind):
             return
-        self.victory = False
+        self.special = None
         if self.victory_player is not None:
             self.victory_fade.stop()
             self.victory_fade.setDuration(self.VICTORY_FADE_MS)
@@ -181,8 +215,9 @@ class IntroMusic(QObject):
         self._play()
 
     def _play(self):
-        """Annuler un fondu et jouer au volume du curseur, sauf en sourdine ou en victoire."""
-        if self.victory:
+        """Annuler un fondu et jouer au volume du curseur, sauf en sourdine ou pendant un
+        morceau spécial (victoire, écran de fin)."""
+        if self.special:
             return
         if self.fade:
             self.fade.stop()
@@ -241,8 +276,8 @@ class IntroMusic(QObject):
             if self.victory_player:
                 self.victory_fade.stop()
                 self.victory_player.stop()
-        elif self.victory:
-            self._play_victory()
+        elif self.special:
+            self._play_special()
         elif self.in_menu or self.persistent:
             self._play()
         elif self.fade and self.fade.state() == QAbstractAnimation.State.Running:

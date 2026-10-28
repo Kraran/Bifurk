@@ -32,6 +32,13 @@ sous licence CC BY 4.0 (version raccourcie et réencodée) :
     Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
     https://creativecommons.org/licenses/by/4.0/
 
+La musique de la mort du héros `TowardsTheHorizon.ogg` est « Towards the Horizon »,
+Alexander Nakarada, sous licence CC BY 4.0 (version raccourcie et réencodée) :
+
+    Music: Towards the Horizon by Alexander Nakarada (https://creatorchords.com)
+    Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/
+
 La licence CC0 des effets Kenney ne s’applique pas à ces musiques.
 Ces licences d'assets ne définissent pas la licence du code de Bifurk.
 

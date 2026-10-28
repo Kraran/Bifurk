@@ -89,6 +89,7 @@ class AmbiancesMixin:
         Sans catalogue, hors d'un paragraphe ou en mode « boucle du livre », la boucle
         du livre revient. Une exception « garder » laisse la scène en cours ; après un
         chargement, la scène du dernier paragraphe visité qui en a une est reprise."""
+        self._death_music_follow(number)
         self._victory_follow_paragraph(number)
         sounds = getattr(self, 'sounds', None)
         if sounds is None:
