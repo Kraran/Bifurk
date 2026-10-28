@@ -264,5 +264,51 @@ class RoundedDiceLookTests(unittest.TestCase):
         self.assertGreater(max(light), 190)
 
 
+class DiceSpeedTests(unittest.TestCase):
+    """Rendu accéléré : polygones remplis depuis NumPy, géométrie et plateau en cache."""
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_fast_polygons_match_the_safe_path(self):
+        import numpy as np
+        import dice_dialog
+        xs, ys = np.array([0.5, 12.25, -3.0, 7.0]), np.array([1.0, -2.5, 8.75, 0.0])
+        fast = dice_dialog.polygon_from_arrays(xs, ys)
+        slow = dice_dialog._polygon_slow(xs, ys)
+        self.assertEqual([(p.x(), p.y()) for p in fast], [(p.x(), p.y()) for p in slow])
+        self.assertIs(dice_dialog.polygon_from_arrays, dice_dialog._polygon_fast)
+        self.assertEqual(dice_dialog.polygon_from_arrays(xs[:0], ys[:0]).size(), 0)
+
+    def test_face_geometry_is_computed_once_per_face_and_detail(self):
+        first = DiceCanvas._face_geometry(6, DiceCanvas.BEVEL_STEPS, 24)
+        self.assertIs(DiceCanvas._face_geometry(6, DiceCanvas.BEVEL_STEPS, 24), first)
+        points, bevel, pips = first
+        self.assertEqual((len(bevel), len(pips)), (DiceCanvas.BEVEL_STEPS, 6))
+        self.assertEqual(points.shape, (pips[-1][2][1], 3))   # un seul bloc pour toute la face
+        # Toute la face reste dans le cube arrondi (demi-arête 1).
+        self.assertLessEqual(abs(points).max(), 1.0 + 1e-9)
+
+    def test_board_is_painted_once_per_size(self):
+        canvas = DiceCanvas((3, 4))
+        canvas.resize(500, 300)
+        canvas.grab()
+        board = canvas._board_pixmap
+        canvas.progress = .5
+        canvas.grab()
+        self.assertIs(canvas._board_pixmap, board)
+        canvas.resize(520, 300)
+        canvas.grab()
+        self.assertIsNot(canvas._board_pixmap, board)
+
+    def test_settled_and_flying_dice_still_render(self):
+        canvas = DiceCanvas((1, 2, 6))
+        canvas.resize(640, 330)
+        for progress in (.3, 1.0):
+            canvas.progress = progress
+            image = canvas.grab().toImage()
+            self.assertFalse(image.isNull())
+
+
 if __name__ == '__main__':
     unittest.main()
