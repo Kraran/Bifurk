@@ -213,6 +213,18 @@ chaque nouveau tirage. Fondu, permanence, curseur et sourdine sont inchangés. B
 change de musique immédiatement dans les menus ou si la musique est permanente, sinon à la
 prochaine reprise.
 
+**Musique de victoire.** Arriver au §400 d’un grimoire reconnu (les trois livres finissent
+là) lance `Achievement.ogg` en boucle (« Achievement », Alexander Nakarada, CC BY 4.0) sur
+un second `QMediaPlayer` de `IntroMusic` : `start_victory()` éteint la musique en cours en
+1,5 s (accueil, permanente ou personnelle), boucle le morceau au volume du curseur
+**Musique d’accueil** (0 % reste muet) et l’ambiance est baissée comme pendant un combat.
+Quitter le §400 (annulation, chargement, nouvelle partie, accueil) appelle `stop_victory()` :
+fondu de 1,5 s, puis reprise de la musique d’accueil si elle doit jouer. Le déclenchement est
+centralisé dans `_victory_follow_paragraph()`, appelé par `_ambience_follow_paragraph()`.
+Le fichier est produit par `scripts/prepare_victory_music.py` depuis le MP3 d’origine
+(empreinte de l’audio vérifiée) : silence de tête et fin de traîne retirés, −2,1 dB pour
+s’aligner sur FantasyFair (−14 LUFS), sans pochette ni métadonnées, OGG Vorbis q4 (≈ 1,8 Mo).
+
 `scripts/prepare_sounds.py` convertit les archives créditées avec FFmpeg, uniquement
 pour préparer les assets. FFmpeg n’est pas requis pour jouer. Un flux PCM stéréo
 continu via `QAudioSink` (QtMultimedia, inclus dans PySide6) mélange les effets et

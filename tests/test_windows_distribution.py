@@ -46,6 +46,7 @@ class WindowsDistributionTests(unittest.TestCase):
                          '_internal/assets/illustration-background.jpg',
                          '_internal/assets/cite.jpg',
                          '_internal/assets/sounds/FantasyFair.m4a',
+                         '_internal/assets/sounds/Achievement.ogg',
                          '_internal/assets/video/introduction.mp4',
                          '_internal/assets/video/introduction_21x9.mp4',
                          '_internal/assets/sounds/swords.wav',
@@ -112,7 +113,8 @@ class WindowsDistributionTests(unittest.TestCase):
                      'illustration-background.jpg', 'sounds/FantasyFair.m4a',
                      'themes/grimoire/page-parchment.jpg', 'themes/grimoire/sheet-leather.png',
                      'marks/cite-tattoo.png', 'cite.jpg', 'sounds/book_cite.wav',
-                     'sounds/ambient.ogg', 'sounds/ambient_cite.ogg', 'sounds/ambient_foret.ogg'):
+                     'sounds/ambient.ogg', 'sounds/ambient_cite.ogg', 'sounds/ambient_foret.ogg',
+                     'sounds/Achievement.ogg'):
             with self.subTest(asset=name):
                 path = self.bundle / '_internal/assets' / name
                 path.unlink()
@@ -230,6 +232,15 @@ class MusicAttributionTests(unittest.TestCase):
             with self.subTest(relative):
                 for line in self.ATTRIBUTION:
                     self.assertIn(line, text)
+
+    def test_victory_music_attribution_is_shipped(self):
+        root = Path(release.__file__).resolve().parents[1]
+        for relative in ('LICENCES-ET-REMERCIEMENTS.txt', 'assets/sounds/CREDITS.md',
+                         'docs/windows/COMPOSANTS-TIERS.md'):
+            text = (root / relative).read_text(encoding='utf-8')
+            with self.subTest(relative):
+                self.assertIn('Achievement by Alexander Nakarada (CreatorChords) | https://creatorchords.com', text)
+                self.assertIn('Achievement.ogg', text)
 
 
 if __name__ == '__main__':

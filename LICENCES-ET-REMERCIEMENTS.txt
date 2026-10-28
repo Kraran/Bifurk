@@ -90,7 +90,15 @@ MUSIQUE
     Creative Commons / Attribution 4.0 International (CC BY 4.0)
     https://creativecommons.org/licenses/by/4.0/
 
-  La licence CC0 des effets ne s'applique pas à ce morceau.
+« Achievement », Alexander Nakarada (2017)
+  fichier assets/sounds/Achievement.ogg (musique de victoire, paragraphe 400),
+  raccourci, nivelé et réencodé depuis le MP3 d'origine — licence CC BY 4.0 :
+
+    Achievement by Alexander Nakarada (CreatorChords) | https://creatorchords.com
+    Creative Commons / Attribution 4.0 International (CC BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/
+
+  La licence CC0 des effets ne s'applique pas à ces morceaux.
 
 
 POLICES

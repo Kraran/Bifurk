@@ -25,7 +25,14 @@ album « Fantasy Fair », sous licence CC BY 4.0 :
     Creative Commons / Attribution 4.0 International (CC BY 4.0)
     https://creativecommons.org/licenses/by/4.0/
 
-La licence CC0 des effets Kenney ne s’applique pas à cette musique.
+La musique de victoire `Achievement.ogg` est « Achievement », Alexander Nakarada,
+sous licence CC BY 4.0 (version raccourcie et réencodée) :
+
+    Achievement by Alexander Nakarada (CreatorChords) | https://creatorchords.com
+    Creative Commons / Attribution 4.0 International (CC BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/
+
+La licence CC0 des effets Kenney ne s’applique pas à ces musiques.
 Ces licences d'assets ne définissent pas la licence du code de Bifurk.
 
 Les sources du projet sont sur <https://github.com/Kraran/Bifurk>. La révision
