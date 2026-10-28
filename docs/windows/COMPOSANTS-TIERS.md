@@ -17,8 +17,14 @@ Les plugins Qt peuvent inclure des bibliothèques multimédias supplémentaires.
 Les crédits et licences du portrait, des polices et des sons accompagnent les
 assets sous `_internal/assets`. Les effets sonores Kenney sont CC0 ; le portrait reprend
 une ressource du dépôt Gamelist Media Editor, dont la licence MIT est conservée.
-La musique d’accueil `FantasyFair.m4a` fournie par l’utilisateur porte les
-métadonnées « Tavern Loop One », Alexander Nakarada, album « Fantasy Fair ».
+La musique d’accueil `FantasyFair.m4a` est « Tavern Loop One », Alexander Nakarada,
+album « Fantasy Fair », sous licence CC BY 4.0 :
+
+    Tavern Loop One by Alexander Nakarada (CreatorChords) | https://creatorchords.com
+    Royalty Free Music by https://www.free-stock-music.com
+    Creative Commons / Attribution 4.0 International (CC BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/
+
 La licence CC0 des effets Kenney ne s’applique pas à cette musique.
 Ces licences d'assets ne définissent pas la licence du code de Bifurk.
 

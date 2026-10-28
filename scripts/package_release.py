@@ -22,6 +22,8 @@ ARCHIVE_NAME = f'Bifurk-v{APP_VERSION}-windows-x64.zip'
 DOCUMENTS = {
     'LISEZ-MOI.txt': 'docs/windows/LISEZ-MOI.txt',
     'COMPOSANTS-TIERS.md': 'docs/windows/COMPOSANTS-TIERS.md',
+    # Mentions d'attribution exigées (musique d'accueil sous CC BY 4.0).
+    'LICENCES-ET-REMERCIEMENTS.txt': 'LICENCES-ET-REMERCIEMENTS.txt',
     'NOUVEAUTES.md': 'docs/windows/RELEASE_NOTES.md',
     # Livre le dossier de musique personnelle (vide) avec son mode d'emploi.
     'musique_perso/LISEZMOI.txt': 'musique_perso/LISEZMOI.txt',

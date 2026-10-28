@@ -94,6 +94,7 @@ class WindowsDistributionTests(unittest.TestCase):
             self.assertIn('Bifurk/_internal/assets/sounds/swords.wav', names)
             self.assertIn('Bifurk/LISEZ-MOI.txt', names)
             self.assertIn('Bifurk/NOUVEAUTES.md', names)
+            self.assertIn('Bifurk/LICENCES-ET-REMERCIEMENTS.txt', names)
             self.assertIn('Bifurk/musique_perso/LISEZMOI.txt', names)
             self.assertFalse(any('donnees' in n or n.endswith('.pdf') or 'sans-rapport' in n for n in names))
             manifest = json.loads(content.read('Bifurk/COMPILATION.json'))
@@ -211,6 +212,24 @@ configuration ou un modèle absent du binaire.
         with patch.dict(os.environ):
             exec(compile(spec.read_text(encoding='utf-8'), str(spec), 'exec'), namespace)
         self.assertFalse(expected - set(collected), f'Ressources PyMuPDF manquantes : {expected - set(collected)}')
+
+
+
+class MusicAttributionTests(unittest.TestCase):
+    """La musique d'accueil est sous CC BY 4.0 : la mention exacte accompagne le jeu."""
+    ATTRIBUTION = ('Tavern Loop One by Alexander Nakarada (CreatorChords) | https://creatorchords.com',
+                   'Royalty Free Music by https://www.free-stock-music.com',
+                   'Creative Commons / Attribution 4.0 International (CC BY 4.0)',
+                   'https://creativecommons.org/licenses/by/4.0/')
+
+    def test_attribution_is_copied_verbatim_in_shipped_credits(self):
+        root = Path(release.__file__).resolve().parents[1]
+        for relative in ('LICENCES-ET-REMERCIEMENTS.txt', 'assets/sounds/CREDITS.md',
+                         'docs/windows/COMPOSANTS-TIERS.md'):
+            text = (root / relative).read_text(encoding='utf-8')
+            with self.subTest(relative):
+                for line in self.ATTRIBUTION:
+                    self.assertIn(line, text)
 
 
 if __name__ == '__main__':
