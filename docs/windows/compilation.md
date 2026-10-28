@@ -104,7 +104,7 @@ sur un poste sans Python. Ces points exigent le contrôle du ZIP sur Windows.
 La compilation ne téléverse rien. Après avoir testé le ZIP, deux possibilités :
 
 - Sur GitHub, ouvrir **Releases → Draft a new release**, créer le tag `v1.3.2`
-  sur la révision compilée, copier les notes de `RELEASE_NOTES.md`, joindre le ZIP
+  sur la révision compilée, copier la section 1.3.2 de `RELEASE_NOTES.md`, joindre le ZIP
   et son fichier `.sha256` puis publier quand les contrôles sont terminés.
 - Avec le script, installer GitHub CLI, s'authentifier puis lancer :
 
@@ -115,9 +115,14 @@ gh auth login
 .\PUBLISH_RELEASE.bat
 ```
 
-Ce script crée uniquement un **brouillon** sur `Kraran/Bifurk`. Il téléverse le ZIP
+Ce script crée uniquement un **brouillon** sur `Kraran/Bifurk`. Il affiche d'abord
+la version, le titre, l'archive, la révision et les notes qui seront envoyés
+(`package_release.py --check`), puis demande confirmation [O/N]. Il téléverse le ZIP
 déjà testé et son empreinte, sans recompiler ; sa cible est la révision Git
-enregistrée lors de l'archivage. Il refuse une archive modifiée, une version
+enregistrée lors de l'archivage. Le titre de la release est celui de la section de
+la version courante dans `RELEASE_NOTES.md` (« Bifurk 1.3.2 — … ») et ses notes se
+limitent à cette section : l'historique des versions précédentes reste dans le
+fichier et dans le ZIP (`NOUVEAUTES.md`). Une version sans section remplie est refusée. Il refuse une archive modifiée, une version
 différente ou une compilation sans révision propre. Il faut donc compiler depuis
 une révision commitée et poussée, de préférence `master` après fusion.
 Il ne remplace pas une release existante : GitHub signale l'erreur si le tag a
