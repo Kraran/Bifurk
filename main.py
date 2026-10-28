@@ -1480,7 +1480,6 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.settings_button.setAccessibleName("Réglages")
         settings_menu = QMenu(self.settings_button)
         settings_menu.setObjectName("settingsMenu")
-        settings_menu.setIconSize(QSize(18, 18))
         ambience_action = settings_menu.addAction("Ambiance sonore…", self.show_ambience)
         ambience_action.setIcon(menu_icon("♫"))
         theme_menu = settings_menu.addMenu("Thème")
