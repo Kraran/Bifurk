@@ -1,4 +1,4 @@
-"""Ambiance selon le paragraphe : catalogue par zones avec exceptions (Sorcier d'abord).
+"""Ambiance selon le paragraphe : catalogues par zones avec exceptions (Sorcier, Forêt, Cité).
 
 Le catalogue est validé (chaque paragraphe dans une seule zone, scènes connues,
 statut proposé ou vérifié) ; le jeu passe à la scène du paragraphe, garde la scène
@@ -77,8 +77,24 @@ class CatalogueTests(unittest.TestCase):
         self.assertEqual(data['pdf_sha256'], module.pdf_sha256)
         self.assertTrue(all(entry['status'] in ('proposé', 'vérifié')
                             for entry in [*data['zones'], *data['exceptions']]))
-        others = [m for m in available_modules() if m.engine != 'sorcier-1982']
-        self.assertTrue(all(AmbienceMap.from_module(m) is None for m in others))
+        self.assertTrue(all(entry['status'] == 'vérifié'
+                            for entry in [*data['zones'], *data['exceptions']]))
+
+    def test_foret_and_cite_catalogues_cover_their_places(self):
+        expected = {
+            'foret-1983': {1: 'foyer', 285: 'foret_nuit', 142: 'riviere', 109: 'vent',
+                           196: 'caverne', 69: 'souterrain', 227: 'crypte', 199: 'marais',
+                           204: 'rue', 97: 'foret'},
+            'cite-1983': {74: 'rue', 62: 'taverne', 87: 'port', 148: 'marche', 321: 'souterrain',
+                          337: 'crypte', 53: 'foyer', 31: 'riviere', 358: 'vent', 370: 'foret'},
+        }
+        for engine, scenes in expected.items():
+            module = next(m for m in available_modules() if m.engine == engine)
+            ambience = AmbienceMap.from_module(module)
+            with self.subTest(engine):
+                self.assertEqual({n: ambience.scene_for(n) for n in scenes}, scenes)
+                data = json.loads(dict(module.catalogue_paths)['ambiences'].read_text(encoding='utf-8'))
+                self.assertEqual(data['pdf_sha256'], module.pdf_sha256)
 
 
 class FollowParagraphTests(unittest.TestCase):
@@ -123,7 +139,7 @@ class FollowParagraphTests(unittest.TestCase):
         w.preferences['ambient_mode'] = 'paragraph'
         w._ambience_follow_paragraph(218)
         self.assertEqual(sounds.scene, 'riviere')
-        w.book_module = next(m for m in available_modules() if m.engine == 'foret-1983')
+        w.book_module = None                      # Accueil : aucun catalogue.
         w._load_ambience_map()
         self.assertIsNone(w.ambience_map)
         w._ambience_follow_paragraph(218)

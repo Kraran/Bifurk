@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "pdf_sha256": "03a86d77c4323e126a37546caf62032aa57fd9e63edf005fbcc81fd6818d6d46",
-  "description": "Scènes d’ambiance du Sorcier de la Montagne de Feu : zones géographiques (déduites des renvois entre paragraphes) et exceptions par salle (déduites du texte). Statut « proposé » tant que la relecture n’a pas eu lieu.",
+  "description": "Scènes d’ambiance du Sorcier de la Montagne de Feu : zones géographiques (déduites des renvois entre paragraphes) et exceptions par salle (déduites du texte). Relu et validé.",
   "zones": [
     {
       "id": "galeries",
       "label": "Galeries du sud, de l’entrée à la rivière",
       "scene": "caverne",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         "1-2",
         5,
@@ -136,7 +136,7 @@
       "id": "riviere",
       "label": "La rivière souterraine et ses traversées",
       "scene": "riviere",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         3,
         7,
@@ -174,7 +174,7 @@
       "id": "rive_nord",
       "label": "Rive nord : bac, hangar à bateaux, salles jusqu’à la herse",
       "scene": "souterrain",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         6,
         9,
@@ -261,7 +261,7 @@
       "id": "labyrinthe",
       "label": "Le Labyrinthe de Zagor",
       "scene": "crypte",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         4,
         12,
@@ -343,7 +343,7 @@
       "id": "repaire",
       "label": "Le repaire de Zagor et son coffre",
       "scene": "crypte",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         26,
         39,
@@ -393,7 +393,7 @@
     {
       "label": "Entrée de la caverne : parois suintantes, flaques",
       "scene": "souterrain",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         1
       ]
@@ -401,7 +401,7 @@
     {
       "label": "Grotte aux stalactites et gouttes d’eau",
       "scene": "souterrain",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         29,
         61,
@@ -414,7 +414,7 @@
     {
       "label": "Salle de la fontaine",
       "scene": "souterrain",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         88,
         216
@@ -423,7 +423,7 @@
     {
       "label": "Salle à manger des Farfadets",
       "scene": "taverne",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         159,
         183,
@@ -434,7 +434,7 @@
     {
       "label": "Farfadets ivres qui chantent",
       "scene": "taverne",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         116,
         296,
@@ -445,7 +445,7 @@
     {
       "label": "Boutique du vieil homme au rocking-chair",
       "scene": "foyer",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         97,
         247,
@@ -455,7 +455,7 @@
     {
       "label": "Le joueur de dés et sa bibliothèque",
       "scene": "foyer",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         84,
         130,
@@ -467,7 +467,7 @@
     {
       "label": "Le Géant à table près du feu",
       "scene": "foyer",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         28,
         138,
@@ -477,7 +477,7 @@
     {
       "label": "Caverne au feu qui couve",
       "scene": "foyer",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         199
       ]
@@ -485,7 +485,7 @@
     {
       "label": "Chambres à la chandelle des Farfadets",
       "scene": "foyer",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         33,
         82,
@@ -498,7 +498,7 @@
     {
       "label": "Salle de torture",
       "scene": "crypte",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         19,
         68,
@@ -509,7 +509,7 @@
     {
       "label": "Cellule du vieillard prisonnier",
       "scene": "crypte",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         36,
         263,
@@ -519,7 +519,7 @@
     {
       "label": "Salle des peintures hurlantes",
       "scene": "crypte",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         40,
         149,
@@ -533,7 +533,7 @@
     {
       "label": "Salle aux dalles en forme de mains",
       "scene": "crypte",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         108,
         178,
@@ -545,7 +545,7 @@
     {
       "label": "Salle du portrait de Zagor",
       "scene": "crypte",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         25,
         31,
@@ -559,7 +559,7 @@
     {
       "label": "Salle des Zombies",
       "scene": "crypte",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         13,
         27,
@@ -583,7 +583,7 @@
     {
       "label": "Crypte du Vampire",
       "scene": "crypte",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         17,
         74,
@@ -603,7 +603,7 @@
     {
       "label": "Salle des cadavres et de la Goule",
       "scene": "crypte",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         64,
         107,
@@ -623,7 +623,7 @@
     {
       "label": "Partie de cartes des Nains",
       "scene": "taverne",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         20,
         91,
@@ -637,7 +637,7 @@
     {
       "label": "Bibliothèque du Maître du Labyrinthe",
       "scene": "foyer",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         191,
         206,
@@ -649,7 +649,7 @@
     {
       "label": "Caverne du Dragon, ouverte sur le ciel",
       "scene": "vent",
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         26,
         106,
@@ -661,7 +661,7 @@
     {
       "label": "Monstre errant : la scène d’où l’on vient continue",
       "scene": null,
-      "status": "proposé",
+      "status": "vérifié",
       "paragraphs": [
         161
       ]
