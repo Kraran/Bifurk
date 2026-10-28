@@ -84,8 +84,15 @@ de « Fireplace #5 ». Extraits, filtres et empreintes SHA-256 : `sources.json`
 
 ## Musique d’accueil distincte des effets CC0
 
-`FantasyFair.m4a` a été fourni par l’utilisateur. Ses métadonnées indiquent
-« Tavern Loop One », Alexander Nakarada, album « Fantasy Fair ».
+`FantasyFair.m4a` (musique d’accueil) est « Tavern Loop One », Alexander Nakarada,
+album « Fantasy Fair », sous licence CC BY 4.0. Mention d’attribution à reproduire
+telle quelle :
+
+    Tavern Loop One by Alexander Nakarada (CreatorChords) | https://creatorchords.com
+    Royalty Free Music by https://www.free-stock-music.com
+    Creative Commons / Attribution 4.0 International (CC BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/
+
 Le classement CC0 des effets ci-dessus ne concerne pas ce fichier musical.
 
 
