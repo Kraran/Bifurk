@@ -171,8 +171,8 @@ Détails techniques : [docs/manette.md](docs/manette.md).
 
 Trois éditions sont reconnues par l’empreinte SHA-256 de leur PDF :
 **Le Sorcier de la Montagne de Feu** (édition 1982), **La Forêt de la
-Malédiction** (édition 1983) et **La Cité des Voleurs** (édition 1983, en
-préparation : consultation seulement). Le PDF doit être fourni par l’utilisateur ; il
+Malédiction** (édition 1983) et **La Cité des Voleurs** (édition 1983), jouables
+de bout en bout. Le PDF doit être fourni par l’utilisateur ; il
 n’est pas distribué avec Bifurk et ne doit pas être ajouté au dépôt.
 
 ## Démarrage
@@ -318,11 +318,11 @@ règles de projet validées ; une partie interne sans triche a atteint la victoi
 Voir le [bilan de clôture](docs/reviews/2026-10-23-foret-cloture.md) et les
 [mécaniques particulières](docs/foret-mecaniques-particulieres.md).
 
-### La Cité des Voleurs — en préparation
+### La Cité des Voleurs — aventure complète
 
-Le troisième module est reconnu : couverture, prologue « Les terribles messagers
-de Zanbar Bone », règles et profil de départ (30 pièces d'or, potion au choix,
-10 repas pris à tout moment hors combat). Les renvois permettent de consulter le
-livre ; les événements et combats seront intégrés par tranches de 100 paragraphes.
+Le troisième module est intégré depuis la 1.3.0 : couverture, prologue « Les terribles
+messagers de Zanbar Bone », règles et profil de départ (30 pièces d'or, potion au choix,
+10 repas pris à tout moment hors combat), puis les événements, boutiques et combats
+des 400 paragraphes, jusqu’à la victoire du §400.
 La Cité a son annonce sonore, son décor de lecture et ses illustrations pleine page.
 Voir [La Cité — présentation](docs/cite-module-presentation.md).

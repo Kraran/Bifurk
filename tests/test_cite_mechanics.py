@@ -250,6 +250,10 @@ class CiteMechanicsWindowTests(unittest.TestCase):
     def events(self):
         return [self.w.event_layout.itemAt(i).widget() for i in range(self.w.event_layout.count())]
 
+    def preparation_notices(self):
+        return [w for w in self.events() if isinstance(w, QLabel)
+                and w.text() in (ANALYSED_NOTICE, PREVIEW_NOTICE)]
+
     def event_button(self, text):
         return next(b for b in self.events() if isinstance(b, QPushButton) and text in b.text())
 
@@ -339,7 +343,7 @@ class CiteMechanicsWindowTests(unittest.TestCase):
         self.assertFalse(mirror.isEnabled())
         self.assertTrue(mirror.toolTip().startswith('Indisponible : il vous faut l’objet indiqué par le livre (Miroir).'))
         self.assertNotIn('305', mirror.toolTip())
-        self.assertTrue(any(isinstance(w, QLabel) and w.text() == ANALYSED_NOTICE for w in self.events()))
+        self.assertFalse(self.preparation_notices())
 
     def test_shop_buys_from_printed_prices(self):
         self.play()
@@ -366,15 +370,16 @@ class CiteMechanicsWindowTests(unittest.TestCase):
         self.assertEqual(self.w.character['endurance'], 13)
         self.assertTrue(all(b.isEnabled() for b in self.buttons()))
 
-    def test_endings_and_analysed_notice(self):
+    def test_endings_and_no_preparation_notice_once_complete(self):
         self.play()
         self.w.go_to(56)
         self.assertTrue(self.w.character['book_facts']['adventure_ended'])
         self.assertTrue(any('Aventure terminée' in w.text() for w in self.events() if isinstance(w, QLabel)))
         self.w.undo_action()
         self.w.go_to(302)
-        self.assertTrue(any(isinstance(w, QLabel) and w.text() == ANALYSED_NOTICE for w in self.events()))
-        self.assertFalse(any(isinstance(w, QLabel) and w.text() == PREVIEW_NOTICE for w in self.events()))
+        # La Cité est complète depuis la 1.3.0 (statut « ready ») : plus d'avertissement
+        # « Aventure en préparation », réservé aux modules encore en aperçu.
+        self.assertFalse(self.preparation_notices())
         self.assertTrue(all(b.isEnabled() for b in self.buttons() if b.toolTip()[:11] != 'Indisponibl'))
 
     def test_gate_is_the_only_source_for_links(self):

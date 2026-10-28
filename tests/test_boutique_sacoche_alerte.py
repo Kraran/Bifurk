@@ -13,7 +13,7 @@ from adventurer_sheet import (INVENTORY_QUANTITY_ROLE, ALERT_THRESHOLD, PULSE_PE
                               StatMedallion, SheetStrip)
 from grimoire_modules.cite import rules as cite
 from grimoire_modules.foret import rules, labels
-from test_ameliorations_partie import WindowCase
+from tests.test_ameliorations_partie import WindowCase
 from tests import test_cite_mechanics as cite_mechanics
 
 
