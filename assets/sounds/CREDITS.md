@@ -53,6 +53,35 @@ Les URL de téléchargement, fichiers exacts et empreintes SHA-256 des archives 
 dans `sources.json`. `scripts/prepare_sounds.py` reconstruit les WAV à partir de ces
 archives avec FFmpeg. Les anciens effets synthétiques ne sont plus utilisés.
 
+## Scènes d’ambiance — CC0 1.0
+
+Boucles et sons ponctuels des scènes, partagés entre les livres, tirés d’enregistrements
+de Joseph SARDIN publiés sur BigSoundBank sous CC0 (« CC0 (public domain) »,
+[licences BigSoundBank](https://bigsoundbank.com/licences.html)).
+
+| Fichier | Enregistrement | Page |
+|---|---|---|
+| scene_souterrain.ogg | « Cave #2 » | https://bigsoundbank.com/cave-2-s2136.html |
+| scene_crypte.ogg | « Cave #1 » | https://bigsoundbank.com/cave-1-s2135.html |
+| scene_riviere.ogg | « Watercourse #1 » | https://bigsoundbank.com/watercourse-1-s3132.html |
+| scene_marais.ogg | « Froux peat bogs » | https://bigsoundbank.com/froux-peat-bogs-s1349.html |
+| scene_foret_nuit.ogg | « Campaign at night #1 » | https://bigsoundbank.com/campaign-at-night-1-s0110.html |
+| scene_vent.ogg | « Whistling of the Wind #1 » | https://bigsoundbank.com/whistling-of-the-wind-1-s0147.html |
+| scene_marche.ogg | « Outdoor market #3 » | https://bigsoundbank.com/outdoor-market-3-s2730.html |
+| scene_port.ogg | « Gulls on the Harbor » | https://bigsoundbank.com/gulls-on-the-harbor-s2573.html |
+| scene_taverne.ogg | « Crowd of 50-60 People #1 » + « Fireplace #5 » | https://bigsoundbank.com/crowd-of-50-60-people-1-s3515.html ; https://bigsoundbank.com/fireplace-5-s2857.html |
+| scene_foyer.ogg | « Fireplace #3 » | https://bigsoundbank.com/fireplace-3-s2855.html |
+| spot_goutte.wav à spot_goutte_5.wav | « Drops of water #1 », « Drops of water #2 », « Drops of water #4 » | https://bigsoundbank.com/drops-of-water-1-s1384.html ; https://bigsoundbank.com/drops-of-water-2-s1385.html ; https://bigsoundbank.com/drops-of-water-4-s1387.html |
+| spot_hibou.wav à spot_hibou_4.wav | « Tawny Owls » | https://bigsoundbank.com/owls-s0429.html |
+| spot_grenouille.wav à spot_grenouille_4.wav | « Frogs #1 » | https://bigsoundbank.com/frogs-1-s0997.html |
+
+Préparation par `scripts/prepare_book_ambiences.py` : filtres FFmpeg, mono 16 bits à
+22 050 Hz, boucles de 40 à 45 s raccordées par fondu enchaîné de 3 s et livrées en OGG
+Vorbis (qualité 4) ; sons ponctuels découpés, crête à −6 dBFS, entrée et sortie en fondu.
+La foule de la taverne est assourdie (passe-bas à 2,6 kHz) et mêlée au crépitement
+de « Fireplace #5 ». Extraits, filtres et empreintes SHA-256 : `sources.json`
+(sections `scene_sources`, `scene_ambiences`, `scene_spots`).
+
 ## Musique d’accueil distincte des effets CC0
 
 `FantasyFair.m4a` a été fourni par l’utilisateur. Ses métadonnées indiquent

@@ -23,7 +23,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QMessageBox, QDialog, QPushButton
 from book_events import DATA_PATH
 from main import MainWindow, ASSET_DIR
-from sound_effects import SoundBank, EFFECT_LABELS, BOOK_SOUNDS
+from sound_effects import SoundBank, EFFECT_LABELS, BOOK_SOUNDS, LOOP_NAMES, SPOT_SOUNDS
 
 
 class Signal:
@@ -75,7 +75,7 @@ class SoundFeedbackTests(unittest.TestCase):
         state = random.getstate()
         with patch.object(SoundBank, '_backend', return_value=FakeEffect):
             bank = SoundBank(ASSET_DIR/'sounds')
-            self.assertEqual(set(bank.effects), {*EFFECT_LABELS, *BOOK_SOUNDS.values(), 'ambient', 'ambient_cite', 'ambient_foret'})
+            self.assertEqual(set(bank.effects), {*EFFECT_LABELS, *BOOK_SOUNDS.values(), *LOOP_NAMES, *SPOT_SOUNDS})
             page = bank.effects['page']
             bank.play('page')
             self.assertIs(bank.effects['page'], page)
@@ -158,7 +158,7 @@ from pathlib import Path
 from unittest.mock import patch
 from PySide6.QtWidgets import QApplication
 from PySide6.QtMultimedia import QSoundEffect
-from sound_effects import SoundBank
+from sound_effects import LOOP_NAMES, SoundBank
 from pcm_audio import PcmEffect
 app = QApplication([])
 with patch.object(SoundBank, '_backend', return_value=QSoundEffect):
@@ -171,9 +171,10 @@ with patch.object(SoundBank, '_backend', return_value=PcmEffect):
     while any(effect.status() == effect.Loading for effect in pcm.effects.values()) \
             and time.monotonic() < deadline:
         app.processEvents()
-    # Les ambiances restent non décodées tant qu'elles ne sont pas demandées.
-    assert all(effect.status() == (effect.Unloaded if effect.channel == 'ambient' else effect.Ready)
-               for effect in pcm.effects.values())
+    # Les boucles restent non décodées tant qu'elles ne sont pas demandées ;
+    # les sons ponctuels des scènes, courts, sont prêts comme les effets.
+    assert all(effect.status() == (effect.Unloaded if name in LOOP_NAMES else effect.Ready)
+               for name, effect in pcm.effects.items())
     pcm.play('page')
     assert any(pcm._pcm_mixer.readData(44100 * 4))
     pcm._pcm_sink.stop()

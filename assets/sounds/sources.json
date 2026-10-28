@@ -323,5 +323,326 @@
       "crossfade_seconds": 3,
       "rms_dbfs": -31.7
     }
+  },
+  "scene_sources": {
+    "bigsoundbank-2136.flac": {
+      "title": "Cave #2",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/cave-2-s2136.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/2136.flac",
+      "sha256": "a91e53fa7f6f611603c652e3766716b5e5a66265d0bcf6d8e72a271663e7eb7a"
+    },
+    "bigsoundbank-2135.flac": {
+      "title": "Cave #1",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/cave-1-s2135.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/2135.flac",
+      "sha256": "4c32ae848ca13206a1830a131da1bcc71c1b1ec395a230cfcf3e637f26e80f9a"
+    },
+    "bigsoundbank-3132.flac": {
+      "title": "Watercourse #1",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/watercourse-1-s3132.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/3132.flac",
+      "sha256": "adbf7cc0e10635c2d669a7df52e64aa2da05248de0b8ffc964b948dffa155286"
+    },
+    "bigsoundbank-1349.flac": {
+      "title": "Froux peat bogs",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/froux-peat-bogs-s1349.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/1349.flac",
+      "sha256": "d6ea8ba79a742d39597ee8af2bedb31aa443f93ba5be8d51099d909ca67814b5"
+    },
+    "bigsoundbank-0110.ogg": {
+      "title": "Campaign at night #1",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/campaign-at-night-1-s0110.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/ogg/0110.ogg",
+      "sha256": "5854038c76946821bd1054ae96e5713d0e8e5894bd38337d2ad6f061f9db7f55"
+    },
+    "bigsoundbank-0147.ogg": {
+      "title": "Whistling of the Wind #1",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/whistling-of-the-wind-1-s0147.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/ogg/0147.ogg",
+      "sha256": "93e07c797d38df02220d5c0dd9b29a7cc8826d84122542f101754531d798abc0"
+    },
+    "bigsoundbank-2730.flac": {
+      "title": "Outdoor market #3",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/outdoor-market-3-s2730.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/2730.flac",
+      "sha256": "01250c667c71ce07521a17041e85e614c395dfbe10b52d9bccb96c1676b20321"
+    },
+    "bigsoundbank-2573.flac": {
+      "title": "Gulls on the Harbor",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/gulls-on-the-harbor-s2573.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/2573.flac",
+      "sha256": "3d622b5a0d52d37c7437520fa8679d99e7c7df9a197427505122f725c38a3ee0"
+    },
+    "bigsoundbank-3515.flac": {
+      "title": "Crowd of 50-60 People #1",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/crowd-of-50-60-people-1-s3515.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/3515.flac",
+      "sha256": "19d7d1182bfe0639738c85279970471881d9b2d3c3a6d67ea2ac9ea16fb0838b"
+    },
+    "bigsoundbank-2857.flac": {
+      "title": "Fireplace #5",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/fireplace-5-s2857.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/2857.flac",
+      "sha256": "7d9f9ac40d71208055f36d704eb281a7a483cb8d7a579da1d9561ceb31caa6ac"
+    },
+    "bigsoundbank-2855.flac": {
+      "title": "Fireplace #3",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/fireplace-3-s2855.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/2855.flac",
+      "sha256": "e7739a991ffc115d8a9e5c6fe6bff3d44b79e7cea7ee27d160d79ed970d99470"
+    },
+    "bigsoundbank-1384.flac": {
+      "title": "Drops of water #1",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/drops-of-water-1-s1384.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/1384.flac",
+      "sha256": "1feae2fe40458f2c0644dd1aa973e5c36bd4b7e66f74935081a5e65c448433c9"
+    },
+    "bigsoundbank-1385.flac": {
+      "title": "Drops of water #2",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/drops-of-water-2-s1385.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/1385.flac",
+      "sha256": "82c53105ddc5923bad7b066c88f000d348ba1d5206026e5e12bfbcffbe38a1ed"
+    },
+    "bigsoundbank-1387.flac": {
+      "title": "Drops of water #4",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/drops-of-water-4-s1387.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/flac/1387.flac",
+      "sha256": "9e97215274ff36a4c2da542ac3f1bb5c04199d06684342234ada75e2ce25c0e4"
+    },
+    "bigsoundbank-0997.ogg": {
+      "title": "Frogs #1",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/frogs-1-s0997.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/ogg/0997.ogg",
+      "sha256": "a7fd843044812ce533a3b3e0618387000e99cf7bdc7740c84673e4d05c7a4d89"
+    },
+    "bigsoundbank-0429.ogg": {
+      "title": "Tawny Owls",
+      "author": "Joseph SARDIN — BigSoundBank",
+      "page": "https://bigsoundbank.com/owls-s0429.html",
+      "license": "CC0-1.0",
+      "license_url": "https://bigsoundbank.com/licences.html",
+      "download": "https://bigsoundbank.com/UPLOAD/ogg/0429.ogg",
+      "sha256": "0d31e62523f2e750680ba01074f39d38bbe24339cf534a1118eab8f62b8af515"
+    }
+  },
+  "scene_ambiences": {
+    "scene_souterrain": {
+      "archive": "bigsoundbank-2136.flac",
+      "start_seconds": 5,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -31.7
+    },
+    "scene_crypte": {
+      "archive": "bigsoundbank-2135.flac",
+      "filters": "highpass=f=80,lowpass=f=1400",
+      "start_seconds": 15,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -34.0
+    },
+    "scene_riviere": {
+      "archive": "bigsoundbank-3132.flac",
+      "start_seconds": 33,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -31.7
+    },
+    "scene_marais": {
+      "archive": "bigsoundbank-1349.flac",
+      "start_seconds": 34,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -31.7
+    },
+    "scene_foret_nuit": {
+      "archive": "bigsoundbank-0110.ogg",
+      "start_seconds": 5,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -31.7
+    },
+    "scene_vent": {
+      "archive": "bigsoundbank-0147.ogg",
+      "filters": "highpass=f=150",
+      "start_seconds": 52,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -32.5
+    },
+    "scene_marche": {
+      "archive": "bigsoundbank-2730.flac",
+      "start_seconds": 34,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -31.7
+    },
+    "scene_port": {
+      "archive": "bigsoundbank-2573.flac",
+      "start_seconds": 2,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -31.7
+    },
+    "scene_taverne": {
+      "archive": "bigsoundbank-3515.flac",
+      "filters": "highpass=f=120,lowpass=f=2600",
+      "start_seconds": 12,
+      "loop_seconds": 40,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -31.7,
+      "layers": [
+        {
+          "archive": "bigsoundbank-2857.flac",
+          "filters": "highpass=f=80,acompressor=threshold=-36dB:ratio=6:attack=1:release=80",
+          "start_seconds": 1,
+          "relative_db": -4
+        }
+      ]
+    },
+    "scene_foyer": {
+      "archive": "bigsoundbank-2855.flac",
+      "filters": "highpass=f=80,acompressor=threshold=-36dB:ratio=6:attack=1:release=80",
+      "start_seconds": 2,
+      "loop_seconds": 45,
+      "crossfade_seconds": 3,
+      "rms_dbfs": -33.0
+    }
+  },
+  "scene_spots": {
+    "spot_goutte": {
+      "filters": "highpass=f=200",
+      "peak_dbfs": -6.0,
+      "fade_in_seconds": 0.01,
+      "fade_out_seconds": 0.4,
+      "cuts": [
+        {
+          "archive": "bigsoundbank-1384.flac",
+          "start_seconds": 0.11,
+          "seconds": 1.2
+        },
+        {
+          "archive": "bigsoundbank-1384.flac",
+          "start_seconds": 4.39,
+          "seconds": 1.2
+        },
+        {
+          "archive": "bigsoundbank-1385.flac",
+          "start_seconds": 7.41,
+          "seconds": 1.2
+        },
+        {
+          "archive": "bigsoundbank-1387.flac",
+          "start_seconds": 6.13,
+          "seconds": 1.2
+        },
+        {
+          "archive": "bigsoundbank-1387.flac",
+          "start_seconds": 12.31,
+          "seconds": 1.2
+        }
+      ]
+    },
+    "spot_hibou": {
+      "filters": "highpass=f=150",
+      "peak_dbfs": -6.0,
+      "fade_in_seconds": 0.05,
+      "fade_out_seconds": 0.4,
+      "cuts": [
+        {
+          "archive": "bigsoundbank-0429.ogg",
+          "start_seconds": 1.4,
+          "seconds": 1.6
+        },
+        {
+          "archive": "bigsoundbank-0429.ogg",
+          "start_seconds": 5.0,
+          "seconds": 1.6
+        },
+        {
+          "archive": "bigsoundbank-0429.ogg",
+          "start_seconds": 10.4,
+          "seconds": 1.6
+        },
+        {
+          "archive": "bigsoundbank-0429.ogg",
+          "start_seconds": 18.75,
+          "seconds": 2.4
+        }
+      ]
+    },
+    "spot_grenouille": {
+      "filters": "highpass=f=150",
+      "peak_dbfs": -6.0,
+      "fade_in_seconds": 0.15,
+      "fade_out_seconds": 0.5,
+      "cuts": [
+        {
+          "archive": "bigsoundbank-0997.ogg",
+          "start_seconds": 7.2,
+          "seconds": 2.2
+        },
+        {
+          "archive": "bigsoundbank-0997.ogg",
+          "start_seconds": 29.4,
+          "seconds": 2.6
+        },
+        {
+          "archive": "bigsoundbank-0997.ogg",
+          "start_seconds": 44.0,
+          "seconds": 2.2
+        },
+        {
+          "archive": "bigsoundbank-0997.ogg",
+          "start_seconds": 51.5,
+          "seconds": 2.4
+        }
+      ]
+    }
   }
 }
