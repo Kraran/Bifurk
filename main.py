@@ -52,8 +52,42 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, 
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
     QGroupBox, QSlider, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QTabWidget, QSizePolicy, QMenu)
 
-# Répertoire portable : à côté de l'exécutable empaqueté ou du script.
-APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
+def _running_tests():
+    """Vrai sous un lanceur de tests (python -m unittest, pytest, fichier test_*.py).
+
+    unittest/__main__.py remplace sys.argv[0] par « python -m unittest ». Un autre lanceur
+    qui a déjà chargé unittest (sélection de tests maison…) est aussi reconnu. Les outils
+    d'audit (tools/, qui utilisent unittest.mock sur les vraies données) et le programme
+    compilé ne sont jamais concernés."""
+    if getattr(sys, "frozen", False) or not sys.argv:
+        return False
+    launcher = sys.argv[0]
+    name = Path(launcher).name
+    if launcher == 'python -m unittest' or name.startswith('test_') or 'pytest' in launcher:
+        return True
+    return 'unittest.runner' in sys.modules and Path(launcher).resolve().parent.name != 'tools'
+
+
+def _portable_root():
+    """Dossier qui contient donnees/ et musique_perso/.
+
+    À côté de l'exécutable empaqueté ou du script, sauf deux cas :
+    - BIFURK_DATA_ROOT désigne un autre dossier (essais, captures, plusieurs profils) ;
+    - sous un lanceur de tests, un dossier temporaire neuf, effacé à la fin : les tests
+      n'écrivent jamais dans les vraies sauvegardes, préférences ou grimoires du joueur."""
+    override = os.environ.get('BIFURK_DATA_ROOT')
+    if override:
+        return Path(override).resolve()
+    if _running_tests():
+        import atexit
+        root = Path(tempfile.mkdtemp(prefix='bifurk-tests-')).resolve()
+        atexit.register(shutil.rmtree, root, ignore_errors=True)
+        return root
+    return Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
+
+
+# Répertoire portable : à côté de l'exécutable empaqueté ou du script (voir _portable_root).
+APP_DIR = _portable_root()
 # PyInstaller place le code et les ressources dans _internal, mais les données
 # portables restent à côté de Bifurk.exe. __file__ fonctionne aussi en mode source.
 RESOURCE_DIR = Path(__file__).resolve().parent

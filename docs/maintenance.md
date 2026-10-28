@@ -155,6 +155,20 @@ appelle `fsync` puis `os.replace`. Conserver ce protocole pour les sauvegardes.
 Le menu demande confirmation avant remplacement, suppression et nouvelle partie
 depuis Charger ; annuler doit laisser dialogue et partie dans leur état courant.
 
+### Données des tests
+
+Sous un lanceur de tests (`python -m unittest`, pytest, fichier `test_*.py` ou tout
+lanceur ayant chargé `unittest`, hors `tools/`), `main.APP_DIR` pointe vers un dossier
+temporaire neuf (`bifurk-tests-…`), effacé à la fin du processus : `donnees/`
+(sauvegardes, autosauvegarde, préférences, journal audio, grimoires importés) et
+`musique_perso/` du joueur ne sont jamais touchés, même par un test qui oublie de
+remplacer `SAVES_DIR` ou `SETTINGS_DIR`. Les tests qui lisent les PDF privés les
+cherchent toujours, en lecture seule, dans `donnees/grimoires` du dépôt.
+`tests/test_isolation_donnees.py` vérifie ce comportement.
+
+La variable d'environnement `BIFURK_DATA_ROOT` désigne explicitement un autre dossier
+racine pour `donnees/` et `musique_perso/` (essais, captures, second profil).
+
 ## Rendu Qt, PDF et thèmes
 
 Les règles du jeu doivent rester dans l'état Python : une vue reconstruit sa
