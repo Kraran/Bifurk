@@ -133,6 +133,10 @@ class WindowTests(unittest.TestCase):
         with patch.object(self.w.tts, 'is_busy', return_value=True), patch.object(self.w.tts, 'stop') as stop:
             button.click()  # Second clic pendant la lecture : arrêt.
         stop.assert_called_once()
+        with patch.object(self.w.tts, 'is_busy', return_value=True), \
+                patch.object(self.w.tts, 'fade_out') as fade_out:
+            button.click()  # Arrêt volontaire : la phrase en cours est retenue pour la reprise.
+        fade_out.assert_called_once_with(remember=True)
 
     def test_voice_choice_is_saved_and_restored(self):
         chosen = []
@@ -212,6 +216,88 @@ class VolumeAndPreloadTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class ResumeTests(unittest.TestCase):
+    """Arrêt volontaire puis reprise : au début de la phrase interrompue, pas du paragraphe."""
+    TEXT = 'Vous entrez dans la crypte. Une odeur de moisi flotte. Un cercueil est ouvert. Rendez-vous au 12.'
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_sentences_and_chunks_keep_their_position(self):
+        sentences = tts.speech_sentences(self.TEXT)
+        self.assertEqual([self.TEXT[s:s + len(t)] for s, t in sentences], [t for _, t in sentences])
+        self.assertEqual(len(sentences), 4)
+        spans = tts.speech_chunk_spans(self.TEXT, first_limit=40, limit=60)
+        self.assertEqual(spans[0], (0, 'Vous entrez dans la crypte.'))
+        self.assertTrue(all(self.TEXT.startswith(chunk.split(' ')[0], start) for start, chunk in spans))
+        start, chunk = spans[1]
+        # Un caractère au milieu de « Un cercueil… » ramène au début de cette phrase.
+        middle = chunk.index('cercueil')
+        self.assertEqual(tts.resume_position(self.TEXT, start, chunk, middle), self.TEXT.index('Un cercueil'))
+
+    def reader_playing(self, marks=(), position=0, duration=0):
+        """Lecteur arrêté au milieu du second morceau, sans réseau ni audio réel."""
+        reader = tts.ParagraphReader()
+        reader._text = self.TEXT
+        reader._chunks = tts.speech_chunk_spans(self.TEXT, first_limit=40, limit=60)
+        path = Path(tempfile.mkstemp(suffix='.mp3')[1])
+        reader._temp_file = path
+        reader._chunk_of[str(path)] = 1
+        reader._marks[str(path)] = list(marks)
+        reader._player = types.SimpleNamespace(position=lambda: position, duration=lambda: duration,
+                                               stop=lambda: None, setSource=lambda url: None,
+                                               playbackState=lambda: None)
+        return reader
+
+    def test_voluntary_stop_resumes_at_the_interrupted_sentence(self):
+        start, chunk = tts.speech_chunk_spans(self.TEXT, first_limit=40, limit=60)[1]
+        reader = self.reader_playing(marks=[(0, 0), (1800, chunk.index('Un cercueil'))], position=2500)
+        reader.fade_out(remember=True)
+        self.assertEqual(reader.resume_point(), (self.TEXT, self.TEXT.index('Un cercueil')))
+        with patch('threading.Thread'):
+            reader.speak(self.TEXT)
+        self.assertEqual(reader._chunks[0], (self.TEXT.index('Un cercueil'), 'Un cercueil est ouvert. Rendez-vous au 12.'))
+        self.assertIsNone(reader.resume_point())   # Reprise consommée.
+
+    def test_without_marks_the_position_in_the_chunk_is_used(self):
+        start, chunk = tts.speech_chunk_spans(self.TEXT, first_limit=40, limit=60)[1]
+        reader = self.reader_playing(position=100, duration=1000)   # Tout début du morceau.
+        reader.fade_out(remember=True)
+        self.assertEqual(reader.resume_point()[1], start)
+
+    def test_other_stops_and_other_paragraphs_start_from_the_beginning(self):
+        reader = self.reader_playing(marks=[(0, 0)], position=10)
+        reader.fade_out()                 # Changement de paragraphe : pas de reprise.
+        self.assertIsNone(reader.resume_point())
+        reader = self.reader_playing(marks=[(0, 0)], position=10)
+        reader.fade_out(remember=True)
+        with patch('threading.Thread'):
+            reader.speak('Un autre paragraphe. Tout neuf.')
+        self.assertEqual(reader._chunks[0][0], 0)
+
+    def test_streamed_synthesis_records_sentence_marks(self):
+        class Communicate:
+            def __init__(self, text, voice, rate='+0%', volume='+0%'):
+                self.text = text
+
+            async def stream(self):
+                yield {'type': 'audio', 'data': b'ID3'}
+                yield {'type': 'SentenceBoundary', 'offset': 12_000_000, 'text': 'Une odeur de moisi flotte.'}
+                yield {'type': 'audio', 'data': b'fake'}
+        module = types.SimpleNamespace(Communicate=Communicate)
+        reader = tts.ParagraphReader()
+        played = []
+        with patch.dict(sys.modules, {'edge_tts': module}), \
+                patch.object(tts.ParagraphReader, '_play', autospec=True,
+                             side_effect=lambda self, r, f: played.append(f)):
+            reader.speak('Vous entrez dans la crypte. Une odeur de moisi flotte.')
+            self.assertTrue(wait_for(lambda: played, self.app))
+        self.assertEqual(Path(played[0]).read_bytes(), b'ID3fake')
+        self.assertEqual(reader._marks[played[0]], [(1200, len('Vous entrez dans la crypte. '))])
+        Path(played[0]).unlink()
 
 
 class PrepareSpeechTextTests(unittest.TestCase):

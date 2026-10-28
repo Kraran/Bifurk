@@ -8,6 +8,12 @@ l’interface : seul le signal ``error`` porte un message court.
 
 Une lecture interrompue (nouveau paragraphe, bouton ⏹) s’éteint en un court fondu
 (``fade_out``) ; ``shutdown`` coupe net et efface tout, pour la fermeture du programme.
+
+Reprise : un arrêt volontaire (``fade_out(remember=True)``, bouton ⏹) retient la phrase
+en cours ; relancer le même paragraphe reprend au début de cette phrase. La phrase est
+retrouvée grâce aux repères de phrase (ou de mot) envoyés par le service avec l’audio,
+à défaut par la position dans le morceau. Tout autre arrêt, ou la fin de la lecture,
+oublie le point de reprise.
 """
 from __future__ import annotations
 
@@ -92,21 +98,50 @@ def prepare_speech_text(text: str) -> str:
     return re.sub(r"[ \t]{2,}", " ", text).strip()
 
 
-def split_speech_chunks(text: str, first_limit: int = 160, limit: int = 300) -> list[str]:
-    """Découper en phrases regroupées : un premier morceau court pour démarrer vite."""
-    sentences = [part.strip() for part in re.split(r"(?<=[.!?…»])\s+|\n+", text or "") if part.strip()]
-    chunks: list[str] = []
-    current = ""
-    for sentence in sentences:
+SENTENCE_BREAK = re.compile(r"(?<=[.!?…»])\s+|\n+")
+
+
+def speech_sentences(text: str) -> list[tuple[int, str]]:
+    """Phrases du texte préparé, avec la position de leur premier caractère."""
+    sentences, start = [], 0
+    for match in [*SENTENCE_BREAK.finditer(text or ""), None]:
+        end = match.start() if match else len(text or "")
+        part = (text or "")[start:end]
+        if part.strip():
+            sentences.append((start + len(part) - len(part.lstrip()), part.strip()))
+        if match:
+            start = match.end()
+    return sentences
+
+
+def speech_chunk_spans(text: str, first_limit: int = 160, limit: int = 300) -> list[tuple[int, str]]:
+    """Morceaux de phrases regroupées (début dans le texte, texte) : le premier reste court."""
+    chunks: list[tuple[int, str]] = []
+    start, current = 0, ""
+    for position, sentence in speech_sentences(text):
         cap = first_limit if not chunks else limit
         if current and len(current) + 1 + len(sentence) > cap:
-            chunks.append(current)
-            current = sentence
+            chunks.append((start, current))
+            start, current = position, sentence
+        elif current:
+            current = f"{current} {sentence}"
         else:
-            current = f"{current} {sentence}".strip()
+            start, current = position, sentence
     if current:
-        chunks.append(current)
+        chunks.append((start, current))
     return chunks
+
+
+def split_speech_chunks(text: str, first_limit: int = 160, limit: int = 300) -> list[str]:
+    """Découper en phrases regroupées : un premier morceau court pour démarrer vite."""
+    return [chunk for _, chunk in speech_chunk_spans(text, first_limit, limit)]
+
+
+def resume_position(text: str, chunk_start: int, chunk: str, offset: int) -> int:
+    """Début, dans text, de la phrase qui contient le caractère offset du morceau."""
+    target = chunk_start + max(0, min(len(chunk), offset))
+    sentences = [start for start, _ in speech_sentences(text) if start <= target]
+    return sentences[-1] if sentences else 0
 
 
 class ParagraphReader(QObject):
@@ -136,6 +171,12 @@ class ParagraphReader(QObject):
         self._fade: QVariantAnimation | None = None
         self._fading = None  # (lecteur, sortie, fichier) retirés de la lecture.
         self._idle: list = []  # Lecteurs éteints, réutilisés plutôt que détruits.
+        # Reprise après un arrêt volontaire : texte lu, morceaux (début, texte) et repères.
+        self._text = ""
+        self._chunks: list[tuple[int, str]] = []
+        self._chunk_of: dict[str, int] = {}          # MP3 → numéro de morceau.
+        self._marks: dict[str, list[tuple[int, int]]] = {}   # MP3 → (ms, caractère du morceau).
+        self._resume: tuple[str, int] | None = None   # (texte, début de la phrase à reprendre).
 
     @property
     def voice(self) -> str:
@@ -181,21 +222,44 @@ class ParagraphReader(QObject):
         from PySide6.QtMultimedia import QMediaPlayer
         return self._player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
 
-    def fade_out(self) -> None:
-        """Arrêter la lecture par un court fondu ; la synthèse en cours devient caduque."""
-        self.stop(fade_ms=self.FADE_MS)
+    def fade_out(self, remember: bool = False) -> None:
+        """Arrêter la lecture par un court fondu ; la synthèse en cours devient caduque.
+
+        remember=True (arrêt demandé par le joueur) retient la phrase en cours : relancer
+        le même texte reprendra au début de cette phrase."""
+        self.stop(fade_ms=self.FADE_MS, resume=self._current_sentence() if remember else None)
+
+    def resume_point(self) -> tuple[str, int] | None:
+        """(texte, position) de la reprise retenue, ou None."""
+        return self._resume
+
+    def _current_sentence(self) -> tuple[str, int] | None:
+        """Phrase en cours de lecture : repère du service, sinon position dans le morceau."""
+        path = str(self._temp_file) if self._temp_file is not None else None
+        if path is None or self._player is None or path not in self._chunk_of:
+            return None
+        start, chunk = self._chunks[self._chunk_of[path]]
+        position = max(0, int(self._player.position()))
+        marks = [char for ms, char in self._marks.get(path, ()) if ms <= position]
+        if marks:
+            offset = marks[-1]
+        else:
+            duration = int(self._player.duration())
+            offset = int(len(chunk) * position / duration) if duration > 0 else 0
+        return self._text, resume_position(self._text, start, chunk, offset)
 
     def shutdown(self) -> None:
         """Fermeture du programme : couper net, terminer les fondus et effacer les MP3."""
         self.stop()
         self._finish_fade()
 
-    def stop(self, fade_ms: int = 0) -> None:
+    def stop(self, fade_ms: int = 0, *, resume: tuple[str, int] | None = None) -> None:
         """Arrêter la lecture et rendre caduque toute synthèse en cours.
 
         fade_ms > 0 : le morceau audible s’éteint en fondu sur son propre lecteur, retiré
         du lecteur actif ; une nouvelle lecture peut démarrer aussitôt sur un autre."""
         self._request += 1
+        self._resume = resume   # Fixé avant « finished » : le bouton peut proposer la reprise.
         was_busy = self._pending or self.is_playing()
         self._pending = False
         self._synth_done = True
@@ -259,8 +323,17 @@ class ParagraphReader(QObject):
         self._idle.append((player, output))
 
     def speak(self, text: str) -> None:
+        """Lire le texte ; après un arrêt volontaire sur ce même texte, reprendre à sa phrase."""
+        resume = self._resume
         self.fade_out()  # L’ancienne lecture s’éteint pendant la synthèse de la nouvelle.
-        chunks = split_speech_chunks(prepare_speech_text(text))
+        prepared = prepare_speech_text(text)
+        start = resume[1] if resume and resume[0] == prepared else 0
+        spans = speech_chunk_spans(prepared[start:])
+        self._text = prepared
+        self._chunks = [(start + offset, chunk) for offset, chunk in spans]
+        self._chunk_of.clear()
+        self._marks.clear()
+        chunks = [chunk for _, chunk in self._chunks]
         if not chunks:
             return
         request, voice, rate = self._request, self._voice, (self._rate, self._gain)
@@ -294,7 +367,22 @@ class ParagraphReader(QObject):
                 with tempfile.NamedTemporaryFile(prefix="bifurk-tts-", suffix=".mp3", delete=False) as tmp:
                     path = Path(tmp.name)
                 try:
-                    await edge_tts.Communicate(chunk, voice, rate=rate, **extra).save(str(path))
+                    communicate = edge_tts.Communicate(chunk, voice, rate=rate, **extra)
+                    if hasattr(communicate, "stream"):
+                        # Audio et repères de phrase (ou de mot) du service, dans le même flux.
+                        marks, cursor = [], 0
+                        with path.open("wb") as audio:
+                            async for part in communicate.stream():
+                                if part.get("type") == "audio":
+                                    audio.write(part["data"])
+                                elif part.get("type") in ("SentenceBoundary", "WordBoundary"):
+                                    found = chunk.find(str(part.get("text", "")).strip(), cursor)
+                                    if found >= 0:
+                                        marks.append((int(part.get("offset", 0)) // 10_000, found))
+                                        cursor = found
+                        self._marks[str(path)] = marks
+                    else:
+                        await communicate.save(str(path))
                     if path.stat().st_size == 0:
                         raise RuntimeError("fichier audio vide")
                 except Exception:
@@ -319,6 +407,7 @@ class ParagraphReader(QObject):
                     with contextlib.suppress(OSError):
                         path.unlink()
                 break
+            self._chunk_of[str(path)] = index
             QMetaObject.invokeMethod(self, "_play", Qt.QueuedConnection, Q_ARG(int, request), Q_ARG(str, str(path)))
             delivered = index + 1
         for task in tasks[max(delivered, 0):]:  # Morceaux jamais livrés : les attendre puis les effacer.
