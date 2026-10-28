@@ -12,7 +12,7 @@ la navigation ou le cycle création / partie / mort."""
 import sys, re, json, random, copy, os, tempfile, shutil, html
 import shiboken6
 from collections import Counter
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from navigation import destinations, render_links
 from illustrations import images_for_paragraph, cover
 from grimoire_modules.controller import ModuleActions, sheet_marks
@@ -151,14 +151,22 @@ def import_book(source, digest=None):
     return str(target)
 
 
+def portable_reference(reference):
+    """Chemin relatif écrit avec « / » : lisible sous Windows comme ailleurs."""
+    return PureWindowsPath(reference).as_posix() if '\\' in reference else reference
+
+
 def resolve_book_reference(reference):
     """Résoudre uniquement une référence relative vers un grimoire importé existant.
 
     Refuser les chemins absolus et les sorties du dossier grimoires ; ne pas chercher
-    un ancien fichier ailleurs ni importer implicitement un livre pendant le chargement."""
-    if not isinstance(reference, str) or not reference or Path(reference).is_absolute():
+    un ancien fichier ailleurs ni importer implicitement un livre pendant le chargement.
+    Les « \\ » des anciennes sauvegardes écrites sous Windows sont acceptés
+    partout ; un chemin absolu Windows (C:\\…, \\\\serveur\\…) est refusé comme un autre."""
+    if (not isinstance(reference, str) or not reference or Path(reference).is_absolute()
+            or PureWindowsPath(reference).is_absolute() or PureWindowsPath(reference).drive):
         return None
-    candidate = (APP_DIR / reference).resolve()
+    candidate = (APP_DIR / portable_reference(reference)).resolve()
     return str(candidate) if within_directory(candidate, BOOKS_DIR) and candidate.is_file() else None
 
 
@@ -775,7 +783,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def _remember_book(self):
         """Mémoriser le grimoire importé pour les prochaines nouvelles parties."""
         if self.pdf_path and within_directory(self.pdf_path, BOOKS_DIR):
-            self.preferences["last_book"] = str(Path(self.pdf_path).resolve().relative_to(BOOKS_DIR.resolve()))
+            self.preferences["last_book"] = Path(self.pdf_path).resolve().relative_to(BOOKS_DIR.resolve()).as_posix()
             self._save_preferences()
 
     # Fermeture demandée (closeEvent) : plus aucun menu de démarrage ne s'ouvre.
@@ -829,7 +837,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
     def _select_grimoire(self, books):
         """Ne renvoyer une intention qu'après validation du sélecteur, sans changer la partie."""
         reference = self.preferences.get('last_book')
-        last = BOOKS_DIR / reference if isinstance(reference, str) else None
+        last = BOOKS_DIR / portable_reference(reference) if isinstance(reference, str) else None
         dialog = GrimoireLibraryDialog(books, self.pdf_path or last, self)
         try:
             if dialog.exec() != QDialog.Accepted:
@@ -878,7 +886,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self._restart_adventure()
             return
         reference = self.preferences.get('last_book')
-        path = (BOOKS_DIR / reference).resolve() if isinstance(reference, str) else None
+        path = (BOOKS_DIR / portable_reference(reference)).resolve() if isinstance(reference, str) else None
         if path and within_directory(path, BOOKS_DIR) and path.is_file():
             self.open_pdf(path, startup=True)
         elif books:
@@ -4049,7 +4057,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         Le chemin relatif permet de déplacer Bifurk ; le SHA-256 vérifie le livre au
         chargement. Ni texte narratif ni widgets ne sont inclus."""
         return {"adventure_tracking": copy.deepcopy(self.adventure_tracking),
-                "version": APP_VERSION, "pdf_path": (str(Path(self.pdf_path).relative_to(APP_DIR)) if self.pdf_path and within_directory(self.pdf_path, APP_DIR) else None),
+                "version": APP_VERSION, "pdf_path": (Path(self.pdf_path).relative_to(APP_DIR).as_posix() if self.pdf_path and within_directory(self.pdf_path, APP_DIR) else None),
                 "saved_at": datetime.now().astimezone().isoformat(),
                 "save_name": self.character.get('name') or 'Aventurier sans nom',
                 "pdf_sha256": self._pdf_hash(),
@@ -4154,10 +4162,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
         Le livre est retrouvé par son chemin relatif et son module ; la miniature est
         gardée en mémoire pour la session (jamais écrite sur le disque)."""
-        reference = data.get('pdf_path')
-        if isinstance(reference, str):
-            reference = reference.replace('\\', '/')   # Sauvegarde écrite sous Windows.
-        pdf = resolve_book_reference(reference)
+        pdf = resolve_book_reference(data.get('pdf_path'))
         if not pdf:
             return QIcon()
         key = (pdf, data.get('module_id'), data.get('pdf_sha256'))

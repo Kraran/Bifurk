@@ -98,8 +98,8 @@ telle quelle :
 abaissée de 2,1 dB et réencodée en OGG par `scripts/prepare_victory_music.py`.
 Mention d’attribution :
 
-    Achievement by Alexander Nakarada (CreatorChords) | https://creatorchords.com
-    Creative Commons / Attribution 4.0 International (CC BY 4.0)
+    Music: Achievement by Alexander Nakarada (https://creatorchords.com)
+    Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
     https://creativecommons.org/licenses/by/4.0/
 
 Le classement CC0 des effets ci-dessus ne concerne pas ces fichiers musicaux.

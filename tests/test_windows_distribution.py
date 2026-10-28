@@ -239,7 +239,9 @@ class MusicAttributionTests(unittest.TestCase):
                          'docs/windows/COMPOSANTS-TIERS.md'):
             text = (root / relative).read_text(encoding='utf-8')
             with self.subTest(relative):
-                self.assertIn('Achievement by Alexander Nakarada (CreatorChords) | https://creatorchords.com', text)
+                for line in ('Music: Achievement by Alexander Nakarada (https://creatorchords.com)',
+                             'Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)'):
+                    self.assertIn(line, text)
                 self.assertIn('Achievement.ogg', text)
 
 
