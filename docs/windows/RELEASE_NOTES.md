@@ -1,4 +1,18 @@
-# Bifurk 1.3.1 — Lecture à voix haute
+# Bifurk 1.3.2 — Ambiances, manette et fins de partie
+
+## Nouveautés depuis la 1.3.1
+
+- **Ambiances selon le paragraphe** dans les trois livres : treize scènes sonores libres (caverne, souterrain, crypte, rivière, marais, forêt de jour et de nuit, vent, rues, marché, port, taverne, coin du feu), avec gouttes, grenouilles ou hiboux ponctuels. Réglages → Ambiances permet de choisir entre scène du paragraphe et boucle du livre, et d'écouter chaque scène.
+- **Jouer à la manette** (Xbox et compatibles ; PlayStation via Steam ou DS4Windows) : choix, fiche, sacoche, combats, dés et menus, avec un halo doré sur la sélection. Commandes et activation dans Réglages → Manette…
+- **Écran de fin** : une chronique de la partie (paragraphes visités, chemin parcouru, combats gagnés et adversaires vaincus, caractéristiques finales, bourse, sacoche) au paragraphe 400, à la mort du héros et aux autres fins du livre, avec Recommencer ou Charger une partie.
+- **Musiques de fin** d'Alexander Nakarada (CC BY 4.0) : « Achievement » en boucle pour la victoire, « Towards the Horizon » à la mort du héros.
+- **Continuer la dernière partie** dès le menu de départ (sauvegarde ou autosauvegarde la plus récente), et couverture du grimoire dans chaque emplacement de sauvegarde.
+- **Dés plus réalistes et plus fluides** : coins arrondis, points creusés, animation deux fois plus rapide à calculer.
+- La lecture à voix haute reprend à la phrase interrompue, et non plus au début du paragraphe.
+- La barre de titre Windows prend les couleurs du thème, sur toutes les fenêtres.
+- Menu Réglages réorganisé, avec des pictogrammes aux couleurs du thème ; fenêtre Ambiances rangée par sections.
+- Les sauvegardes restent lisibles si le dossier du jeu est déplacé ou ouvert sur un autre système.
+
 
 ## Nouveautés depuis la 1.3.0
 
