@@ -144,10 +144,29 @@ une boucle de fond (`scene_*.ogg`, ou la boucle d’un livre) et, pour certaines
 à la scène en fondu enchaîné ; `set_scene(None)` rend la boucle du livre. Les sons ponctuels
 suivent l’interrupteur et le curseur de l’ambiance, et la baisse pendant un combat.
 Dans la fenêtre d’ambiance, **Écouter une scène** permet un essai (case d’ambiance cochée) ;
-la scène d’avant revient à la fermeture. Le choix des scènes selon le paragraphe viendra
-avec les catalogues par livre. Les fichiers sont reconstruits par
+la scène d’avant revient à la fermeture. Les fichiers sont reconstruits par
 `scripts/prepare_book_ambiences.py` à partir des sections `scene_sources`, `scene_ambiences`
 et `scene_spots` de `assets/sounds/sources.json` (sources BigSoundBank CC0, empreintes SHA-256).
+
+**Ambiance selon le paragraphe.** Un livre peut livrer un catalogue `ambiences`
+(`catalogues/ambiances_<livre>.json`, déclaré dans son manifeste et lié à l’empreinte du PDF).
+Il répartit tous les paragraphes en **zones** (une scène chacune) et ajoute des **exceptions**
+(une salle, une taverne…) ; une exception sans scène (`null`) garde celle du paragraphe d’où
+l’on vient (monstre errant). Chaque entrée a un statut `proposé` (déduit du texte) ou
+`vérifié` (relu). `ambience_map.py` valide le catalogue : chaque paragraphe dans une seule
+zone, scènes connues, statuts permis ; un catalogue invalide laisse la boucle du livre.
+À chaque déplacement, les contrôleurs appellent `_ambience_follow_paragraph` : la scène suit
+le paragraphe, y compris après un chargement ou une annulation ; la page de titre et
+l’accueil rendent la boucle du livre. Dans la fenêtre d’ambiance, **Ambiance : selon le
+paragraphe / boucle du livre** (`ambient_mode`, « selon le paragraphe » par défaut) choisit.
+Seul le Sorcier a un catalogue pour l’instant (zones déduites des renvois entre paragraphes :
+galeries du sud, rivière, rive nord, Labyrinthe, repaire de Zagor).
+
+Relecture : `python scripts/relecture_ambiances.py LIVRE.pdf` écrit
+`audit-output/relecture-ambiances-<livre>.html`, une page locale (extraits du livre, à ne pas
+diffuser) qui présente chaque zone, chaque paragraphe, sa scène et l’exception qui l’a
+choisie, avec un lecteur pour écouter chaque boucle. Après relecture, passer les entrées
+validées à `vérifié` dans le catalogue.
 
 La musique d’accueil (`FantasyFair.m4a`, seul morceau) est lue par un `QMediaPlayer`
 distinct du flux des effets. Par défaut, elle s’éteint en dix secondes à l’entrée dans
