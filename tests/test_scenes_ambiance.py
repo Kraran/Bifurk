@@ -13,7 +13,7 @@ import wave
 from unittest.mock import patch
 
 import numpy as np
-from PySide6.QtWidgets import QApplication, QComboBox, QDialog
+from PySide6.QtWidgets import QApplication, QComboBox, QDialog, QPushButton
 
 import main
 from sound_effects import (AMBIENT_LABELS, SCENE_LOOPS, SCENES, SPOT_SOUNDS, SPOT_VOLUME,
@@ -197,6 +197,8 @@ class ScenePreviewTests(unittest.TestCase):
             seen['items'] = [combo.itemData(i) for i in range(combo.count())]
             seen['enabled'] = combo.isEnabled()
             combo.setCurrentIndex(combo.findData('taverne'))
+            seen['chosen'] = main_window.sounds.scene       # Choisir ne joue rien encore.
+            main_window.findChild(QPushButton, 'listenScene').click()
             seen['during'] = (main_window.sounds.scene, main_window.sounds.ambient)
             return 0
 
@@ -209,6 +211,7 @@ class ScenePreviewTests(unittest.TestCase):
                     main_window.show_ambience()
                 self.assertEqual(seen['items'], [None, *SCENES])
                 self.assertTrue(seen['enabled'])
+                self.assertEqual(seen['chosen'], 'port')
                 self.assertEqual(seen['during'], ('taverne', 'scene_taverne'))
                 # Sans paragraphe ouvert, la boucle du livre revient après l'essai.
                 self.assertIsNone(main_window.sounds.scene)

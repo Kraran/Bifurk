@@ -23,8 +23,8 @@ from PySide6.QtCore import (Q_ARG, QEasingCurve, QMetaObject, QObject, Qt, QUrl,
 
 # Liste de secours, affichée immédiatement et sans réseau.
 FRENCH_VOICES = {
-    "fr-FR-RemyMultilingualNeural": "Rémy Multilingue",
-    "fr-FR-VivienneMultilingualNeural": "Vivienne Multilingue",
+    "fr-FR-RemyMultilingualNeural": "Rémy Multilingue (Online)",
+    "fr-FR-VivienneMultilingualNeural": "Vivienne Multilingue (Online)",
     "fr-FR-DeniseNeural": "Denise",
     "fr-FR-HenriNeural": "Henri",
     "fr-FR-EloiseNeural": "Eloise",
