@@ -187,11 +187,13 @@ QDialog QCheckBox::indicator:checked { image: url('${checkmark}'); background: $
 QDialog QCheckBox::indicator:hover { border: 2px solid ${gold}; }
 QDialog QComboBox QAbstractItemView { background: ${page}; color: ${ink};
     selection-background-color: ${ornament}; selection-color: ${ink}; border: 1px solid ${frame}; padding: 4px; }
-QMenu { background: ${scene_background}; color: ${page}; border: 1px solid ${frame}; padding: 5px; }
-QMenu::item { padding: 8px 24px 8px 12px; border-radius: 4px; }
+QMenu { background: ${scene_background}; color: ${page}; border: 1px solid ${frame}; padding: 4px 0; }
+QMenu::item { padding: 8px 36px 8px 28px; border-radius: 4px; }
 QMenu::item:selected { background: ${accent}; color: ${gold}; }
 QMenu::item:disabled { color: ${ornament}; }
-QMenu::separator { height: 1px; background: ${ornament}; margin: 5px 8px; }
+QMenu::indicator { width: 14px; height: 14px; margin-left: 8px; }
+QMenu::right-arrow { width: 10px; height: 10px; margin-right: 10px; }
+QMenu::separator { height: 1px; background: ${ornament}; margin: 5px 12px; }
 QDialog QScrollBar:horizontal { background: ${scene_background}; height: 12px; margin: 0; }
 QDialog QScrollBar::handle:horizontal { background: ${ornament}; min-width: 30px; border-radius: 5px; }
 QDialog QScrollBar::add-line:horizontal, QDialog QScrollBar::sub-line:horizontal { width: 0; }

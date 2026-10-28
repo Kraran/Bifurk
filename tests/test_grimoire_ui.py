@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
 
-from PySide6.QtGui import QPixmap, QWheelEvent, QTextDocument
+from PySide6.QtGui import QPixmap, QWheelEvent, QTextDocument, QKeySequence
 from PySide6.QtCore import Qt, QPoint, QPointF, QUrl
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea, QWidget
@@ -421,7 +421,7 @@ class GrimoireInterfaceTests(unittest.TestCase):
         w.go_to(1)
         self.app.processEvents()
         self.assertIn(w.reading_action, w.settings_button.menu().actions())
-        self.assertIn('F10', w.reading_action.text())
+        self.assertEqual(w.reading_action.shortcut(), QKeySequence('F10'))
         w.reading_action.trigger()
         self.app.processEvents()
         self.assertTrue(w.reading_mode)
