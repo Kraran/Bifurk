@@ -941,9 +941,12 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
 
     def _speak_current_paragraph(self):
-        """Lire à voix haute le paragraphe affiché ; un second clic arrête la lecture."""
+        """Lire à voix haute le paragraphe affiché ; un second clic arrête la lecture.
+
+        L'arrêt au bouton retient la phrase en cours : le clic suivant, sur le même
+        paragraphe, reprend au début de cette phrase."""
         if self.tts.is_busy():
-            self.tts.fade_out()
+            self.tts.fade_out(remember=True)
             return
         if self.current_paragraph in self.paragraphs:
             self.tts.speak(self.paragraphs[self.current_paragraph])
@@ -999,6 +1002,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             tts.fade_out()
 
     TTS_TOOLTIP = "Lire le paragraphe à voix haute"
+    TTS_RESUME_TOOLTIP = "Reprendre la lecture à la phrase interrompue"
 
     def _show_tts_state(self, busy):
         """Bouton 🔊 / ⏹ selon la lecture en cours."""
@@ -1006,10 +1010,12 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             return
         self.tts_button.glyph = 'speaker_stop' if busy else 'speaker'
         self.tts_button.setText("⏹" if busy else "🔊")
+        resume = getattr(getattr(self, 'tts', None), 'resume_point', lambda: None)()
         if busy:
             self.tts_button.setToolTip("Arrêter la lecture à voix haute")
-        elif self.tts_button.toolTip() == "Arrêter la lecture à voix haute":
-            self.tts_button.setToolTip(self.TTS_TOOLTIP)
+        elif self.tts_button.toolTip() in ("Arrêter la lecture à voix haute", self.TTS_RESUME_TOOLTIP,
+                                           self.TTS_TOOLTIP):
+            self.tts_button.setToolTip(self.TTS_RESUME_TOOLTIP if resume else self.TTS_TOOLTIP)
         self.tts_button.update()
 
     def _show_tts_error(self, message):

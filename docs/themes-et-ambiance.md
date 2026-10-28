@@ -24,6 +24,13 @@ et repeints à chaque changement de thème. Ces préférences
 et le chemin relatif du dernier livre sont conservés dans
 `donnees/parametres/preferences.json`, indépendamment des sauvegardes de partie.
 
+**Lecture à voix haute.** Le bouton 🔊 lit le paragraphe ; un second clic l’arrête et
+retient la phrase en cours. Relancer la lecture sur le même paragraphe reprend au début de
+cette phrase (infobulle « Reprendre la lecture à la phrase interrompue »). La phrase est
+retrouvée par les repères de phrase que le service de voix envoie avec l’audio
+(`SentenceBoundary`), à défaut par la position dans le morceau. Changer de paragraphe,
+charger une partie ou finir la lecture oublie ce point de reprise (`tts.ParagraphReader`).
+
 Chaque effet peut avoir des variantes (`page_2.wav`, `page_3.wav`…) : une lecture en
 tire une, jamais la même deux fois de suite, avec un léger écart de volume, par un
 générateur propre à la banque de sons (le hasard des dés n’est pas touché). S’ajoutent :
