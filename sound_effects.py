@@ -2,7 +2,7 @@
 
 Les effets et l'ambiance ont des interrupteurs indépendants ; la boucle
 d'ambiance dépend du livre ouvert (caverne par défaut, ville pour la Cité,
-forêt pour la Forêt). Une demande peut
+forêt pour la Forêt), ou de la scène en cours. Une demande peut
 attendre la disponibilité de son fichier ; couper le son supprime les demandes
 concernées pour éviter un déclenchement tardif. Avec le backend PCM, les ambiances
 ne sont décodées qu'à leur première demande, au plus MAX_DECODED_AMBIENCES restent en
@@ -14,8 +14,14 @@ Le journal est borné et son indisponibilité ne doit jamais empêcher de jouer.
 Variantes : « page_2.wav », « page_3.wav »… complètent « page.wav ». Chaque lecture en
 tire une, sans répéter la précédente, avec un léger écart de volume, par un
 générateur propre à la banque : les dés et le hasard de la partie n'en dépendent pas.
-Pendant un combat, duck_ambient() baisse l'ambiance en douceur."""
-from PySide6.QtCore import QObject, QUrl
+Pendant un combat, duck_ambient() baisse l'ambiance en douceur.
+
+Scènes (SCENES) : une scène remplace la boucle du livre par la sienne, en fondu
+enchaîné, et peut jouer de temps à autre un son ponctuel (goutte, hibou…) choisi par
+le même générateur privé, à un intervalle tiré dans sa fourchette « every ». Les
+sons ponctuels suivent l'interrupteur et le curseur de l'ambiance, pas ceux des
+effets. set_scene(None) revient à la boucle du livre."""
+from PySide6.QtCore import QObject, QTimer, QUrl
 import logging
 import random
 import re
@@ -56,6 +62,30 @@ AMBIENT_TRACKS = {'cite-1983': 'ambient_cite', 'foret-1983': 'ambient_foret'}
 AMBIENT_LABELS = {'ambient': 'caverne', 'ambient_cite': 'ville', 'ambient_foret': 'forêt'}
 # Extensions cherchées, dans cet ordre, pour chaque son de la banque.
 SOUND_SUFFIXES = ('.wav', '.ogg')
+# Scènes partagées entre les livres : boucle de fond (fichier sans extension) et,
+# facultativement, sons ponctuels joués au hasard toutes les « every » secondes.
+SCENES = {
+    'caverne': {'label': 'caverne', 'loop': 'ambient', 'spots': 'spot_goutte', 'every': (8, 18)},
+    'souterrain': {'label': 'souterrain humide', 'loop': 'scene_souterrain',
+                   'spots': 'spot_goutte', 'every': (4, 10)},
+    'crypte': {'label': 'crypte', 'loop': 'scene_crypte', 'spots': 'spot_goutte', 'every': (15, 32)},
+    'riviere': {'label': 'rivière', 'loop': 'scene_riviere'},
+    'marais': {'label': 'marais', 'loop': 'scene_marais', 'spots': 'spot_grenouille', 'every': (6, 16)},
+    'foret': {'label': 'forêt', 'loop': 'ambient_foret'},
+    'foret_nuit': {'label': 'forêt la nuit', 'loop': 'scene_foret_nuit',
+                   'spots': 'spot_hibou', 'every': (12, 30)},
+    'vent': {'label': 'lande venteuse', 'loop': 'scene_vent'},
+    'rue': {'label': 'rue de la ville', 'loop': 'ambient_cite'},
+    'marche': {'label': 'marché', 'loop': 'scene_marche'},
+    'port': {'label': 'port', 'loop': 'scene_port'},
+    'taverne': {'label': 'taverne', 'loop': 'scene_taverne'},
+    'foyer': {'label': 'intérieur au coin du feu', 'loop': 'scene_foyer'},
+}
+SCENE_LOOPS = tuple(dict.fromkeys(scene['loop'] for scene in SCENES.values()
+                                  if scene['loop'] not in AMBIENT_LABELS))
+LOOP_NAMES = (*AMBIENT_LABELS, *SCENE_LOOPS)
+SPOT_SOUNDS = tuple(dict.fromkeys(scene['spots'] for scene in SCENES.values() if 'spots' in scene))
+SPOT_VOLUME = .06            # Sons ponctuels, sur le canal de l'ambiance.
 AMBIENT_FADE_MS = 2500       # Fondu enchaîné entre deux ambiances.
 MAX_DECODED_AMBIENCES = 3    # Ambiances gardées décodées en mémoire (≈ 4 Mo chacune).
 
@@ -82,7 +112,13 @@ class SoundBank(QObject):
         self.folder = folder
         self.enabled = enabled
         self.ambient_enabled = ambient_enabled
-        self.ambient = 'ambient'
+        self.ambient = 'ambient'   # Boucle entendue : celle de la scène, sinon celle du livre.
+        self.book_ambient = 'ambient'
+        self.scene = None
+        self._spot_timer = QTimer(self)
+        self._spot_timer.setSingleShot(True)
+        # Lambda : une méthode liée connectée plante PySide quand un test patche la classe.
+        self._spot_timer.timeout.connect(lambda: self._spot_tick())
         self.effects = {}
         self.pending = set()
         self.levels = {'effects': 1.0, 'ambient': 1.0}
@@ -126,7 +162,7 @@ class SoundBank(QObject):
         backend = self._backend()
         if backend is None:
             return
-        for name in [*EFFECT_LABELS, *BOOK_SOUNDS.values(), *AMBIENT_LABELS]:
+        for name in [*EFFECT_LABELS, *BOOK_SOUNDS.values(), *LOOP_NAMES, *SPOT_SOUNDS]:
             # Effets courts en WAV (attaque immédiate) ; boucles d'ambiance en OGG Vorbis.
             path = next((candidate for candidate in (self.folder / f'{name}{suffix}'
                                                      for suffix in SOUND_SUFFIXES)
@@ -135,26 +171,27 @@ class SoundBank(QObject):
                 continue
             effect = backend(self)
             self.effects[name] = effect
-            volume = (.10 if name in AMBIENT_LABELS else .80 if name in BOOK_SOUNDS.values()
-                      else VOLUMES.get(name, .50))
+            volume = (.10 if name in LOOP_NAMES else SPOT_VOLUME if name in SPOT_SOUNDS
+                      else .80 if name in BOOK_SOUNDS.values() else VOLUMES.get(name, .50))
             self._base_volume[name] = volume
             effect.setVolume(volume)
-            if name in AMBIENT_LABELS:
+            if name in LOOP_NAMES:
                 # Les PySide6 récents exposent Loop comme une énumération ; le setter attend un entier.
                 effect.setLoopCount(getattr(backend.Infinite, 'value', backend.Infinite))
+            channel = 'ambient' if name in LOOP_NAMES or name in SPOT_SOUNDS else 'effects'
             if hasattr(effect, 'channel'):
-                effect.channel = 'ambient' if name in AMBIENT_LABELS else 'effects'
+                effect.channel = channel
             effect.statusChanged.connect(lambda n=name: self._ready(n))
             effect.playingChanged.connect(lambda n=name: self._playing_changed(n))
-            if name in AMBIENT_LABELS and hasattr(effect, 'defer_source'):
+            if name in LOOP_NAMES and hasattr(effect, 'defer_source'):
                 effect.defer_source(QUrl.fromLocalFile(str(path)))  # Décodée à la demande.
             else:
                 effect.setSource(QUrl.fromLocalFile(str(path)))
-            if name in EFFECT_LABELS:
-                self._load_variants(backend, name, volume)
+            if name in EFFECT_LABELS or name in SPOT_SOUNDS:
+                self._load_variants(backend, name, volume, channel)
         self._apply_levels()
 
-    def _load_variants(self, backend, name, volume):
+    def _load_variants(self, backend, name, volume, channel='effects'):
         """Charger « nom_2 », « nom_3 »… : prêts tout de suite, comme l'effet de base."""
         found = []
         for index in range(2, MAX_VARIANTS + 1):
@@ -164,7 +201,7 @@ class SoundBank(QObject):
             variant = backend(self)
             variant.setVolume(volume)
             if hasattr(variant, 'channel'):
-                variant.channel = 'effects'
+                variant.channel = channel
             variant.playingChanged.connect(lambda n=name: self._playing_changed(n))
             variant.setSource(QUrl.fromLocalFile(str(path)))
             found.append(variant)
@@ -205,10 +242,10 @@ class SoundBank(QObject):
 
     def _start(self, name, effect):
         """Lancer un son prêt : les ambiances entrent en fondu, les effets d'un coup."""
-        if name in AMBIENT_LABELS and hasattr(effect, 'fade_in'):
+        if name in LOOP_NAMES and hasattr(effect, 'fade_in'):
             effect.fade_in(AMBIENT_FADE_MS)
             self._remember_ambient(name)
-        elif name in EFFECT_LABELS:
+        elif name in EFFECT_LABELS or name in SPOT_SOUNDS:
             effect = self._pick(name)
             # Léger écart de volume : deux coups successifs ne sonnent pas identiques.
             effect.setVolume(self._base_volume.get(name, .5) * self._rng.uniform(.85, 1.0))
@@ -240,17 +277,20 @@ class SoundBank(QObject):
 
     def _allowed(self, name):
         """Vérifier le réglage propre à l’ambiance du livre courant ou celui des effets ponctuels."""
-        if name in AMBIENT_LABELS:
+        if name in LOOP_NAMES:
             return self.ambient_enabled and name == self.ambient
+        if name in SPOT_SOUNDS:
+            return self.ambient_enabled and SCENES.get(self.scene, {}).get('spots') == name
         return self.enabled
 
     def ambient_label(self):
-        """Nommer la boucle du livre courant dans le réglage d’ambiance."""
+        """Nommer la scène en cours, sinon la boucle du livre, dans le réglage d’ambiance."""
+        if self.scene is not None:
+            return SCENES[self.scene]['label']
         return AMBIENT_LABELS[self.ambient]
 
-    def set_ambient_track(self, engine):
-        """Remplacer la boucle selon le module ouvert, sous le même interrupteur d’ambiance."""
-        name = AMBIENT_TRACKS.get(engine, 'ambient')
+    def _switch_loop(self, name):
+        """Passer à une autre boucle en fondu enchaîné, sous le même interrupteur."""
         if name == self.ambient:
             return
         self.logger.info('ambient track=%s', name)
@@ -259,6 +299,38 @@ class SoundBank(QObject):
         self.ambient = name
         if self.ambient_enabled:
             self.play(name)
+
+    def set_ambient_track(self, engine):
+        """Choisir la boucle du livre ouvert ; une scène en cours garde la sienne."""
+        self.book_ambient = AMBIENT_TRACKS.get(engine, 'ambient')
+        if self.scene is None:
+            self._switch_loop(self.book_ambient)
+
+    def set_scene(self, scene):
+        """Jouer la boucle et les sons ponctuels d’une scène, ou revenir au livre (None)."""
+        if scene is not None and scene not in SCENES:
+            raise ValueError(f'Scène inconnue : {scene}')
+        if scene == self.scene:
+            return
+        self.logger.info('scene=%s', scene)
+        self.scene = scene
+        self.pending.difference_update(SPOT_SOUNDS)
+        self._switch_loop(SCENES[scene]['loop'] if scene else self.book_ambient)
+        self._schedule_spot()
+
+    def _schedule_spot(self):
+        """Programmer le prochain son ponctuel de la scène, ou n’en programmer aucun."""
+        self._spot_timer.stop()
+        scene = SCENES.get(self.scene, {})
+        if self.ambient_enabled and 'spots' in scene:
+            self._spot_timer.start(round(self._rng.uniform(*scene['every']) * 1000))
+
+    def _spot_tick(self):
+        """Jouer un son ponctuel de la scène, puis programmer le suivant."""
+        spots = SCENES.get(self.scene, {}).get('spots')
+        if spots:
+            self.play(spots)
+        self._schedule_spot()
 
     def play_book_intro(self, engine):
         """Une seule annonce à la fois, y compris si une demande attend le chargement."""
@@ -289,9 +361,9 @@ class SoundBank(QObject):
         self.enabled = bool(enabled)
         self.logger.info('effects enabled=%s', self.enabled)
         if not self.enabled:
-            self.pending.intersection_update(AMBIENT_LABELS)
+            self.pending.intersection_update({*LOOP_NAMES, *SPOT_SOUNDS})
             for name, effect in self.effects.items():
-                if name not in AMBIENT_LABELS:
+                if name not in LOOP_NAMES and name not in SPOT_SOUNDS:
                     effect.stop()
                     for variant in self.variants.get(name, ()):
                         variant.stop()
@@ -305,7 +377,9 @@ class SoundBank(QObject):
             self.play(self.ambient)
         else:
             self.pending.discard(self.ambient)
+            self.pending.difference_update(SPOT_SOUNDS)
             self._stop_ambient(self.ambient, fade)
+        self._schedule_spot()
 
     def play(self, name):
         """Déclencher un effet prêt ou mémoriser sa demande pendant le chargement.

@@ -135,6 +135,20 @@ indépendante des effets, et reste désactivée par défaut. La boucle joue à f
 la caverne, la ville quand La Cité des Voleurs est ouverte, la forêt pour La Forêt de la Malédiction
 (le libellé nomme la boucle). `scripts/prepare_book_ambiences.py` reconstruit les boucles des livres.
 
+**Scènes d’ambiance.** `SCENES` (dans `sound_effects.py`) décrit treize scènes partagées
+entre les livres : caverne, souterrain humide, crypte, rivière, marais, forêt, forêt la nuit,
+lande venteuse, rue de la ville, marché, port, taverne et intérieur au coin du feu. Chacune a
+une boucle de fond (`scene_*.ogg`, ou la boucle d’un livre) et, pour certaines, un son ponctuel
+(`spot_goutte`, `spot_hibou`, `spot_grenouille`, avec variantes) joué au hasard toutes les
+`every` secondes, tiré par le générateur privé de la banque. `SoundBank.set_scene(clé)` passe
+à la scène en fondu enchaîné ; `set_scene(None)` rend la boucle du livre. Les sons ponctuels
+suivent l’interrupteur et le curseur de l’ambiance, et la baisse pendant un combat.
+Dans la fenêtre d’ambiance, **Écouter une scène** permet un essai (case d’ambiance cochée) ;
+la scène d’avant revient à la fermeture. Le choix des scènes selon le paragraphe viendra
+avec les catalogues par livre. Les fichiers sont reconstruits par
+`scripts/prepare_book_ambiences.py` à partir des sections `scene_sources`, `scene_ambiences`
+et `scene_spots` de `assets/sounds/sources.json` (sources BigSoundBank CC0, empreintes SHA-256).
+
 La musique d’accueil (`FantasyFair.m4a`, seul morceau) est lue par un `QMediaPlayer`
 distinct du flux des effets. Par défaut, elle s’éteint en dix secondes à l’entrée dans
 l’aventure. La case **Garder la musique en fond pendant la partie**, décochée par défaut

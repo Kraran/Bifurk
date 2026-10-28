@@ -23,7 +23,7 @@ from rules_viewer import RulesDialog
 from grimoire_library import imported_grimoires, GrimoireLibraryDialog
 from themes import available_themes, set_active_theme
 import theme_palette
-from sound_effects import SoundBank, EFFECT_LABELS, creature_sound
+from sound_effects import SoundBank, EFFECT_LABELS, SCENES, creature_sound
 from intro_music import IntroMusic
 from tts import DEFAULT_VOICE, ParagraphReader, available_french_voices
 from audio_configuration import configure_audio_backend
@@ -1172,6 +1172,22 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         preview.addWidget(effects, 1)
         preview.addWidget(listen)
         audio_layout.addLayout(preview)
+        # Écoute d'essai des scènes : la scène d'avant revient à la fermeture.
+        scene_before = self.sounds.scene
+        scene_row = QHBoxLayout()
+        scene_row.addWidget(QLabel('Écouter une scène'))
+        scenes = QComboBox()
+        scenes.setObjectName('scenePreview')
+        scenes.setAccessibleName('Écouter une scène d’ambiance')
+        scenes.addItem('Ambiance du livre', None)
+        for key, scene in SCENES.items():
+            scenes.addItem(scene['label'][:1].upper() + scene['label'][1:], key)
+        scenes.setCurrentIndex(max(0, scenes.findData(self.sounds.scene)))
+        scenes.setEnabled(self.sounds.ambient_enabled)
+        ambient.toggled.connect(scenes.setEnabled)
+        scenes.currentIndexChanged.connect(lambda index: self.sounds.set_scene(scenes.itemData(index)))
+        scene_row.addWidget(scenes, 1)
+        audio_layout.addLayout(scene_row)
         theme_group = QGroupBox('L’habillage du grimoire')
         theme_layout = QVBoxLayout(theme_group)
         layout.addWidget(theme_group)
@@ -1193,6 +1209,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         finally:
             if volume_changed:
                 self._save_preferences()
+            self.sounds.set_scene(scene_before)  # Fin de l'écoute d'essai.
             dialog.deleteLater()
 
     AUTO_THEME = 'auto'
