@@ -48,7 +48,7 @@ pas de Qt : commencer par ce module pour comprendre une règle calculable.
 
 1. `main` prépare les dossiers, crée `QApplication`, conserve les traducteurs Qt
    puis affiche `MainWindow(startup=True)`.
-2. Un timer ouvre le menu Nouvelle partie / Charger. Une nouvelle partie reprend
+2. Un timer ouvre le menu Continuer / Nouvelle partie / Charger. Une nouvelle partie reprend
    le livre chargé, à défaut le dernier grimoire importé, sinon demande un PDF.
 3. `_prepare_adventurer` effectue le tirage initial : Habileté 1d6+6,
    Endurance 2d6+12, Chance 1d6+6. L'écran de couverture demande le nom.
@@ -137,7 +137,7 @@ ressources en lecture seule partent de `RESOURCE_DIR` (dossier du code, donc
 
 - `donnees/grimoires/` : copies importées, nommées avec une empreinte du contenu ;
 - `donnees/sauvegardes/emplacement-1.json` à `emplacement-5.json` : sauvegardes manuelles ;
-- `donnees/sauvegardes/autosave.json` : état technique distinct, sans reprise automatique au démarrage ;
+- `donnees/sauvegardes/autosave.json` : état technique distinct, repris seulement par « Continuer la dernière partie » s’il est le plus récent ;
 - `donnees/parametres/preferences.json` : thème, sons et dernier grimoire ;
 - `donnees/parametres/audio.log` : journal audio borné, avec une rotation.
 

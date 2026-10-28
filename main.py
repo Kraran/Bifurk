@@ -18,9 +18,9 @@ from illustrations import images_for_paragraph, cover
 from grimoire_modules.controller import ModuleActions, sheet_marks
 from carnet import CarnetMixin
 from grimoire_modules.fighting_fantasy.rules import POTION_STATS, POTION_DOSES
-from grimoire_modules.registry import module_for_pdf, pdf_digest
+from grimoire_modules.registry import available_modules, module_for_pdf, pdf_digest
 from rules_viewer import RulesDialog
-from grimoire_library import imported_grimoires, GrimoireLibraryDialog
+from grimoire_library import imported_grimoires, GrimoireLibraryDialog, ImportedGrimoire, cover_icon
 from themes import available_themes, set_active_theme
 import theme_palette
 from sound_effects import SoundBank, EFFECT_LABELS, SCENES, creature_sound
@@ -708,7 +708,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         return not session.abandoned and self._can_open_startup_menu()
 
     def _show_startup_menu(self):
-        """Proposer les cinq emplacements ou une nouvelle aventure ; ne pas charger l’autosave.
+        """Proposer de continuer la dernière partie, les cinq emplacements ou une nouvelle aventure.
+
+        Rien n'est chargé sans choix du joueur, autosave comprise.
 
         Appelé par minuterie : la fenêtre peut s'être fermée entre-temps, voire être
         détruite pendant exec() (destruction différée traitée par la boucle locale).
@@ -727,7 +729,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         while True:
             if not self._can_open_startup_menu():
                 return  # fermeture pendant un chargement : ne pas rouvrir le menu
-            dialog = SaveSlotsDialog(SAVES_DIR, False, self, startup=True)
+            dialog = SaveSlotsDialog(SAVES_DIR, False, self, startup=True, cover_for=self._save_cover)
             accepted = dialog.exec() == QDialog.Accepted
             selected, new_game = dialog.selected_path, dialog.new_game_requested
             if shiboken6.isValid(dialog):
@@ -3912,9 +3914,29 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             translate.stop()
             dialog.deleteLater()
 
+    def _save_cover(self, data):
+        """Miniature de la couverture du grimoire d'une sauvegarde, sans relire son empreinte.
+
+        Le livre est retrouvé par son chemin relatif et son module ; la miniature est
+        gardée en mémoire pour la session (jamais écrite sur le disque)."""
+        reference = data.get('pdf_path')
+        if isinstance(reference, str):
+            reference = reference.replace('\\', '/')   # Sauvegarde écrite sous Windows.
+        pdf = resolve_book_reference(reference)
+        if not pdf:
+            return QIcon()
+        key = (pdf, data.get('module_id'), data.get('pdf_sha256'))
+        cache = self.__dict__.setdefault('_cover_cache', {})
+        if key not in cache:
+            module = next((m for m in available_modules()
+                           if m.id == key[1] or (key[1] is None and m.pdf_sha256 == key[2])), None)
+            cache[key] = (cover_icon(ImportedGrimoire(Path(pdf), module.title, module))
+                          if module else QIcon())
+        return cache[key]
+
     def _themed_save_dialog(self, saving):
         """Ouvrir le menu des emplacements et retourner le chemin choisi ou lancer une création."""
-        dialog = SaveSlotsDialog(SAVES_DIR, saving, self)
+        dialog = SaveSlotsDialog(SAVES_DIR, saving, self, cover_for=self._save_cover)
         accepted = dialog.exec() == QDialog.Accepted
         path = dialog.selected_path if accepted else None
         new_game = accepted and dialog.new_game_requested

@@ -3,8 +3,10 @@
 ## Utilisation
 
 Après le premier import, Bifurk mémorise le grimoire **copié dans `donnees/grimoires`**.
-Au démarrage, la fenêtre des chroniques propose **Nouvelle partie** et les cinq
-emplacements à charger. Ce même bouton **Nouvelle partie** reste disponible dans
+Au démarrage, la fenêtre des chroniques propose **Continuer la dernière partie** (la plus
+récente des sauvegardes lisibles, autosave comprise : `save_slots.latest_save`),
+**Nouvelle partie** et les cinq emplacements à charger, chacun avec la miniature de la
+couverture de son grimoire (rendue en mémoire depuis le PDF du joueur, `MainWindow._save_cover`). Ce même bouton **Nouvelle partie** reste disponible dans
 le menu **Charger** pendant le jeu, pour recommencer avec un nouveau tirage et
 deux relances, sans supprimer les emplacements. Une confirmation est demandée
 depuis Charger ; refuser conserve la partie et laisse le menu ouvert.
