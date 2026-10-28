@@ -4,18 +4,51 @@ Les effets et l'ambiance ont des interrupteurs indépendants ; la boucle
 d'ambiance dépend du livre ouvert (caverne par défaut, ville pour la Cité,
 forêt pour la Forêt). Une demande peut
 attendre la disponibilité de son fichier ; couper le son supprime les demandes
-concernées pour éviter un déclenchement tardif. Le backend PCM est désactivé avec
+concernées pour éviter un déclenchement tardif. Avec le backend PCM, les ambiances
+ne sont décodées qu'à leur première demande, au plus MAX_DECODED_AMBIENCES restent en
+mémoire, et elles entrent et sortent en fondu (AMBIENT_FADE_MS). Les curseurs de
+Réglages règlent séparément le volume des effets et celui de l'ambiance. Le backend PCM est désactivé avec
 les plateformes Qt offscreen/minimal ; les tests injectent leurs propres doublures.
-Le journal est borné et son indisponibilité ne doit jamais empêcher de jouer."""
+Le journal est borné et son indisponibilité ne doit jamais empêcher de jouer.
+
+Variantes : « page_2.wav », « page_3.wav »… complètent « page.wav ». Chaque lecture en
+tire une, sans répéter la précédente, avec un léger écart de volume, par un
+générateur propre à la banque : les dés et le hasard de la partie n'en dépendent pas.
+Pendant un combat, duck_ambient() baisse l'ambiance en douceur."""
 from PySide6.QtCore import QObject, QUrl
 import logging
+import random
+import re
 from logging.handlers import RotatingFileHandler
 
 EFFECT_LABELS = {
     'page': 'Page tournée', 'dice': 'Dés', 'swords': 'Combat',
     'item': 'Objet récupéré', 'coins': 'Pièces', 'key': 'Serrure',
     'potion': 'Potion', 'hit': 'Blessure', 'victory': 'Victoire', 'death': 'Défaite',
+    'door': 'Porte', 'flee': 'Fuite', 'meal': 'Repas', 'magic': 'Magie',
+    'growl': 'Bête', 'growl_giant': 'Ogre ou géant', 'growl_shade': 'Spectre',
+    'growl_slime': 'Créature visqueuse',
 }
+MAX_VARIANTS = 9
+VOLUMES = {'swords': .72, 'growl': .55, 'growl_giant': .55, 'growl_shade': .55, 'growl_slime': .55}
+AMBIENT_DUCK = .45           # Niveau de l'ambiance pendant un combat.
+
+# Cri de l'adversaire à l'ouverture d'un combat, d'après son nom.
+CREATURE_SOUNDS = (
+    (r'ogre|géant|troll|minotaure|cyclope|golem|colosse', 'growl_giant'),
+    (r'spectre|fantôme|vampire|goule|zombie|squelette|mort|ombre|banshee|âme|liche|momie',
+     'growl_shade'),
+    (r'vase|gelée|limace|ver|sangsue|slime|blob|boue', 'growl_slime'),
+)
+
+
+def creature_sound(name):
+    """Effet de cri d'un adversaire : bête par défaut, sinon géant, spectre ou créature visqueuse."""
+    lowered = str(name).casefold()
+    for pattern, effect in CREATURE_SOUNDS:
+        if re.search(pattern, lowered):
+            return effect
+    return 'growl'
 BOOK_SOUNDS = {'sorcier-1982': 'book_sorcier', 'foret-1983': 'book_foret', 'cite-1983': 'book_cite'}
 # Une seule boucle d’ambiance à la fois, choisie par le module du livre ouvert ;
 # la caverne reste celle du Sorcier et de l’écran sans livre.
@@ -23,6 +56,8 @@ AMBIENT_TRACKS = {'cite-1983': 'ambient_cite', 'foret-1983': 'ambient_foret'}
 AMBIENT_LABELS = {'ambient': 'caverne', 'ambient_cite': 'ville', 'ambient_foret': 'forêt'}
 # Extensions cherchées, dans cet ordre, pour chaque son de la banque.
 SOUND_SUFFIXES = ('.wav', '.ogg')
+AMBIENT_FADE_MS = 2500       # Fondu enchaîné entre deux ambiances.
+MAX_DECODED_AMBIENCES = 3    # Ambiances gardées décodées en mémoire (≈ 4 Mo chacune).
 
 
 class SoundBank(QObject):
@@ -50,6 +85,12 @@ class SoundBank(QObject):
         self.ambient = 'ambient'
         self.effects = {}
         self.pending = set()
+        self.levels = {'effects': 1.0, 'ambient': 1.0}
+        self.variants = {}         # nom -> autres effets (« page_2 »…), en plus de effects[nom]
+        self._base_volume = {}
+        self._last_variant = {}
+        self._rng = random.Random()  # Jamais le générateur des dés.
+        self._ambient_recent = []  # Ambiances décodées, de la plus ancienne à la plus récente.
         self.logger.info('session effects=%s ambient=%s', enabled, ambient_enabled)
         self.preload()
         if ambient_enabled:
@@ -63,8 +104,8 @@ class SoundBank(QObject):
 
     def _playing_changed(self, name):
         """Tracer le changement d’activité de l’effet pour le diagnostic local."""
-        effect = self.effects[name]
-        self.logger.info('playing %s=%s', name, effect.isPlaying())
+        group = [self.effects[name], *self.variants.get(name, ())]
+        self.logger.info('playing %s=%s', name, any(effect.isPlaying() for effect in group))
 
     def _backend(self):
         """Choisir le backend PCM hors tests sans écran ; retourner None s’il est indisponible."""
@@ -94,14 +135,108 @@ class SoundBank(QObject):
                 continue
             effect = backend(self)
             self.effects[name] = effect
-            effect.setVolume(.10 if name in AMBIENT_LABELS else .80 if name in BOOK_SOUNDS.values()
-                             else .72 if name == 'swords' else .50)
+            volume = (.10 if name in AMBIENT_LABELS else .80 if name in BOOK_SOUNDS.values()
+                      else VOLUMES.get(name, .50))
+            self._base_volume[name] = volume
+            effect.setVolume(volume)
             if name in AMBIENT_LABELS:
                 # Les PySide6 récents exposent Loop comme une énumération ; le setter attend un entier.
                 effect.setLoopCount(getattr(backend.Infinite, 'value', backend.Infinite))
+            if hasattr(effect, 'channel'):
+                effect.channel = 'ambient' if name in AMBIENT_LABELS else 'effects'
             effect.statusChanged.connect(lambda n=name: self._ready(n))
             effect.playingChanged.connect(lambda n=name: self._playing_changed(n))
-            effect.setSource(QUrl.fromLocalFile(str(path)))
+            if name in AMBIENT_LABELS and hasattr(effect, 'defer_source'):
+                effect.defer_source(QUrl.fromLocalFile(str(path)))  # Décodée à la demande.
+            else:
+                effect.setSource(QUrl.fromLocalFile(str(path)))
+            if name in EFFECT_LABELS:
+                self._load_variants(backend, name, volume)
+        self._apply_levels()
+
+    def _load_variants(self, backend, name, volume):
+        """Charger « nom_2 », « nom_3 »… : prêts tout de suite, comme l'effet de base."""
+        found = []
+        for index in range(2, MAX_VARIANTS + 1):
+            path = self.folder / f'{name}_{index}.wav'
+            if not path.is_file():
+                continue
+            variant = backend(self)
+            variant.setVolume(volume)
+            if hasattr(variant, 'channel'):
+                variant.channel = 'effects'
+            variant.playingChanged.connect(lambda n=name: self._playing_changed(n))
+            variant.setSource(QUrl.fromLocalFile(str(path)))
+            found.append(variant)
+        self.variants[name] = found
+
+    def _pick(self, name):
+        """Choisir une variante prête, jamais deux fois de suite la même."""
+        backend = self._backend()
+        ready = [effect for effect in [self.effects[name], *self.variants.get(name, ())]
+                 if backend is None or effect.status() == backend.Ready]
+        if len(ready) <= 1:
+            return ready[0] if ready else self.effects[name]
+        last = self._last_variant.get(name)
+        choice = self._rng.choice([effect for effect in ready if effect is not last])
+        self._last_variant[name] = choice
+        return choice
+
+    def duck_ambient(self, ducked):
+        """Baisser l'ambiance pendant un combat (ou la rétablir), en douceur."""
+        mixer = getattr(self, '_pcm_mixer', None)
+        if mixer is not None and hasattr(mixer, 'duck_target'):
+            mixer.duck_target = AMBIENT_DUCK if ducked else 1.0
+
+    def _apply_levels(self):
+        mixer = getattr(self, '_pcm_mixer', None)
+        if mixer is not None:
+            mixer.channels.update(self.levels)
+
+    def set_effects_volume(self, percent):
+        """Curseur « Volume des effets » : 100 % garde les niveaux d'origine."""
+        self.levels['effects'] = max(0.0, float(percent) / 100)
+        self._apply_levels()
+
+    def set_ambient_volume(self, percent):
+        """Curseur « Volume de l'ambiance » : 100 % garde le niveau d'origine."""
+        self.levels['ambient'] = max(0.0, float(percent) / 100)
+        self._apply_levels()
+
+    def _start(self, name, effect):
+        """Lancer un son prêt : les ambiances entrent en fondu, les effets d'un coup."""
+        if name in AMBIENT_LABELS and hasattr(effect, 'fade_in'):
+            effect.fade_in(AMBIENT_FADE_MS)
+            self._remember_ambient(name)
+        elif name in EFFECT_LABELS:
+            effect = self._pick(name)
+            # Léger écart de volume : deux coups successifs ne sonnent pas identiques.
+            effect.setVolume(self._base_volume.get(name, .5) * self._rng.uniform(.85, 1.0))
+            effect.play()
+        else:
+            effect.play()
+
+    def _stop_ambient(self, name, fade=True):
+        """Arrêter une ambiance en fondu (ou net : fermeture, backend sans fondu)."""
+        effect = self.effects.get(name)
+        if effect is None:
+            return
+        if fade and hasattr(effect, 'fade_out'):
+            effect.fade_out(AMBIENT_FADE_MS)
+        else:
+            effect.stop()
+
+    def _remember_ambient(self, name):
+        """Garder en mémoire les dernières ambiances, libérer les plus anciennes arrêtées."""
+        if name in self._ambient_recent:
+            self._ambient_recent.remove(name)
+        self._ambient_recent.append(name)
+        for old in list(self._ambient_recent[:-MAX_DECODED_AMBIENCES]):
+            effect = self.effects.get(old)
+            if old != self.ambient and effect is not None and hasattr(effect, 'release') \
+                    and not effect.isPlaying() and effect.release():
+                self._ambient_recent.remove(old)
+                self.logger.info('released %s', old)
 
     def _allowed(self, name):
         """Vérifier le réglage propre à l’ambiance du livre courant ou celui des effets ponctuels."""
@@ -120,8 +255,7 @@ class SoundBank(QObject):
             return
         self.logger.info('ambient track=%s', name)
         self.pending.discard(self.ambient)
-        if self.ambient in self.effects:
-            self.effects[self.ambient].stop()
+        self._stop_ambient(self.ambient)  # Fondu enchaîné avec la nouvelle boucle.
         self.ambient = name
         if self.ambient_enabled:
             self.play(name)
@@ -146,7 +280,7 @@ class SoundBank(QObject):
         if effect.status() == backend.Ready and name in self.pending:
             self.pending.discard(name)
             if self._allowed(name):
-                effect.play()
+                self._start(name, effect)
         elif effect.status() == backend.Error:
             self.pending.discard(name)
 
@@ -159,18 +293,19 @@ class SoundBank(QObject):
             for name, effect in self.effects.items():
                 if name not in AMBIENT_LABELS:
                     effect.stop()
+                    for variant in self.variants.get(name, ()):
+                        variant.stop()
         else:
             self.preload()
 
-    def set_ambient_enabled(self, enabled):
+    def set_ambient_enabled(self, enabled, *, fade=True):
         """Démarrer ou interrompre la boucle d’ambiance indépendamment des effets."""
         self.ambient_enabled = bool(enabled)
         if enabled:
             self.play(self.ambient)
         else:
             self.pending.discard(self.ambient)
-            if self.ambient in self.effects:
-                self.effects[self.ambient].stop()
+            self._stop_ambient(self.ambient, fade)
 
     def play(self, name):
         """Déclencher un effet prêt ou mémoriser sa demande pendant le chargement.
@@ -188,6 +323,8 @@ class SoundBank(QObject):
             return
         self.logger.info('dispatch %s status=%s', name, effect.status())
         if effect.status() == backend.Ready:
-            effect.play()
+            self._start(name, effect)
         elif effect.status() != backend.Error:
             self.pending.add(name)
+            if effect.status() == getattr(backend, 'Unloaded', None):
+                effect.load()  # Décodage à la demande ; _ready lancera le son.

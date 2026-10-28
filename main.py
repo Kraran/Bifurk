@@ -23,7 +23,7 @@ from rules_viewer import RulesDialog
 from grimoire_library import imported_grimoires, GrimoireLibraryDialog
 from themes import available_themes, set_active_theme
 import theme_palette
-from sound_effects import SoundBank, EFFECT_LABELS
+from sound_effects import SoundBank, EFFECT_LABELS, creature_sound
 from intro_music import IntroMusic
 from tts import DEFAULT_VOICE, ParagraphReader, available_french_voices
 from audio_configuration import configure_audio_backend
@@ -465,6 +465,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.sounds = SoundBank(ASSET_DIR / "sounds", self.preferences.get("sound_enabled", True), self,
                             ambient_enabled=self.preferences.get("ambient_enabled", False),
                             diagnostic_path=SETTINGS_DIR / "audio.log")
+        self.sounds.set_effects_volume(self._percent_preference('effects_volume'))
+        self.sounds.set_ambient_volume(self._percent_preference('ambient_volume'))
         # Lecture vocale (voix Edge) : synthèse en arrière-plan, jamais bloquante.
         self.tts = ParagraphReader(self)
         self.tts.set_voice(self.preferences.get("tts_voice", DEFAULT_VOICE))
@@ -505,6 +507,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.book_combat_assaults = {}
         self._combat_dialog = None  # Uniquement pendant l'exécution modale.
         self._combat_popup = None   # Chronique conservée si le combat est suspendu.
+        self._last_growl = None     # Combat dont le cri d'ouverture a déjà retenti.
         self.paragraphs = {}
         self.current_paragraph = None
         self.visited_paragraphs = []
@@ -610,6 +613,39 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         dialog.finished.connect(continue_to_game)
         dialog.showMaximized()
         dialog.start()
+
+    def _percent_preference(self, key, default=100, maximum=150):
+        """Pourcentage mémorisé, borné ; une valeur illisible reprend la valeur par défaut."""
+        try:
+            return max(0, min(maximum, int(self.preferences.get(key, default))))
+        except (TypeError, ValueError):
+            return default
+
+    def _volume_row(self, label, name, value, apply, accessible):
+        """Ligne « libellé + curseur 0–150 % + valeur » de la fenêtre Ambiance."""
+        row = QHBoxLayout()
+        row.addWidget(QLabel(label))
+        slider = QSlider(Qt.Horizontal)
+        slider.setObjectName(name)
+        slider.setAccessibleName(accessible)
+        slider.setRange(0, 150)
+        slider.setSingleStep(5)
+        slider.setPageStep(10)
+        slider.setTickPosition(QSlider.TicksBelow)
+        slider.setTickInterval(10)
+        slider.setMinimumWidth(220)
+        slider.setValue(value)
+        shown = QLabel(f'{value} %' if value else 'Muet')
+        shown.setObjectName(name + 'Value')
+        shown.setMinimumWidth(70)
+
+        def changed(percent):
+            apply(percent)
+            shown.setText(f'{percent} %' if percent else 'Muet')
+        slider.valueChanged.connect(changed)
+        row.addWidget(slider, 1)
+        row.addWidget(shown)
+        return row
 
     def _save_preferences(self):
         """Enregistrer les choix d’interface séparément de l’état des sauvegardes."""
@@ -817,7 +853,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.tts.shutdown()
         self.intro_music.set_enabled(False)
         self.sounds.set_enabled(False)
-        self.sounds.set_ambient_enabled(False)
+        self.sounds.set_ambient_enabled(False, fade=False)  # Le fondu de fermeture a déjà eu lieu.
         sink = getattr(self.sounds, '_pcm_sink', None)
         if sink is not None:
             sink.stop()
@@ -950,6 +986,22 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self._save_preferences()
         ambient.toggled.connect(set_ambient)
         audio_layout.addWidget(ambient)
+
+        def set_effects_volume(percent):
+            self.sounds.set_effects_volume(percent)
+            self.preferences['effects_volume'] = percent
+            volume_changed.append(True)
+
+        def set_ambient_volume(percent):
+            self.sounds.set_ambient_volume(percent)
+            self.preferences['ambient_volume'] = percent
+            volume_changed.append(True)
+        audio_layout.addLayout(self._volume_row(
+            'Volume des effets', 'effectsVolume', self._percent_preference('effects_volume'),
+            set_effects_volume, 'Volume des effets sonores'))
+        audio_layout.addLayout(self._volume_row(
+            'Volume de l’ambiance', 'ambientVolume', self._percent_preference('ambient_volume'),
+            set_ambient_volume, 'Volume de l’ambiance de fond'))
         # Lecture vocale des paragraphes (voix Edge) : liste en cache, jamais d’attente réseau.
         voice_row = QHBoxLayout()
         voice_row.addWidget(QLabel("Voix de lecture"))
@@ -3294,11 +3346,17 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                 popup.deleteLater()
             popup = self._combat_popup = CombatDialog(self)
         popup.refresh_stats()
+        if popup is not self._last_growl:
+            # Cri de l'adversaire à l'ouverture d'un nouveau combat (pas à la reprise).
+            self._last_growl = popup
+            self.sounds.play(creature_sound(self.enemy_name.text()))
         self._combat_dialog = popup
+        self.sounds.duck_ambient(True)
         try:
             popup.exec()
         finally:
             self._combat_dialog = None
+            self.sounds.duck_ambient(False)
             self._refresh_after_combat_dialog()
 
     def _refresh_after_combat_dialog(self):
@@ -3472,6 +3530,10 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if new.get("potion_doses", 0) < old.get("potion_doses", 0):
             self.sounds.play("potion")
             return
+        if (new.get("provisions", 0) < old.get("provisions", 0)
+                and new.get("endurance", 0) > old.get("endurance", 0)):
+            self.sounds.play("meal")
+            return
         source = before["current_paragraph"]
         if source != self.current_paragraph:
             entry = verified_entry(self.book_event_catalogue, source)
@@ -3482,12 +3544,40 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                 if keyed:
                     self.sounds.play("key")
                     return
+                if entry.get("combat", {}).get("escape_target") == self.current_paragraph \
+                        and new.get("endurance", 0) < old.get("endurance", 0):
+                    self.sounds.play("flee")
+                    return
+            arrival = verified_entry(self.book_event_catalogue, self.current_paragraph) or {}
+            # Bruits de passage (catalogue, porte) : ils accompagnent la page tournée et
+            # n'empêchent pas le son d'issue (blessure, pièces, objet) de la même action.
+            if arrival.get("sound") in EFFECT_LABELS:
+                self.sounds.play(arrival["sound"])
+            elif self._route_through_door(source, self.current_paragraph):
+                self.sounds.play("door")
         if new.get("endurance", 0) < old.get("endurance", 0):
             self.sounds.play("hit")
         elif new.get("gold", 0) != old.get("gold", 0):
             self.sounds.play("coins")
         elif Counter(new.get("inventory", [])) - Counter(old.get("inventory", [])):
             self.sounds.play("item")
+
+    DOOR_WORDS = re.compile(r"(?i)\b(?:porte|portail|grille|trappe|herse)s?\b")
+    DOOR_VERBS = re.compile(r"(?i)\b(?:ouvr|pouss|franchi|enfonc|défonc|forc|essay|entr|frapp|déverrouill)\w*")
+    DOOR_REFUSAL = re.compile(r"(?i)\bne\s+pas\b|\bsans\b|\bignor\w*|\bplutôt que\b")
+
+    def _route_through_door(self, source, target):
+        """Vrai si le choix suivi passe une porte : « ouvrir la porte », « franchir la grille »…
+
+        Le libellé du choix doit nommer l'ouverture et le geste, sans le refuser
+        (« ne pas franchir la porte » reste une page tournée)."""
+        text = self.paragraphs.get(source)
+        if not text:
+            return False
+        return any(choice["target"] == target and self.DOOR_WORDS.search(choice["label"])
+                   and self.DOOR_VERBS.search(choice["label"])
+                   and not self.DOOR_REFUSAL.search(choice["label"])
+                   for choice in self._paragraph_choices(text))
 
     def _update_history_controls(self):
         """Mettre à jour les boutons et compteurs à partir des piles Undo / Redo."""

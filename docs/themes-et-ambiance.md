@@ -17,6 +17,18 @@ et choisit le thème, comme **⚙ Réglages → Thème**. Ces préférences
 et le chemin relatif du dernier livre sont conservés dans
 `donnees/parametres/preferences.json`, indépendamment des sauvegardes de partie.
 
+Chaque effet peut avoir des variantes (`page_2.wav`, `page_3.wav`…) : une lecture en
+tire une, jamais la même deux fois de suite, avec un léger écart de volume, par un
+générateur propre à la banque de sons (le hasard des dés n’est pas touché). S’ajoutent :
+**porte** quand le choix suivi ouvre ou franchit une porte, une grille ou une trappe
+(« ne pas franchir la porte » reste une page tournée) ; **repas** ; **fuite** quand on
+quitte un combat par sa sortie de fuite ; **cri** de l’adversaire à l’ouverture d’un
+nouveau combat (bête, ogre ou géant, spectre, créature visqueuse, d’après son nom) ;
+**magie** et tout autre effet désigné par la clé `sound` d’une entrée vérifiée du
+catalogue d’événements. Pendant la fenêtre de combat, l’ambiance baisse en douceur.
+`scripts/prepare_sounds.py ARCHIVES [NOM ...]` reconstruit tout ou partie des effets ;
+licences et remerciements : `LICENCES-ET-REMERCIEMENTS.txt`.
+
 Les effets accompagnent le changement de paragraphe, les lancers de dés et les
 assauts. Un rafraîchissement du même paragraphe ou une restauration de sauvegarde
 ne rejoue pas le bruit de page. Les sons sont coupés dans les plateformes Qt de

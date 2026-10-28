@@ -210,6 +210,13 @@ Cette continuité évite la perte de l'attaque des effets très courts sur Windo
 Les assets sont mono 16 bits ; les sons à 22,05 kHz sont doublés en mémoire. Les
 boucles OGG sont décodées à 22,05 kHz puis doublées de même : le rééchantillonneur de
 FFmpeg perdrait quelques échantillons en fin de fichier et créerait une couture.
+Le mélange est calculé par blocs avec NumPy (dépendance de `requirements.txt`) : environ
+70 fois plus rapide que l'ancienne boucle Python, il laisse la place à plusieurs ambiances
+et bruitages simultanés. Chaque voix a un gain de fondu (`fade_in`, `fade_out`), un canal
+(`effects` ou `ambient`, réglé par les curseurs de Réglages → Ambiance sonore) et le
+`Mixer.gain` général du fondu de fermeture. Les ambiances sont décodées à leur première
+demande (`defer_source` / `load`) et libérées au-delà de `MAX_DECODED_AMBIENCES` ;
+le changement de livre les enchaîne en fondu (`AMBIENT_FADE_MS`).
 Le mélange additionne les voix et sature les échantillons pour empêcher le
 débordement numérique. Les boucles infinies sont réservées aux ambiances (`AMBIENT_LABELS`), une seule à la fois.
 Ne pas ajouter d'accès aux widgets ou au disque dans le callback `readData`.
