@@ -597,7 +597,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                                       volume_percent=self.preferences.get('music_volume', 70),
                                       persistent=self.preferences.get('music_persistent', False) is True,
                                       custom_folder=MUSIC_DIR,
-                                      custom=self.preferences.get('custom_music', False) is True)
+                                      custom=self.preferences.get('custom_music', False) is True,
+                                      victory_path=ASSET_DIR / 'sounds' / 'Achievement.ogg')
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
         self._fullscreen = False
@@ -1058,6 +1059,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         Sans catalogue, hors d'un paragraphe ou en mode « boucle du livre », la boucle
         du livre revient. Une exception « garder » laisse la scène en cours ; après un
         chargement, la scène du dernier paragraphe visité qui en a une est reprise."""
+        self._victory_follow_paragraph(number)
         sounds = getattr(self, 'sounds', None)
         if sounds is None:
             return
@@ -1074,6 +1076,28 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             scene = next((found for found in map(ambience.scene_for, reversed(visited))
                           if found is not KEEP), None)
         sounds.set_scene(scene)
+
+    VICTORY_PARAGRAPH = 400
+
+    def _victory_follow_paragraph(self, number):
+        """§400 d'un grimoire reconnu : boucler « Achievement » et baisser l'ambiance.
+
+        Tout autre écran (paragraphe, accueil, chargement, annulation) arrête la boucle
+        en fondu et rend la musique d'accueil ou l'ambiance comme avant."""
+        music = getattr(self, 'intro_music', None)
+        if music is None:
+            return
+        victory = (number is not None and getattr(self, 'book_module', None) is not None
+                   and str(number) == str(self.VICTORY_PARAGRAPH))
+        if victory == music.victory:
+            return
+        sounds = getattr(self, 'sounds', None)
+        if victory:
+            music.start_victory()
+        else:
+            music.stop_victory()
+        if sounds is not None:
+            sounds.duck_ambient(victory)
 
     def _fade_out_reading(self):
         """Éteindre en fondu une lecture vocale en cours quand son paragraphe quitte la page."""
