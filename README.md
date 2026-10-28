@@ -131,6 +131,16 @@ sonores. [Reprise, sons et préparation de thèmes](docs/themes-et-ambiance.md).
 Les [fenêtres secondaires](docs/design/fenetres-secondaires.md) partagent les
 bandeaux et les couleurs du grimoire, des sauvegardes au sélecteur de PDF.
 
+### Fin de partie
+
+Au §400 (victoire), sur la page de mort et sur les autres fins imprimées, une carte
+**Conclure la chronique** (ou **Lire la chronique de l’aventure**) ouvre l’écran de fin :
+paragraphes visités, chemin parcouru, combats
+gagnés et adversaires vaincus, caractéristiques finales comparées au départ, bourse
+et sacoche, statut de la partie (suivie ou assistée). On peut ensuite recommencer
+l’aventure ou charger une partie. La victoire est accompagnée d’« Achievement », la mort
+du héros de « Towards the Horizon ».
+
 ### Raccourcis clavier
 
 | Touche | Action |

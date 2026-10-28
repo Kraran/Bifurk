@@ -221,9 +221,19 @@ un second `QMediaPlayer` de `IntroMusic` : `start_victory()` éteint la musique 
 Quitter le §400 (annulation, chargement, nouvelle partie, accueil) appelle `stop_victory()` :
 fondu de 1,5 s, puis reprise de la musique d’accueil si elle doit jouer. Le déclenchement est
 centralisé dans `_victory_follow_paragraph()`, appelé par `_ambience_follow_paragraph()`.
-Le fichier est produit par `scripts/prepare_victory_music.py` depuis le MP3 d’origine
+Le fichier est produit par `scripts/prepare_music.py` depuis le MP3 d’origine
 (empreinte de l’audio vérifiée) : silence de tête et fin de traîne retirés, −2,1 dB pour
 s’aligner sur FantasyFair (−14 LUFS), sans pochette ni métadonnées, OGG Vorbis q4 (≈ 1,8 Mo).
+
+**Musique de la mort.** La mort du héros (page de mort, ou fin mortelle imprimée qui
+met l’Endurance à 0) lance `TowardsTheHorizon.ogg` (« Towards the Horizon », Alexander
+Nakarada, CC BY 4.0) en boucle sur le même second lecteur : `start_epilogue()` /
+`stop_epilogue()`, ambiance baissée. Un seul morceau spécial joue à la fois
+(`IntroMusic.special` vaut `'victory'`, `'epilogue'` ou `None`). `_death_music_follow()`,
+appelé par `_ambience_follow_paragraph()`, l’arrête en fondu dès que l’on quitte la mort
+(accueil, page de titre, chargement, annulation). La victoire garde uniquement
+`Achievement` ; l’écran de fin (chronique) ne change pas la musique. Même préparation
+(`scripts/prepare_music.py`, −2,4 dB, ≈ 3,5 Mo).
 
 `scripts/prepare_sounds.py` convertit les archives créditées avec FFmpeg, uniquement
 pour préparer les assets. FFmpeg n’est pas requis pour jouer. Un flux PCM stéréo

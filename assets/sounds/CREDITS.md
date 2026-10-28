@@ -95,10 +95,18 @@ telle quelle :
 
 `Achievement.ogg` (musique de victoire, §400) est « Achievement », Alexander Nakarada
 (2017), sous licence CC BY 4.0 ; version raccourcie (silence de tête et fin de traîne),
-abaissée de 2,1 dB et réencodée en OGG par `scripts/prepare_victory_music.py`.
+abaissée de 2,1 dB et réencodée en OGG par `scripts/prepare_music.py`.
 Mention d’attribution :
 
     Music: Achievement by Alexander Nakarada (https://creatorchords.com)
+    Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/
+
+`TowardsTheHorizon.ogg` (musique de la mort du héros) est « Towards the Horizon »,
+Alexander Nakarada (2017), sous licence CC BY 4.0 ; version raccourcie, abaissée de
+2,4 dB et réencodée en OGG par `scripts/prepare_music.py`. Mention d’attribution :
+
+    Music: Towards the Horizon by Alexander Nakarada (https://creatorchords.com)
     Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
     https://creativecommons.org/licenses/by/4.0/
 

@@ -47,6 +47,7 @@ class WindowsDistributionTests(unittest.TestCase):
                          '_internal/assets/cite.jpg',
                          '_internal/assets/sounds/FantasyFair.m4a',
                          '_internal/assets/sounds/Achievement.ogg',
+                         '_internal/assets/sounds/TowardsTheHorizon.ogg',
                          '_internal/assets/video/introduction.mp4',
                          '_internal/assets/video/introduction_21x9.mp4',
                          '_internal/assets/sounds/swords.wav',
@@ -114,7 +115,7 @@ class WindowsDistributionTests(unittest.TestCase):
                      'themes/grimoire/page-parchment.jpg', 'themes/grimoire/sheet-leather.png',
                      'marks/cite-tattoo.png', 'cite.jpg', 'sounds/book_cite.wav',
                      'sounds/ambient.ogg', 'sounds/ambient_cite.ogg', 'sounds/ambient_foret.ogg',
-                     'sounds/Achievement.ogg'):
+                     'sounds/Achievement.ogg', 'sounds/TowardsTheHorizon.ogg'):
             with self.subTest(asset=name):
                 path = self.bundle / '_internal/assets' / name
                 path.unlink()
@@ -240,8 +241,10 @@ class MusicAttributionTests(unittest.TestCase):
             text = (root / relative).read_text(encoding='utf-8')
             with self.subTest(relative):
                 for line in ('Music: Achievement by Alexander Nakarada (https://creatorchords.com)',
+                             'Music: Towards the Horizon by Alexander Nakarada (https://creatorchords.com)',
                              'Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)'):
                     self.assertIn(line, text)
+                self.assertIn('TowardsTheHorizon.ogg', text)
                 self.assertIn('Achievement.ogg', text)
 
 

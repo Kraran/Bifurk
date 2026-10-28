@@ -15,6 +15,7 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 | `fenetre/ambiances.py` | Lecture vocale, ambiance par paragraphe, victoire, fenêtre Ambiances | `show_ambience`, `_ambience_follow_paragraph` |
 | `fenetre/apparence.py` | Thèmes, plein écran, polices et rendu du texte | `_activate_theme`, `_rerender_reader` |
 | `fenetre/disposition.py` | Illustration, tiroir de la fiche, mode lecture, densité | `_apply_layout_mode`, `_apply_tight_layout` |
+| `fenetre/epilogue.py`, `chronicle.py` | Écran de fin : carte « chronique », bilan de la partie, musique de fin | `show_epilogue`, `adventure_summary` |
 | `fenetre/manette.py`, `gamepad.py` | Manette : lecture XInput, navigation, halo, crochets du jeu | `Gamepad`, `gamepad_command` |
 | `book_events.py` | Calculs déterministes et effets du catalogue | `apply_effects`, `condition_met`, `apply_entry` |
 | `grimoire_modules/registry.py` | Manifestes et reconnaissance des éditions | `module_for_pdf`, `available_modules` |

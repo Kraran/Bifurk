@@ -319,3 +319,16 @@ QWidget#readerPanel QLabel#enduranceAlertText { color: #642a2e; font-weight: bol
 QWidget#readerPanel QPushButton#alertCare { background: #7c303b; color: #fff0cd;
     border: 2px solid #d8b46c; border-radius: 6px; padding: 6px 14px; font-weight: bold; }
 QWidget#readerPanel QPushButton#alertCare:hover { background: #9a414d; }
+
+/* Écran de fin : la chronique de l'aventure. */
+QDialog#chronicleDialog QFrame#chronicleTile { background: ${scene_background}; border: 1px solid ${frame};
+    border-radius: 10px; }
+QDialog#chronicleDialog QLabel#chronicleCaption { color: ${gold}; font-size: 11px; font-weight: bold;
+    padding-top: 3px; min-height: 16px;
+    letter-spacing: 1px; }
+QDialog#chronicleDialog QLabel#chronicleValue { color: ${page}; font-family: '${reading_font}';
+    font-size: 30px; font-weight: bold; }
+QDialog#chronicleDialog QLabel#chronicleDetail { color: ${ornament}; font-size: 12px; font-style: italic; }
+QDialog#chronicleDialog QLabel#chronicleVerdict { color: ${page}; font-family: '${reading_font}';
+    font-size: 19px; font-style: italic; padding: 2px 10px; }
+QDialog#chronicleDialog QLabel#chronicleFoes { color: ${page}; padding: 0 4px; }

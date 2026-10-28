@@ -62,6 +62,7 @@ from fenetre.disposition import DispositionMixin
 from fenetre.construction import ConstructionMixin
 from fenetre.sauvegardes import SauvegardesMixin
 from fenetre.demarrage import DemarrageMixin
+from fenetre.epilogue import EpilogueMixin
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale, QUrl
 from PySide6.QtGui import QActionGroup, QColor, QDesktopServices, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
@@ -575,6 +576,7 @@ class _MimeExporter(QTextEdit):
 
 
 class MainWindow(ManetteMixin, AmbiancesMixin, ApparenceMixin, DispositionMixin, ConstructionMixin, SauvegardesMixin, DemarrageMixin,
+                 EpilogueMixin,
                  QMainWindow, ModuleActions, CarnetMixin):
     """Contrôleur principal et propriétaire Qt des vues et services de l’aventure.
 
@@ -621,7 +623,8 @@ class MainWindow(ManetteMixin, AmbiancesMixin, ApparenceMixin, DispositionMixin,
                                       persistent=self.preferences.get('music_persistent', False) is True,
                                       custom_folder=MUSIC_DIR,
                                       custom=self.preferences.get('custom_music', False) is True,
-                                      victory_path=ASSET_DIR / 'sounds' / 'Achievement.ogg')
+                                      victory_path=ASSET_DIR / 'sounds' / 'Achievement.ogg',
+                                      epilogue_path=ASSET_DIR / 'sounds' / 'TowardsTheHorizon.ogg')
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(QIcon(str(ASSET_DIR / "bifurk.ico")))
         self._fullscreen = False
@@ -829,6 +832,7 @@ class MainWindow(ManetteMixin, AmbiancesMixin, ApparenceMixin, DispositionMixin,
     def _render_choices_and_events(self, text):
         """Déléguer au module puis numéroter les choix (raccourcis clavier 1–9)."""
         result = ModuleActions._render_choices_and_events(self, text)
+        self._add_epilogue_card()
         self._number_choice_cards()
         return result
 
@@ -1226,6 +1230,7 @@ class MainWindow(ManetteMixin, AmbiancesMixin, ApparenceMixin, DispositionMixin,
         load = ChoiceCard('Ouvrir une chronique sauvegardée')
         load.clicked.connect(lambda: self.load_game())
         self.choice_layout.addWidget(load)
+        self._add_epilogue_card(first=True)
         self.choice_group.show()
         self.adventure_tabs.setEnabled(False)
         self.stats_group.setEnabled(False)
