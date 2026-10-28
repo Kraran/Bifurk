@@ -240,5 +240,29 @@ class DiceDialogTests(unittest.TestCase):
         self.assertEqual(window.enemy_endurance.value(), 6)
 
 
+
+class RoundedDiceLookTests(unittest.TestCase):
+    """D6 aux arêtes arrondies et points creusés : géométrie et rendu de la face posée."""
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QApplication.instance() or QApplication([])
+
+    def test_pips_stay_on_the_flat_part_of_each_face(self):
+        from dice_dialog import DiceCanvas, PIPS
+        reach = max(abs(c) for pips in PIPS.values() for xy in pips for c in xy) + .145 + .035
+        self.assertLess(reach, DiceCanvas.FLAT)
+
+    def test_landed_die_shows_a_dark_engraved_pip_on_a_light_face(self):
+        from dice_dialog import DiceCanvas
+        canvas = DiceCanvas((1,))
+        canvas.resize(320, 240)
+        canvas.finish()
+        image = canvas.grab().toImage()
+        # Autour du dé : un creux d'encre sombre et une face ivoire claire, sans contour tracé.
+        light = [image.pixelColor(x, y).lightness() for x in range(110, 210, 2) for y in range(70, 170, 2)]
+        self.assertLess(min(light), 70)
+        self.assertGreater(max(light), 190)
+
+
 if __name__ == '__main__':
     unittest.main()
