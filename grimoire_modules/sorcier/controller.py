@@ -543,6 +543,7 @@ class SorcierCombatActions(FightingFantasyActions):
             self.transitions.append([previous, number])
         self.current_paragraph = number
         self._tts_follow_paragraph(number)
+        self._ambience_follow_paragraph(number)
         if not self._restoring and self.book_event_catalogue:
             if number in (106, 279):
                 self._remember_monster("Dragon" if number == 106 else "Vampire")

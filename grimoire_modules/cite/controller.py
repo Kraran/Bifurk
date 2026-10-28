@@ -168,6 +168,7 @@ class CiteController(CiteMechanicsActions):
                 self.transitions.append([previous, number])
         self.current_paragraph = number
         self._tts_follow_paragraph(number)
+        self._ambience_follow_paragraph(number)
         if number not in self.visited_paragraphs:
             self.visited_paragraphs.append(number)
         if not self._restoring and number in rules.ANALYSED:

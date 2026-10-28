@@ -210,7 +210,8 @@ class ScenePreviewTests(unittest.TestCase):
                 self.assertEqual(seen['items'], [None, *SCENES])
                 self.assertTrue(seen['enabled'])
                 self.assertEqual(seen['during'], ('taverne', 'scene_taverne'))
-                self.assertEqual(main_window.sounds.scene, 'port')
+                # Sans paragraphe ouvert, la boucle du livre revient après l'essai.
+                self.assertIsNone(main_window.sounds.scene)
             finally:
                 main_window.close()
                 main_window.deleteLater()

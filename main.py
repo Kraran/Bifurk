@@ -24,6 +24,7 @@ from grimoire_library import imported_grimoires, GrimoireLibraryDialog
 from themes import available_themes, set_active_theme
 import theme_palette
 from sound_effects import SoundBank, EFFECT_LABELS, SCENES, creature_sound
+from ambience_map import AmbienceMap, KEEP
 from intro_music import IntroMusic
 from tts import DEFAULT_VOICE, ParagraphReader, available_french_voices
 from audio_configuration import configure_audio_backend
@@ -501,6 +502,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                             diagnostic_path=SETTINGS_DIR / "audio.log")
         self.sounds.set_effects_volume(self._percent_preference('effects_volume'))
         self.sounds.set_ambient_volume(self._percent_preference('ambient_volume'))
+        self.ambience_map = None   # Scènes selon le paragraphe du livre ouvert (s'il en livre).
         # Lecture vocale (voix Edge) : synthèse en arrière-plan, jamais bloquante.
         self.tts = ParagraphReader(self)
         self.tts.set_voice(self.preferences.get("tts_voice", DEFAULT_VOICE))
@@ -956,6 +958,40 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         else:
             tts.speak(self.paragraphs[number])
 
+    AMBIENT_MODES = (('paragraph', 'selon le paragraphe'), ('book', 'boucle du livre'))
+
+    def _load_ambience_map(self):
+        """Lire les scènes du livre ouvert ; un catalogue invalide laisse la boucle du livre."""
+        try:
+            self.ambience_map = AmbienceMap.from_module(self.book_module)
+        except (ValueError, KeyError, TypeError, OSError) as exc:
+            self.ambience_map = None
+            self.sounds.logger.error('ambience catalogue: %s', exc)
+        self._ambience_follow_paragraph(None)
+
+    def _ambience_follow_paragraph(self, number):
+        """Jouer la scène du paragraphe (Réglages : « selon le paragraphe »).
+
+        Sans catalogue, hors d'un paragraphe ou en mode « boucle du livre », la boucle
+        du livre revient. Une exception « garder » laisse la scène en cours ; après un
+        chargement, la scène du dernier paragraphe visité qui en a une est reprise."""
+        sounds = getattr(self, 'sounds', None)
+        if sounds is None:
+            return
+        ambience = getattr(self, 'ambience_map', None)
+        if (number is None or ambience is None
+                or self.preferences.get('ambient_mode', 'paragraph') != 'paragraph'):
+            sounds.set_scene(None)
+            return
+        scene = ambience.scene_for(number)
+        if scene is KEEP:
+            if sounds.scene is not None:
+                return
+            visited = getattr(self, 'visited_paragraphs', [])
+            scene = next((found for found in map(ambience.scene_for, reversed(visited))
+                          if found is not KEEP), None)
+        sounds.set_scene(scene)
+
     def _fade_out_reading(self):
         """Éteindre en fondu une lecture vocale en cours quand son paragraphe quitte la page."""
         tts = getattr(self, 'tts', None)
@@ -1020,6 +1056,28 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self._save_preferences()
         ambient.toggled.connect(set_ambient)
         audio_layout.addWidget(ambient)
+        # Scène selon le paragraphe (livres qui livrent un catalogue d'ambiances).
+        mode_row = QHBoxLayout()
+        mode_row.addWidget(QLabel('Ambiance'))
+        mode = QComboBox()
+        mode.setObjectName('ambientMode')
+        mode.setAccessibleName('Choix de l’ambiance de fond')
+        for key, label in self.AMBIENT_MODES:
+            mode.addItem(label[:1].upper() + label[1:], key)
+        mode.setCurrentIndex(max(0, mode.findData(self.preferences.get('ambient_mode', 'paragraph'))))
+        if self.ambience_map is None:
+            mode.setToolTip('Ce livre n’a pas encore de scènes par paragraphe : '
+                            'sa boucle est jouée dans les deux cas.')
+        mode.setEnabled(self.sounds.ambient_enabled)
+        ambient.toggled.connect(mode.setEnabled)
+        def set_mode(index):
+            """Appliquer aussitôt et mémoriser le choix scène / boucle du livre."""
+            self.preferences['ambient_mode'] = mode.itemData(index)
+            self._save_preferences()
+            self._ambience_follow_paragraph(self.current_paragraph)
+        mode.currentIndexChanged.connect(set_mode)
+        mode_row.addWidget(mode, 1)
+        audio_layout.addLayout(mode_row)
 
         def set_effects_volume(percent):
             self.sounds.set_effects_volume(percent)
@@ -1209,7 +1267,10 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         finally:
             if volume_changed:
                 self._save_preferences()
-            self.sounds.set_scene(scene_before)  # Fin de l'écoute d'essai.
+            # Fin de l'écoute d'essai : la scène d'avant, puis celle du paragraphe
+            # (le mode a pu changer pendant que la fenêtre était ouverte).
+            self.sounds.set_scene(scene_before)
+            self._ambience_follow_paragraph(self.current_paragraph)
             dialog.deleteLater()
 
     AUTO_THEME = 'auto'
@@ -2564,6 +2625,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
     def _show_welcome(self):
         """Afficher l’accueil sans livre et désactiver les commandes réservées à une partie."""
+        self._ambience_follow_paragraph(None)
         self.paragraph_number.hide()
         self.choice_group.hide()
         self.event_group.hide()
@@ -2578,6 +2640,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         """Afficher la couverture, le titre et le formulaire de création avant le §1.
 
         Un simple rafraîchissement conserve le tirage, le nom et le compteur de relances."""
+        self._ambience_follow_paragraph(None)
         self.intro_music.menu()
         self._fade_out_reading()  # Le paragraphe lu quitte la page.
         if self._adventurer_draft is None:
@@ -2834,6 +2897,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self._update_tracking_badge()
         self.book_module = book_module
         self.sounds.set_ambient_track(getattr(book_module, 'engine', None))
+        self._load_ambience_map()
         self._apply_book_theme()  # La page de titre est dessinée plus bas.
         self.pdf_path = path
         self._book_digest = (str(path), digest) if digest else None
@@ -3937,6 +4001,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         (self.pdf_path, self._book_digest, self.paragraphs, self.book_module,
          self.illustration_catalogue, self.book_event_catalogue) = previous['book']
         self.sounds.set_ambient_track(getattr(self.book_module, 'engine', None))
+        self._load_ambience_map()
         self._apply_book_theme()
         self.book_label.setText(previous['label'][0])
         self.book_label.setToolTip(previous['label'][1])
@@ -3971,6 +4036,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self.illustration_catalogue = illustration_catalogue
             self.book_module = book_module
             self.sounds.set_ambient_track(getattr(book_module, 'engine', None))
+            self._load_ambience_map()
             self._apply_book_theme()  # _restore redessine la page ensuite.
             self.book_event_catalogue = events
             self.book_label.setText(book_module.title if book_module else Path(pdf).name)

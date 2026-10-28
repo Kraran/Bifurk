@@ -11,7 +11,8 @@
   ],
   "catalogues": {
     "events": "evenements_sorcier_1982.json",
-    "illustrations": "sorcier_montagne_feu_1982.json"
+    "illustrations": "sorcier_montagne_feu_1982.json",
+    "ambiences": "ambiances_sorcier_1982.json"
   },
   "text_repairs": [
     "misplaced-fragment-253"
