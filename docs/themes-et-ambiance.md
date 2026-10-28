@@ -159,8 +159,11 @@ zone, scènes connues, statuts permis ; un catalogue invalide laisse la boucle d
 le paragraphe, y compris après un chargement ou une annulation ; la page de titre et
 l’accueil rendent la boucle du livre. Dans la fenêtre d’ambiance, **Ambiance : selon le
 paragraphe / boucle du livre** (`ambient_mode`, « selon le paragraphe » par défaut) choisit.
-Seul le Sorcier a un catalogue pour l’instant (zones déduites des renvois entre paragraphes :
-galeries du sud, rivière, rive nord, Labyrinthe, repaire de Zagor).
+Les trois livres ont un catalogue : le Sorcier par zones déduites des renvois entre paragraphes
+(galeries du sud, rivière, rive nord, Labyrinthe, repaire de Zagor), relu et `vérifié` ; la Forêt
+par lieux (forêt et vallée, plaines et collines, rivières, nuits au campement, cabanes, cavernes,
+souterrains, crypte, étang, Pont-de-Pierre) et la Cité (rues, maisons, tour de Zanbar Bone,
+égouts et cellules, port, marché, tavernes, hors les murs, jardin, pont), encore `proposé`.
 
 Relecture : `python scripts/relecture_ambiances.py LIVRE.pdf` écrit
 `audit-output/relecture-ambiances-<livre>.html`, une page locale (extraits du livre, à ne pas

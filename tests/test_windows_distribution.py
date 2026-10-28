@@ -59,6 +59,8 @@ class WindowsDistributionTests(unittest.TestCase):
                          '_internal/catalogues/modules/sorcier_montagne_feu_1982.json',
                          '_internal/catalogues/evenements_sorcier_1982.json',
                          '_internal/catalogues/ambiances_sorcier_1982.json',
+                         '_internal/catalogues/ambiances_foret_1983.json',
+                         '_internal/catalogues/ambiances_cite_1983.json',
                          '_internal/catalogues/sorcier_montagne_feu_1982.json',
                          '_internal/catalogues/modules/foret_malediction_1983.json',
                          '_internal/catalogues/foret_malediction_1983.json',
