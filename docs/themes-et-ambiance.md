@@ -148,7 +148,7 @@ une boucle de fond (`scene_*.ogg`, ou la boucle d’un livre) et, pour certaines
 `every` secondes, tiré par le générateur privé de la banque. `SoundBank.set_scene(clé)` passe
 à la scène en fondu enchaîné ; `set_scene(None)` rend la boucle du livre. Les sons ponctuels
 suivent l’interrupteur et le curseur de l’ambiance, et la baisse pendant un combat.
-Dans la fenêtre d’ambiance, **Écouter une scène** permet un essai (case d’ambiance cochée) ;
+Dans la fenêtre Ambiances, la ligne **Essai** de l’ambiance de fond et son bouton **Écouter** jouent la scène choisie (case d’ambiance cochée) ;
 la scène d’avant revient à la fermeture. Les fichiers sont reconstruits par
 `scripts/prepare_book_ambiences.py` à partir des sections `scene_sources`, `scene_ambiences`
 et `scene_spots` de `assets/sounds/sources.json` (sources BigSoundBank CC0, empreintes SHA-256).

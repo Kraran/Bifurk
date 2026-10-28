@@ -1158,9 +1158,14 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         for key, scene in SCENES.items():
             scenes.addItem(scene['label'][:1].upper() + scene['label'][1:], key)
         scenes.setCurrentIndex(max(0, scenes.findData(self.sounds.scene)))
-        scenes.currentIndexChanged.connect(lambda index: self.sounds.set_scene(scenes.itemData(index)))
-        row(ambient_grid, 'Essai', scenes)
-        for control in (mode, scenes):
+        # Comme pour les effets : choisir, puis « Écouter » joue la scène choisie
+        # (« Ambiance du livre » rend la boucle du livre).
+        listen_scene = QPushButton('Écouter')
+        listen_scene.setObjectName('listenScene')
+        listen_scene.setAccessibleName('Écouter la scène choisie')
+        listen_scene.clicked.connect(lambda: self.sounds.set_scene(scenes.currentData()))
+        row(ambient_grid, 'Essai', scenes, listen_scene)
+        for control in (mode, scenes, listen_scene):
             control.setEnabled(self.sounds.ambient_enabled)
             ambient.toggled.connect(control.setEnabled)
         left.addStretch(1)
