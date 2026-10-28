@@ -199,11 +199,14 @@ QMessageBox QLabel#qt_msgbox_label { font-size: 15px; }
 QFileDialog QTreeView, QFileDialog QListView, QFileDialog QTableView { border-radius: 7px; padding: 4px; }
 QFileDialog QToolButton { background: ${page}; border-color: ${frame}; }
 QFileDialog QToolButton:hover { background: ${gold}; }
-QSlider#musicVolume::groove:horizontal, QSlider#ttsVolume::groove:horizontal { height: 8px; background: ${scene_background};
+QSlider[volume="true"]::groove:horizontal { height: 8px; background: ${scene_background};
     border: 2px solid ${ornament}; border-radius: 2px; }
-QSlider#musicVolume::sub-page:horizontal, QSlider#ttsVolume::sub-page:horizontal { background: ${ornament}; }
-QSlider#musicVolume::handle:horizontal, QSlider#ttsVolume::handle:horizontal { width: 16px; margin: -7px 0;
+QSlider[volume="true"]::sub-page:horizontal { background: ${ornament}; }
+QSlider[volume="true"]::handle:horizontal { width: 16px; margin: -7px 0;
     background: ${gold}; border: 2px solid ${frame}; border-radius: 2px; }
+QScrollArea#ambienceScroll, QWidget#ambienceBody { background: transparent; }
+QLabel#settingCaption { color: ${gold}; }
+QLabel#customMusicHint { color: ${ornament}; font-style: italic; }
 QSlider#musicVolume::handle:horizontal:hover, QSlider#ttsVolume::handle:horizontal:hover, QSlider#musicVolume::handle:horizontal:focus, QSlider#ttsVolume::handle:horizontal:focus {
     background: ${page}; border-color: ${gold}; }
 

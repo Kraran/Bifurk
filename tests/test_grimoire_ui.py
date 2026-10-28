@@ -322,6 +322,18 @@ class GrimoireInterfaceTests(unittest.TestCase):
         self.assertIsNotNone(w.settings_button.menu())
         self.assertEqual(w.paragraph_number.objectName(), 'paragraphNumber')
 
+    def test_settings_menu_has_aligned_painted_icons_and_no_theme_submenu(self):
+        w = self.window
+        actions = [a for a in w.settings_button.menu().actions() if not a.isSeparator()]
+        self.assertEqual([a.text() for a in actions],
+                         ['Ambiances…', 'Plein écran\tF11', 'Mode lecture\tF10',
+                          'Journal de la partie…', 'À propos de Bifurk', 'Quitter le jeu…'])
+        self.assertTrue(all(not a.icon().isNull() and a.menu() is None for a in actions))
+        before = actions[0].icon().pixmap(20, 20).toImage()
+        w._activate_theme('foret')       # Les pictogrammes suivent l'or du thème.
+        self.assertNotEqual(actions[0].icon().pixmap(20, 20).toImage(), before)
+        w._activate_theme('grimoire')
+
     def test_compact_window_keeps_choice_plaques_and_sheet_seals_inside(self):
         w = self.window
         w.resize(930, 650)

@@ -239,8 +239,55 @@ def draw_icon(p, kind, c, s, color=None):
         p.setBrush(color)
         p.setPen(Qt.NoPen)
         p.drawRoundedRect(QRectF(x - s * .55, y - s * .55, s * 1.1, s * 1.1), s * .12, s * .12)
+    elif kind == 'music':
+        # Deux croches liées : réglages des ambiances (sons, musique, voix).
+        p.setBrush(color)
+        p.setPen(Qt.NoPen)
+        for hx in (x - s * .55, x + s * .45):
+            p.drawEllipse(QPointF(hx, y + s * .55), s * .3, s * .22)
+        p.setPen(QPen(color, max(1.4, s * .13), Qt.SolidLine, Qt.RoundCap))
+        p.drawLine(QPointF(x - s * .27, y + s * .5), QPointF(x - s * .27, y - s * .65))
+        p.drawLine(QPointF(x + s * .73, y + s * .5), QPointF(x + s * .73, y - s * .85))
+        beam = QPolygonF([QPointF(x - s * .27, y - s * .65), QPointF(x + s * .73, y - s * .85),
+                          QPointF(x + s * .73, y - s * .55), QPointF(x - s * .27, y - s * .35)])
+        p.setBrush(color)
+        p.setPen(Qt.NoPen)
+        p.drawPolygon(beam)
+    elif kind == 'fullscreen':
+        k = s * .38
+        for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+            cx, cy = x + sx * s * .85, y + sy * s * .7
+            p.drawLine(QPointF(cx, cy), QPointF(cx - sx * k, cy))
+            p.drawLine(QPointF(cx, cy), QPointF(cx, cy - sy * k))
+    elif kind == 'reading':
+        draw_glyph(p, 'book', c, s, color)
+    elif kind == 'info':
+        p.drawEllipse(c, s * .85, s * .85)
+        p.setBrush(color)
+        p.setPen(Qt.NoPen)
+        p.drawEllipse(QPointF(x, y - s * .42), s * .12, s * .12)
+        p.setPen(QPen(color, max(1.5, s * .16), Qt.SolidLine, Qt.RoundCap))
+        p.drawLine(QPointF(x, y - s * .12), QPointF(x, y + s * .48))
+    elif kind == 'quit':
+        p.drawArc(QRectF(x - s * .8, y - s * .7, s * 1.6, s * 1.6), 120 * 16, 300 * 16)
+        p.drawLine(QPointF(x, y - s * .95), QPointF(x, y - s * .05))
     else:
         draw_glyph(p, kind, c, s, color)
+
+
+def menu_icon(kind, color, size=20):
+    """Pictogramme de menu peint dans la couleur du thème, net sur écran haute densité."""
+    from PySide6.QtGui import QIcon, QPixmap
+    scale = 3
+    pix = QPixmap(size * scale, size * scale)
+    pix.fill(Qt.transparent)
+    p = QPainter(pix)
+    p.setRenderHint(QPainter.Antialiasing)
+    p.scale(scale, scale)
+    draw_icon(p, kind, QPointF(size / 2, size / 2), size * .4, QColor(color))
+    p.end()
+    pix.setDevicePixelRatio(scale)
+    return QIcon(pix)
 
 
 # --------------------------------------------------------------------------- bandeau

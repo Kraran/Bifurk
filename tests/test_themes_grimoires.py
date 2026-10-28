@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 from PySide6.QtCore import QCoreApplication, QEvent
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QComboBox, QDialog
 
 import adventurer_sheet
 import main
@@ -110,18 +110,29 @@ class WindowThemeTests(unittest.TestCase):
         self.assertEqual(self.saved()['theme'], 'cite')
         self.open_book('sorcier-1982')
         self.assertEqual(self.w.theme.id, 'cite')
-        self.assertTrue(self.w.theme_actions['cite'].isChecked())
+        self.assertEqual(self.w._theme_choice(), 'cite')
         self.w.choose_theme('auto')
         self.assertNotIn('theme', self.saved())
         self.assertEqual(self.w.theme.id, 'sorcier')
-        self.assertTrue(self.w.theme_actions['auto'].isChecked())
+        self.assertEqual(self.w._theme_choice(), 'auto')
 
-    def test_settings_menu_lists_automatic_then_standard_and_books(self):
-        labels = [action.text() for action in self.w.theme_menu.actions() if not action.isSeparator()]
-        self.assertTrue(labels[0].startswith('Selon le grimoire ouvert'))
-        self.assertEqual(labels[1:], ['Standard', 'L’Antre de Zagor', 'Le Sous-bois de Darkwood',
-                                      'Le Port du Sable Noir'])
-        self.w.theme_actions['foret'].trigger()
+    def test_ambiences_dialog_lists_automatic_then_standard_and_books(self):
+        """Le choix du thème est dans Réglages → Ambiances ; le menu n'a plus de sous-menu."""
+        self.assertFalse(any(action.menu() for action in self.w.settings_button.menu().actions()))
+        seen = {}
+
+        def fake_exec():
+            combo = self.w.findChild(QComboBox, 'themeChoice')
+            seen['labels'] = [combo.itemText(i) for i in range(combo.count())]
+            combo.setCurrentIndex(combo.findData('foret'))
+            seen['after'] = combo.currentText()
+            return 0
+        with patch.object(QDialog, 'exec', side_effect=fake_exec):
+            self.w.show_ambience()
+        self.assertEqual(seen['labels'][0], 'Selon le grimoire ouvert — Standard')
+        self.assertEqual(seen['labels'][1:], ['Standard', 'L’Antre de Zagor', 'Le Sous-bois de Darkwood',
+                                              'Le Port du Sable Noir'])
+        self.assertEqual(seen['after'], 'Le Sous-bois de Darkwood')
         self.assertEqual((self.w.theme.id, self.saved()['theme']), ('foret', 'foret'))
 
     def test_saved_choice_is_restored_at_startup(self):

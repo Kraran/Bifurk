@@ -32,7 +32,7 @@ Ces captures utilisent un court récit de démonstration original, sans extrait 
   les sceaux **Soins**, **Actions…**, **Carnet**, **Sauvegarder** et **Charger** remplacent
   les anciens onglets. La navigation manuelle par numéro se trouve dans **Actions…**.
 - La barre du haut réunit **Annuler**, **Rétablir**, **Règles**, **Carte d’exploration**,
-  **Grimoires…** et le menu **⚙** (Ambiance sonore, Plein écran, Mode lecture, Journal,
+  **Grimoires…** et le menu **⚙** (Ambiances, Plein écran, Mode lecture, Journal,
   À propos, Quitter le jeu).
 - Les panneaux peuvent défiler séparément dans les petites fenêtres ; sous 1100 px de large,
   l’illustration se masque et la fiche se replie en bande verticale ouverte en tiroir

@@ -386,7 +386,7 @@ class CustomMusicWindowTests(unittest.TestCase):
         return window
 
     def dialog(self, window, action=None):
-        """Ouvrir Ambiance sonore et relever la case, l'indice et le bouton."""
+        """Ouvrir Ambiances et relever la case, l'indice et le bouton."""
         found = {}
         def inspect(dialog):
             box = dialog.findChild(QCheckBox, 'customMusic')
@@ -406,7 +406,7 @@ class CustomMusicWindowTests(unittest.TestCase):
         self.assertFalse(window.intro_music.custom)
         self.assertEqual(window.intro_music.custom_folder, self.music_dir)
         found = self.dialog(window, lambda dialog, box: box.setChecked(True))
-        self.assertEqual(found['text'], 'Jouer ma musique (dossier musique_perso)')
+        self.assertEqual(found['text'], 'Jouer ma musique')
         self.assertFalse(found['checked'])
         self.assertTrue(window.intro_music.custom)
         stored = json.loads((self.folder / 'preferences.json').read_text(encoding='utf-8'))

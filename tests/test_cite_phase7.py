@@ -189,8 +189,7 @@ class CiteAmbienceWindowTests(CitePresentationTests):
         labels = []
         def capture():
             dialog = self.w.findChild(QDialog, 'ambienceDialog')
-            labels.extend(box.text() for box in dialog.findChildren(QCheckBox)
-                          if box.text().startswith('Ambiance de fond'))
+            labels.append(dialog.findChild(QCheckBox, 'ambientEnabled').text())
             dialog.reject()
         QTimer.singleShot(0, capture)
         self.w.show_ambience()
@@ -200,15 +199,15 @@ class CiteAmbienceWindowTests(CitePresentationTests):
         return labels
 
     def test_ambience_setting_names_the_loop_of_the_open_book(self):
-        self.assertEqual(self.ambience_label(), ['Ambiance de fond : caverne'])
+        self.assertEqual(self.ambience_label(), ['Activer l’ambiance de fond (caverne)'])
         self.open()
         self.assertEqual(self.w.sounds.ambient, 'ambient_cite')
-        self.assertEqual(self.ambience_label(), ['Ambiance de fond : ville'])
+        self.assertEqual(self.ambience_label(), ['Activer l’ambiance de fond (ville)'])
         self.open('foret')
         self.assertEqual(self.w.sounds.ambient, 'ambient_foret')
-        self.assertEqual(self.ambience_label(), ['Ambiance de fond : forêt'])
+        self.assertEqual(self.ambience_label(), ['Activer l’ambiance de fond (forêt)'])
         self.open()
-        self.assertEqual(self.ambience_label(), ['Ambiance de fond : ville'])
+        self.assertEqual(self.ambience_label(), ['Activer l’ambiance de fond (ville)'])
 
 
 # Les tests hérités sont déjà exécutés par test_cite_presentation.

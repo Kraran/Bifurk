@@ -72,7 +72,7 @@ Vérifier :
 5. Sauvegarde, fermeture, relance et chargement depuis un emplacement.
 6. Déplacement du dossier complet après fermeture : les données restent portables.
 7. Dossier `musique_perso` présent à côté de `Bifurk.exe` avec son `LISEZMOI.txt` ;
-   option « Jouer ma musique » dans ⚙ → Ambiance sonore… avec un morceau déposé.
+   option « Jouer ma musique » dans ⚙ → Ambiances… avec un morceau déposé.
 
 Au premier lancement, `donnees` apparaît à côté de `Bifurk.exe`, **hors de
 `_internal`**. Pour une vérification d'autonomie complète, essayer aussi le ZIP

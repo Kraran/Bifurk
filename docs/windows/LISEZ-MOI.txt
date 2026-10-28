@@ -19,7 +19,7 @@ nouvelle version ailleurs puis recopiez votre dossier donnees a cote du nouvel e
 Seul le format actuel des sauvegardes est pris en charge.
 
 Le dossier musique_perso accueille vos propres morceaux (MP3, M4A, OGG,
-FLAC, WAV...) : cochez "Jouer ma musique" dans Ambiance sonore pour les
+FLAC, WAV...) : cochez "Jouer ma musique" dans Ambiances pour les
 entendre en ordre aleatoire. Recopiez-le aussi lors d'une mise a jour.
 Voir musique_perso/LISEZMOI.txt.
 

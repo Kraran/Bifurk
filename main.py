@@ -43,7 +43,8 @@ from adventurer_sheet import (SheetPanel, OrnateHeading, HeroEmblem, HeroMarks, 
                               ResourceToken, ValueLabel, SealButton, RibbonButton, InventoryGrid,
                               SheetStrip, INVENTORY_QUANTITY_ROLE, ALERT_THRESHOLD)
 from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, PageToolButton,
-                             ParagraphCartouche, ChoiceGroup, illuminated_initial, DrawerScrim)
+                             ParagraphCartouche, ChoiceGroup, illuminated_initial, DrawerScrim,
+                             menu_icon)
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route, WEAPON_BONUSES
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale, QUrl
@@ -657,31 +658,28 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         except (TypeError, ValueError):
             return default
 
-    def _volume_row(self, label, name, value, apply, accessible):
-        """Ligne « libellé + curseur 0–150 % + valeur » de la fenêtre Ambiance."""
-        row = QHBoxLayout()
-        row.addWidget(QLabel(label))
+    def _volume_slider(self, name, value, apply, accessible, maximum=150):
+        """Curseur de volume harmonisé (0–maximum %) et son libellé de valeur « Muet » à 0."""
         slider = QSlider(Qt.Horizontal)
         slider.setObjectName(name)
+        slider.setProperty('volume', True)   # Même habillage QSS pour tous les volumes.
         slider.setAccessibleName(accessible)
-        slider.setRange(0, 150)
+        slider.setRange(0, maximum)
         slider.setSingleStep(5)
         slider.setPageStep(10)
         slider.setTickPosition(QSlider.TicksBelow)
         slider.setTickInterval(10)
-        slider.setMinimumWidth(220)
+        slider.setMinimumWidth(180)
         slider.setValue(value)
         shown = QLabel(f'{value} %' if value else 'Muet')
         shown.setObjectName(name + 'Value')
-        shown.setMinimumWidth(70)
+        shown.setMinimumWidth(56)
 
         def changed(percent):
             apply(percent)
             shown.setText(f'{percent} %' if percent else 'Muet')
         slider.valueChanged.connect(changed)
-        row.addWidget(slider, 1)
-        row.addWidget(shown)
-        return row
+        return slider, shown
 
     def _save_preferences(self):
         """Enregistrer les choix d’interface séparément de l’état des sauvegardes."""
@@ -1018,26 +1016,73 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self.tts_button.setToolTip(f"{self.TTS_TOOLTIP}\n{message}")
 
     def show_ambience(self):
-        """Construire les réglages de thème et sons, avec préécoute des effets disponibles."""
+        """Fenêtre Ambiances : effets, ambiance de fond, musique, voix et thème, rangés par section.
+
+        Chaque section suit la même grille « libellé | réglage | valeur ou bouton » ;
+        les choix sont appliqués aussitôt, les curseurs mémorisés à la fermeture."""
         dialog = QDialog(self)
         dialog.setObjectName('ambienceDialog')
-        dialog.setWindowTitle("Bifurk — Ambiance")
+        dialog.setWindowTitle("Bifurk — Ambiances")
         dialog.setWindowIcon(self.windowIcon())
         area = dialog.screen().availableGeometry()
-        dialog.resize(min(620, area.width() - 60), min(540, area.height() - 80))
+        # Deux colonnes dès que l'écran le permet, une seule colonne défilante sinon.
+        two_columns = area.width() >= 1060
+        dialog.resize(1000 if two_columns else min(560, area.width() - 40),
+                      min(640 if two_columns else 900, area.height() - 80))
         layout = QVBoxLayout(dialog)
         layout.setContentsMargins(20, 18, 20, 18)
         layout.setSpacing(14)
-        layout.addWidget(DialogHeading('L’ambiance de votre aventure',
-                                        'Musique, sons et habillage du grimoire.'))
-        audio_group = QGroupBox('Le paysage sonore')
-        audio_layout = QVBoxLayout(audio_group)
-        audio_layout.setSpacing(14)
-        layout.addWidget(audio_group)
+        layout.addWidget(DialogHeading('Les ambiances de votre aventure',
+                                        'Sons, musique, voix et habillage du grimoire.'))
+        scroll = QScrollArea()
+        scroll.setObjectName('ambienceScroll')
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        body = QWidget()
+        body.setObjectName('ambienceBody')
+        columns = (QHBoxLayout if two_columns else QVBoxLayout)(body)
+        columns.setContentsMargins(0, 0, 6, 0)
+        columns.setSpacing(18 if two_columns else 14)
+        left, right = QVBoxLayout(), QVBoxLayout()
+        for column in (left, right):
+            column.setSpacing(14)
+            columns.addLayout(column, 1)
+        scroll.setWidget(body)
+        layout.addWidget(scroll, 1)
+
+        def section(column, title):
+            box = QGroupBox(title)
+            grid = QGridLayout(box)
+            grid.setHorizontalSpacing(12)
+            grid.setVerticalSpacing(10)
+            grid.setColumnMinimumWidth(0, 78)
+            grid.setColumnStretch(1, 1)
+            grid.setColumnMinimumWidth(2, 56)
+            column.addWidget(box)
+            return grid
+
+        def row(grid, label, widget, trailing=None):
+            """Ligne alignée : libellé à gauche, réglage, puis valeur ou bouton éventuels."""
+            index = grid.rowCount()
+            if label is None:   # Case à cocher : toute la largeur avant la dernière colonne.
+                grid.addWidget(widget, index, 0, 1, 2 if trailing is not None else 3)
+            else:
+                caption = QLabel(label)
+                caption.setObjectName('settingCaption')
+                grid.addWidget(caption, index, 0)
+                grid.addWidget(widget, index, 1, 1, 1 if trailing is not None else 2)
+            if trailing is not None:
+                grid.addWidget(trailing, index, 2)
+
         # Les curseurs émettent un signal à chaque cran : leurs valeurs ne sont
         # écrites qu'une fois, à la fermeture de la fenêtre (voir finally).
         volume_changed = []
+
+        # --- Effets sonores --------------------------------------------------
+        effects_grid = section(left, 'Effets sonores')
         sound = QCheckBox("Activer les effets sonores")
+        sound.setObjectName('soundEnabled')
         sound.setChecked(self.sounds.enabled)
         def set_sound(enabled):
             """Appliquer et mémoriser l’interrupteur des effets ponctuels."""
@@ -1045,9 +1090,32 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self.preferences["sound_enabled"] = enabled
             self._save_preferences()
         sound.toggled.connect(set_sound)
-        audio_layout.addWidget(sound)
+        row(effects_grid, None, sound)
+
+        def set_effects_volume(percent):
+            self.sounds.set_effects_volume(percent)
+            self.preferences['effects_volume'] = percent
+            volume_changed.append(True)
+        row(effects_grid, 'Volume', *self._volume_slider(
+            'effectsVolume', self._percent_preference('effects_volume'),
+            set_effects_volume, 'Volume des effets sonores'))
+        effects = QComboBox()
+        effects.setObjectName('effectPreview')
+        effects.setAccessibleName('Effet sonore à écouter')
+        for name, label in EFFECT_LABELS.items():
+            effects.addItem(label, name)
+        listen = QPushButton("Écouter")
+        listen.setObjectName('listenEffect')
+        listen.setEnabled(self.sounds.enabled)
+        sound.toggled.connect(listen.setEnabled)
+        listen.clicked.connect(lambda: self.sounds.play(effects.currentData()))
+        row(effects_grid, 'Essai', effects, listen)
+
+        # --- Ambiance de fond ------------------------------------------------
+        ambient_grid = section(left, 'Ambiance de fond')
         # Même réglage pour tous les livres ; le libellé nomme la boucle du livre ouvert.
-        ambient = QCheckBox(f"Ambiance de fond : {self.sounds.ambient_label()}")
+        ambient = QCheckBox(f"Activer l’ambiance de fond ({self.sounds.ambient_label()})")
+        ambient.setObjectName('ambientEnabled')
         ambient.setChecked(self.sounds.ambient_enabled)
         def set_ambient(enabled):
             """Appliquer et mémoriser l’interrupteur indépendant de l’ambiance."""
@@ -1055,10 +1123,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self.preferences["ambient_enabled"] = enabled
             self._save_preferences()
         ambient.toggled.connect(set_ambient)
-        audio_layout.addWidget(ambient)
+        row(ambient_grid, None, ambient)
         # Scène selon le paragraphe (livres qui livrent un catalogue d'ambiances).
-        mode_row = QHBoxLayout()
-        mode_row.addWidget(QLabel('Ambiance'))
         mode = QComboBox()
         mode.setObjectName('ambientMode')
         mode.setAccessibleName('Choix de l’ambiance de fond')
@@ -1066,37 +1132,98 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             mode.addItem(label[:1].upper() + label[1:], key)
         mode.setCurrentIndex(max(0, mode.findData(self.preferences.get('ambient_mode', 'paragraph'))))
         if self.ambience_map is None:
-            mode.setToolTip('Ce livre n’a pas encore de scènes par paragraphe : '
+            mode.setToolTip('Ce livre n’a pas de scènes par paragraphe : '
                             'sa boucle est jouée dans les deux cas.')
-        mode.setEnabled(self.sounds.ambient_enabled)
-        ambient.toggled.connect(mode.setEnabled)
         def set_mode(index):
             """Appliquer aussitôt et mémoriser le choix scène / boucle du livre."""
             self.preferences['ambient_mode'] = mode.itemData(index)
             self._save_preferences()
             self._ambience_follow_paragraph(self.current_paragraph)
         mode.currentIndexChanged.connect(set_mode)
-        mode_row.addWidget(mode, 1)
-        audio_layout.addLayout(mode_row)
-
-        def set_effects_volume(percent):
-            self.sounds.set_effects_volume(percent)
-            self.preferences['effects_volume'] = percent
-            volume_changed.append(True)
+        row(ambient_grid, 'Scène', mode)
 
         def set_ambient_volume(percent):
             self.sounds.set_ambient_volume(percent)
             self.preferences['ambient_volume'] = percent
             volume_changed.append(True)
-        audio_layout.addLayout(self._volume_row(
-            'Volume des effets', 'effectsVolume', self._percent_preference('effects_volume'),
-            set_effects_volume, 'Volume des effets sonores'))
-        audio_layout.addLayout(self._volume_row(
-            'Volume de l’ambiance', 'ambientVolume', self._percent_preference('ambient_volume'),
+        row(ambient_grid, 'Volume', *self._volume_slider(
+            'ambientVolume', self._percent_preference('ambient_volume'),
             set_ambient_volume, 'Volume de l’ambiance de fond'))
-        # Lecture vocale des paragraphes (voix Edge) : liste en cache, jamais d’attente réseau.
-        voice_row = QHBoxLayout()
-        voice_row.addWidget(QLabel("Voix de lecture"))
+        # Écoute d'essai des scènes : la scène d'avant revient à la fermeture.
+        scene_before = self.sounds.scene
+        scenes = QComboBox()
+        scenes.setObjectName('scenePreview')
+        scenes.setAccessibleName('Écouter une scène d’ambiance')
+        scenes.addItem('Ambiance du livre', None)
+        for key, scene in SCENES.items():
+            scenes.addItem(scene['label'][:1].upper() + scene['label'][1:], key)
+        scenes.setCurrentIndex(max(0, scenes.findData(self.sounds.scene)))
+        scenes.currentIndexChanged.connect(lambda index: self.sounds.set_scene(scenes.itemData(index)))
+        row(ambient_grid, 'Essai', scenes)
+        for control in (mode, scenes):
+            control.setEnabled(self.sounds.ambient_enabled)
+            ambient.toggled.connect(control.setEnabled)
+        left.addStretch(1)
+
+        # --- Musique d'accueil -----------------------------------------------
+        music_grid = section(right, 'Musique d’accueil')
+        def set_music_volume(percent):
+            """Conserver le réglage même à zéro, indépendamment des autres canaux audio."""
+            self.intro_music.set_volume(percent)
+            self.preferences['music_volume'] = percent
+            self.preferences['music_enabled'] = percent > 0
+            volume_changed.append(True)
+        row(music_grid, 'Volume', *self._volume_slider(
+            'musicVolume', self.intro_music.volume_percent, set_music_volume,
+            'Volume de la musique d’accueil', maximum=100))
+        persistent = QCheckBox('Garder la musique en fond pendant la partie')
+        persistent.setObjectName('musicPersistent')
+        persistent.setToolTip('La musique d’accueil continue en boucle après le début de l’aventure, '
+                              'au volume choisi ci-dessus, au lieu de s’éteindre en fondu.')
+        persistent.setChecked(self.intro_music.persistent)
+        def set_persistent(enabled):
+            """Appliquer en direct et mémoriser l’option de musique permanente."""
+            self.intro_music.set_persistent(enabled)
+            self.preferences['music_persistent'] = enabled
+            self._save_preferences()
+        persistent.toggled.connect(set_persistent)
+        row(music_grid, None, persistent)
+        custom = QCheckBox('Jouer ma musique')
+        custom.setObjectName('customMusic')
+        custom.setToolTip('Remplace la musique d’accueil par les morceaux du dossier musique_perso, '
+                          'à côté de Bifurk, enchaînés dans un ordre aléatoire (MP3, M4A, OGG, FLAC, WAV…).')
+        custom.setChecked(self.intro_music.custom)
+        open_folder = QPushButton('Ouvrir le dossier')
+        open_folder.setObjectName('openCustomMusic')
+        open_folder.setToolTip(str(MUSIC_DIR))
+        def open_music_folder():
+            """Recréer le dossier s’il a été supprimé, puis l’ouvrir dans l’explorateur."""
+            try:
+                MUSIC_DIR.mkdir(parents=True, exist_ok=True)
+            except OSError:
+                pass
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(MUSIC_DIR)))
+        open_folder.clicked.connect(open_music_folder)
+        row(music_grid, None, custom, open_folder)
+        custom_hint = QLabel('Aucun morceau lisible dans musique_perso : la musique habituelle est jouée.')
+        custom_hint.setObjectName('customMusicHint')
+        custom_hint.setWordWrap(True)
+        row(music_grid, None, custom_hint)   # parent avant setVisible : pas de fenêtre isolée
+        def refresh_custom_hint():
+            """Signaler un dossier vide (ou sans format reconnu) tant que l’option est cochée."""
+            custom_hint.setVisible(custom.isChecked() and not self.intro_music.playable_tracks())
+        def set_custom(enabled):
+            """Basculer en direct entre le dossier personnel et la musique d’accueil."""
+            self.intro_music.set_custom(enabled)
+            self.preferences['custom_music'] = enabled
+            self._save_preferences()
+            refresh_custom_hint()
+        custom.toggled.connect(set_custom)
+        refresh_custom_hint()
+
+        # --- Lecture à voix haute --------------------------------------------
+        voice_grid = section(right, 'Lecture à voix haute')
+        # Voix Edge : liste en cache, jamais d’attente réseau.
         voice = QComboBox()
         voice.setObjectName('ttsVoice')
         voice.setAccessibleName('Voix de lecture à voix haute')
@@ -1115,148 +1242,39 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                 self.preferences["tts_voice"] = voice_id
                 self._save_preferences()
         voice.currentIndexChanged.connect(set_voice)
-        voice_row.addWidget(voice, 1)
-        audio_layout.addLayout(voice_row)
-        tts_row = QHBoxLayout()
-        tts_row.addWidget(QLabel('Volume de la voix'))
-        tts_volume = QSlider(Qt.Horizontal)
-        tts_volume.setObjectName('ttsVolume')
-        tts_volume.setAccessibleName('Volume de la lecture à voix haute')
-        tts_volume.setRange(0, 150)
-        tts_volume.setSingleStep(5)
-        tts_volume.setPageStep(10)
-        tts_volume.setTickPosition(QSlider.TicksBelow)
-        tts_volume.setTickInterval(10)
-        tts_volume.setMinimumWidth(220)
-        tts_volume.setValue(int(self.preferences.get('tts_volume', 80)))
-        tts_value = QLabel()
-        tts_value.setObjectName('ttsVolumeValue')
-        tts_value.setMinimumWidth(70)
+        row(voice_grid, 'Voix', voice)
         def set_tts_volume(percent):
             """Appliquer aussitôt, même pendant une lecture ; mémoriser à la fermeture."""
             self.tts.set_volume(percent / 100)
-            tts_value.setText(f'{percent} %' if percent else 'Muet')
             self.preferences['tts_volume'] = percent
             volume_changed.append(True)
-        tts_value.setText(f'{tts_volume.value()} %' if tts_volume.value() else 'Muet')
-        tts_volume.valueChanged.connect(set_tts_volume)
-        tts_row.addWidget(tts_volume, 1)
-        tts_row.addWidget(tts_value)
-        audio_layout.addLayout(tts_row)
-        music_row = QHBoxLayout()
-        music_row.addWidget(QLabel('Musique d’accueil'))
-        music = QSlider(Qt.Horizontal)
-        music.setObjectName('musicVolume')
-        music.setAccessibleName('Volume de la musique d’accueil')
-        music.setRange(0, 100)
-        music.setSingleStep(5)
-        music.setPageStep(10)
-        music.setTickPosition(QSlider.TicksBelow)
-        music.setTickInterval(10)
-        music.setMinimumWidth(220)
-        # Rail de bois sombre, filet de laiton et poignée carrée : un curseur
-        # rétro lisible, également utilisable au clavier (flèches, Début, Fin).
-        music.setValue(self.intro_music.volume_percent)
-        music_value = QLabel()
-        music_value.setObjectName('musicVolumeValue')
-        music_value.setMinimumWidth(70)
-        def set_music_volume(percent):
-            """Conserver le réglage même à zéro, indépendamment des autres canaux audio."""
-            self.intro_music.set_volume(percent)
-            music_value.setText(f'{percent} %' if percent else 'Muet')
-            self.preferences['music_volume'] = percent
-            self.preferences['music_enabled'] = percent > 0
-            volume_changed.append(True)
-        music_value.setText(f'{music.value()} %' if music.value() else 'Muet')
-        music.valueChanged.connect(set_music_volume)
-        music_row.addWidget(music, 1)
-        music_row.addWidget(music_value)
-        audio_layout.addLayout(music_row)
-        persistent = QCheckBox('Garder la musique en fond pendant la partie')
-        persistent.setObjectName('musicPersistent')
-        persistent.setToolTip('La musique d’accueil continue en boucle après le début de l’aventure, '
-                              'au volume choisi ci-dessus, au lieu de s’éteindre en fondu.')
-        persistent.setChecked(self.intro_music.persistent)
-        def set_persistent(enabled):
-            """Appliquer en direct et mémoriser l’option de musique permanente."""
-            self.intro_music.set_persistent(enabled)
-            self.preferences['music_persistent'] = enabled
-            self._save_preferences()
-        persistent.toggled.connect(set_persistent)
-        audio_layout.addWidget(persistent)
-        custom_row = QHBoxLayout()
-        custom = QCheckBox('Jouer ma musique (dossier musique_perso)')
-        custom.setObjectName('customMusic')
-        custom.setToolTip('Remplace la musique d’accueil par les morceaux du dossier musique_perso, '
-                          'à côté de Bifurk, enchaînés dans un ordre aléatoire (MP3, M4A, OGG, FLAC, WAV…).')
-        custom.setChecked(self.intro_music.custom)
-        open_folder = QPushButton('Ouvrir le dossier')
-        open_folder.setObjectName('openCustomMusic')
-        open_folder.setToolTip(str(MUSIC_DIR))
-        def open_music_folder():
-            """Recréer le dossier s’il a été supprimé, puis l’ouvrir dans l’explorateur."""
-            try:
-                MUSIC_DIR.mkdir(parents=True, exist_ok=True)
-            except OSError:
-                pass
-            QDesktopServices.openUrl(QUrl.fromLocalFile(str(MUSIC_DIR)))
-        open_folder.clicked.connect(open_music_folder)
-        custom_row.addWidget(custom, 1)
-        custom_row.addWidget(open_folder)
-        audio_layout.addLayout(custom_row)
-        custom_hint = QLabel('Aucun morceau lisible dans musique_perso : la musique habituelle est jouée.')
-        custom_hint.setObjectName('customMusicHint')
-        custom_hint.setWordWrap(True)
-        def refresh_custom_hint():
-            """Signaler un dossier vide (ou sans format reconnu) tant que l’option est cochée."""
-            custom_hint.setVisible(custom.isChecked() and not self.intro_music.playable_tracks())
-        def set_custom(enabled):
-            """Basculer en direct entre le dossier personnel et la musique d’accueil."""
-            self.intro_music.set_custom(enabled)
-            self.preferences['custom_music'] = enabled
-            self._save_preferences()
-            refresh_custom_hint()
-        custom.toggled.connect(set_custom)
-        audio_layout.addWidget(custom_hint)   # parent avant setVisible : pas de fenêtre isolée
-        refresh_custom_hint()
-        preview = QHBoxLayout()
-        effects = QComboBox()
-        for name, label in EFFECT_LABELS.items():
-            effects.addItem(label, name)
-        listen = QPushButton("Écouter")
-        listen.setEnabled(self.sounds.enabled)
-        sound.toggled.connect(listen.setEnabled)
-        listen.clicked.connect(lambda: self.sounds.play(effects.currentData()))
-        preview.addWidget(effects, 1)
-        preview.addWidget(listen)
-        audio_layout.addLayout(preview)
-        # Écoute d'essai des scènes : la scène d'avant revient à la fermeture.
-        scene_before = self.sounds.scene
-        scene_row = QHBoxLayout()
-        scene_row.addWidget(QLabel('Écouter une scène'))
-        scenes = QComboBox()
-        scenes.setObjectName('scenePreview')
-        scenes.setAccessibleName('Écouter une scène d’ambiance')
-        scenes.addItem('Ambiance du livre', None)
-        for key, scene in SCENES.items():
-            scenes.addItem(scene['label'][:1].upper() + scene['label'][1:], key)
-        scenes.setCurrentIndex(max(0, scenes.findData(self.sounds.scene)))
-        scenes.setEnabled(self.sounds.ambient_enabled)
-        ambient.toggled.connect(scenes.setEnabled)
-        scenes.currentIndexChanged.connect(lambda index: self.sounds.set_scene(scenes.itemData(index)))
-        scene_row.addWidget(scenes, 1)
-        audio_layout.addLayout(scene_row)
-        theme_group = QGroupBox('L’habillage du grimoire')
-        theme_layout = QVBoxLayout(theme_group)
-        layout.addWidget(theme_group)
+        row(voice_grid, 'Volume', *self._volume_slider(
+            'ttsVolume', int(self.preferences.get('tts_volume', 80)), set_tts_volume,
+            'Volume de la lecture à voix haute'))
+
+        # --- Habillage du grimoire -------------------------------------------
+        theme_grid = section(right, 'Habillage du grimoire')
         themes = QComboBox()
         themes.setObjectName('themeChoice')
-        for key, label in self._theme_choices():
-            themes.addItem(label, key)
-        themes.setCurrentIndex(max(0, themes.findData(self._theme_choice())))
-        themes.currentIndexChanged.connect(lambda index: self.choose_theme(themes.itemData(index)))
-        theme_layout.addWidget(themes)
-        layout.addStretch()
+        themes.setAccessibleName('Thème du grimoire')
+        def fill_themes():
+            """« Selon le grimoire ouvert » nomme le thème appliqué au livre actuel."""
+            themes.blockSignals(True)
+            themes.clear()
+            for key, label in self._theme_choices():
+                if key == self.AUTO_THEME and self._theme_choice() == self.AUTO_THEME:
+                    label = f'{label} — {self.theme.name}'
+                themes.addItem(label, key)
+            themes.setCurrentIndex(max(0, themes.findData(self._theme_choice())))
+            themes.blockSignals(False)
+        def set_theme(index):
+            self.choose_theme(themes.itemData(index))
+            fill_themes()
+        fill_themes()
+        themes.currentIndexChanged.connect(set_theme)
+        row(theme_grid, 'Thème', themes)
+        right.addStretch(1)
+
         close = QDialogButtonBox(QDialogButtonBox.Close)
         close.button(QDialogButtonBox.Close).setText('Fermer')
         close.button(QDialogButtonBox.Close).setProperty('dialogAction', 'primary')
@@ -1304,30 +1322,11 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if target != self.theme.id:
             self._activate_theme(target, rerender=rerender)
 
-    def _build_theme_menu(self, menu):
-        """Sous-menu Réglages → Thème : un choix exclusif, coché selon la préférence."""
-        self.theme_menu = menu
-        group = QActionGroup(menu)
-        group.setExclusive(True)
-        self.theme_actions = {}
-        for index, (key, label) in enumerate(self._theme_choices()):
-            action = menu.addAction(label)
-            action.setCheckable(True)
-            group.addAction(action)
-            action.triggered.connect(lambda checked=False, k=key: self.choose_theme(k))
-            self.theme_actions[key] = action
-            if index == 0:
-                menu.addSeparator()
-        self._sync_theme_menu()
-
-    def _sync_theme_menu(self):
-        actions = getattr(self, 'theme_actions', {})
-        choice = self._theme_choice()
-        for key, action in actions.items():
-            action.setChecked(key == choice)
-        if self.AUTO_THEME in actions:
-            actions[self.AUTO_THEME].setText(f'Selon le grimoire ouvert — {self.theme.name}'
-                                             if choice == self.AUTO_THEME else 'Selon le grimoire ouvert')
+    def _refresh_menu_icons(self):
+        """Repeindre les pictogrammes du menu Réglages dans l'or du thème affiché."""
+        color = self.theme.color('gold')
+        for action, kind in getattr(self, 'settings_icons', {}).items():
+            action.setIcon(menu_icon(kind, color))
 
     def choose_theme(self, choice):
         """Choix de Réglages : « auto » efface la préférence, un thème la mémorise."""
@@ -1337,7 +1336,6 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             target = self._book_theme_id()
             if target != self.theme.id:
                 self._activate_theme(target)
-            self._sync_theme_menu()
         elif choice in self.themes:
             self.apply_theme(choice)
 
@@ -1346,7 +1344,6 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self._activate_theme(theme_id)
         self.preferences["theme"] = theme_id
         self._save_preferences()
-        self._sync_theme_menu()
 
     def _activate_theme(self, theme_id, *, rerender=True):
         """Afficher un thème sans rien mémoriser ni modifier la progression.
@@ -1368,7 +1365,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             if hasattr(widget, 'restyle_theme'):
                 widget.restyle_theme()
         self._refresh_character()
-        self._sync_theme_menu()
+        self._refresh_menu_icons()
         if rerender:
             if self.current_paragraph is not None and self.character['endurance'] <= 0:
                 self._show_death_page()
@@ -1605,19 +1602,32 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.settings_button.setObjectName("settingsButton")
         self.settings_button.setToolTip("Réglages et commandes de la fenêtre")
         self.settings_button.setAccessibleName("Réglages")
+        # Pictogrammes peints dans l'or du thème (menu_icon) : la colonne d'icônes
+        # aligne les libellés, que la police ait ou non des symboles Unicode.
         settings_menu = QMenu(self.settings_button)
-        settings_menu.addAction("♫  Ambiance sonore…", self.show_ambience)
-        self._build_theme_menu(settings_menu.addMenu("🎨  Thème"))
-        self.fullscreen_action = settings_menu.addAction("⛶  Plein écran\tF11", self.toggle_fullscreen)
-        self.reading_action = settings_menu.addAction("📖  Mode lecture\tF10")
+        settings_menu.setObjectName('settingsMenu')
+        self.settings_icons = {}
+        def settings_action(kind, label, slot=None):
+            action = settings_menu.addAction(label)
+            if slot is not None:
+                action.triggered.connect(slot)
+            self.settings_icons[action] = kind
+            return action
+        settings_action('music', 'Ambiances…', self.show_ambience)
+        settings_menu.addSeparator()
+        # « \t » affiche la touche à droite ; les raccourcis eux-mêmes sont des QShortcut.
+        self.fullscreen_action = settings_action('fullscreen', 'Plein écran\tF11', self.toggle_fullscreen)
+        self.reading_action = settings_action('reading', 'Mode lecture\tF10')
         self.reading_action.setCheckable(True)
         self.reading_action.setToolTip("Masquer le bandeau et la fiche (F10 ou Échap pour revenir)")
         self.reading_action.triggered.connect(self.toggle_reading_mode)
-        settings_menu.addAction("📜  Journal de la partie…", self.show_tracking)
-        settings_menu.addAction("ⓘ  À propos de Bifurk", self.show_about)
         settings_menu.addSeparator()
-        settings_menu.addAction("⏻  Quitter le jeu…", self.confirm_quit)
+        settings_action('scroll', 'Journal de la partie…', self.show_tracking)
+        settings_action('info', 'À propos de Bifurk', self.show_about)
+        settings_menu.addSeparator()
+        settings_action('quit', 'Quitter le jeu…', self.confirm_quit)
         self.settings_button.setMenu(settings_menu)
+        self._refresh_menu_icons()
         header.addWidget(self.settings_button)
         root.addWidget(header_frame)
         QShortcut(QKeySequence("F1"), self, activated=self.show_rules)

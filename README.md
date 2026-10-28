@@ -18,12 +18,12 @@ récit et peuvent être masquées ou agrandies ; **A−** / **A+** règlent la t
 - **📖 Règles** (F1) affiche les pages de règles du PDF ouvert.
 - **🗺 Carte d’exploration** ouvre la carte des passages visités.
 - **✦ Grimoires…** choisit un grimoire déjà importé ou ajoute un livre PDF.
-- **⚙ Réglages** regroupe **Ambiance sonore…**, **Thème** (voir ci-dessous), **Plein écran** (F11),
+- **⚙ Réglages** regroupe **Ambiances…** (sons, musique, voix et thème, voir ci-dessous), **Plein écran** (F11),
   **Mode lecture** (F10), **Journal de la partie…**, **À propos de Bifurk**
   et **Quitter le jeu…**, qui demande confirmation puis ferme les fenêtres et
   arrête l’audio. Sauvegardez votre progression avant de quitter.
 
-**Réglages → Thème** propose **Standard** (le cuir bordeaux d’origine) et un thème
+**Réglages → Ambiances… → Habillage du grimoire** propose **Standard** (le cuir bordeaux d’origine) et un thème
 par livre, accordé à son image de fond : **L’Antre de Zagor** (Sorcier : bleu-pétrole
 et braise), **Le Sous-bois de Darkwood** (Forêt : écorce, mousse et ambre) et
 **Le Port du Sable Noir** (Cité : vert bouteille, sang-de-bœuf et os). Par défaut,
@@ -119,7 +119,7 @@ chargement d’un des cinq emplacements. Une sauvegarde automatique technique
 (`autosave.json`) est écrite après les actions, mais elle n’est pas proposée
 comme sixième emplacement et n’est pas reprise automatiquement.
 
-**⚙ → Ambiance sonore…** permet de couper les effets sonores, d’activer
+**⚙ → Ambiances…** permet de couper les effets sonores, d’activer
 l’ambiance de fond (caverne, ville dans la Cité, forêt dans la Forêt), de régler la musique d’accueil ou de la garder pendant la partie, de jouer sa propre musique
 (dossier `musique_perso`), d’écouter chaque effet et
 de choisir l’habillage du grimoire. Une annonce propre au livre accompagne sa
@@ -253,7 +253,7 @@ création du personnage et le choix d’une sauvegarde. À l’entrée dans l’
 le volume diminue sur dix secondes puis la musique s’arrête, sauf si la case
 **Garder la musique en fond pendant la partie** est cochée (décochée par défaut) :
 la boucle continue alors toute la session, sous les effets, les dés et les combats. Le curseur rétro
-**Musique d’accueil** de **⚙ → Ambiance sonore…** règle et mémorise le volume indépendamment des effets et
+**Musique d’accueil** de **⚙ → Ambiances…** règle et mémorise le volume indépendamment des effets et
 de l’ambiance de caverne (0 % = muet). Par défaut, 70 % du niveau précédent est utilisé.
 Le M4A audio est diffusé en continu par Qt Multimedia
 et inclus automatiquement dans la distribution Windows avec les autres assets.
@@ -262,7 +262,7 @@ solliciter les décodeurs vidéo. La licence des packs CC0 d’effets sonores ne
 
 **Ma musique.** Le dossier `musique_perso`, à côté de `main.py` (ou de `Bifurk.exe`) et créé
 au démarrage s’il manque, accueille vos propres morceaux (MP3, M4A, AAC, OGG, OGA, OPUS, FLAC,
-WAV, WMA ; sous-dossiers ignorés). La case **Jouer ma musique (dossier musique_perso)**, décochée
+WAV, WMA ; sous-dossiers ignorés). La case **Jouer ma musique** (dossier `musique_perso`), décochée
 par défaut, les fait enchaîner en ordre aléatoire à la place de FantasyFair : chaque morceau
 passe une fois avant un nouveau tirage, jamais deux fois de suite. Le bouton **Ouvrir le dossier**
 l’affiche dans l’explorateur. Le dossier est relu à chaque reprise et à chaque tour complet ; un

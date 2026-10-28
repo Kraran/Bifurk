@@ -5,8 +5,8 @@ Deposez ici vos propres morceaux pour les entendre en fond sonore.
 
 1. Copiez vos fichiers audio directement dans ce dossier musique_perso
    (les sous-dossiers ne sont pas lus).
-2. Dans Bifurk, ouvrez le menu (roue dentee) > Ambiance sonore...
-   puis cochez "Jouer ma musique (dossier musique_perso)".
+2. Dans Bifurk, ouvrez le menu (roue dentee) > Ambiances...
+   puis cochez "Jouer ma musique".
    Le bouton "Ouvrir le dossier" affiche ce dossier.
 
 Formats reconnus : MP3, M4A, AAC, OGG, OGA, OPUS, FLAC, WAV, WMA.
