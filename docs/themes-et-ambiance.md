@@ -12,8 +12,13 @@ Au démarrage, il ouvre directement l’introduction du dernier grimoire
 importé ; s’il manque, le sélecteur permet d’en importer un. Le PDF d’origine peut
 être déplacé ou supprimé après import. La progression n’est pas reprise automatiquement.
 
-**⚙ Réglages → Ambiance sonore…** active ou coupe les sons, règle la musique d’accueil
-et choisit le thème, comme **⚙ Réglages → Thème**. Ces préférences
+**⚙ Réglages → Ambiances…** range les réglages en cinq sections alignées sur la même
+grille (libellé, réglage, valeur ou bouton) : **Effets sonores**, **Ambiance de fond**,
+**Musique d’accueil**, **Lecture à voix haute** et **Habillage du grimoire** (le thème).
+Deux colonnes sur un écran large, une seule colonne défilante sinon ; tous les curseurs de
+volume partagent le même habillage (`QSlider[volume="true"]`). Le menu Réglages n’a plus de
+sous-menu : ses pictogrammes sont peints dans l’or du thème (`grimoire_chrome.menu_icon`)
+et repeints à chaque changement de thème. Ces préférences
 et le chemin relatif du dernier livre sont conservés dans
 `donnees/parametres/preferences.json`, indépendamment des sauvegardes de partie.
 
@@ -42,7 +47,7 @@ et un thème par livre, déclaré par la clé `book` de son manifeste :
 Forêt) et **Le Port du Sable Noir** (`cite`, Cité). Sans thème mémorisé (choix
 **Selon le grimoire ouvert**), l’ouverture d’un livre ou d’une de ses sauvegardes
 affiche son thème ; un livre non reconnu et l’accueil gardent Standard. Choisir un
-thème dans **Réglages → Thème** le mémorise (`theme` dans `preferences.json`) : il
+thème dans **Réglages → Ambiances…** le mémorise (`theme` dans `preferences.json`) : il
 s’applique alors à tous les livres, jusqu’au retour à **Selon le grimoire ouvert**.
 
 Les thèmes de livre dérivent de Standard (`"base": "grimoire"`) : ils reprennent son
@@ -69,7 +74,7 @@ Les thèmes sont découverts au lancement dans `assets/themes/*/theme.json`. Le 
 simple est de dériver Standard comme les thèmes de livre ci-dessus. Pour un thème
 entièrement nouveau, copier le dossier `grimoire` dans un nouveau dossier et modifier :
 
-- `id` (identifiant unique) et `name` (nom affiché dans **Ambiance sonore…**) ;
+- `id` (identifiant unique) et `name` (nom affiché dans **Ambiances…**) ;
 - `stylesheet`, chemin du fichier QSS relatif au manifeste ;
 - `assets.parchment`, `assets.leather`, `assets.scene`, chemins des textures et du décor ;
 - `assets.checkmark`, dessin SVG de la coche des cases du thème fourni ;
@@ -129,7 +134,7 @@ Objet, pièces, serrure, potion, blessure, victoire et mort ont chacun un effet.
 Une seule indication de résultat est jouée par action pour limiter les superpositions.
 Ni annulation ni chargement ne rejouent ces effets.
 
-Dans **⚙ → Ambiance sonore…**, une liste et le bouton **Écouter** permettent de tester chaque
+Dans **⚙ → Ambiances…**, une liste et le bouton **Écouter** permettent de tester chaque
 son individuellement. L’**ambiance de fond** a sa propre commande,
 indépendante des effets, et reste désactivée par défaut. La boucle joue à faible volume :
 la caverne, la ville quand La Cité des Voleurs est ouverte, la forêt pour La Forêt de la Malédiction
@@ -181,7 +186,7 @@ combats se mélangent par-dessus sans atténuation : la musique plafonne à 0,45
 (0,315 par défaut) quand les effets jouent entre 0,50 et 0,80. Cocher la case en cours de partie relance la
 musique ; la décocher reprend le fondu habituel.
 
-La case **Jouer ma musique (dossier musique_perso)** (`custom_music`, décochée par défaut)
+La case **Jouer ma musique** (dossier `musique_perso`) (`custom_music`, décochée par défaut)
 remplace FantasyFair par les fichiers audio du dossier `musique_perso` (à côté de `main.py`
 ou de `Bifurk.exe`, voir `APP_DIR`), lus à plat. `custom_music.py` filtre les extensions et
 tire les morceaux « sans remise » (sac mélangé, sans doublon à la jointure de deux tirages) avec
@@ -216,7 +221,7 @@ git pull --ff-only
 Importer un livre, commencer et sauvegarder dans un emplacement. Relancer Bifurk :
 choisir la sauvegarde dans la fenêtre d’accueil, ou Nouvelle partie pour retrouver
 l’introduction. Vérifier la suppression avec refus puis confirmation.
-Dans **⚙ → Ambiance sonore…**, tester les effets avec **Écouter**, puis une page et un combat réel.
+Dans **⚙ → Ambiances…**, tester les effets avec **Écouter**, puis une page et un combat réel.
 Vérifier le choc avant la boîte de résultat et la réaction immédiate de la page.
 Activer puis couper la caverne séparément des effets ; ouvrir la Cité puis la Forêt : la ville puis la forêt la remplacent. Cocher **Garder la musique en fond
 pendant la partie**, commencer l’aventure : la musique continue. Relancer pour vérifier la mémorisation.
