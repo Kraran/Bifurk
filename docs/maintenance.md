@@ -1,6 +1,6 @@
 # Maintenir Bifurk
 
-Ce guide décrit le code de la version 1.3.1. Les docstrings dans les modules
+Ce guide décrit le code de la version 1.3.2. Les docstrings dans les modules
 précisent les responsabilités, les effets de bord et les contraintes locales.
 Les noms des méthodes et des tests permettent de retrouver les scénarios concernés.
 
