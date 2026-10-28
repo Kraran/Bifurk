@@ -46,11 +46,14 @@ from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, Page
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route, WEAPON_BONUSES
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale, QUrl
-from PySide6.QtGui import QActionGroup, QDesktopServices, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
+from PySide6.QtGui import (QActionGroup, QDesktopServices, QFont, QFontDatabase, QTextCursor, QPixmap,
+                          QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument,
+                          QPainter, QColor)
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QAbstractSpinBox, QTextEdit, QPlainTextEdit,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
-    QGroupBox, QSlider, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QTabWidget, QSizePolicy, QMenu)
+    QGroupBox, QSlider, QLineEdit, QListWidget, QListWidgetItem, QInputDialog, QCheckBox, QSplitter, QComboBox, QDialog, QDialogButtonBox, QScrollArea, QFrame, QTabWidget, QSizePolicy, QMenu,
+    QStyle, QStyleOptionSlider)
 
 # Répertoire portable : à côté de l'exécutable empaqueté ou du script.
 APP_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
@@ -84,6 +87,44 @@ def within_directory(path, directory):
         return True
     except ValueError:
         return False
+
+
+def menu_icon(symbol):
+    """Icône de menu dans un carré fixe : le texte des lignes reste sur une seule colonne."""
+    size = 18
+    image = QPixmap(size, size)
+    image.fill(Qt.transparent)
+    painter = QPainter(image)
+    painter.setRenderHint(QPainter.TextAntialiasing)
+    font = QFont("Segoe UI Emoji")
+    font.setPixelSize(14)
+    painter.setFont(font)
+    painter.drawText(image.rect(), int(Qt.AlignCenter), symbol)
+    painter.end()
+    return QIcon(image)
+
+
+class NotchSlider(QSlider):
+    """Curseur avec un cran doré à une valeur, sans bande sous le rail."""
+
+    def __init__(self, notch, parent=None):
+        super().__init__(Qt.Horizontal, parent)
+        self._notch = notch
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        span = self.maximum() - self.minimum()
+        if span <= 0:
+            return
+        option = QStyleOptionSlider()
+        self.initStyleOption(option)
+        groove = self.style().subControlRect(QStyle.CC_Slider, option, QStyle.SC_SliderGroove, self)
+        x = groove.left() + (self._notch - self.minimum()) / span * groove.width()
+        painter = QPainter(self)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor("#f0d39a"))
+        painter.drawRect(int(x) - 1, groove.top(), 2, max(1, groove.height()))
+        painter.end()
 
 
 def import_book(source, digest=None):
@@ -972,14 +1013,14 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         voice_row.addWidget(voice, 1)
         audio_layout.addLayout(voice_row)
 
-        def volume_row(title, name, maximum, value, tick):
+        def volume_row(title, name, maximum, value, tick, notch=None):
             """Libellé, rail et pourcentage sur la même grille pour les deux volumes."""
             row = QHBoxLayout()
             row.setSpacing(12)
             label = QLabel(title)
             label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             label.setMinimumWidth(158)
-            slider = QSlider(Qt.Horizontal)
+            slider = NotchSlider(notch) if notch is not None else QSlider(Qt.Horizontal)
             slider.setObjectName(name)
             slider.setAccessibleName(title)
             slider.setRange(0, maximum)
@@ -1000,7 +1041,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
 
         tts_row, tts_volume, tts_value = volume_row(
             'Volume de la voix', 'ttsVolume', 150,
-            int(self.preferences.get('tts_volume', 80)), 50)
+            int(self.preferences.get('tts_volume', 80)), 50, notch=100)
         def set_tts_volume(percent):
             """Appliquer aussitôt, même pendant une lecture ; mémoriser à la fermeture."""
             self.tts.set_volume(percent / 100)
@@ -1008,29 +1049,10 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
             self.preferences['tts_volume'] = percent
             volume_changed.append(True)
         tts_value.setText(f'{tts_volume.value()} %' if tts_volume.value() else 'Muet')
+        tts_volume.setToolTip('Le cran doré marque 100 %, le volume normal. '
+                              'Au-delà, la voix est renforcée à la prochaine lecture.')
         tts_volume.valueChanged.connect(set_tts_volume)
         audio_layout.addLayout(tts_row)
-        # Le rail va jusqu’à 150 : « 100 % » est aux deux tiers, pas au milieu.
-        mark_row = QHBoxLayout()
-        mark_row.setSpacing(12)
-        mark_indent = QWidget(dialog)
-        mark_indent.setFixedWidth(158)
-        mark_row.addWidget(mark_indent)
-        mark_scale = QHBoxLayout()
-        mark_scale.setContentsMargins(0, 0, 0, 0)
-        mark_scale.setSpacing(0)
-        mark = QLabel('100 %')
-        mark.setObjectName('ttsVolumeMark')
-        mark.setAlignment(Qt.AlignCenter)
-        mark.setToolTip('Volume normal. Au-delà, la voix est renforcée à la prochaine lecture.')
-        mark_scale.addWidget(QWidget(dialog), 100)
-        mark_scale.addWidget(mark)
-        mark_scale.addWidget(QWidget(dialog), 50)
-        mark_row.addLayout(mark_scale, 1)
-        mark_tail = QWidget(dialog)
-        mark_tail.setFixedWidth(72)
-        mark_row.addWidget(mark_tail)
-        audio_layout.addLayout(mark_row)
         music_row, music, music_value = volume_row(
             'Musique d’accueil', 'musicVolume', 100, self.intro_music.volume_percent, 25)
         def set_music_volume(percent):
@@ -1458,19 +1480,28 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self.settings_button.setAccessibleName("Réglages")
         settings_menu = QMenu(self.settings_button)
         settings_menu.setObjectName("settingsMenu")
-        settings_menu.addAction("Ambiance sonore…", self.show_ambience)
-        self._build_theme_menu(settings_menu.addMenu("Thème"))
+        settings_menu.setIconSize(QSize(18, 18))
+        ambience_action = settings_menu.addAction("Ambiance sonore…", self.show_ambience)
+        ambience_action.setIcon(menu_icon("♫"))
+        theme_menu = settings_menu.addMenu("Thème")
+        theme_menu.menuAction().setIcon(menu_icon("🎨"))
+        self._build_theme_menu(theme_menu)
         self.fullscreen_action = settings_menu.addAction("Plein écran", self.toggle_fullscreen)
+        self.fullscreen_action.setIcon(menu_icon("⛶"))
         self.fullscreen_action.setShortcut(QKeySequence("F11"))
         self.reading_action = settings_menu.addAction("Mode lecture")
+        self.reading_action.setIcon(menu_icon("📖"))
         self.reading_action.setCheckable(True)
         self.reading_action.setShortcut(QKeySequence("F10"))
         self.reading_action.setToolTip("Masquer le bandeau et la fiche (F10 ou Échap pour revenir)")
         self.reading_action.triggered.connect(self.toggle_reading_mode)
-        settings_menu.addAction("Journal de la partie…", self.show_tracking)
-        settings_menu.addAction("À propos de Bifurk", self.show_about)
+        journal_action = settings_menu.addAction("Journal de la partie…", self.show_tracking)
+        journal_action.setIcon(menu_icon("📜"))
+        about_action = settings_menu.addAction("À propos de Bifurk", self.show_about)
+        about_action.setIcon(menu_icon("ⓘ"))
         settings_menu.addSeparator()
-        settings_menu.addAction("Quitter le jeu…", self.confirm_quit)
+        quit_action = settings_menu.addAction("Quitter le jeu…", self.confirm_quit)
+        quit_action.setIcon(menu_icon("⏻"))
         self.addAction(self.fullscreen_action)
         self.addAction(self.reading_action)
         self.settings_button.setMenu(settings_menu)
