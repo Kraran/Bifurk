@@ -2,12 +2,15 @@
 
 Exécuté après PyInstaller par BUILD_EXE.bat. La sélection est limitée aux fichiers
 livrés, jamais aux PDF, données ou fichiers temporaires présents dans le dépôt.
---draft nécessite GitHub CLI et n'effectue pas la publication publique.
+--draft nécessite GitHub CLI et n'effectue pas la publication publique : le brouillon
+reçoit le titre et les notes de la seule version courante (RELEASE_NOTES.md).
+--check affiche ce qui serait publié, sans rien envoyer (utilisé par PUBLISH_RELEASE.bat).
 """
 import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -133,15 +136,27 @@ def package(root=ROOT):
     return destination
 
 
-def draft(root=ROOT):
-    """Téléverser le ZIP existant et son empreinte dans une nouvelle release brouillon.
+def current_notes(root=ROOT):
+    """(titre, notes) de la section « # Bifurk <version> … » de RELEASE_NOTES.md.
 
-Ne pas reconstruire ici : l'archive doit être exactement celle testée. Sa révision
-Git enregistrée sert de cible au tag, même si la branche courante a changé.
-"""
-    root = Path(root)
-    archive = root / 'dist' / ARCHIVE_NAME
+    Le fichier garde l'historique de toutes les versions ; la release n'en reçoit
+    que la section courante, et son titre complet (« Bifurk 1.3.2 — … »)."""
+    text = (Path(root) / 'docs/windows/RELEASE_NOTES.md').read_text(encoding='utf-8')
+    for section in re.split(r'(?m)^# ', text)[1:]:
+        heading, _, body = section.partition('\n')
+        if re.fullmatch(rf'Bifurk {re.escape(APP_VERSION)}(\s+—.*)?', heading.strip()):
+            if not body.strip():
+                break
+            return heading.strip(), body.strip() + '\n'
+    raise ValueError(f'RELEASE_NOTES.md n’a pas de section « # Bifurk {APP_VERSION} — … » remplie.')
+
+
+def tested_archive(root=ROOT):
+    """ZIP courant, vérifié contre son empreinte et sa révision Git enregistrée."""
+    archive = Path(root) / 'dist' / ARCHIVE_NAME
     checksum = archive.with_suffix('.zip.sha256')
+    if not archive.is_file() or not checksum.is_file():
+        raise ValueError(f'{ARCHIVE_NAME} est absent : lancez BUILD_EXE.bat et testez le ZIP.')
     expected = checksum.read_text(encoding='ascii').split()[0]
     if sha256(archive) != expected:
         raise ValueError('Le ZIP a changé depuis sa préparation. Relancez BUILD_EXE.bat et testez-le.')
@@ -150,24 +165,53 @@ Git enregistrée sert de cible au tag, même si la branche courante a changé.
     commit = manifest.get('source_commit')
     if manifest.get('version') != APP_VERSION or not commit:
         raise ValueError('Recompilez depuis une révision Git propre avant de préparer une release.')
+    return archive, checksum, commit
+
+
+def check(root=ROOT):
+    """Résumé lisible de ce que --draft enverrait ; lève une erreur si quelque chose manque."""
+    archive, _checksum, commit = tested_archive(root)
+    title, notes = current_notes(root)
+    return '\n'.join([f'Version : v{APP_VERSION}', f'Titre   : {title}',
+                       f'Archive : dist\\{archive.name} ({archive.stat().st_size / 1e6:.1f} Mo)',
+                       f'Révision: {commit[:12]}', '', notes.rstrip()])
+
+
+def draft(root=ROOT):
+    """Téléverser le ZIP existant et son empreinte dans une nouvelle release brouillon.
+
+Ne pas reconstruire ici : l'archive doit être exactement celle testée. Sa révision
+Git enregistrée sert de cible au tag, même si la branche courante a changé.
+"""
+    root = Path(root)
+    archive, checksum, commit = tested_archive(root)
+    title, notes = current_notes(root)
     subprocess.run(['gh', 'auth', 'status'], check=True)
-    subprocess.run([
-        'gh', 'release', 'create', f'v{APP_VERSION}', str(archive), str(checksum),
-        '--repo', 'Kraran/Bifurk', '--draft', '--target', commit,
-        '--title', f'Bifurk {APP_VERSION}',
-        '--notes-file', str(root / 'docs/windows/RELEASE_NOTES.md'),
-    ], check=True)
+    handle, notes_file = tempfile.mkstemp(prefix='bifurk-notes-', suffix='.md')
+    try:
+        with os.fdopen(handle, 'w', encoding='utf-8') as stream:
+            stream.write(notes)
+        subprocess.run([
+            'gh', 'release', 'create', f'v{APP_VERSION}', str(archive), str(checksum),
+            '--repo', 'Kraran/Bifurk', '--draft', '--target', commit,
+            '--title', title, '--notes-file', notes_file,
+        ], check=True)
+    finally:
+        Path(notes_file).unlink(missing_ok=True)
 
 
 def main():
     """Choisir l'archivage local ou la préparation explicite d'un brouillon distant."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--draft', action='store_true', help='Créer un brouillon GitHub avec le ZIP déjà testé')
+    parser.add_argument('--check', action='store_true', help='Afficher ce qui serait publié, sans rien envoyer')
     args = parser.parse_args()
     try:
         if sys.platform != 'win32':
             raise ValueError('La distribution Windows doit être compilée et préparée sous Windows.')
-        if args.draft:
+        if args.check:
+            print(check())
+        elif args.draft:
             draft()
         else:
             print(f'Archive prête : {package()}')

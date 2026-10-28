@@ -73,7 +73,9 @@ class WindowsDistributionTests(unittest.TestCase):
             self.write(self.bundle / relative)
         for source in release.DOCUMENTS.values():
             self.write(self.root / source)
-        self.write(self.root / 'docs/windows/RELEASE_NOTES.md')
+        self.write(self.root / 'docs/windows/RELEASE_NOTES.md', (
+            f'# Bifurk {release.APP_VERSION} — Nouveautés de test\n\n## Nouveautés\n\n- Point actuel.\n\n'
+            '# Bifurk 0.9 — Ancienne\n\n- Point ancien.\n').encode('utf-8'))
 
     def write(self, path, data=b'test'):
         """Créer un fichier factice et ses parents dans le répertoire temporaire."""
@@ -158,6 +160,40 @@ class WindowsDistributionTests(unittest.TestCase):
         self.assertEqual(command[command.index('--target') + 1], 'a' * 40)
         self.assertIn(str(archive), command)
         self.assertEqual(release.sha256(archive), digest)
+        self.assertEqual(command[command.index('--title') + 1],
+                         f'Bifurk {release.APP_VERSION} — Nouveautés de test')
+        # Notes temporaires : seule la section de la version courante, puis effacées.
+        self.assertFalse(Path(command[command.index('--notes-file') + 1]).exists())
+
+    def test_draft_notes_hold_only_the_current_version(self):
+        title, notes = release.current_notes(self.root)
+        self.assertEqual(title, f'Bifurk {release.APP_VERSION} — Nouveautés de test')
+        self.assertIn('Point actuel.', notes)
+        self.assertNotIn('Point ancien.', notes)
+        sent = {}
+        def capture(command, check):
+            if '--notes-file' in command:
+                sent['notes'] = Path(command[command.index('--notes-file') + 1]).read_text(encoding='utf-8')
+        self.package()
+        with patch.object(release.subprocess, 'run', side_effect=capture):
+            release.draft(self.root)
+        self.assertEqual(sent['notes'], notes)
+
+    def test_check_summarises_without_sending_and_requires_notes(self):
+        self.package()
+        with patch.object(release.subprocess, 'run') as run:
+            summary = release.check(self.root)
+            run.assert_not_called()
+        self.assertIn(f'Version : v{release.APP_VERSION}', summary)
+        self.assertIn(release.ARCHIVE_NAME, summary)
+        self.assertIn('Point actuel.', summary)
+        self.write(self.root / 'docs/windows/RELEASE_NOTES.md', b'# Bifurk 0.9 \xe2\x80\x94 Ancienne\n\n- Point.\n')
+        with self.assertRaisesRegex(ValueError, 'RELEASE_NOTES.md'):
+            release.check(self.root)
+
+    def test_missing_archive_is_explained(self):
+        with self.assertRaisesRegex(ValueError, 'BUILD_EXE.bat'):
+            release.check(self.root)
 
     def test_changed_zip_or_uncommitted_sources_block_draft(self):
         archive = self.package(commit=None)
