@@ -50,6 +50,12 @@ test `offscreen` et `minimal` ; l’écoute doit être vérifiée sur un poste a
 
 ## Thèmes des grimoires
 
+La barre de titre Windows de chaque fenêtre suit le thème : fond cuir
+(`icon_background`), texte or (`gold`) et bordure (`frame`), envoyés à DWM
+(`main.set_native_titlebar`) à l’affichage, à la sortie du plein écran et à chaque
+changement de thème. Windows 11 applique ces couleurs ; Windows 10 n’offre que la
+barre sombre, demandée d’abord. Un refus est noté dans `donnees/parametres/fenetres.log`.
+
 Quatre thèmes sont fournis : **Standard** (`grimoire`, le cuir bordeaux d’origine)
 et un thème par livre, déclaré par la clé `book` de son manifeste :
 **L’Antre de Zagor** (`sorcier`, Sorcier), **Le Sous-bois de Darkwood** (`foret`,

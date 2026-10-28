@@ -73,6 +73,11 @@ Vérifier :
 6. Déplacement du dossier complet après fermeture : les données restent portables.
 7. Dossier `musique_perso` présent à côté de `Bifurk.exe` avec son `LISEZMOI.txt` ;
    option « Jouer ma musique » dans ⚙ → Ambiances… avec un morceau déposé.
+8. Barre de titre Windows : aux couleurs du thème (cuir, texte or) sur la fenêtre
+   principale après **Échap** (sortie du plein écran) et sur chaque fenêtre (Ambiances,
+   Charger, règles…), puis changée avec le thème. Windows 11 applique les couleurs ;
+   Windows 10 n'accepte qu'une barre sombre. En cas de refus, une ligne est écrite
+   dans `donnees/parametres/fenetres.log` (version de Windows, compilé ou source).
 
 Au premier lancement, `donnees` apparaît à côté de `Bifurk.exe`, **hors de
 `_internal`**. Pour une vérification d'autonomie complète, essayer aussi le ZIP

@@ -21,7 +21,7 @@ from grimoire_modules.fighting_fantasy.rules import POTION_STATS, POTION_DOSES
 from grimoire_modules.registry import available_modules, module_for_pdf, pdf_digest
 from rules_viewer import RulesDialog
 from grimoire_library import imported_grimoires, GrimoireLibraryDialog, ImportedGrimoire, cover_icon
-from themes import available_themes, set_active_theme
+from themes import available_themes, default_theme, set_active_theme
 import theme_palette
 from sound_effects import SoundBank, EFFECT_LABELS, SCENES, creature_sound
 from ambience_map import AmbienceMap, KEEP
@@ -48,7 +48,7 @@ from grimoire_chrome import (LeatherBanner, BannerDivider, MedallionButton, Page
 from grimoire_ui import GrimoireScene, inventory_icon, ChoiceCard, IlluminatedPage, IllustrationDialog, SingleLineTitle, theme_message_box
 from book_events import apply_option, verified_entry, apply_effects, resolve_roll, available_routes, equipped_weapon, equip_weapon, SHIELD_NAME, follow_catalogue_route, WEAPON_BONUSES
 from PySide6.QtCore import Qt, QEvent, QObject, QTimer, QSize, QTranslator, QLibraryInfo, QLocale, QUrl
-from PySide6.QtGui import QActionGroup, QDesktopServices, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
+from PySide6.QtGui import QActionGroup, QColor, QDesktopServices, QFontDatabase, QTextCursor, QPixmap, QImage, QIcon, QKeySequence, QShortcut, QTextCharFormat, QTextDocument
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QFileDialog, QMessageBox,
     QAbstractSpinBox, QTextEdit, QPlainTextEdit,
     QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton, QTextBrowser, QSpinBox,
@@ -324,12 +324,23 @@ def franciser_selecteur(dialog):
             widget.setAccessibleName(tooltips[accessible])
 
 
+def _has_native_titlebar(widget):
+    """Fenêtre de premier niveau avec une barre de titre Windows (ni menu, ni bulle, ni cadre absent)."""
+    return (isinstance(widget, QWidget) and widget.isWindow()
+            and widget.windowType() in (Qt.Window, Qt.Dialog)
+            and not widget.windowFlags() & Qt.FramelessWindowHint)
+
+
 class DialogThemeFilter(QObject):
-    """Habiller les fenêtres secondaires et remplacer leurs pictogrammes système."""
+    """Habiller les fenêtres secondaires et remplacer leurs pictogrammes système.
+
+    Toute fenêtre avec une barre de titre (dialogue, prologue, carte, illustration…)
+    reçoit aussi la barre native aux couleurs du thème dès son affichage."""
     def eventFilter(self, obj, event):
         """Habiller à l'affichage et différer la barre native, sans consommer l'événement."""
-        if event.type() == QEvent.Show and isinstance(obj, QDialog):
-            harmonize_standard_dialog(obj)
+        if event.type() == QEvent.Show and _has_native_titlebar(obj):
+            if isinstance(obj, QDialog):
+                harmonize_standard_dialog(obj)
             if isinstance(obj, QMessageBox):
                 # Avant la première peinture : aucun flash de l'icône bleue
                 # native, même pour les appels statiques information/question.
@@ -340,7 +351,7 @@ class DialogThemeFilter(QObject):
             deferred.setSingleShot(True)
             def finish_dialog():
                 if obj.isVisible():
-                    set_bronze_titlebar(obj)
+                    set_native_titlebar(obj)
                     if isinstance(obj, QMessageBox):
                         franciser_message(obj)
                 deferred.deleteLater()
@@ -349,21 +360,90 @@ class DialogThemeFilter(QObject):
         return False
 
 
-def set_bronze_titlebar(widget):
-    """Teinter la barre native avec DWM sous Windows ; ignorer les plateformes non prises en charge."""
-    if sys.platform != "win32":
-        return
-    try:
+# Attributs DWM (dwmapi.h). Windows 11 : couleurs de la bordure, du fond et du texte
+# de la barre ; Windows 10 n'a que le mode sombre (20, ou 19 avant la version 20H1).
+DWMWA_USE_IMMERSIVE_DARK_MODE = (20, 19)
+DWMWA_BORDER_COLOR, DWMWA_CAPTION_COLOR, DWMWA_TEXT_COLOR = 34, 35, 36
+_dwm_set_attribute = None
+_titlebar_failures = set()
+
+
+def _dwm():
+    """DwmSetWindowAttribute avec des types explicites (HWND 64 bits sous Windows x64)."""
+    global _dwm_set_attribute
+    if _dwm_set_attribute is None:
         import ctypes
-        hwnd = int(widget.winId())
-        dwm = ctypes.windll.dwmapi
-        for attribute, value in ((35, 0x001B2D4B), (36, 0x00BEE1F2)):
-            # Attributs DWM : 35 = fond du titre, 36 = couleur du texte.
-            # Windows attend un COLORREF (0x00BBGGRR), pas une couleur CSS RGB.
-            color = ctypes.c_uint32(value)
-            dwm.DwmSetWindowAttribute(hwnd, attribute, ctypes.byref(color), ctypes.sizeof(color))
-    except Exception:
+        from ctypes import wintypes
+        function = ctypes.WinDLL('dwmapi').DwmSetWindowAttribute
+        function.argtypes = [wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD]
+        function.restype = ctypes.c_long   # HRESULT : 0 si accepté.
+        _dwm_set_attribute = function
+    return _dwm_set_attribute
+
+
+def _colorref(color):
+    """QColor ou « #rrggbb » → COLORREF Windows (0x00BBGGRR)."""
+    color = QColor(color)
+    return color.red() | color.green() << 8 | color.blue() << 16
+
+
+def titlebar_colors(theme):
+    """(fond, texte, bordure) de la barre native : le cuir, l'or et le cadre du thème."""
+    return (theme.color('icon_background'), theme.color('gold'), theme.color('frame'))
+
+
+def set_native_titlebar(widget, theme=None):
+    """Teinter la barre de titre Windows aux couleurs du thème ; sans effet ailleurs.
+
+    Le mode sombre est demandé d'abord (seul réglage de Windows 10), puis les
+    couleurs exactes (Windows 11). Un refus est noté une fois dans le journal
+    donnees/parametres/fenetres.log, pour diagnostiquer une version compilée."""
+    if sys.platform != "win32":
+        return False
+    import ctypes
+    try:
+        function = _dwm()
+        hwnd = ctypes.c_void_p(int(widget.winId()))
+        dark = ctypes.c_int(1)
+        results = {}
+        for attribute in DWMWA_USE_IMMERSIVE_DARK_MODE:
+            results[attribute] = function(hwnd, attribute, ctypes.byref(dark), ctypes.sizeof(dark))
+            if results[attribute] == 0:
+                break
+        caption, text, border = titlebar_colors(theme or default_theme())
+        for attribute, color in ((DWMWA_CAPTION_COLOR, caption), (DWMWA_TEXT_COLOR, text),
+                                 (DWMWA_BORDER_COLOR, border)):
+            value = ctypes.c_uint32(_colorref(color))
+            results[attribute] = function(hwnd, attribute, ctypes.byref(value), ctypes.sizeof(value))
+    except Exception as exc:  # noqa: BLE001 - la barre native ne doit jamais bloquer le jeu
+        _note_titlebar_failure(f'exception {exc!r}')
+        return False
+    refused = {attribute: result for attribute, result in results.items() if result != 0}
+    if results.get(DWMWA_CAPTION_COLOR) != 0:
+        _note_titlebar_failure(f'DWM refus {refused}')
+    return results.get(DWMWA_CAPTION_COLOR) == 0
+
+
+def _note_titlebar_failure(message):
+    """Journaliser un refus DWM une seule fois par session ; ne jamais lever."""
+    if message in _titlebar_failures:
+        return
+    _titlebar_failures.add(message)
+    try:
+        SETTINGS_DIR.mkdir(parents=True, exist_ok=True)
+        with (SETTINGS_DIR / 'fenetres.log').open('a', encoding='utf-8') as log:
+            log.write(f'{datetime.now():%Y-%m-%d %H:%M:%S} barre de titre : {message} '
+                      f'(Windows {sys.getwindowsversion().build if hasattr(sys, "getwindowsversion") else "?"}, '
+                      f'{"compilé" if getattr(sys, "frozen", False) else "source"})\n')
+    except OSError:
         pass
+
+
+def refresh_native_titlebars(theme=None):
+    """Repeindre la barre de toutes les fenêtres visibles (changement de thème)."""
+    for widget in QApplication.topLevelWidgets():
+        if widget.isVisible() and _has_native_titlebar(widget):
+            set_native_titlebar(widget, theme)
 
 
 class RulesLog(QLabel):
@@ -1379,6 +1459,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
                 widget.restyle_theme()
         self._refresh_character()
         self._refresh_menu_icons()
+        refresh_native_titlebars(self.theme)
         if rerender:
             if self.current_paragraph is not None and self.character['endurance'] <= 0:
                 self._show_death_page()
@@ -1406,7 +1487,7 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         if hasattr(self, "fullscreen_btn"):
             self.fullscreen_btn.setText("▣  Quitter plein écran" if self._fullscreen else "⛶  Plein écran")
         if hasattr(self, "fullscreen_action"):
-            self.fullscreen_action.setText("▣  Quitter le plein écran\tF11" if self._fullscreen else "⛶  Plein écran\tF11")
+            self.fullscreen_action.setText("Quitter le plein écran\tF11" if self._fullscreen else "Plein écran\tF11")
 
     def keyPressEvent(self, event):
         """Traiter les raccourcis de fenêtre puis déléguer les autres touches à Qt."""
@@ -1422,6 +1503,9 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         super().changeEvent(event)
         if event.type() == QEvent.WindowStateChange:
             self._update_fullscreen_button()
+            # Sortie du plein écran : la barre réapparaît, la redemander au thème.
+            if not self.isFullScreen():
+                self._set_windows_titlebar_color()
 
     def showEvent(self, event):
         """Appliquer les ajustements natifs une fois la fenêtre effectivement créée."""
@@ -1437,8 +1521,8 @@ class MainWindow(QMainWindow, ModuleActions, CarnetMixin):
         self._set_windows_titlebar_color()
 
     def _set_windows_titlebar_color(self):
-        """Appliquer la teinte native au handle Windows de la fenêtre principale."""
-        set_bronze_titlebar(self)
+        """Appliquer la teinte native du thème au handle Windows de la fenêtre principale."""
+        set_native_titlebar(self, getattr(self, 'theme', None))
 
     def _load_fonts(self):
         """Charge les polices embarquées, sans dépendre des polices système."""
