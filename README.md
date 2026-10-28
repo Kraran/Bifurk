@@ -18,7 +18,7 @@ récit et peuvent être masquées ou agrandies ; **A−** / **A+** règlent la t
 - **📖 Règles** (F1) affiche les pages de règles du PDF ouvert.
 - **🗺 Carte d’exploration** ouvre la carte des passages visités.
 - **✦ Grimoires…** choisit un grimoire déjà importé ou ajoute un livre PDF.
-- **⚙ Réglages** regroupe **Ambiances…** (sons, musique, voix et thème, voir ci-dessous), **Plein écran** (F11),
+- **⚙ Réglages** regroupe **Ambiances…** (sons, musique, voix et thème, voir ci-dessous), **Manette…**, **Plein écran** (F11),
   **Mode lecture** (F10), **Journal de la partie…**, **À propos de Bifurk**
   et **Quitter le jeu…**, qui demande confirmation puis ferme les fenêtres et
   arrête l’audio. Sauvegardez votre progression avant de quitter.
@@ -144,6 +144,28 @@ bandeaux et les couleurs du grimoire, des sauvegardes au sélecteur de PDF.
 | **N** | Ouvrir ou fermer le carnet |
 | **B** | Marquer ou démarquer le paragraphe courant |
 | **F2** | Renommer le marque-page qui a le focus dans le carnet |
+
+### Manette
+
+Sous Windows, une manette XInput (Xbox et compatibles ; PlayStation via Steam ou
+DS4Windows) pilote tout le jeu, sauf la saisie du nom de l’aventurier. Un halo doré
+montre la sélection ; il s’efface dès que la souris ou le clavier reprennent la main.
+**Réglages → Manette…** rappelle les commandes et permet de désactiver la manette.
+
+| Bouton | Action |
+| --- | --- |
+| **Croix** ou **stick gauche** | Se déplacer entre les choix, boutons et objets |
+| **A** | Valider (un objet de la sacoche ouvre son menu) |
+| **B** | Retour : fermer une fenêtre, un menu, le carnet ou le mode lecture |
+| **X** | Lire le paragraphe à voix haute |
+| **Y** | Annuler la dernière action |
+| **LB / RB** | Passer au bandeau, à la page ou à la fiche |
+| **LT / RT** | Réduire ou agrandir le texte |
+| **Stick droit** | Faire défiler le texte ou la carte (clic : carnet) |
+| **Menu** | Réglages |
+| **Affichage** | Mode lecture |
+
+Détails techniques : [docs/manette.md](docs/manette.md).
 
 ### Livres pris en charge
 

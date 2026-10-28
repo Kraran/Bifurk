@@ -326,7 +326,7 @@ class GrimoireInterfaceTests(unittest.TestCase):
         w = self.window
         actions = [a for a in w.settings_button.menu().actions() if not a.isSeparator()]
         self.assertEqual([a.text() for a in actions],
-                         ['Ambiances…', 'Plein écran\tF11', 'Mode lecture\tF10',
+                         ['Ambiances…', 'Manette…', 'Plein écran\tF11', 'Mode lecture\tF10',
                           'Journal de la partie…', 'À propos de Bifurk', 'Quitter le jeu…'])
         self.assertTrue(all(not a.icon().isNull() and a.menu() is None for a in actions))
         before = actions[0].icon().pixmap(20, 20).toImage()

@@ -268,6 +268,15 @@ def draw_icon(p, kind, c, s, color=None):
         p.drawEllipse(QPointF(x, y - s * .42), s * .12, s * .12)
         p.setPen(QPen(color, max(1.5, s * .16), Qt.SolidLine, Qt.RoundCap))
         p.drawLine(QPointF(x, y - s * .12), QPointF(x, y + s * .48))
+    elif kind == 'gamepad':
+        # Manette : corps arrondi, croix à gauche, deux boutons à droite.
+        p.drawRoundedRect(QRectF(x - s * .95, y - s * .5, s * 1.9, s * 1.05), s * .45, s * .45)
+        p.drawLine(QPointF(x - s * .62, y), QPointF(x - s * .22, y))
+        p.drawLine(QPointF(x - s * .42, y - s * .2), QPointF(x - s * .42, y + s * .2))
+        p.setBrush(color)
+        p.setPen(Qt.NoPen)
+        for bx, by in ((x + s * .32, y + s * .1), (x + s * .58, y - s * .12)):
+            p.drawEllipse(QPointF(bx, by), s * .11, s * .11)
     elif kind == 'quit':
         p.drawArc(QRectF(x - s * .8, y - s * .7, s * 1.6, s * 1.6), 120 * 16, 300 * 16)
         p.drawLine(QPointF(x, y - s * .95), QPointF(x, y - s * .05))
