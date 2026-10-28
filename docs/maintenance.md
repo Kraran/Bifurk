@@ -8,7 +8,14 @@ Les noms des méthodes et des tests permettent de retrouver les scénarios conce
 
 | Fichier | Responsabilité | Point d'entrée à lire |
 | --- | --- | --- |
-| `main.py` | Démarrage Qt, contrôleur, lecture, historique et persistance | `main`, `MainWindow`, `go_to`, `_track_action` |
+| `main.py` | Démarrage Qt, contrôleur, lecture, fiche, combats et historique | `main`, `MainWindow`, `go_to`, `_track_action` |
+| `fenetre/construction.py` | Construction des widgets : bandeau, page, fiche, champs du moteur | `ConstructionMixin._build_ui` |
+| `fenetre/sauvegardes.py` | Préférences, sauvegardes, autosauvegarde et chargement transactionnel | `save_game`, `load_game`, `_save_data` |
+| `fenetre/demarrage.py` | Film, menu de départ, bibliothèque, nouvelle partie, fermeture en fondu | `_run_startup_menu`, `closeEvent` |
+| `fenetre/ambiances.py` | Lecture vocale, ambiance par paragraphe, victoire, fenêtre Ambiances | `show_ambience`, `_ambience_follow_paragraph` |
+| `fenetre/apparence.py` | Thèmes, plein écran, polices et rendu du texte | `_activate_theme`, `_rerender_reader` |
+| `fenetre/disposition.py` | Illustration, tiroir de la fiche, mode lecture, densité | `_apply_layout_mode`, `_apply_tight_layout` |
+| `fenetre/manette.py`, `gamepad.py` | Manette : lecture XInput, navigation, halo, crochets du jeu | `Gamepad`, `gamepad_command` |
 | `book_events.py` | Calculs déterministes et effets du catalogue | `apply_effects`, `condition_met`, `apply_entry` |
 | `grimoire_modules/registry.py` | Manifestes et reconnaissance des éditions | `module_for_pdf`, `available_modules` |
 | `grimoire_modules/fighting_fantasy/` | Règles et commandes partagées de Défis Fantastiques | `FightingFantasyActions`, `rules`, `adventure` |
@@ -43,6 +50,15 @@ Les interactions du Sorcier se trouvent dans `grimoire_modules/sorcier/`.
 Voir [Modules de grimoires](modules-grimoires.md). Ce mixin suppose les services et attributs
 de `MainWindow` ; il ne représente pas une partie autonome. `book_events` ne dépend
 pas de Qt : commencer par ce module pour comprendre une règle calculable.
+
+`MainWindow` est découpée en mixins (`fenetre/*.py`), placés avant `QMainWindow`
+dans ses bases pour que leurs `keyPressEvent`, `resizeEvent` ou `closeEvent` priment.
+Ils n'ont ni `__init__` ni état propre. Les noms définis dans `main.py` (dossiers,
+`resolve_book_reference`…) et ceux que les tests remplacent par `patch('main.X')`
+(`SaveSlotsDialog`, `QMenu`, `CombatDialog`, `module_for_pdf`, `read_save`…) y sont lus
+à l'exécution par `import main as bifurk` puis `bifurk.X` : un `patch` sur `main`
+reste donc effectif. Lancé par `python main.py`, le fichier s'enregistre aussi sous
+le nom `main` (`sys.modules`) avant d'importer les mixins, pour n'être chargé qu'une fois.
 
 ## Démarrage et création
 
