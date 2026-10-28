@@ -4,9 +4,13 @@ Le contrôleur fournit des faces déjà tirées : ce module ne consomme aucun ha
 et ne décide jamais d'une règle. Les solides et leurs marques sont des coordonnées
 3D projetées par QPainter ; la trajectoire interpolée se termine sur la face reçue.
 Ce rendu logiciel fonctionne aussi dans la distribution PyInstaller et sans GPU.
+Les D6 ont des arêtes arrondies, un éclairage venu d'en haut à gauche et des points
+creusés (ombre intérieure, fond éclairé, liseré clair) ; voir DiceCanvas._draw_die.
 """
 import math
 from itertools import combinations
+
+import numpy as np
 
 from PySide6.QtCore import QElapsedTimer, QPointF, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen, QPolygonF, QRadialGradient
@@ -164,12 +168,57 @@ class DiceCanvas(QWidget):
         self.update()
         self.finished.emit()
 
+    # Dé aux arêtes arrondies : cube de demi-arête 1 « balayé » par une sphère de rayon
+    # EDGE_RADIUS. Chaque face plane couvre FLAT ; les points restent dans cette zone.
+    EDGE_RADIUS = .2
+    FLAT = 1 - EDGE_RADIUS
+    LIGHT = (-.45, -.6, .66)          # Lumière en haut à gauche, tournée vers la caméra.
+    BEVEL_STEPS = 9                  # Tranches du dégradé de l'arête vers la face.
+
+    @staticmethod
+    def _shade(color, factor):
+        """Éclaircir ou assombrir une couleur sans changer sa teinte."""
+        c = QColor(color)
+        return QColor.fromRgbF(min(1, c.redF() * factor), min(1, c.greenF() * factor),
+                               min(1, c.blueF() * factor))
+
+    @staticmethod
+    def _hull(points):
+        """Enveloppe convexe (chaîne monotone) des points projetés de la silhouette."""
+        pts = sorted({(round(p.x(), 2), round(p.y(), 2)) for p in points})
+        if len(pts) < 3:
+            return [QPointF(x, y) for x, y in pts]
+
+        def cross(o, a, b):
+            return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+        lower, upper = [], []
+        for p in pts:
+            while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:
+                lower.pop()
+            lower.append(p)
+        for p in reversed(pts):
+            while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:
+                upper.pop()
+            upper.append(p)
+        return [QPointF(x, y) for x, y in lower[:-1] + upper[:-1]]
+
     def _draw_die(self, painter, value, index, center, size):
-        """Trier les faces visibles par profondeur et projeter leurs points sur leur propre plan."""
-        progress = self.progress
+        """Dé réaliste : silhouette arrondie, faces éclairées raccordées par un dégradé
+        d'arête, points creusés (ombre intérieure, fond éclairé, liseré clair).
+
+        Les faces visibles sont triées par profondeur ; chaque forme est une tranche exacte
+        du cube arrondi, projetée sur son propre plan : rien ne dépasse de la silhouette."""
+        radius, flat = self.EDGE_RADIUS, self.FLAT
+        shade = self._shade
+        # La rotation est linéaire : trois vecteurs de base calculés une fois par image
+        # suffisent, au lieu de recalculer les angles pour chacun des centaines de points.
+        ex, ey, ez = (transformed(axis, value, self.progress, index)
+                      for axis in ((1, 0, 0), (0, 1, 0), (0, 0, 1)))
 
         def transform(point):
-            return transformed(point, value, progress, index)
+            x, y, z = point
+            return (x * ex[0] + y * ey[0] + z * ez[0], x * ex[1] + y * ey[1] + z * ez[1],
+                    x * ex[2] + y * ey[2] + z * ez[2])
 
         def project(point):
             x, y, z = transform(point)
@@ -177,43 +226,116 @@ class DiceCanvas(QWidget):
             perspective = 6 / (6 - z)
             return QPointF(center.x() + x * size * perspective, center.y() + y * size * perspective)
 
-        def on_face(normal, u, v, x, y):
-            return tuple(normal[k] + u[k] * x + v[k] * y for k in range(3))
+        matrix = np.array((ex, ey, ez)).T   # Colonnes : images des axes du cube.
+
+        def face_polygon(normal, u, v, xs, ys, lift=1.0):
+            """Projeter d'un bloc (NumPy) des points (xs, ys) du plan d'une face."""
+            local = (np.outer(xs, u) + np.outer(ys, v) + np.multiply(normal, lift))
+            x, y, z = (local @ matrix.T).T
+            k = size * 6 / (6 - z)
+            return QPolygonF([QPointF(px, py) for px, py in
+                              zip(center.x() + x * k, center.y() + y * k)])
+
+        corners_template = [(1, 1, 0), (-1, 1, 90), (-1, -1, 180), (1, -1, 270)]
+        arc = np.radians(np.arange(7) * 15)
+
+        def rounded_square(normal, u, v, half, corner, lift):
+            """Carré aux coins arrondis posé sur le plan de la face, à la hauteur lift."""
+            inner = half - corner
+            xs = np.concatenate([sx * inner + corner * np.cos(arc + math.radians(start))
+                                 for sx, _, start in corners_template])
+            ys = np.concatenate([sy * inner + corner * np.sin(arc + math.radians(start))
+                                 for _, sy, start in corners_template])
+            return face_polygon(normal, u, v, xs, ys, lift)
+
+        ring = np.arange(24) * math.tau / 24
+        ring_cos, ring_sin = np.cos(ring), np.sin(ring)
+
+        lx, ly, lz = self.LIGHT
+        norm = math.sqrt(lx * lx + ly * ly + lz * lz)
+        light = (lx / norm, ly / norm, lz / norm)
+
+        def lighting(normal):
+            nx, ny, nz = transform(normal)
+            return max(0.0, nx * light[0] + ny * light[1] + nz * light[2])
+
+        base = QColor(self.color)
+        # 1. Silhouette : chaque sommet arrondi se projette en un disque ; l'enveloppe des
+        #    huit disques dessine le contour, ombré du coin éclairé vers le coin opposé.
+        outline_points = []
+        for sx in (-1, 1):
+            for sy in (-1, 1):
+                for sz in (-1, 1):
+                    corner = project((sx * flat, sy * flat, sz * flat))
+                    _, _, z = transform((sx * flat, sy * flat, sz * flat))
+                    r = radius * size * 6 / (6 - z)
+                    outline_points.extend(QPointF(corner.x() + r * math.cos(a * math.tau / 20),
+                                                  corner.y() + r * math.sin(a * math.tau / 20))
+                                          for a in range(20))
+        outline = QPolygonF(self._hull(outline_points))
+        body = QRadialGradient(center + QPointF(-size * .45, -size * .55), size * 2.4)
+        body.setColorAt(0, shade(base, .9))
+        body.setColorAt(.55, shade(base, .7))
+        body.setColorAt(1, shade(base, .5))
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(body)
+        painter.drawPolygon(outline)
 
         faces = []
         for number, normal, u, v in FACES:
             nx, ny, nz = transform(normal)
             if nx * -nx + ny * -ny + nz * (6 - nz) > 0:
                 faces.append((nz, number, normal, u, v))
+        ink = QColor(self.pip_color)
         for depth, number, normal, u, v in sorted(faces):
-            corners = [project(on_face(normal, u, v, x, y))
-                       for x, y in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
-            brightness = .70 + max(0, depth) * .25
-            base = QColor(self.color)
-            base.setRedF(min(1, base.redF() * brightness))
-            base.setGreenF(min(1, base.greenF() * brightness))
-            base.setBlueF(min(1, base.blueF() * brightness))
-            painter.setPen(QPen(QColor(self.theme.color('ornament')).darker(140), 1.4))
-            painter.setBrush(base.darker(118))
-            painter.drawPolygon(QPolygonF(corners))
-            # Incrustation arrondie sur le plan 3D : le liseré extérieur évoque un
-            # chanfrein. Les points utilisent la même projection que cette face.
-            inset = []
-            for cx, cy, start in ((.76, .76, 0), (-.76, .76, 90),
-                                  (-.76, -.76, 180), (.76, -.76, 270)):
-                for step in range(7):
-                    angle = math.radians(start + step * 15)
-                    inset.append(project(on_face(normal, u, v,
-                        cx + .18 * math.cos(angle), cy + .18 * math.sin(angle))))
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(base)
-            painter.drawPolygon(QPolygonF(inset))
+            lit = lighting(normal)
+            face_color = shade(base, .78 + .32 * lit)
+            edge_color = shade(base, .6 + .32 * lit)
+            # 2. Arête arrondie : tranches successives du cube arrondi, de l'arête (sombre)
+            #    jusqu'à la face plane, chacune exactement dans la silhouette.
+            # En mouvement, moins de tranches : l'œil ne voit pas la différence et
+            # l'animation garde sa fluidité ; le dé posé reçoit le rendu complet.
+            steps = self.BEVEL_STEPS if self.progress >= 1 else 6
+            for step in range(steps):
+                f = step / (steps - 1)
+                theta = f * math.pi / 2
+                corner = max(.012, radius * math.cos(theta))
+                mix = f ** .45
+                painter.setBrush(QColor.fromRgbF(
+                    edge_color.redF() * (1 - mix) + face_color.redF() * mix,
+                    edge_color.greenF() * (1 - mix) + face_color.greenF() * mix,
+                    edge_color.blueF() * (1 - mix) + face_color.blueF() * mix))
+                painter.drawPolygon(rounded_square(normal, u, v, flat + corner, corner,
+                                                   flat + radius * math.sin(theta)))
+            # 3. Points creusés : liseré clair, cuvette (fond éclairé en bas à droite),
+            #    ombre intérieure sur le bord haut-gauche.
             for px, py in PIPS[number]:
-                pip = [project(on_face(normal, u, v,
-                        px + .125 * math.cos(a * math.tau / 16),
-                        py + .125 * math.sin(a * math.tau / 16))) for a in range(16)]
-                painter.setBrush(QColor(self.pip_color))
-                painter.drawPolygon(QPolygonF(pip))
+                def circle(r, dx=0.0, dy=0.0):
+                    return face_polygon(normal, u, v, px + dx + r * ring_cos, py + dy + r * ring_sin)
+                pip_radius = .145
+                painter.setBrush(shade(face_color, 1.12))
+                painter.drawPolygon(circle(pip_radius + .035))
+                hollow = circle(pip_radius)
+                bounds = hollow.boundingRect()
+                bowl = QRadialGradient(bounds.center() + QPointF(bounds.width() * .18, bounds.height() * .18),
+                                       max(bounds.width(), bounds.height()) * .75)
+                bowl.setColorAt(0, shade(ink, 1.6))
+                bowl.setColorAt(.55, ink)
+                bowl.setColorAt(1, shade(ink, .5))
+                painter.setBrush(bowl)
+                painter.drawPolygon(hollow)
+                rim = QPainterPath()
+                rim.addPolygon(hollow)
+                lit_part = QPainterPath()
+                lit_part.addPolygon(circle(pip_radius * .9, .03, .04))
+                painter.setBrush(QColor(0, 0, 0, 110))
+                painter.drawPath(rim.subtracted(lit_part))
+        # 4. Reflet doux sur l'arête la plus proche de la lumière.
+        gloss = QRadialGradient(center + QPointF(-size * .75, -size * .85), size * .6)
+        gloss.setColorAt(0, QColor(255, 255, 255, 70))
+        gloss.setColorAt(1, QColor(255, 255, 255, 0))
+        painter.setBrush(gloss)
+        painter.drawPolygon(outline)
 
     def _draw_d20(self, painter, value, index, center, size):
         """Dessiner les facettes et leurs chiffres dans le même repère 3D.
