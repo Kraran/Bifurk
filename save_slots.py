@@ -4,7 +4,10 @@ Chaque ligne lit ses métadonnées dans le JSON de l'emplacement, sans ouvrir le
 PDF. Le dialogue retourne un chemin ou une demande de nouvelle partie ; le
 contrôleur assure ensuite la restauration ou l'écriture atomique. Les fichiers
 anciens/incomplets ne sont pas migrés. Un emplacement illisible reste supprimable.
-L'autosave technique n'est pas un sixième emplacement de ce menu."""
+L'autosave technique n'est pas un sixième emplacement de ce menu ; au démarrage,
+« Continuer la dernière partie » reprend la plus récente des sauvegardes lisibles,
+emplacements et autosave confondus (latest_save). cover_for, fourni par le contrôleur,
+donne la miniature de couverture d'une sauvegarde (rendue depuis le PDF du joueur)."""
 import json
 from datetime import datetime
 from PySide6.QtCore import QSize, Qt
@@ -111,6 +114,37 @@ def read_save(path):
     return data
 
 
+AUTOSAVE_NAME = 'autosave.json'
+
+
+def _saved_at(data):
+    """Date comparable : une date sans fuseau est lue à l'heure locale."""
+    date = datetime.fromisoformat(data['saved_at'])
+    return date if date.tzinfo else date.astimezone()
+
+
+def latest_save(folder):
+    """(chemin, données, origine) de la sauvegarde lisible la plus récente, ou None.
+
+    Les cinq emplacements et l'autosave sont comparés par leur date ; un fichier
+    illisible est ignoré sans erreur."""
+    found = []
+    candidates = [(folder / f'emplacement-{n}.json', f'emplacement {n}') for n in range(1, 6)]
+    candidates.append((folder / AUTOSAVE_NAME, 'sauvegarde automatique'))
+    for path, origin in candidates:
+        if not path.exists():
+            continue
+        try:
+            data = read_save(path)
+            found.append((_saved_at(data), path, data, origin))
+        except (OSError, ValueError, KeyError, TypeError):
+            continue
+    if not found:
+        return None
+    _, path, data, origin = max(found, key=lambda entry: entry[0])
+    return path, data, origin
+
+
 class SaveSlotButton(QPushButton):
     """Garder les longues chroniques dans leur carte, avec le texte complet accessible."""
     def __init__(self, text):
@@ -120,7 +154,8 @@ class SaveSlotButton(QPushButton):
     def minimumSizeHint(self):
         if self.property('emptySlot'):
             return QSize(220, self.fontMetrics().lineSpacing() + 22)
-        return QSize(220, max(82, self.fontMetrics().lineSpacing() *
+        cover = self.iconSize().height() + 20 if not self.icon().isNull() else 0
+        return QSize(220, max(82, cover, self.fontMetrics().lineSpacing() *
                               len(self.text().splitlines()) + 32))
 
     def sizeHint(self):
@@ -130,7 +165,8 @@ class SaveSlotButton(QPushButton):
         """Écourter uniquement le dessin ; text(), lecteur d'écran et infobulle restent complets."""
         option = QStyleOptionButton()
         self.initStyleOption(option)
-        option.text = '\n'.join(option.fontMetrics.elidedText(line, Qt.ElideRight, max(1, self.width() - 42))
+        room = self.width() - 42 - (self.iconSize().width() + 10 if not self.icon().isNull() else 0)
+        option.text = '\n'.join(option.fontMetrics.elidedText(line, Qt.ElideRight, max(1, room))
                                 for line in self.text().split('\n'))
         painter = QPainter(self)
         self.style().drawControl(QStyle.CE_PushButton, option, painter, self)
@@ -138,9 +174,13 @@ class SaveSlotButton(QPushButton):
 
 class SaveSlotsDialog(QDialog):
     """Menu modal renvoyant selected_path ou new_game_requested après acceptation."""
-    def __init__(self, folder, saving, parent=None, *, startup=False):
-        """Créer cinq lignes ; saving autorise les cases libres, startup supprime la confirmation de reprise."""
+    COVER_SIZE = QSize(50, 76)
+
+    def __init__(self, folder, saving, parent=None, *, startup=False, cover_for=None):
+        """Créer cinq lignes ; saving autorise les cases libres, startup supprime la confirmation
+        de reprise et propose de continuer la dernière partie."""
         super().__init__(parent)
+        self.cover_for = cover_for
         self.selected_path = None
         self.new_game_requested = False
         self.confirm_new_game = not startup
@@ -158,10 +198,30 @@ class SaveSlotsDialog(QDialog):
         layout.setSpacing(12)
         layout.addWidget(DialogHeading('Les chroniques des aventuriers',
                                       'Cinq emplacements pour conserver votre histoire.'))
+        latest = latest_save(folder) if startup and not saving else None
+        if latest is not None:
+            path, data, origin = latest
+            date = _saved_at(data)
+            place = (f"  ·  §{data['current_paragraph']}"
+                     if isinstance(data.get('current_paragraph'), int) else '')
+            title = data.get('book_title') or 'Grimoire'
+            resume = SaveSlotButton(f'Continuer la dernière partie\n'
+                                    f'{data["save_name"]}  ·  {title}{place}\n'
+                                    f'{date:%d/%m/%Y à %H:%M}  ·  {origin}')
+            resume.setObjectName('continueAdventure')
+            resume.setProperty('saveSlot', True)
+            resume.setProperty('continueSlot', True)
+            resume.setToolTip(resume.text())
+            self._set_cover(resume, data)
+            resume.clicked.connect(lambda checked=False, p=path: self.choose(p, False))
+            layout.addWidget(resume)
+            resume.ensurePolished()
+            resume.setMinimumHeight(resume.minimumSizeHint().height())
         if not saving:
             new_game = QPushButton('✦  Nouvelle partie')
             new_game.setObjectName('newAdventure')
-            new_game.setProperty('dialogAction', 'primary')
+            # La reprise devient l'action principale quand elle existe.
+            new_game.setProperty('dialogAction', 'secondary' if latest is not None else 'primary')
             new_game.setMinimumHeight(48)
             new_game.clicked.connect(self.start_new_game)
             layout.addWidget(new_game)
@@ -185,6 +245,18 @@ class SaveSlotsDialog(QDialog):
         close.button(QDialogButtonBox.Cancel).setText('Annuler')
         close.rejected.connect(self.reject)
         layout.addWidget(close)
+
+    def _set_cover(self, button, data):
+        """Miniature de la couverture du grimoire de la sauvegarde, si elle est disponible."""
+        if self.cover_for is None:
+            return
+        try:
+            icon = self.cover_for(data)
+        except Exception:  # noqa: BLE001 - une couverture manquante n'empêche jamais de charger
+            return
+        if icon is not None and not icon.isNull():
+            button.setIcon(icon)
+            button.setIconSize(self.COVER_SIZE)
 
     def start_new_game(self):
         """Confirmer l’abandon de la progression courante hors démarrage, puis accepter le menu.
@@ -232,6 +304,8 @@ class SaveSlotsDialog(QDialog):
             title = data.get('book_title', '') if exists and valid else ''
             heading = f'⚜  Emplacement {number}' + (f' · {title}' if title else '')
             button = SaveSlotButton(f'{heading}\n{description}')
+            if exists and valid:
+                self._set_cover(button, data)
             button.setObjectName(f'saveSlot{number}')
             button.setProperty('saveSlot', True)
             button.setToolTip((title + '\n' if title else '') + description)

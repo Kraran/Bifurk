@@ -35,7 +35,7 @@ def imported_grimoires(folder):
     return sorted(books, key=lambda book: book.title.casefold())
 
 
-def _cover_icon(book):
+def cover_icon(book):
     """Créer une miniature temporaire depuis le PDF privé, jamais un fichier de cache."""
     if book.module is None:
         return QIcon()
@@ -78,7 +78,7 @@ class GrimoireLibraryDialog(QDialog):
             status = ('Aventure complète' if book.module and book.module.status == 'ready' else
                       'En préparation — couverture, prologue et consultation' if book.module else
                       'PDF non reconnu — lecture manuelle')
-            item = QListWidgetItem(_cover_icon(book), f'{book.title}\n{status}')
+            item = QListWidgetItem(cover_icon(book), f'{book.title}\n{status}')
             item.setData(Qt.UserRole, str(book.path))
             item.setToolTip(f'{book.title}\n{status}\n{book.path.name}')
             item.setSizeHint(QSize(400, 150))

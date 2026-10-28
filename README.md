@@ -114,10 +114,12 @@ actuelle, recherche, adversaires vaincus ou fuis, **Lieu précédent** et
 
 ### Démarrage, sauvegardes et ambiance
 
-Le démarrage ouvre le menu **Commencer une aventure** : **Nouvelle partie** ou
-chargement d’un des cinq emplacements. Une sauvegarde automatique technique
-(`autosave.json`) est écrite après les actions, mais elle n’est pas proposée
-comme sixième emplacement et n’est pas reprise automatiquement.
+Le démarrage ouvre le menu **Commencer une aventure** : **Continuer la dernière partie**,
+**Nouvelle partie** ou chargement d’un des cinq emplacements. Une sauvegarde automatique
+technique (`autosave.json`) est écrite après les actions ; elle n’est pas un sixième
+emplacement, mais **Continuer la dernière partie** la reprend si elle est plus récente que
+les emplacements (sinon, l’emplacement le plus récent). Rien n’est chargé sans ce clic.
+Chaque emplacement, comme la ligne Continuer, montre la couverture de son grimoire.
 
 **⚙ → Ambiances…** permet de couper les effets sonores, d’activer
 l’ambiance de fond (caverne, ville dans la Cité, forêt dans la Forêt), de régler la musique d’accueil ou de la garder pendant la partie, de jouer sa propre musique
@@ -197,7 +199,7 @@ Bifurk/
 
 - Les sélecteurs Qt utilisent les libellés français ; les catalogues `qtbase_fr.qm` / `qt_fr.qm` sont chargés automatiquement depuis `translations/` ou les traductions de Qt si elles sont installées. Les commandes courantes et leurs infobulles disposent également d'une traduction de secours.
 - Les PDF choisis en dehors de Bifurk sont **copiés** dans `donnees/grimoires/`. Le fichier d'origine n'est pas modifié.
-- Le démarrage propose Nouvelle partie ou le chargement d’un des cinq emplacements. Chaque emplacement affiche l’aventurier, la date et ses trois caractéristiques ; son remplacement ou sa suppression demande confirmation.
+- Le démarrage propose Continuer la dernière partie, Nouvelle partie ou le chargement d’un des cinq emplacements. Chaque emplacement affiche la couverture du grimoire, l’aventurier, la date et ses trois caractéristiques ; son remplacement ou sa suppression demande confirmation.
 - Les sauvegardes sont dans `donnees/sauvegardes/`. Seul le format actuel est accepté. Les références PDF restent relatives au dossier Bifurk et pointent vers les grimoires importés.
 - Les répertoires de données sont créés au démarrage. Bifurk doit donc être installé dans un dossier **accessible en écriture**, par exemple une clé USB ou un dossier personnel, et non dans `Program Files` protégé.
 - Les dépendances Python restent nécessaires en mode source. La distribution compilée les inclut dans `_internal` et fonctionne sans installation de Python.
