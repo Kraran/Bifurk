@@ -1,5 +1,13 @@
 # Bifurk 1.3.2 — Ambiances, manette et fins de partie
 
+[![Bifurk — vidéo de démonstration](https://img.youtube.com/vi/xIcGDK2aPFI/maxresdefault.jpg)](https://youtu.be/xIcGDK2aPFI)
+
+▶ [Voir la démo sur YouTube](https://youtu.be/xIcGDK2aPFI)
+
+| Le grimoire | Les combats | La carte d’exploration |
+| --- | --- | --- |
+| [![Page du grimoire avec illustration et fiche d’aventurier](docs/media/capture-grimoire.jpg)](docs/media/capture-grimoire.jpg) | [![Fenêtre de combat avec dés 3D et chronique des assauts](docs/media/capture-combat.jpg)](docs/media/capture-combat.jpg) | [![Carte d’exploration des passages visités](docs/media/capture-carte.jpg)](docs/media/capture-carte.jpg) |
+
 ## Interface Le Grimoire
 
 Bifurk est un lecteur-compagnon pour livres-jeux : il lit **votre propre PDF**
